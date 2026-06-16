@@ -3,7 +3,8 @@ package jrm.aui.profile.report;
 import jrm.profile.report.Report;
 
 /**
- * ReportTreeDefaultHandler is a concrete implementation of ReportTreeGenericHandler that handles the tree structure for Report. It provides a constructor that takes a Report object as the root of the tree and initializes the handler with it.
+ * ReportTreeDefaultHandler is a concrete implementation of ReportTreeGenericHandler that handles the tree structure for Report. It
+ * provides a constructor that takes a Report object as the root of the tree and initializes the handler with it.
  */
 public class ReportTreeDefaultHandler extends ReportTreeGenericHandler<Report> {
     /**

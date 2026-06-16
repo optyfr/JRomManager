@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.aui.progress;
 
@@ -22,9 +14,18 @@ import jrm.misc.OffsetProvider;
 
 /** Progress handler interface. */
 public interface ProgressHandler {
-    /** Options for the progress handler. These options can be used to configure the behavior of the progress handler, such as enabling lazy updates or other features that may affect how progress is tracked and displayed. The specific options available may depend on the implementation of the ProgressHandler interface. */
+    /**
+     * Options for the progress handler. These options can be used to configure the behavior of the progress handler, such as
+     * enabling lazy updates or other features that may affect how progress is tracked and displayed. The specific options available
+     * may depend on the implementation of the ProgressHandler interface.
+     */
     public enum Option {
-        /** Enables lazy updates for the progress handler, which may improve performance by reducing the frequency of progress updates. When this option is enabled, the progress handler may choose to update the progress display less frequently, such as only when a certain threshold of progress has been reached or after a certain amount of time has passed. This can help to reduce overhead and improve responsiveness in situations where frequent updates may be costly or unnecessary. */
+        /**
+         * Enables lazy updates for the progress handler, which may improve performance by reducing the frequency of progress
+         * updates. When this option is enabled, the progress handler may choose to update the progress display less frequently,
+         * such as only when a certain threshold of progress has been reached or after a certain amount of time has passed. This can
+         * help to reduce overhead and improve responsiveness in situations where frequent updates may be costly or unnecessary.
+         */
         LAZY;
     }
 
@@ -32,14 +33,14 @@ public interface ProgressHandler {
      * Sets the options.
      *
      * @param first the first
-     * @param rest  the rest
+     * @param rest the rest
      */
     public void setOptions(Option first, Option... rest);
 
     /**
      * Sets the infos.
      *
-     * @param threadCnt        the thread cnt
+     * @param threadCnt the thread cnt
      * @param multipleSubInfos the multiple sub infos
      */
     public void setInfos(int threadCnt, Boolean multipleSubInfos);
@@ -82,9 +83,9 @@ public interface ProgressHandler {
     /**
      * Sets the progress.
      *
-     * @param msg    the msg
-     * @param val    the val
-     * @param max    the max
+     * @param msg the msg
+     * @param val the val
+     * @param max the max
      * @param submsg the submsg
      */
     public void setProgress(String msg, Integer val, Integer max, String submsg);
@@ -178,39 +179,33 @@ public interface ProgressHandler {
     /**
      * Gets the input stream.
      *
-     * @param in  the input stream to wrap with progress tracking
+     * @param in the input stream to wrap with progress tracking
      * @param len the length of the input stream, used for progress tracking
-     * @return an InputStream that tracks progress based on the provided input
-     *         stream and length
+     * 
+     * @return an InputStream that tracks progress based on the provided input stream and length
      */
     public InputStream getInputStream(InputStream in, Integer len);
 
     /**
-     * Closes the progress handler and releases any resources associated with it.
-     * This method should be called when the progress tracking is complete or when
-     * the handler is no longer needed to ensure proper cleanup and resource
-     * management.
+     * Closes the progress handler and releases any resources associated with it. This method should be called when the progress
+     * tracking is complete or when the handler is no longer needed to ensure proper cleanup and resource management.
      */
     public void close();
 
     /**
-     * Adds an error message to the progress handler. This method can be used to
-     * report errors that occur during the progress tracking process, allowing the
-     * handler to display or log the error messages as needed.
+     * Adds an error message to the progress handler. This method can be used to report errors that occur during the progress
+     * tracking process, allowing the handler to display or log the error messages as needed.
      *
      * @param error the error message to add to the progress handler
      */
     public void addError(String error);
 
     /**
-     * Sets the offset provider for the progress handler. The offset provider is
-     * used to track the progress of operations that involve offsets, such as
-     * reading from a file or processing a stream. By setting the offset provider,
-     * the progress handler can update its progress tracking based on the current
-     * offset provided by the offset provider.
+     * Sets the offset provider for the progress handler. The offset provider is used to track the progress of operations that
+     * involve offsets, such as reading from a file or processing a stream. By setting the offset provider, the progress handler can
+     * update its progress tracking based on the current offset provided by the offset provider.
      *
-     * @param offsetProvider the OffsetProvider instance to be used by the progress
-     *                       handler for tracking offsets
+     * @param offsetProvider the OffsetProvider instance to be used by the progress handler for tracking offsets
      */
     public void setOffsetProvider(OffsetProvider offsetProvider);
 }

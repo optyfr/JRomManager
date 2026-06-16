@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -31,15 +23,13 @@ import jrm.security.Session;
 import net.lingala.zip4j.ZipFile;
 
 /**
- * specialized class when container need to be created before doing actions on
- * entries (which should be only {@link AddEntry})
+ * specialized class when container need to be created before doing actions on entries (which should be only {@link AddEntry})
  * 
  * @author optyfr
  */
 public class CreateContainer extends ContainerAction {
     /**
-     * the uncompressed datasize of all entries to add (for temp file threshold
-     * purpose)
+     * the uncompressed datasize of all entries to add (for temp file threshold purpose)
      */
     private final long dataSize;
 
@@ -47,8 +37,8 @@ public class CreateContainer extends ContainerAction {
      * constructor
      * 
      * @param container the container to create
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
      */
     public CreateContainer(final Container container, final FormatOptions format, final long dataSize) {
         super(container, format);
@@ -58,10 +48,11 @@ public class CreateContainer extends ContainerAction {
     /**
      * shortcut static method to get an instance of {@link CreateContainer}
      * 
-     * @param action    the potentially already existing {@link CreateContainer}
+     * @param action the potentially already existing {@link CreateContainer}
      * @param container the container to create
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
+     * 
      * @return a {@link CreateContainer}
      */
     public static CreateContainer getInstance(CreateContainer action, final Container container, final FormatOptions format, final long dataSize) {
@@ -73,10 +64,11 @@ public class CreateContainer extends ContainerAction {
     /**
      * shortcut static method to get an instance of {@link CreateContainer}
      * 
-     * @param action    the potentially already existing {@link CreateContainer}
+     * @param action the potentially already existing {@link CreateContainer}
      * @param container the container to create
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
+     * 
      * @return a {@link CreateContainer}
      */
     public static CreateContainer getInstance(AtomicReference<CreateContainer> action, final Container container, final FormatOptions format, final long dataSize) {
@@ -107,6 +99,7 @@ public class CreateContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean createDirOrFake(final Session session, final ProgressHandler handler) {
@@ -127,6 +120,7 @@ public class CreateContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean createSevenZip(final Session session, final ProgressHandler handler) {
@@ -142,6 +136,7 @@ public class CreateContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean createZipE(final Session session, final ProgressHandler handler) {
@@ -157,6 +152,7 @@ public class CreateContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean createZip(final Session session, final ProgressHandler handler) {

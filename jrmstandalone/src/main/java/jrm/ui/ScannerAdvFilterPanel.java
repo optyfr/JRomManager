@@ -216,6 +216,7 @@ public class ScannerAdvFilterPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @return
      */
     protected List<NGTreeNode> getMatures(final Session session) {
@@ -267,6 +268,7 @@ public class ScannerAdvFilterPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @return
      */
     private JCheckBoxList<NPlayer>.CellRenderer getNPlayersCellRenderer(final Session session) {

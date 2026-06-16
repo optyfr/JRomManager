@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent.bencoding.types;
 
@@ -22,8 +13,7 @@ import java.util.ArrayList;
 import jrm.io.torrent.bencoding.Utils;
 
 /**
- * Representation of a bencoded integer. Standard format: {@code i<value>e}
- * where value is represented as base-10 ASCII.
+ * Representation of a bencoded integer. Standard format: {@code i<value>e} where value is represented as base-10 ASCII.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
@@ -46,8 +36,7 @@ public class BInt implements IBencodable {
     // Bencoding
 
     /**
-     * Returns the bencoded string format of this integer. Format:
-     * {@code i<value>e}.
+     * Returns the bencoded string format of this integer. Format: {@code i<value>e}.
      *
      * @return the standard bencoded string representation
      */
@@ -56,9 +45,8 @@ public class BInt implements IBencodable {
     }
 
     /**
-     * Encodes this integer into the standard bencoded byte array format. Format
-     * starts with 'i', followed by base-10 ASCII representation of value, ending
-     * with 'e'.
+     * Encodes this integer into the standard bencoded byte array format. Format starts with 'i', followed by base-10 ASCII
+     * representation of value, ending with 'e'.
      *
      * @return the bencoded byte array
      */
@@ -99,8 +87,8 @@ public class BInt implements IBencodable {
      * Compares this BInt with another object for equality.
      *
      * @param o the other object to compare
-     * @return {@code true} if the other object is a BInt containing an identical
-     *         value, otherwise {@code false}
+     * 
+     * @return {@code true} if the other object is a BInt containing an identical value, otherwise {@code false}
      */
     @Override
     public boolean equals(Object o) {

@@ -12,28 +12,27 @@ import lombok.Data;
  */
 @Data
 public class UserCredential {
-    
+
     /**
-     * Default constructor for UserCredential.
-     * Initializes a new instance of the UserCredential class with default values.
+     * Default constructor for UserCredential. Initializes a new instance of the UserCredential class with default values.
      */
     public UserCredential() {
         // Default constructor
     }
-    
+
     /**
      * Constructs a new UserCredential with the specified login, password, and roles.
      *
-     * @param login    the login or username of the user
+     * @param login the login or username of the user
      * @param password the password of the user (should be securely hashed in practice)
-     * @param roles    the roles or permissions of the user within the application
+     * @param roles the roles or permissions of the user within the application
      */
     public UserCredential(String login, String password, String roles) {
         this.login = login;
         this.password = password;
         this.roles = roles;
     }
-    
+
     /**
      * The login or username of the user.
      * 

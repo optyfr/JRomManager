@@ -8,10 +8,11 @@ import java.util.List;
 import lombok.Getter;
 
 /**
- * A container wrapper representing a serializable collection of {@link Source}
- * entries. Implements {@link Iterable} over the enclosed sources.
+ * A container wrapper representing a serializable collection of {@link Source} entries. Implements {@link Iterable} over the
+ * enclosed sources.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -27,6 +28,7 @@ public class Sources implements Serializable, Iterable<Source> {
      * Registers a metadata source into the collection list.
      * 
      * @param source the source to add
+     * 
      * @return true if added successfully, false otherwise
      */
     public boolean add(final Source source) {
@@ -42,7 +44,8 @@ public class Sources implements Serializable, Iterable<Source> {
     public Iterator<Source> iterator() {
         return srces.iterator();
     }
-    
+
     /** Default constructor for Sources. Initializes an empty collection of sources. */
-    public Sources() { /* default constructor */ }
+    public Sources() {
+        /* default constructor */ }
 }

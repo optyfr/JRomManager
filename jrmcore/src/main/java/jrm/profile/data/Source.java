@@ -5,11 +5,11 @@ import java.util.Optional;
 import lombok.Getter;
 
 /**
- * A Source defines an origin metadata DAT source database used for importing
- * files or generating profiles. It tracks instances counts and maps name
- * segments to properties keys.
+ * A Source defines an origin metadata DAT source database used for importing files or generating profiles. It tracks instances
+ * counts and maps name segments to properties keys.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -64,8 +64,7 @@ public final class Source implements PropertyStub {
     }
 
     /**
-     * Format into a user-readable string containing the source name and its
-     * reference count.
+     * Format into a user-readable string containing the source name and its reference count.
      * 
      * @return formatted description string
      */

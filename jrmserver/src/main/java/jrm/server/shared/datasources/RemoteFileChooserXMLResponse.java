@@ -31,46 +31,45 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
 /**
- * Handles XML responses for a remote file chooser interface.
- * This class processes operations to browse directories, filter files by extension,
- * create new directories, rename or delete files/directories, and perform custom actions
- * such as extracting archives or expanding paths.
+ * Handles XML responses for a remote file chooser interface. This class processes operations to browse directories, filter files by
+ * extension, create new directories, rename or delete files/directories, and perform custom actions such as extracting archives or
+ * expanding paths.
  */
 public class RemoteFileChooserXMLResponse extends XMLResponse {
-    
+
     /** XML attribute name for the parent directory path. */
     private static final String PARENT = "parent";
-    
+
     /** XML attribute name for the list of paths. */
     private static final String PATHS = "paths";
-    
+
     /** XML attribute name for the relative path. */
     private static final String REL_PATH = "RelPath";
-    
+
     /** XML attribute name for the initial path to highlight. */
     private static final String INITIAL_PATH = "initialPath";
-    
+
     /** XML attribute name indicating if the entry is a directory. */
     private static final String IS_DIR = "isDir";
-    
+
     /** XML attribute name for the last modified timestamp. */
     private static final String MODIFIED = "Modified";
-    
+
     /** XML element name for a single record in the data payload. */
     private static final String RECORD = "record";
-    
+
     /** XML element name for the operation status. */
     private static final String STATUS = "status";
-    
+
     /** XML element name for the root response wrapper. */
     private static final String RESPONSE = "response";
-    
+
     /** XML attribute name for the operation context. */
     private static final String CONTEXT = "context";
-    
+
     /** The root path for the current file browsing session. */
     Path root;
-    
+
     /** Configuration options derived from the operation context. */
     Options options = null;
 
@@ -80,7 +79,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
     static class Options {
         /** Indicates whether the chooser should only display directories. */
         final boolean isDir;
-        
+
         /** The glob pattern to match file names, or null if no filtering is applied. */
         final String pathmatcher;
 
@@ -123,7 +122,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Utility class for finding files or directories on the filesystem ignoring case sensitivity.
      */
     public static class CaseInsensitiveFileFinder {
-        
+
         private CaseInsensitiveFileFinder() {
             throw new IllegalStateException("Utility class");
         }
@@ -132,7 +131,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          * Finds a directory by name, ignoring case.
          *
          * @param dir the target directory path to find
+         * 
          * @return the matched directory path, or null if not found
+         * 
          * @throws IOException if an I/O error occurs
          */
         private static Path findDir(Path dir) throws IOException {
@@ -145,7 +146,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          * Finds the last component of a path, ignoring case.
          *
          * @param path the target path to find
+         * 
          * @return the matched path, or null if not found
+         * 
          * @throws IOException if an I/O error occurs
          */
         private static Path findLast(Path path) throws IOException {
@@ -161,6 +164,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          *
          * @param parent the parent directory path
          * @param fileName the name of the file to find
+         * 
          * @return an Optional containing the matched file path, or empty if not found
          */
         public static Optional<Path> findFileIgnoreCase(final Path parent, final String fileName) {
@@ -186,6 +190,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          * Finds a file by its full path, ignoring case.
          *
          * @param path the target path to find
+         * 
          * @return an Optional containing the matched file path, or empty if not found
          */
         public static Optional<Path> findFileIgnoreCase(final Path path) {
@@ -196,6 +201,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          * Finds a file by its string path, ignoring case.
          *
          * @param file the string representation of the file path
+         * 
          * @return an Optional containing the matched File, or empty if not found
          */
         public static Optional<File> findFileIgnoreCase(final String file) {
@@ -208,6 +214,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
          *
          * @param parentDir the string representation of the parent directory
          * @param fileName the name of the file to find
+         * 
          * @return an Optional containing the matched File, or empty if not found
          */
         public static Optional<File> findFileIgnoreCase(final String parentDir, final String fileName) {
@@ -219,6 +226,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Constructs a new RemoteFileChooserXMLResponse.
      *
      * @param request the incoming XML request containing operation details
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML writing error occurs during initialization
      */
@@ -227,10 +235,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
     }
 
     /**
-     * Fetches the contents of a directory and writes them to the XML response.
-     * Applies filtering based on the operation context (e.g., directories only, specific extensions).
+     * Fetches the contents of a directory and writes them to the XML response. Applies filtering based on the operation context
+     * (e.g., directories only, specific extensions).
      *
      * @param operation the operation details from the request
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing the file system
      */
@@ -290,6 +299,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Adds a new directory to the current path.
      *
      * @param operation the operation details containing the new directory name
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -315,6 +325,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      *
      * @param parent the parent directory path
      * @param entry the newly created or modified entry path
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing file attributes
      */
@@ -339,6 +350,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Updates (renames) an existing file or directory.
      *
      * @param operation the operation details containing the old and new names
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -365,6 +377,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Removes a file or directory recursively.
      *
      * @param operation the operation details containing the name of the entry to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -400,6 +413,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Performs custom operations such as expanding paths or extracting archives.
      *
      * @param operation the operation details containing the custom operation ID
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing the file system
      */
@@ -429,10 +443,11 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
     }
 
     /**
-     * Expands the provided paths into individual records in the XML response.
-     * If the context is "addArc", it recursively searches for archive files.
+     * Expands the provided paths into individual records in the XML response. If the context is "addArc", it recursively searches
+     * for archive files.
      *
      * @param operation the operation details containing the paths to expand
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws SecurityException if a security manager denies access
      * @throws IOException if an I/O error occurs while accessing the file system
@@ -471,6 +486,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      *
      * @param operation the operation details containing the paths to search
      * @param cnt an atomic integer to keep track of the number of records written
+     * 
      * @throws SecurityException if a security manager denies access
      * @throws IOException if an I/O error occurs while accessing the file system
      */
@@ -511,6 +527,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Determines the parent directory for the current operation.
      *
      * @param operation the operation details containing path information
+     * 
      * @return the resolved parent Path
      */
     private Path getParent(Operation operation) {
@@ -532,7 +549,9 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      * Writes the parent and root path information to the XML response.
      *
      * @param parent the parent directory path to write
+     * 
      * @return the parent path
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     private Path writeParent(Path parent) throws XMLStreamException {

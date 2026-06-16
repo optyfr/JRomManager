@@ -4,13 +4,13 @@ import jrm.profile.data.Container;
 import lombok.Getter;
 
 /**
- * Abstract base class for report subjects associated with physical storage
- * containers (e.g., zip files, directories).
+ * Abstract base class for report subjects associated with physical storage containers (e.g., zip files, directories).
  * <p>
- * This class maps report subjects that are not directly retro-gaming machine
- * definitions, but are rather filesystem physical containers.
+ * This class maps report subjects that are not directly retro-gaming machine definitions, but are rather filesystem physical
+ * containers.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 abstract class ContainerSubject extends Subject {
@@ -54,8 +54,7 @@ abstract class ContainerSubject extends Subject {
     }
 
     /**
-     * Updates parent statistics. Physical filesystem containers do not increment
-     * database romset counts.
+     * Updates parent statistics. Physical filesystem containers do not increment database romset counts.
      */
     @Override
     public void updateStats() {

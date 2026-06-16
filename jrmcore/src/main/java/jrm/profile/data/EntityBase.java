@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -25,8 +17,8 @@ import java.lang.reflect.Method;
 import jrm.misc.Log;
 
 /**
- * The abstract base class for {@link Entity} and {@link Sample}. Its main
- * purpose is to define parent relationships and scan status tracking.
+ * The abstract base class for {@link Entity} and {@link Sample}. Its main purpose is to define parent relationships and scan status
+ * tracking.
  *
  * @author optyfr
  */
@@ -55,6 +47,7 @@ public abstract class EntityBase extends NameBase implements Serializable {
      * Custom serialization writer.
      *
      * @param stream the object output stream
+     * 
      * @throws IOException if an I/O error occurs
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -67,7 +60,8 @@ public abstract class EntityBase extends NameBase implements Serializable {
      * Custom serialization reader.
      *
      * @param stream the object input stream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the class cannot be located
      */
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -104,7 +98,8 @@ public abstract class EntityBase extends NameBase implements Serializable {
      * Retrieves the parent casted according to the given class.
      *
      * @param type the class to cast, must extend {@link AnywareBase}
-     * @param <T>  a class which extends {@link AnywareBase}
+     * @param <T> a class which extends {@link AnywareBase}
+     * 
      * @return the type-casted parent
      */
     protected <T extends AnywareBase> T getParent(final Class<T> type) {
@@ -119,14 +114,12 @@ public abstract class EntityBase extends NameBase implements Serializable {
     public abstract AnywareBase getParent();
 
     /**
-     * Special method to get the value of a field outside its scope using
-     * reflection. <br>
-     * Checks public getters first, then falls back to recursive field traversal.
-     * <b style='color:red'>*** USE WITH CAUTION ***</b>
+     * Special method to get the value of a field outside its scope using reflection. <br>
+     * Checks public getters first, then falls back to recursive field traversal. <b style='color:red'>*** USE WITH CAUTION ***</b>
      *
      * @param name the property name as a string (case sensitive)
-     * @return the value as an {@link Object}, or {@code null} if the field does not
-     *         exist or cannot be accessed
+     * 
+     * @return the value as an {@link Object}, or {@code null} if the field does not exist or cannot be accessed
      */
     public Object getProperty(String name) {
         if (name == null || name.isEmpty())
@@ -137,11 +130,11 @@ public abstract class EntityBase extends NameBase implements Serializable {
         try {
             final Method method = this.getClass().getMethod("get" + titleName);
             return method.invoke(this);
-        } catch (Exception e) {
+        } catch (Exception _) {
             try {
                 final Method method = this.getClass().getMethod("is" + titleName);
                 return method.invoke(this);
-            } catch (Exception ex) {
+            } catch (Exception _) {
                 // Ignore getter failure, fall back to direct field retrieval
             }
         }
@@ -154,7 +147,7 @@ public abstract class EntityBase extends NameBase implements Serializable {
                 final Field field = current.getDeclaredField(name);
                 field.setAccessible(true); // NOSONAR
                 return field.get(this);
-            } catch (NoSuchFieldException e) {
+            } catch (NoSuchFieldException _) {
                 current = current.getSuperclass();
             } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
                 Log.err(e.getMessage(), e);
@@ -168,8 +161,8 @@ public abstract class EntityBase extends NameBase implements Serializable {
      * Indicates whether some other object is "equal to" this one.
      *
      * @param obj the reference object with which to compare
-     * @return {@code true} if this object is equal to the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object obj) {

@@ -33,8 +33,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     private final Color color;
 
     /**
-     * The model from {@link JTable#getModel()} to avoid cast to
-     * {@link SDRTableModel} each time
+     * The model from {@link JTable#getModel()} to avoid cast to {@link SDRTableModel} each time
      */
     private transient SDRTableModel model;
 
@@ -171,6 +170,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     /**
      * @param col
      * @param f
+     * 
      * @return
      */
     private boolean dropFilter(int col, File f) {
@@ -190,7 +190,6 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 
     /*
      * (non-Javadoc)
-     * 
      * @see jrm.ui.basic.ResultColUpdater#updateResult(int, java.lang.String)
      */
     @Override
@@ -215,8 +214,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     /**
      * get selected values as a {@link List} of {@link SrcDstResult}
      * 
-     * @return the {@link List} of {@link SrcDstResult} corresponding to selected
-     *         values
+     * @return the {@link List} of {@link SrcDstResult} corresponding to selected values
      */
     public SDRList<SrcDstResult> getSelectedValuesList() {
         int[] rows = getSelectedRows();

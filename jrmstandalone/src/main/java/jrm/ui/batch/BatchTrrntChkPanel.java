@@ -93,7 +93,8 @@ public class BatchTrrntChkPanel extends JPanel {
         ((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);
         final SDRList<SrcDstResult> sdrl2 = new SDRList<>();
         if (session != null) {
-            for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)).asArray()) // $NON-NLS-1$ //$NON-NLS-2$
+            for (final JsonValue arrv : Json.parse(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)).asArray()) // $NON-NLS-1$
+                                                                                                                                     // //$NON-NLS-2$
             {
                 final SrcDstResult sdr = new SrcDstResult();
                 final JsonObject jso = arrv.asObject();
@@ -267,6 +268,7 @@ public class BatchTrrntChkPanel extends JPanel {
 
     /**
      * @param col
+     * 
      * @return
      */
     private FileFilter getAddTorrentFileFilter(final int col) {

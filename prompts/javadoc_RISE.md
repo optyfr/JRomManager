@@ -39,5 +39,8 @@ Before answering, ask me all necessary questions if any information is missing.
     - declare @param in the field's Javadoc if @Setter is present on the field, or @Data on its class,
     - declare @return in the field's Javadoc if @Getter is present on the field, or @Data on its class
     - delombok will take care of distributing the comments across the methods it generates
+    - but don't document lombok in javadoc
+    
+    
 
 Report any ambiguity or missing information before starting.

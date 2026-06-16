@@ -22,32 +22,36 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 /**
  * Handles XML responses for retrieving detailed information about specific Anyware items (e.g., ROMs, Disks, Samples).
  * <p>
- * This class processes incoming XML requests to fetch metadata for individual entities within a specified Anyware list.
- * It supports filtering by status and cache resetting.
+ * This class processes incoming XML requests to fetch metadata for individual entities within a specified Anyware list. It supports
+ * filtering by status and cache resetting.
  * </p>
- * 
  * <h2>XML Protocol</h2>
  * <ul>
- *   <li><b>Incoming Request Parameters:</b>
- *     <ul>
- *       <li>{@code list}: The name of the list to query (e.g., "MAME", or "*" for the main MachineList).</li>
- *       <li>{@code ware}: The name of the specific item (machine/software) within the list.</li>
- *       <li>{@code status}: (Optional) Comma-separated list of status strings to filter the entities (e.g., ROMs, Disks).</li>
- *       <li>{@code reset}: (Optional) Boolean flag indicating whether to reset the cache before fetching.</li>
- *     </ul>
- *   </li>
- *   <li><b>Outgoing Response Structure:</b>
- *     <pre><code class="language-xml">
+ * <li><b>Incoming Request Parameters:</b>
+ * <ul>
+ * <li>{@code list}: The name of the list to query (e.g., "MAME", or "*" for the main MachineList).</li>
+ * <li>{@code ware}: The name of the specific item (machine/software) within the list.</li>
+ * <li>{@code status}: (Optional) Comma-separated list of status strings to filter the entities (e.g., ROMs, Disks).</li>
+ * <li>{@code reset}: (Optional) Boolean flag indicating whether to reset the cache before fetching.</li>
+ * </ul>
+ * </li>
+ * <li><b>Outgoing Response Structure:</b>
+ * 
+ * <pre>
+ * <code class="language-xml">
  * &lt;response&gt;
  *   &lt;status&gt;0&lt;/status&gt;
  *   &lt;!-- Multiple record elements for each entity (ROM, Disk, Sample) --&gt;
  *   &lt;record list="..." ware="..." name="..." status="..." type="ROM" size="..." crc="..." md5="..." sha1="..." merge="..." dumpstatus="..."/&gt;
  * &lt;/response&gt;
- *     </code></pre>
- *   </li>
+ *     </code>
+ * </pre>
+ * 
+ * </li>
  * </ul>
  *
  * @author JRomManager Team
+ * 
  * @see XMLResponse
  * @see XMLRequest.Operation
  */
@@ -62,6 +66,7 @@ public class AnywareXMLResponse extends XMLResponse {
      * Constructs a new AnywareXMLResponse for the given request.
      *
      * @param request The incoming XML request containing operation data.
+     * 
      * @throws IOException If an I/O error occurs during response generation.
      * @throws XMLStreamException If an XML streaming error occurs.
      */
@@ -73,6 +78,7 @@ public class AnywareXMLResponse extends XMLResponse {
      * Retrieves the target AnywareList based on the operation parameters.
      *
      * @param operation The operation containing the "list" parameter.
+     * 
      * @return The matching AnywareList, or null if not found or not specified.
      */
     private AnywareList<?> getList(Operation operation) {
@@ -90,8 +96,9 @@ public class AnywareXMLResponse extends XMLResponse {
     /**
      * Retrieves the specific Anyware item from the given list.
      *
-     * @param al        The AnywareList to search within.
+     * @param al The AnywareList to search within.
      * @param operation The operation containing the "ware" parameter.
+     * 
      * @return The matching Anyware item, or null if the list is null or the item is not found.
      */
     private Anyware getWare(AnywareList<?> al, Operation operation) {
@@ -109,7 +116,7 @@ public class AnywareXMLResponse extends XMLResponse {
      *
      * @param al The AnywareList containing the entity.
      * @param aw The parent Anyware item.
-     * @param e  The specific entity (Rom, Disk, or Sample) to write.
+     * @param e The specific entity (Rom, Disk, or Sample) to write.
      */
     private void writeRecord(final AnywareList<?> al, final Anyware aw, final EntityBase e) {
         try {
@@ -133,6 +140,7 @@ public class AnywareXMLResponse extends XMLResponse {
      * Writes specific metadata attributes for a Disk entity to the XML response.
      *
      * @param d The Disk entity to write.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs during writing.
      */
     protected void writeDiskInfos(Disk d) throws XMLStreamException {
@@ -155,6 +163,7 @@ public class AnywareXMLResponse extends XMLResponse {
      * Writes specific metadata attributes for a ROM entity to the XML response.
      *
      * @param r The ROM entity to write.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs during writing.
      */
     protected void writeRomInfos(Rom r) throws XMLStreamException {
@@ -176,11 +185,12 @@ public class AnywareXMLResponse extends XMLResponse {
     /**
      * Fetches the list of entities (ROMs, Disks, Samples) for a specific Anyware item and writes them to the XML response.
      * <p>
-     * If the {@code reset} parameter is true, the cache of the target Anyware item is reset.
-     * The entities are then filtered based on the {@code status} parameter, if provided.
+     * If the {@code reset} parameter is true, the cache of the target Anyware item is reset. The entities are then filtered based
+     * on the {@code status} parameter, if provided.
      * </p>
      *
      * @param operation The operation containing request parameters.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs during writing.
      */
     @Override

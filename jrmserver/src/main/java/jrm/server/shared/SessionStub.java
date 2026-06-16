@@ -14,9 +14,9 @@ public interface SessionStub {
      * Called when a WebSession is created. This is called by the SessionListener when a session is created. @param session the
      * WebSession that was created
      * <p>
-     * Implementing classes can use this method to perform any necessary setup or initialization when a WebSession is created, such as
-     * initializing resources, setting up session-specific data, or performing any other actions that are required when a new session is
-     * established.
+     * Implementing classes can use this method to perform any necessary setup or initialization when a WebSession is created, such
+     * as initializing resources, setting up session-specific data, or performing any other actions that are required when a new
+     * session is established.
      * 
      * @param session the WebSession that was created
      */
@@ -27,8 +27,8 @@ public interface SessionStub {
      * WebSession that was destroyed
      * <p>
      * Implementing classes can use this method to perform any necessary cleanup or resource release when a WebSession is destroyed,
-     * such as closing database connections, releasing memory, or performing any other actions that are required to properly clean up
-     * resources associated with the session that is being terminated.
+     * such as closing database connections, releasing memory, or performing any other actions that are required to properly clean
+     * up resources associated with the session that is being terminated.
      * 
      * @param session the WebSession that was destroyed
      */

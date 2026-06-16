@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.ui.profile;
 
@@ -133,7 +125,7 @@ public class ProfileViewer extends JDialog {
     /**
      * Instantiates a new profile viewer.
      *
-     * @param owner   the owner
+     * @param owner the owner
      * @param profile the profile
      */
     @SuppressWarnings("unchecked")
@@ -563,7 +555,8 @@ public class ProfileViewer extends JDialog {
             } else if (width < 0) {
                 final var component = column.getCellRenderer().getTableCellRendererComponent(tableEntity, null, false, false, 0, i);
                 final var format = "%0" + (-width) + "d";
-                final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format(format, 0)); // $NON-NLS-1$ //$NON-NLS-2$
+                final int pixwidth = component.getFontMetrics(component.getFont()).stringWidth(String.format(format, 0)); // $NON-NLS-1$
+                                                                                                                          // //$NON-NLS-2$
                 column.setMinWidth(pixwidth / 2);
                 column.setPreferredWidth(pixwidth);
                 column.setMaxWidth(pixwidth);
@@ -574,6 +567,7 @@ public class ProfileViewer extends JDialog {
     /**
      * @param session
      * @param e
+     * 
      * @throws HeadlessException
      */
     private void clickItemW(final Session session, final MouseEvent e) throws HeadlessException {
@@ -622,6 +616,7 @@ public class ProfileViewer extends JDialog {
     /**
      * @param ware
      * @param profile
+     * 
      * @throws HeadlessException
      */
     private void launchMame(final Anyware ware, final Profile profile) throws HeadlessException {
@@ -650,11 +645,13 @@ public class ProfileViewer extends JDialog {
      * @param ware
      * @param profile
      * @param mame
+     * 
      * @return
      */
     private String[] getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame) {
         String[] args;
-        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$ //$NON-NLS-2$
+        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
+                                                                                                                                          // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
             rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         args = new String[] { mame.getFile().getAbsolutePath(), ware.getBaseName(), "-homepath", mame.getFile().getParent(), "-rompath", //$NON-NLS-1$ //$NON-NLS-2$
@@ -667,11 +664,14 @@ public class ProfileViewer extends JDialog {
      * @param profile
      * @param mame
      * @param args
+     * 
      * @return
+     * 
      * @throws HeadlessException
      */
     private String[] getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, String[] args) throws HeadlessException {
-        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$ //$NON-NLS-2$
+        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
+                                                                                                                                          // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
             rompaths.add(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
@@ -768,8 +768,8 @@ public class ProfileViewer extends JDialog {
     /**
      * Export.
      *
-     * @param type      the type
-     * @param filtered  the filtered
+     * @param type the type
+     * @param filtered the filtered
      * @param selection the selection
      */
     private void export(final Session session, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection) {
@@ -799,8 +799,8 @@ public class ProfileViewer extends JDialog {
     /**
      * Sets the filter WL.
      *
-     * @param missing  the missing
-     * @param partial  the partial
+     * @param missing the missing
+     * @param partial the partial
      * @param complete the complete
      */
     public void setFilterWL(final boolean missing, final boolean partial, final boolean complete) {
@@ -819,8 +819,8 @@ public class ProfileViewer extends JDialog {
     /**
      * Sets the filter W.
      *
-     * @param missing  the missing
-     * @param partial  the partial
+     * @param missing the missing
+     * @param partial the partial
      * @param complete the complete
      */
     public void setFilterW(final boolean missing, final boolean partial, final boolean complete) {

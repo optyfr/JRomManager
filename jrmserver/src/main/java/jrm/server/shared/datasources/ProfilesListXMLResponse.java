@@ -14,22 +14,20 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
 /**
- * Handles XML responses for managing the list of profiles.
- * This class processes operations such as fetching the list of profiles,
- * adding new profiles, removing existing profiles, and performing custom operations
- * like dropping the cache for a specific profile.
+ * Handles XML responses for managing the list of profiles. This class processes operations such as fetching the list of profiles,
+ * adding new profiles, removing existing profiles, and performing custom operations like dropping the cache for a specific profile.
  */
 public class ProfilesListXMLResponse extends XMLResponse {
 
     /** XML element name for the operation status. */
     private static final String STATUS = "status";
-    
+
     /** XML element name for the root response wrapper. */
     private static final String RESPONSE = "response";
-    
+
     /** XML attribute name for the parent directory identifier. */
     private static final String PARENT = "Parent";
-    
+
     /** XML element name for the xmlfiles directory context. */
     private static final String XMLFILES = "xmlfiles";
 
@@ -37,6 +35,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Constructs a new ProfilesListXMLResponse.
      *
      * @param request the incoming XML request containing operation details
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML writing error occurs during initialization
      */
@@ -48,6 +47,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Fetches the list of profiles in the specified directory and writes it to the XML response.
      *
      * @param operation the operation details from the request, potentially containing the parent directory path
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -73,6 +73,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Writes the XML representation of a single profile record.
      *
      * @param nfo the profile NFO object containing the metadata to be written
+     * 
      * @throws XMLStreamException if an error occurs while writing to the XML stream
      */
     private void writeRecord(final ProfileNFO nfo) throws XMLStreamException {
@@ -93,6 +94,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Adds a new profile to the list by copying a source file to the target directory.
      *
      * @param operation the operation details containing the source path, target parent directory, and target file name
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -127,6 +129,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Removes an existing profile from the list and deletes its associated files.
      *
      * @param operation the operation details containing the parent directory and the file name to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      */
     @Override
@@ -156,6 +159,7 @@ public class ProfilesListXMLResponse extends XMLResponse {
      * Performs custom operations on a profile, such as dropping its cache file.
      *
      * @param operation the operation details containing the custom operation ID and target file information
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing the file system
      */

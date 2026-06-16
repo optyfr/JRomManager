@@ -7,13 +7,13 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
 
 /**
- * Report note indicating that a required expected metadata entity is missing
- * and could not be resolved.
+ * Report note indicating that a required expected metadata entity is missing and could not be resolved.
  * <p>
- * This status describes roms, disks, or samples defined in the active profile
- * database that are completely absent from the scanned filesystem path.
+ * This status describes roms, disks, or samples defined in the active profile database that are completely absent from the scanned
+ * filesystem path.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class EntryMissing extends EntryNote implements Serializable {
@@ -28,8 +28,7 @@ public class EntryMissing extends EntryNote implements Serializable {
     private static final long serialVersionUID = 3L;
 
     /**
-     * Constructs a new EntryMissing note for the specified expected metadata
-     * entity.
+     * Constructs a new EntryMissing note for the specified expected metadata entity.
      *
      * @param entity the expected rom, disk, or sample metadata
      */

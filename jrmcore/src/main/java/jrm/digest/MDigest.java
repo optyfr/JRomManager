@@ -8,9 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.zip.CRC32;
 
 /**
- * A federating class that bridges {@link MessageDigest} and {@link CRC32}
- * structures. Concrete subclasses must implement {@link #toString()} to return
- * the hash represented as a lower-case hexadecimal string.
+ * A federating class that bridges {@link MessageDigest} and {@link CRC32} structures. Concrete subclasses must implement
+ * {@link #toString()} to return the hash represented as a lower-case hexadecimal string.
  * 
  * @author optyfr
  */
@@ -58,12 +57,11 @@ public abstract class MDigest {
         }
 
         /**
-         * Finds the {@link Algo} enum instance corresponding to the specified standard
-         * string name (case-insensitive).
+         * Finds the {@link Algo} enum instance corresponding to the specified standard string name (case-insensitive).
          * 
          * @param name the standard name of the algorithm to find
-         * @return the matching {@link Algo} instance, or {@code null} if no match is
-         *         found
+         * 
+         * @return the matching {@link Algo} instance, or {@code null} if no match is found
          */
         public static Algo fromName(String name) {
             for (var algo : Algo.values())
@@ -83,16 +81,15 @@ public abstract class MDigest {
     /**
      * Updates the digest with the specified byte input.
      * 
-     * @param input  the byte array input to update the digest with
+     * @param input the byte array input to update the digest with
      * @param offset the start offset in the byte array (typically 0)
-     * @param len    the length of bytes to read from the input, starting from the
-     *               offset
+     * @param len the length of bytes to read from the input, starting from the offset
      */
     public abstract void update(byte[] input, int offset, int len);
 
     /**
-     * Updates the digest with the entire byte array input. This convenience method
-     * is equivalent to calling {@code update(input, 0, input.length)}.
+     * Updates the digest with the entire byte array input. This convenience method is equivalent to calling
+     * {@code update(input, 0, input.length)}.
      * 
      * @param input the byte array input to update the digest with
      */
@@ -108,14 +105,12 @@ public abstract class MDigest {
     public abstract Algo getAlgorithm();
 
     /**
-     * Resets the digest state to zero, allowing the instance to be re-used for
-     * subsequent operations.
+     * Resets the digest state to zero, allowing the instance to be re-used for subsequent operations.
      */
     public abstract void reset();
 
     /**
-     * Returns the calculated digest hash formatted as a lower-case hexadecimal
-     * string.
+     * Returns the calculated digest hash formatted as a lower-case hexadecimal string.
      * 
      * @return the lowercase hexadecimal representation of the calculated hash
      */
@@ -123,16 +118,14 @@ public abstract class MDigest {
     public abstract String toString();
 
     /**
-     * Factory method to obtain an appropriate {@code MDigest} instance for the
-     * specified algorithm.
+     * Factory method to obtain an appropriate {@code MDigest} instance for the specified algorithm.
      * 
      * @param algorithm the target {@link Algo} algorithm
-     * @return an instance of {@link MDigest} (either {@link CRCDigest} or
-     *         {@link MsgDigest})
-     * @throws NoSuchAlgorithmException if the underlying cryptographic provider
-     *                                  does not support the algorithm
-     * @throws NullPointerException     if the specified {@code algorithm} parameter
-     *                                  is {@code null}
+     * 
+     * @return an instance of {@link MDigest} (either {@link CRCDigest} or {@link MsgDigest})
+     * 
+     * @throws NoSuchAlgorithmException if the underlying cryptographic provider does not support the algorithm
+     * @throws NullPointerException if the specified {@code algorithm} parameter is {@code null}
      */
     public static MDigest getAlgorithm(Algo algorithm) throws NoSuchAlgorithmException {
         if (algorithm == Algo.CRC32) // $NON-NLS-1$
@@ -141,17 +134,16 @@ public abstract class MDigest {
     }
 
     /**
-     * Computes hashes in parallel for an array of {@link MDigest} instances from an
-     * {@link InputStream}. The stream is read into a buffer, updating all specified
-     * digest engines.
+     * Computes hashes in parallel for an array of {@link MDigest} instances from an {@link InputStream}. The stream is read into a
+     * buffer, updating all specified digest engines.
      * 
      * @param in the input stream to read from
      * @param md an array of {@code MDigest} instances to update
+     * 
      * @return the updated array of {@code MDigest} instances
-     * @throws IOException          if an I/O error occurs while reading from the
-     *                              stream
-     * @throws NullPointerException if the specified {@code in} stream or {@code md}
-     *                              array is {@code null}
+     * 
+     * @throws IOException if an I/O error occurs while reading from the stream
+     * @throws NullPointerException if the specified {@code in} stream or {@code md} array is {@code null}
      */
     public static MDigest[] computeHash(final InputStream in, final MDigest[] md) throws IOException {
         try (final InputStream is = new BufferedInputStream(in, 1024 * 1024)) {

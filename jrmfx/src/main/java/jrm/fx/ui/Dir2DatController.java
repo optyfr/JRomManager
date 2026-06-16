@@ -179,6 +179,7 @@ public class Dir2DatController extends BaseController {
 
     /**
      * @return
+     * 
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -228,6 +229,7 @@ public class Dir2DatController extends BaseController {
 
     /**
      * @param session
+     * 
      * @return
      */
     private EnumSet<DirScan.Options> initOptions(final Session session) {

@@ -212,6 +212,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
      * @param val
      * @param max
      * @param force
+     * 
      * @return
      */
     private boolean computeProgress(final PData.PB pb, final Integer val, final Integer max, boolean force) {

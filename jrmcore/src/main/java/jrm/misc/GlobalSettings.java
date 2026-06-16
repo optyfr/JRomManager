@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.misc;
 
@@ -34,9 +25,8 @@ import lombok.Getter;
 /**
  * The settings backend and environment configuration implementation.
  * <p>
- * This class extends {@link Settings} and implements {@link SystemSettings} to
- * provide system paths, temporary file creation, and user-specific
- * workspace/global preference managers.
+ * This class extends {@link Settings} and implements {@link SystemSettings} to provide system paths, temporary file creation, and
+ * user-specific workspace/global preference managers.
  * </p>
  * 
  * @author optyfr
@@ -50,8 +40,7 @@ public class GlobalSettings extends Settings implements SystemSettings {
     private final @Getter User user;
 
     /**
-     * Cached base path to avoid repetitive file system or system property
-     * evaluation.
+     * Cached base path to avoid repetitive file system or system property evaluation.
      */
     private Path cachedBasePath = null;
 
@@ -61,8 +50,8 @@ public class GlobalSettings extends Settings implements SystemSettings {
     private Path cachedWorkPath = null;
 
     /**
-     * Constructs a new {@code GlobalSettings} instance linked to the specified user
-     * and loads the user's properties from their properties file.
+     * Constructs a new {@code GlobalSettings} instance linked to the specified user and loads the user's properties from their
+     * properties file.
      * 
      * @param user the user whose settings should be loaded and managed
      */
@@ -73,11 +62,12 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the base directory path where user settings and system configurations
-     * are saved.
-     * <p> Depending on configuration flags:
+     * Returns the base directory path where user settings and system configurations are saved.
+     * <p>
+     * Depending on configuration flags:
      * <ul>
-     * <li>If server mode is active, it uses the path in system property {@code jrommanager.dir}, falling back to {@code user.dir}.</li>
+     * <li>If server mode is active, it uses the path in system property {@code jrommanager.dir}, falling back to
+     * {@code user.dir}.</li>
      * <li>If multi-user mode is active, it uses {@code .jrommanager} under the user's home folder.</li>
      * <li>Otherwise, it defaults to the current working directory {@code "."}.</li>
      * </ul>
@@ -117,11 +107,9 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the actual working path where user caches, presets, backups, and logs
-     * are saved.
+     * Returns the actual working path where user caches, presets, backups, and logs are saved.
      * <p>
-     * In server and multi-user setups, this resolves to a {@code users/$login}
-     * subdirectory inside the base path.
+     * In server and multi-user setups, this resolves to a {@code users/$login} subdirectory inside the base path.
      * </p>
      * 
      * @return the working directory path
@@ -152,18 +140,17 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Resolves a safe working file location given a parent directory, file name,
-     * and extension.
+     * Resolves a safe working file location given a parent directory, file name, and extension.
      * <p>
-     * If the requested parent folder is outside the user's workspace sandbox, a
-     * unique virtual filename is generated inside the internal {@code work}
-     * subdirectory using the CRC32 checksum of the original path to prevent
-     * directory traversal or file-system poisoning.
+     * If the requested parent folder is outside the user's workspace sandbox, a unique virtual filename is generated inside the
+     * internal {@code work} subdirectory using the CRC32 checksum of the original path to prevent directory traversal or
+     * file-system poisoning.
      * </p>
      * 
      * @param parent the requested parent directory
-     * @param name   the requested file name
-     * @param ext    the requested file extension
+     * @param name the requested file name
+     * @param ext the requested file extension
+     * 
      * @return the resolved safe file location
      */
     public File getWorkFile(final File parent, final String name, final String ext) {
@@ -181,8 +168,7 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the absolute directory path where log files are stored. Creates the
-     * directories if they do not exist.
+     * Returns the absolute directory path where log files are stored. Creates the directories if they do not exist.
      * 
      * @return the directory path for log files as a string
      */
@@ -201,9 +187,9 @@ public class GlobalSettings extends Settings implements SystemSettings {
     /**
      * Retrieves a safe temporary directory path.
      * 
-     * @param local if {@code true}, a local {@code tmp} subdirectory is created
-     *              inside the active work path; if {@code false}, the standard
-     *              system-wide temporary directory is returned
+     * @param local if {@code true}, a local {@code tmp} subdirectory is created inside the active work path; if {@code false}, the
+     *        standard system-wide temporary directory is returned
+     * 
      * @return the resolved temporary directory path
      */
     public Path getTmpPath(boolean local) {
@@ -225,8 +211,7 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the file mapping to the current user's global settings properties
-     * file. Creates any missing parent directories.
+     * Returns the file mapping to the current user's global settings properties file. Creates any missing parent directories.
      * 
      * @return the user-specific settings file
      */
@@ -240,16 +225,15 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Saves the current global settings properties to the user-specific settings
-     * file.
+     * Saves the current global settings properties to the user-specific settings file.
      */
     public void saveSettings() {
         saveSettings(getSettingsFile());
     }
 
     /**
-     * Loads the global settings from the user-specific settings file. Configures
-     * thread pool defaults based on the number of available system CPU cores.
+     * Loads the global settings from the user-specific settings file. Configures thread pool defaults based on the number of
+     * available system CPU cores.
      */
     public void loadSettings() {
         loadSettings(getSettingsFile());
@@ -257,10 +241,10 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the derived `.cache` file located in the same directory as the
-     * provided profile file.
+     * Returns the derived `.cache` file located in the same directory as the provided profile file.
      * 
      * @param file the source profile file
+     * 
      * @return the derived cache file
      */
     public File getCacheFile(final File file) {
@@ -268,10 +252,10 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Returns the derived `.properties` settings file associated with a profile
-     * file.
+     * Returns the derived `.properties` settings file associated with a profile file.
      * 
      * @param file the profile file
+     * 
      * @return the derived profile settings properties file
      */
     public File getProfileSettingsFile(final File file) {
@@ -279,13 +263,11 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Saves the provided profile settings to the safe derived profile settings
-     * file.
+     * Saves the provided profile settings to the safe derived profile settings file.
      * 
-     * @param file     the source profile file from which to derive the destination
-     *                 filename
-     * @param settings the profile settings to save, can be null (which creates
-     *                 default settings)
+     * @param file the source profile file from which to derive the destination filename
+     * @param settings the profile settings to save, can be null (which creates default settings)
+     * 
      * @return the saved profile settings
      */
     public ProfileSettings saveProfileSettings(final File file, ProfileSettings settings) {
@@ -296,13 +278,12 @@ public class GlobalSettings extends Settings implements SystemSettings {
     }
 
     /**
-     * Loads the profile settings from the safe derived profile settings file.
-     * Fallbacks to standard scan, merge, and hash collision options if properties
-     * are missing.
+     * Loads the profile settings from the safe derived profile settings file. Fallbacks to standard scan, merge, and hash collision
+     * options if properties are missing.
      * 
-     * @param file     the source profile file from which to derive the settings
-     *                 filename
+     * @param file the source profile file from which to derive the settings filename
      * @param settings the profile settings container to populate, can be null
+     * 
      * @return the loaded profile settings
      */
     public ProfileSettings loadProfileSettings(File file, ProfileSettings settings) {

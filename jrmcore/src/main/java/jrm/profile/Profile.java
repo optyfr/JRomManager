@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile;
 
@@ -95,12 +86,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Parses and models retro system profile databases from DAT catalogs. Loads dat
- * files, matches system constraints, serializes resulting profiles for caching,
- * and configures global filter structures (systems, release years, catver.ini,
- * nplayers.ini).
+ * Parses and models retro system profile databases from DAT catalogs. Loads dat files, matches system constraints, serializes
+ * resulting profiles for caching, and configures global filter structures (systems, release years, catver.ini, nplayers.ini).
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class Profile implements Serializable, StatusRendererFactory {
@@ -197,8 +187,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     private final @Getter Map<String, StringBuilder> header = new HashMap<>();
 
     /**
-     * Global collection grouping parsed machines, computer clones, and associated
-     * software catalogs.
+     * Global collection grouping parsed machines, computer clones, and associated software catalogs.
      * 
      * @return the unified target machines listing representation
      */
@@ -215,6 +204,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Dynamic anyware lists visibility status filter settings.
      * 
      * @param filterListLists anyware list visibility filters
+     * 
      * @return visibility filters set
      */
     private transient @Getter @Setter Set<AnywareStatus> filterListLists = null;
@@ -223,6 +213,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Dynamic single machine anyware visibility status filter settings.
      * 
      * @param filterList single anyware item filters
+     * 
      * @return visibility filters set
      */
     private transient @Getter @Setter Set<AnywareStatus> filterList = null;
@@ -231,6 +222,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Dynamic physical entities visibility status filter settings.
      * 
      * @param filterEntities physical item visibility filters
+     * 
      * @return visibility filters set
      */
     private transient @Getter @Setter Set<EntityStatus> filterEntities = null;
@@ -263,6 +255,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Parsed categories configuration mapping.
      * 
      * @param catver parsed category ruleset mapping
+     * 
      * @return categories config mapping
      */
     private transient @Getter @Setter CatVer catver = null;
@@ -270,6 +263,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Parsed multiplayer specifications configuration mapping.
      * 
      * @param nplayers parsed multiplayer capabilities mapping
+     * 
      * @return multiplayer config mapping
      */
     private transient @Getter @Setter NPlayers nplayers = null;
@@ -300,80 +294,153 @@ public class Profile implements Serializable, StatusRendererFactory {
         /** XML tag name for ROM elements. */
         private static final String STATUS = "status";
 
-        /** Map for tracking ROMs by their CRC values to identify suspicious cases where identical CRCs map to different SHA1/MD5 signatures. */
+        /**
+         * Map for tracking ROMs by their CRC values to identify suspicious cases where identical CRCs map to different SHA1/MD5
+         * signatures.
+         */
         private final HashMap<String, Rom> romsByCRC = new HashMap<>();
 
-        /** Flags and temporary variables used during XML parsing to track the current context and state of the parsing process. These include flags for whether the parser is currently within certain XML elements (e.g., description, year, manufacturer) and references to the current machine, software, ROM, disk, etc., being parsed. The romsByCRC map is used to track ROMs by their CRC values for identifying suspicious cases. */
+        /**
+         * Flags and temporary variables used during XML parsing to track the current context and state of the parsing process.
+         * These include flags for whether the parser is currently within certain XML elements (e.g., description, year,
+         * manufacturer) and references to the current machine, software, ROM, disk, etc., being parsed. The romsByCRC map is used
+         * to track ROMs by their CRC values for identifying suspicious cases.
+         */
         private boolean inDescription = false;
-        
-        /** Flag indicating whether the parser is currently within a "year" XML element. This flag is used to track the context of parsing and to determine when to capture year information for machines or software entries. */
+
+        /**
+         * Flag indicating whether the parser is currently within a "year" XML element. This flag is used to track the context of
+         * parsing and to determine when to capture year information for machines or software entries.
+         */
         private boolean inYear = false;
-        
-        /** Flag indicating whether the parser is currently within a "manufacturer" XML element. This flag is used to track the context of parsing and to determine when to capture manufacturer information for machines or software entries. */
+
+        /**
+         * Flag indicating whether the parser is currently within a "manufacturer" XML element. This flag is used to track the
+         * context of parsing and to determine when to capture manufacturer information for machines or software entries.
+         */
         private boolean inManufacturer = false;
-        
-        /** Flag indicating whether the parser is currently within a "publisher" XML element. This flag is used to track the context of parsing and to determine when to capture publisher information for software entries. */
+
+        /**
+         * Flag indicating whether the parser is currently within a "publisher" XML element. This flag is used to track the context
+         * of parsing and to determine when to capture publisher information for software entries.
+         */
         private boolean inPublisher = false;
-        
-        /** Flag indicating whether the parser is currently within a "header" XML element. This flag is used to track the context of parsing header information. */    
+
+        /**
+         * Flag indicating whether the parser is currently within a "header" XML element. This flag is used to track the context of
+         * parsing header information.
+         */
         private boolean inHeader = false;
 
-        /** Flag indicating whether the parser is currently within a "cabinet" dipswitch element. This flag is used to track the context of parsing cabinet-related dipswitches. */
-        private boolean inCabinetDipSW = false;
-        
-        /** Set of cabinet types currently being parsed within a "cabinet" dipswitch element. This set is used to track the specific cabinet types associated with the dipswitches being parsed, allowing for proper association of dipswitch settings with the relevant machine configurations. */
-        private final EnumSet<CabinetType> cabTypeSet = EnumSet.noneOf(CabinetType.class);
-        
-        /** Reference to the currently parsed software list. This variable is used to keep track of the active software list being parsed in the XML, allowing for proper association of software entries and their related data with the correct software list context. */
-        private SoftwareList currSoftwareList = null;
-        
-        /** Reference to the currently parsed software entry. This variable is used to keep track of the active software entry being parsed in the XML, allowing for proper association of ROMs, disks, and other related data with the correct software entry context. */
-        private Software currSoftware = null;
-        
-        /** Reference to the currently parsed software part. This variable is used to keep track of the active software part being parsed in the XML, allowing for proper association of data areas, disk areas, and other related information with the correct software part context. */
-        private Software.Part currPart = null;
-        
-        /** Reference to the currently parsed software part data area. This variable is used to keep track of the active data area being parsed within a software part, allowing for proper association of ROMs and other related data with the correct data area context. */
-        private Software.Part.DataArea currDataArea = null;
-        
-        /** Reference to the currently parsed software part disk area. This variable is used to keep track of the active disk area being parsed within a software part, allowing for proper association of disks and other related data with the correct disk area context. */
-        private Software.Part.DiskArea currDiskArea = null;
-        
-        /** Reference to the currently parsed machine. This variable is used to keep track of the active machine being parsed in the XML, allowing for proper association of software lists, ROMs, disks, and other related data with the correct machine context. */
-        private Machine currMachine = null;
-        
         /**
-         * Reference to the currently parsed device. This variable is used to keep track of the active device
-         * being parsed within a machine, allowing for proper association of device-related elements (such as 
-         * ROMs or disks) with the correct device context.
+         * Flag indicating whether the parser is currently within a "cabinet" dipswitch element. This flag is used to track the
+         * context of parsing cabinet-related dipswitches.
+         */
+        private boolean inCabinetDipSW = false;
+
+        /**
+         * Set of cabinet types currently being parsed within a "cabinet" dipswitch element. This set is used to track the specific
+         * cabinet types associated with the dipswitches being parsed, allowing for proper association of dipswitch settings with
+         * the relevant machine configurations.
+         */
+        private final EnumSet<CabinetType> cabTypeSet = EnumSet.noneOf(CabinetType.class);
+
+        /**
+         * Reference to the currently parsed software list. This variable is used to keep track of the active software list being
+         * parsed in the XML, allowing for proper association of software entries and their related data with the correct software
+         * list context.
+         */
+        private SoftwareList currSoftwareList = null;
+
+        /**
+         * Reference to the currently parsed software entry. This variable is used to keep track of the active software entry being
+         * parsed in the XML, allowing for proper association of ROMs, disks, and other related data with the correct software entry
+         * context.
+         */
+        private Software currSoftware = null;
+
+        /**
+         * Reference to the currently parsed software part. This variable is used to keep track of the active software part being
+         * parsed in the XML, allowing for proper association of data areas, disk areas, and other related information with the
+         * correct software part context.
+         */
+        private Software.Part currPart = null;
+
+        /**
+         * Reference to the currently parsed software part data area. This variable is used to keep track of the active data area
+         * being parsed within a software part, allowing for proper association of ROMs and other related data with the correct data
+         * area context.
+         */
+        private Software.Part.DataArea currDataArea = null;
+
+        /**
+         * Reference to the currently parsed software part disk area. This variable is used to keep track of the active disk area
+         * being parsed within a software part, allowing for proper association of disks and other related data with the correct
+         * disk area context.
+         */
+        private Software.Part.DiskArea currDiskArea = null;
+
+        /**
+         * Reference to the currently parsed machine. This variable is used to keep track of the active machine being parsed in the
+         * XML, allowing for proper association of software lists, ROMs, disks, and other related data with the correct machine
+         * context.
+         */
+        private Machine currMachine = null;
+
+        /**
+         * Reference to the currently parsed device. This variable is used to keep track of the active device being parsed within a
+         * machine, allowing for proper association of device-related elements (such as ROMs or disks) with the correct device
+         * context.
          */
         private Device currDevice = null;
-        
-        /** Reference to the currently parsed sample set. This variable is used to keep track of the active sample set being parsed in the XML, allowing for proper association of sample files and related data with the correct sample set context. */
+
+        /**
+         * Reference to the currently parsed sample set. This variable is used to keep track of the active sample set being parsed
+         * in the XML, allowing for proper association of sample files and related data with the correct sample set context.
+         */
         private Samples currSampleSet = null;
 
-        /** Reference to the currently parsed ROM. This variable is used to keep track of the active ROM being parsed in the XML, allowing for proper association of ROM attributes and related data with the correct ROM context. */
-        private Rom currRom = null;
-        
-        /** Reference to the currently parsed disk. This variable is used to keep track of the active disk being parsed in the XML, allowing for proper association of disk attributes and related data with the correct disk context. */
-        private Disk currDisk = null;
-        
-        /** Reference to the currently parsed slot. This variable is used to keep track of the active slot being parsed within a machine, allowing for proper association of slot options and related data with the correct slot context. */
-        private Slot currSlot = null;
-        
         /**
-         * Set of parsed ROM names for the current machine, software, or device,
-         * used to keep track of processed ROMs and detect or prevent duplicates.
+         * Reference to the currently parsed ROM. This variable is used to keep track of the active ROM being parsed in the XML,
+         * allowing for proper association of ROM attributes and related data with the correct ROM context.
+         */
+        private Rom currRom = null;
+
+        /**
+         * Reference to the currently parsed disk. This variable is used to keep track of the active disk being parsed in the XML,
+         * allowing for proper association of disk attributes and related data with the correct disk context.
+         */
+        private Disk currDisk = null;
+
+        /**
+         * Reference to the currently parsed slot. This variable is used to keep track of the active slot being parsed within a
+         * machine, allowing for proper association of slot options and related data with the correct slot context.
+         */
+        private Slot currSlot = null;
+
+        /**
+         * Set of parsed ROM names for the current machine, software, or device, used to keep track of processed ROMs and detect or
+         * prevent duplicates.
          */
         private final HashSet<String> roms = new HashSet<>();
-        
-        /** Set of disk names currently being parsed. This set is used to track the specific disk names associated with the disks being parsed, allowing for proper association of disk attributes and related data with the correct disk context. */
+
+        /**
+         * Set of disk names currently being parsed. This set is used to track the specific disk names associated with the disks
+         * being parsed, allowing for proper association of disk attributes and related data with the correct disk context.
+         */
         private final HashSet<String> disks = new HashSet<>();
-        
-        /** Current XML tag name being processed. This variable is used to keep track of the active XML tag being parsed, allowing for context-aware processing of attributes and content based on the specific tag being handled. */
+
+        /**
+         * Current XML tag name being processed. This variable is used to keep track of the active XML tag being parsed, allowing
+         * for context-aware processing of attributes and content based on the specific tag being handled.
+         */
         private String currTag;
 
-        /** Progress handler reference for monitoring and reporting progress during the XML parsing process. This variable is used to interact with the progress handler to provide updates on the parsing progress, report any errors encountered, and manage cancellation requests if necessary. */
+        /**
+         * Progress handler reference for monitoring and reporting progress during the XML parsing process. This variable is used to
+         * interact with the progress handler to provide updates on the parsing progress, report any errors encountered, and manage
+         * cancellation requests if necessary.
+         */
         private final ProgressHandler handler;
 
         /**
@@ -386,13 +453,15 @@ public class Profile implements Serializable, StatusRendererFactory {
         }
 
         /**
-         * Intercepts the start of XML elements to parse and delegate metadata attributes 
-         * to their respective profile component builder methods.
+         * Intercepts the start of XML elements to parse and delegate metadata attributes to their respective profile component
+         * builder methods.
          *
-         * @param uri        the Namespace URI, or the empty string if the element has no Namespace URI or if Namespace processing is not being performed
-         * @param localName  the local name (without prefix), or the empty string if Namespace processing is not being performed
-         * @param qName      the qualified name (with prefix), or the empty string if qualified names are not available
+         * @param uri the Namespace URI, or the empty string if the element has no Namespace URI or if Namespace processing is not
+         *        being performed
+         * @param localName the local name (without prefix), or the empty string if Namespace processing is not being performed
+         * @param qName the qualified name (with prefix), or the empty string if qualified names are not available
          * @param attributes the attributes attached to the element
+         * 
          * @throws SAXException if any parsing or configuration error occurs during processing
          */
         @Override
@@ -499,7 +568,7 @@ public class Profile implements Serializable, StatusRendererFactory {
              * Constructs a new parser exception.
              * 
              * @param message debug explanation message
-             * @param e       nested source exception
+             * @param e nested source exception
              */
             public ProfileHandlerException(String message, Exception e) {
                 super(message, e);
@@ -511,8 +580,9 @@ public class Profile implements Serializable, StatusRendererFactory {
          * Generates detailed debug information string mapping where error was met.
          * 
          * @param attributes parsed XML attributes list
-         * @param qName      active parsed element tag name
-         * @param e          source exception
+         * @param qName active parsed element tag name
+         * @param e source exception
+         * 
          * @return debug string details
          */
         private String getDebugMsg(Attributes attributes, String qName, Exception e) {
@@ -544,6 +614,7 @@ public class Profile implements Serializable, StatusRendererFactory {
          * Parsed "disk" element parser callback.
          * 
          * @param attributes element attributes list
+         * 
          * @throws NumberFormatException if integer values are invalid
          */
         private void startDisk(final Attributes attributes) throws NumberFormatException {
@@ -598,6 +669,7 @@ public class Profile implements Serializable, StatusRendererFactory {
          * Parsed "rom" element parser callback.
          * 
          * @param attributes element attributes list
+         * 
          * @throws NumberFormatException if values are invalid
          */
         private void startRom(final Attributes attributes) throws NumberFormatException {
@@ -662,11 +734,11 @@ public class Profile implements Serializable, StatusRendererFactory {
         }
 
         /**
-         * Formats strings securely into lowercase hexadecimal representations with
-         * leading zeros.
+         * Formats strings securely into lowercase hexadecimal representations with leading zeros.
          * 
          * @param value raw hexadecimal string
-         * @param len   expected output length
+         * @param len expected output length
+         * 
          * @return formatted hexadecimal string representation
          */
         private String safeHex(String value, int len) {
@@ -1281,8 +1353,7 @@ public class Profile implements Serializable, StatusRendererFactory {
         }
 
         /**
-         * Formulates CabinetType orientation constraints from parsed dipswitch
-         * elements.
+         * Formulates CabinetType orientation constraints from parsed dipswitch elements.
          */
         private void endDipSwitch() {
             if (!inCabinetDipSW || currMachine == null)
@@ -1362,8 +1433,7 @@ public class Profile implements Serializable, StatusRendererFactory {
         }
 
         /**
-         * Closes machine element building parsing and checks execution cancellation
-         * limits.
+         * Closes machine element building parsing and checks execution cancellation limits.
          * 
          * @throws BreakException if execution is stopped by the user
          */
@@ -1419,7 +1489,7 @@ public class Profile implements Serializable, StatusRendererFactory {
             } else if (inPublisher && currSoftware != null) {
                 currSoftware.getPublisher().append(value);
             } else if (inHeader) {
-                header.computeIfAbsent(currTag, k -> new StringBuilder()).append(value);
+                header.computeIfAbsent(currTag, _ -> new StringBuilder()).append(value);
             }
         }
     }
@@ -1427,8 +1497,9 @@ public class Profile implements Serializable, StatusRendererFactory {
     /**
      * Private internal load parser orchestration.
      * 
-     * @param file    the source xml catalog dat
+     * @param file the source xml catalog dat
      * @param handler progressive feedback reporter
+     * 
      * @return true on success, false on errors or cancellations
      */
     private boolean internalLoad(final File file, final ProgressHandler handler) {
@@ -1448,7 +1519,7 @@ public class Profile implements Serializable, StatusRendererFactory {
         } catch (final IOException e) {
             handler.addError(e.getMessage());
             Log.err("IO Exception", e); //$NON-NLS-1$
-        } catch (final BreakException e) {
+        } catch (final BreakException _) {
             return false;
         } catch (final Exception e) {
             handler.addError(e.getMessage());
@@ -1463,7 +1534,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     public void save() {
         try (final var oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(session.getUser().getSettings().getCacheFile(nfo.getFile()))))) {
             oos.writeObject(this);
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // do nothing
         }
     }
@@ -1472,8 +1543,9 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Loads profile database configurations from physical file descriptors.
      * 
      * @param session execution workspace context
-     * @param file    target source config catalog file (.jrm, .dat, .xml)
+     * @param file target source config catalog file (.jrm, .dat, .xml)
      * @param handler progressive feedback reporter
+     * 
      * @return parsed profile metadata container
      */
     public static Profile load(final Session session, final File file, final ProgressHandler handler) {
@@ -1484,8 +1556,9 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Loads profile properties matching cached descriptors or walk parsers.
      * 
      * @param session execution workspace context
-     * @param nfo     JRomManager database profile information stats summary
+     * @param nfo JRomManager database profile information stats summary
      * @param handler progressive feedback reporter
+     * 
      * @return parsed profile metadata container
      */
     public static Profile load(final Session session, final ProfileNFO nfo, final ProgressHandler handler) {
@@ -1507,7 +1580,8 @@ public class Profile implements Serializable, StatusRendererFactory {
         if (profile.build != null)
             profile.nfo.getStats().setVersion(profile.build);
         else
-            profile.nfo.getStats().setVersion(profile.header.containsKey(VERSION) ? profile.header.get(VERSION).toString() : null); // $NON-NLS-1$ //$NON-NLS-2$
+            profile.nfo.getStats().setVersion(profile.header.containsKey(VERSION) ? profile.header.get(VERSION).toString() : null); // $NON-NLS-1$
+                                                                                                                                    // //$NON-NLS-2$
         profile.nfo.getStats().setTotalSets(profile.softwaresCnt + profile.machinesCnt);
         profile.nfo.getStats().setTotalRoms(profile.romsCnt + profile.swromsCnt);
         profile.nfo.getStats().setTotalDisks(profile.disksCnt + profile.swdisksCnt);
@@ -1535,12 +1609,12 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Parses profile catalog DAT file content and serializes binary database
-     * states.
+     * Parses profile catalog DAT file content and serializes binary database states.
      * 
      * @param session active session context
-     * @param nfo     catalogs info summary
+     * @param nfo catalogs info summary
      * @param handler progressive feedback reporter
+     * 
      * @return parsed profile metadata database
      */
     private static Profile loadThenSaveToCache(final Session session, final ProfileNFO nfo, final ProgressHandler handler) {
@@ -1563,9 +1637,10 @@ public class Profile implements Serializable, StatusRendererFactory {
     /**
      * Triggers XML parsing on single dat files or paired ROMs + SoftwareLists.
      * 
-     * @param nfo     catalogs details stats
+     * @param nfo catalogs details stats
      * @param profile parent target empty database
      * @param handler progressive feedback reporter
+     * 
      * @return true on success, false on failure or cancellation
      */
     private static boolean load(final ProfileNFO nfo, Profile profile, final ProgressHandler handler) {
@@ -1588,11 +1663,12 @@ public class Profile implements Serializable, StatusRendererFactory {
     /**
      * Retrieves profile database state properties from standard cache files.
      * 
-     * @param session   active session context
-     * @param nfo       catalogs info stats
-     * @param handler   progressive reporter
-     * @param profile   target empty profile object
+     * @param session active session context
+     * @param nfo catalogs info stats
+     * @param handler progressive reporter
+     * @param profile target empty profile object
      * @param cachefile target cache binary file
+     * 
      * @return loaded profile, or null on cache mismatches
      */
     private static Profile loadCache(final Session session, final ProfileNFO nfo, final ProgressHandler handler, Profile profile, final File cachefile) {
@@ -1603,15 +1679,14 @@ public class Profile implements Serializable, StatusRendererFactory {
             profile.session = session;
             session.setCurrProfile(profile);
             profile.nfo = nfo;
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // may fail to load because serialized classes did change since last cache save
         }
         return profile;
     }
 
     /**
-     * Maps parent-clones database relationships sequentially after loading metadata
-     * catalog elements.
+     * Maps parent-clones database relationships sequentially after loading metadata catalog elements.
      */
     private void buildParentClonesRelations() {
         machineListList.forEach(machineList -> machineList.forEach(machine -> {
@@ -1670,7 +1745,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Updates Boolean property associations in local profiles configuration maps.
      * 
      * @param property target configuration option key
-     * @param value    target option state value
+     * @param value target option state value
      */
     public void setProperty(final ProfileSettingsEnum property, final boolean value) {
         Log.info(() -> "%s : %b".formatted(property, value));
@@ -1681,7 +1756,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Updates string-mapped Boolean property associations.
      * 
      * @param property target option key
-     * @param value    target option state value
+     * @param value target option state value
      */
     public void setProperty(final String property, final boolean value) {
         Log.info(() -> "%s : %b".formatted(property, value));
@@ -1692,7 +1767,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Updates string property associations.
      * 
      * @param property target configuration option key
-     * @param value    target option text value
+     * @param value target option text value
      */
     public void setProperty(final ProfileSettingsEnum property, final String value) {
         settings.setProperty(property, value);
@@ -1702,7 +1777,7 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Updates string property associations using text keys.
      * 
      * @param property target option text key
-     * @param value    target option text value
+     * @param value target option text value
      */
     public void setProperty(final String property, final String value) {
         settings.setProperty(property, value);
@@ -1712,7 +1787,8 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Resolves Boolean settings values or returns defaults if keys are missing.
      * 
      * @param property target option text key
-     * @param def      the default option state value
+     * @param def the default option state value
+     * 
      * @return option state value
      */
     public boolean getProperty(final String property, final boolean def) {
@@ -1723,7 +1799,8 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Resolves integer settings values.
      * 
      * @param property target option text key
-     * @param def      the default integer option value
+     * @param def the default integer option value
+     * 
      * @return option value
      */
     public int getProperty(final String property, final int def) {
@@ -1734,7 +1811,8 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Resolves text settings values.
      * 
      * @param property target option key
-     * @param def      the default text value
+     * @param def the default text value
+     * 
      * @return option value
      */
     public String getProperty(final String property, final String def) {
@@ -1745,8 +1823,9 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Resolves settings values matching expected output classes.
      * 
      * @param property target option key
-     * @param cls      expected output class type
-     * @param <T>      class template argument
+     * @param cls expected output class type
+     * @param <T> class template argument
+     * 
      * @return option value
      */
     public <T> T getProperty(final ProfileSettingsEnum property, Class<T> cls) {
@@ -1757,13 +1836,13 @@ public class Profile implements Serializable, StatusRendererFactory {
      * Resolves settings string values.
      * 
      * @param property target option key
+     * 
      * @return option text value
      */
     public String getProperty(final ProfileSettingsEnum property) {
         return settings.getProperty(property, String.class);
     }
 
-    
     /**
      * Cached hash code of the profile settings used to detect modifications.
      */
@@ -1786,8 +1865,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Generates detailed HTML formatted text representation of profile catalogs
-     * counts.
+     * Generates detailed HTML formatted text representation of profile catalogs counts.
      * 
      * @return HTML format text summary
      */
@@ -1821,8 +1899,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Populates standard, mechanical, bios, or software lists categories inside
-     * System filter sets.
+     * Populates standard, mechanical, bios, or software lists categories inside System filter sets.
      */
     public void loadSystems() {
         systems = new Systms();
@@ -1839,7 +1916,7 @@ public class Profile implements Serializable, StatusRendererFactory {
         });
         machines.sort((a, b) -> a.getName().compareTo(b.getName()));
         machines.forEach(systems::add);
-        srces.forEach((name, src) -> sources.add(src));
+        srces.forEach((_, src) -> sources.add(src));
         machineListList.get(0).stream().filter(m -> m.getSourcefile() != null).forEach(m -> m.setSource(srces.get(m.getSourcefile())));
 
         final ArrayList<SoftwareList> softwarelists = new ArrayList<>();
@@ -1861,8 +1938,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Loads catver.ini mappings if files are found, linking machines back to
-     * subcategories.
+     * Loads catver.ini mappings if files are found, linking machines back to subcategories.
      * 
      * @param handler progress reporting monitor
      */
@@ -1885,7 +1961,7 @@ public class Profile implements Serializable, StatusRendererFactory {
                     }
                 }
             }
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             catver = null;
         }
     }
@@ -1911,14 +1987,13 @@ public class Profile implements Serializable, StatusRendererFactory {
                 }
             } else
                 nplayers = null;
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             nplayers = null;
         }
     }
 
     /**
-     * Computes the cumulative size across all parsed software lists and target
-     * machines.
+     * Computes the cumulative size across all parsed software lists and target machines.
      * 
      * @return cumulative size count
      */
@@ -1927,8 +2002,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Computes cumulative size count across filtered visible machine items and
-     * software catalogs.
+     * Computes cumulative size count across filtered visible machine items and software catalogs.
      * 
      * @return filtered visibility size count
      */
@@ -1938,8 +2012,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     }
 
     /**
-     * Computes cumulative size count across all raw machine elements and software
-     * lists.
+     * Computes cumulative size count across all raw machine elements and software lists.
      * 
      * @return raw cumulative entries count
      */

@@ -12,20 +12,20 @@ import lombok.val;
 /**
  * Handles XML responses for retrieving the list of NPlayers configurations.
  * <p>
- * This class processes incoming XML requests to fetch metadata about the NPlayers.ini file,
- * which maps ROM sets to their supported simultaneous player counts in the Retro-Gaming ROM manager.
- * It outputs the data in a format suitable for UI list components, including selection states.
+ * This class processes incoming XML requests to fetch metadata about the NPlayers.ini file, which maps ROM sets to their supported
+ * simultaneous player counts in the Retro-Gaming ROM manager. It outputs the data in a format suitable for UI list components,
+ * including selection states.
  * </p>
- * 
  * <h2>XML Protocol</h2>
  * <ul>
- *   <li><b>Incoming Request Parameters:</b>
- *     <ul>
- *       <li>No specific parameters required; relies on the current profile's NPlayers data.</li>
- *     </ul>
- *   </li>
- *   <li><b>Outgoing Response Structure:</b>
- *     <pre>
+ * <li><b>Incoming Request Parameters:</b>
+ * <ul>
+ * <li>No specific parameters required; relies on the current profile's NPlayers data.</li>
+ * </ul>
+ * </li>
+ * <li><b>Outgoing Response Structure:</b>
+ * 
+ * <pre>
  *     <code class="language-xml">
  * &lt;response&gt;
  *   &lt;status&gt;0&lt;/status&gt;
@@ -37,11 +37,13 @@ import lombok.val;
  *   &lt;/data&gt;
  * &lt;/response&gt;
  *     </code>
- *     </pre>
- *   </li>
+ * </pre>
+ * 
+ * </li>
  * </ul>
  *
  * @author JRomManager Team
+ * 
  * @see XMLResponse
  * @see XMLRequest.Operation
  * @see NPlayer
@@ -52,6 +54,7 @@ public class NPlayersXMLResponse extends XMLResponse {
      * Constructs a new NPlayersXMLResponse for the given request.
      *
      * @param request The incoming XML request containing operation data.
+     * 
      * @throws IOException If an I/O error occurs during response generation.
      * @throws XMLStreamException If an XML streaming error occurs.
      */
@@ -62,11 +65,12 @@ public class NPlayersXMLResponse extends XMLResponse {
     /**
      * Fetches the NPlayers data and writes it to the XML response.
      * <p>
-     * Iterates through the current profile's NPlayers list and writes a record for each entry,
-     * including its property name, display name, player count, and selection state.
+     * Iterates through the current profile's NPlayers list and writes a record for each entry, including its property name, display
+     * name, player count, and selection state.
      * </p>
      *
      * @param operation The operation containing request parameters.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs during writing.
      */
     @Override

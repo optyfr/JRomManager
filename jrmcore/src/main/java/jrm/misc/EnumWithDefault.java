@@ -1,8 +1,7 @@
 package jrm.misc;
 
 /**
- * Interface representing an enum type that defines a default value. Used for
- * setting fallback properties or configurations.
+ * Interface representing an enum type that defines a default value. Used for setting fallback properties or configurations.
  * 
  * @author optyfr
  */

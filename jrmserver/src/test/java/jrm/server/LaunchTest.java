@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-/** * Test for the Launcher class. */    
+/** * Test for the Launcher class. */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class LauncherTest {
 

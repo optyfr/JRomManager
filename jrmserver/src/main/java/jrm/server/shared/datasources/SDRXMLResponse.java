@@ -13,9 +13,9 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 import jrm.xml.SimpleAttribute;
 
 /**
- * Provides a base implementation for generating XML responses that contain Source-Destination Result (SDR) records.
- * Handles standard response structures, including single entries, full lists, and key-based identifiers,
- * as well as automatic settings persistence when required.
+ * Provides a base implementation for generating XML responses that contain Source-Destination Result (SDR) records. Handles
+ * standard response structures, including single entries, full lists, and key-based identifiers, as well as automatic settings
+ * persistence when required.
  */
 abstract class SDRXMLResponse extends XMLResponse {
     /** Message constant indicating that the source information was missing from the incoming request. */
@@ -32,10 +32,11 @@ abstract class SDRXMLResponse extends XMLResponse {
     protected static final String STATUS = "status";
 
     /**
-     * Constructs an SDR XML response bound to the specified request.
-     * Initializes the underlying XML writer and establishes the path abstraction layer.
+     * Constructs an SDR XML response bound to the specified request. Initializes the underlying XML writer and establishes the path
+     * abstraction layer.
      *
      * @param request the incoming XML request containing session and operation data
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an error occurs while initializing the XML stream writer
      */
@@ -44,10 +45,11 @@ abstract class SDRXMLResponse extends XMLResponse {
     }
 
     /**
-     * Writes a single {@link AbstractSrcDstResult} entry into the XML output stream as a distinct record.
-     * Serializes the ID, source, destination, result state, and selection flag.
+     * Writes a single {@link AbstractSrcDstResult} entry into the XML output stream as a distinct record. Serializes the ID,
+     * source, destination, result state, and selection flag.
      *
      * @param sdr the source-destination result object to serialize into the XML output
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML elements or attributes
      */
     protected void writeRecord(AbstractSrcDstResult sdr) throws XMLStreamException {
@@ -57,11 +59,12 @@ abstract class SDRXMLResponse extends XMLResponse {
     }
 
     /**
-     * Writes the complete list of {@link SrcDstResult} objects into the XML response structure.
-     * Calculates pagination metadata and serializes every item in the collection using {@link #writeRecord(AbstractSrcDstResult)}.
+     * Writes the complete list of {@link SrcDstResult} objects into the XML response structure. Calculates pagination metadata and
+     * serializes every item in the collection using {@link #writeRecord(AbstractSrcDstResult)}.
      *
      * @param operation the current XML operation controlling pagination boundaries
      * @param sdrl the list of source-destination results to be serialized
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML elements
      */
     protected void writeResponse(Operation operation, SDRList<SrcDstResult> sdrl) throws XMLStreamException {
@@ -72,10 +75,11 @@ abstract class SDRXMLResponse extends XMLResponse {
     }
 
     /**
-     * Writes a single {@link AbstractSrcDstResult} entry enclosed within a standardized response wrapper.
-     * The structure includes a success status and a dedicated data block wrapping the single record.
+     * Writes a single {@link AbstractSrcDstResult} entry enclosed within a standardized response wrapper. The structure includes a
+     * success status and a dedicated data block wrapping the single record.
      *
      * @param sdr the specific source-destination result to serialize
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML elements
      */
     protected void writeResponseSingle(final AbstractSrcDstResult sdr) throws XMLStreamException {
@@ -88,10 +92,11 @@ abstract class SDRXMLResponse extends XMLResponse {
     }
 
     /**
-     * Writes a single record containing only its unique identifier wrapped in a standard response envelope.
-     * Useful for operations where lightweight confirmation is sufficient without transmitting full entity details.
+     * Writes a single record containing only its unique identifier wrapped in a standard response envelope. Useful for operations
+     * where lightweight confirmation is sufficient without transmitting full entity details.
      *
      * @param sdr the source-destination result whose ID should be written
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML elements
      */
     protected void writeResponseKey(final AbstractSrcDstResult sdr) throws XMLStreamException {
@@ -104,8 +109,8 @@ abstract class SDRXMLResponse extends XMLResponse {
     }
 
     /**
-     * Checks if the provided list requires saving and persistently updates the user's settings profile accordingly.
-     * Converts the list contents to a JSON string representation before updating and saving the specified setting property.
+     * Checks if the provided list requires saving and persistently updates the user's settings profile accordingly. Converts the
+     * list contents to a JSON string representation before updating and saving the specified setting property.
      *
      * @param sdrl the list of results to check for persistence requirements
      * @param ppt the {@link SettingsEnum} key identifying which user preference should be updated

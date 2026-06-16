@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -38,15 +30,14 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionLevel;
 
 /**
- * Special container action aimed at backing up some or all file entries from a
- * target container.
+ * Special container action aimed at backing up some or all file entries from a target container.
  * <p>
- * This class coordinates the creation and caching of backup archive targets,
- * ensuring that original content is preserved before any modifications or
- * deletes are applied.
+ * This class coordinates the creation and caching of backup archive targets, ensuring that original content is preserved before any
+ * modifications or deletes are applied.
  * </p>
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class BackupContainer extends ContainerAction {
@@ -62,8 +53,9 @@ public class BackupContainer extends ContainerAction {
     /**
      * Factory method to obtain or initialize a {@code BackupContainer} instance.
      * 
-     * @param action    the existing backup container action reference (can be null)
+     * @param action the existing backup container action reference (can be null)
      * @param container the target container to backup
+     * 
      * @return the initialized backup container action
      */
     public static BackupContainer getInstance(BackupContainer action, final Container container) {
@@ -73,11 +65,11 @@ public class BackupContainer extends ContainerAction {
     }
 
     /**
-     * Factory method to obtain or initialize a {@code BackupContainer} instance
-     * stored within an {@link AtomicReference}.
+     * Factory method to obtain or initialize a {@code BackupContainer} instance stored within an {@link AtomicReference}.
      * 
-     * @param action    the atomic reference enclosing the backup container action
+     * @param action the atomic reference enclosing the backup container action
      * @param container the target container to backup
+     * 
      * @return the initialized backup container action
      */
     public static BackupContainer getInstance(AtomicReference<BackupContainer> action, final Container container) {
@@ -92,12 +84,12 @@ public class BackupContainer extends ContainerAction {
     private static final Map<String, ZipFile> zipfiles = new HashMap<>();
 
     /**
-     * Retrieves or creates a Zip backup file destination corresponding to the entry
-     * actions.
+     * Retrieves or creates a Zip backup file destination corresponding to the entry actions.
      * 
-     * @param session   the current active session
+     * @param session the current active session
      * @param container the originating entry's container
-     * @param action    the entry action being backed up
+     * @param action the entry action being backed up
+     * 
      * @return the cached or newly instantiated {@link ZipFile} target
      */
     public static synchronized ZipFile getZipFile(final Session session, Container container, EntryAction action) {
@@ -122,8 +114,7 @@ public class BackupContainer extends ContainerAction {
     }
 
     /**
-     * Closes all opened backup zip archive {@link FileSystem}s when all backup
-     * tasks are completed.
+     * Closes all opened backup zip archive {@link FileSystem}s when all backup tasks are completed.
      */
     public static void closeAllFS() {
         for (final var zipfile : zipfiles.values()) {
@@ -143,8 +134,8 @@ public class BackupContainer extends ContainerAction {
      * 
      * @param session the active session
      * @param handler the visual progress handler
-     * @return {@code true} if all entries were successfully backed up, otherwise
-     *         {@code false}
+     * 
+     * @return {@code true} if all entries were successfully backed up, otherwise {@code false}
      */
     @Override
     public boolean doAction(final Session session, ProgressHandler handler) {

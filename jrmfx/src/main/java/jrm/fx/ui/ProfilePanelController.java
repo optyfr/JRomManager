@@ -422,6 +422,7 @@ public class ProfilePanelController implements Initializable {
         /**
          * @param imprt
          * @param sl
+         * 
          * @throws IllegalArgumentException
          */
         private void importDat(final ImportWithBaseFile imprt, final boolean sl) throws IllegalArgumentException, IOException {
@@ -460,7 +461,9 @@ public class ProfilePanelController implements Initializable {
 
         /**
          * @param file
+         * 
          * @return
+         * 
          * @throws HeadlessException
          * @throws IllegalArgumentException
          */
@@ -490,7 +493,9 @@ public class ProfilePanelController implements Initializable {
 
         /**
          * @param file
+         * 
          * @return
+         * 
          * @throws IllegalArgumentException
          */
         private File autoRenameFile(File file) throws IllegalArgumentException {
@@ -598,6 +603,7 @@ public class ProfilePanelController implements Initializable {
          * @param session
          * @param nfo
          * @param imprt
+         * 
          * @throws IOException
          */
         private void updateFromMame(final Session session, final ProfileNFO nfo, Import imprt) throws IOException {
@@ -740,6 +746,7 @@ public class ProfilePanelController implements Initializable {
     /**
      * @param nfo
      * @param chooser
+     * 
      * @return
      */
     private MameStatus updateFromMameRelocate(final ProfileNFO nfo, File mame) {

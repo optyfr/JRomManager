@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent.bencoding.types;
 
@@ -23,8 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Representation of a bencoded list. Stores a list of {@link IBencodable}
- * objects, preserving order.
+ * Representation of a bencoded list. Stores a list of {@link IBencodable} objects, preserving order.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
@@ -65,8 +55,7 @@ public class BList implements IBencodable {
     // Bencoding
 
     /**
-     * Returns the bencoded string format of this list. Format:
-     * {@code l<elements>e}.
+     * Returns the bencoded string format of this list. Format: {@code l<elements>e}.
      *
      * @return the standard bencoded string representation
      */
@@ -84,8 +73,8 @@ public class BList implements IBencodable {
     }
 
     /**
-     * Encodes this list into the standard bencoded byte array format. Begins with
-     * 'l', followed by the concatenated bencoded elements, ending with 'e'.
+     * Encodes this list into the standard bencoded byte array format. Begins with 'l', followed by the concatenated bencoded
+     * elements, ending with 'e'.
      *
      * @return the bencoded byte array
      */

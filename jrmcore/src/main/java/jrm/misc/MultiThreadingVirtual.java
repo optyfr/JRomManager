@@ -24,16 +24,14 @@ import jrm.aui.progress.ProgressHandler;
 import lombok.RequiredArgsConstructor;
 
 /**
- * An executor service that utilizes lightweight virtual threads to run tasks
- * concurrently.
+ * An executor service that utilizes lightweight virtual threads to run tasks concurrently.
  * <p>
- * This class implements {@link ExecutorService} and {@link OffsetProvider},
- * allowing the progress handler to track active thread slots using physical UI
- * reporting offsets. It uses a semaphore to limit concurrency to prevent
- * overwhelming system resources.
+ * This class implements {@link ExecutorService} and {@link OffsetProvider}, allowing the progress handler to track active thread
+ * slots using physical UI reporting offsets. It uses a semaphore to limit concurrency to prevent overwhelming system resources.
  * </p>
  * 
  * @param <K> the type of task element processed by this executor
+ * 
  * @author optyfr
  */
 public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider {
@@ -48,8 +46,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     private final String name;
 
     /**
-     * Maximum number of concurrent tasks allowed to execute simultaneously (managed
-     * by semaphore).
+     * Maximum number of concurrent tasks allowed to execute simultaneously (managed by semaphore).
      */
     private final int threadLimit;
 
@@ -64,8 +61,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     private final AtomicLong count = new AtomicLong();
 
     /**
-     * Registry mapping active virtual thread identifiers to their respective
-     * physical UI reporting offsets.
+     * Registry mapping active virtual thread identifiers to their respective physical UI reporting offsets.
      */
     private final HashMap<Long, Integer> activeThreads = new HashMap<>();
 
@@ -92,12 +88,10 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     /**
      * Constructs a new {@code MultiThreadingVirtual} executor service.
      * 
-     * @param name       the base name used for naming the virtual threads
-     * @param progress   progress tracker coupled with this executor's offset
-     *                   provider
-     * @param nThreads   concurrency limits (negative value triggers a multiple of
-     *                   processor counts, zero defaults to 256, positive value sets
-     *                   explicit limit)
+     * @param name the base name used for naming the virtual threads
+     * @param progress progress tracker coupled with this executor's offset provider
+     * @param nThreads concurrency limits (negative value triggers a multiple of processor counts, zero defaults to 256, positive
+     *        value sets explicit limit)
      * @param calledWith the executable logic applied to each stream element
      */
     public MultiThreadingVirtual(final String name, final ProgressHandler progress, final int nThreads, final CalledWith<K> calledWith) {
@@ -110,10 +104,10 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     }
 
     /**
-     * Resolves the absolute concurrency limit of virtual threads from a given
-     * requested pool size.
+     * Resolves the absolute concurrency limit of virtual threads from a given requested pool size.
      * 
      * @param nThreads requested threads limit input
+     * 
      * @return resolved positive integer representing the max concurrency level
      */
     private int getThreadLimit(final int nThreads) {
@@ -190,8 +184,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     }
 
     /**
-     * Starts processing all elements from a stream according to the task and blocks
-     * until all tasks terminate or timeout.
+     * Starts processing all elements from a stream according to the task and blocks until all tasks terminate or timeout.
      * 
      * @param stream the stream of objects to process
      */
@@ -231,8 +224,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
     }
 
     /**
-     * Callable task wrapper used to process elements on virtual threads, reserving
-     * and recycling physical reporting offsets.
+     * Callable task wrapper used to process elements on virtual threads, reserving and recycling physical reporting offsets.
      */
     @RequiredArgsConstructor
     private class CallableWith implements Callable<Void> {
@@ -259,8 +251,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
         }
 
         /**
-         * Releases and recycles the reporting offset assigned to a completed virtual
-         * thread task.
+         * Releases and recycles the reporting offset assigned to a completed virtual thread task.
          * 
          * @param id the unique thread identifier
          */
@@ -272,10 +263,10 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
         }
 
         /**
-         * Standard task callable execution point that acquires the concurrency
-         * semaphore and invokes the user action block.
+         * Standard task callable execution point that acquires the concurrency semaphore and invokes the user action block.
          * 
          * @return {@code null} on successful execution
+         * 
          * @throws Exception if an error occurs during execution
          */
         @Override

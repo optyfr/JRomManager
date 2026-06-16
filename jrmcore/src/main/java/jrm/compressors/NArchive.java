@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.compressors;
 
@@ -57,42 +49,70 @@ import net.sf.sevenzipjbinding.impl.VolumedArchiveInStream;
 
 /**
  * The multiple formats abstract class using SevenZipJBinding as back-end<br>
- * Please note that SevenZipJBinding never modifies "in place" archive : a new
- * temporary archive is always created, and non modified entries may be copied
- * without further re-compression (except if solid archive).<br>
+ * Please note that SevenZipJBinding never modifies "in place" archive : a new temporary archive is always created, and non modified
+ * entries may be copied without further re-compression (except if solid archive).<br>
  * This behavior happens even in case of renaming!<br>
- * If the archive does not already exists, then we are in creation mode, and no
- * temporary file will be created.<br>
+ * If the archive does not already exists, then we are in creation mode, and no temporary file will be created.<br>
  * Currently only support 7Z and ZIP.
  * 
  * @author optyfr
  */
 abstract class NArchive extends NArchiveBase {
-    /** The session associated with this archive, used for accessing user settings and other session-related information during archive operations. */
+    /**
+     * The session associated with this archive, used for accessing user settings and other session-related information during
+     * archive operations.
+     */
     private Session session;
-    /** The file representing the archive being processed. This is used for reading and writing the archive data, and is stored here to manage the archive file during operations. */
+    /**
+     * The file representing the archive being processed. This is used for reading and writing the archive data, and is stored here
+     * to manage the archive file during operations.
+     */
     private File archive;
-    /** A flag indicating whether the archive is in read-only mode. If true, the archive will be treated as read-only, and modifications will not be allowed. This flag is used to determine the behavior of the archive during operations, such as whether to allow adding, deleting, renaming, or copying entries within the archive. */
+    /**
+     * A flag indicating whether the archive is in read-only mode. If true, the archive will be treated as read-only, and
+     * modifications will not be allowed. This flag is used to determine the behavior of the archive during operations, such as
+     * whether to allow adding, deleting, renaming, or copying entries within the archive.
+     */
     private final boolean readonly;
-    /** A callback instance for reporting progress during archive operations. This is used to provide feedback on the progress of long-running operations such as extraction, creation, or updating of the archive. The callback can be used to update progress bars or other UI elements to inform the user about the status of the ongoing operation. */
+    /**
+     * A callback instance for reporting progress during archive operations. This is used to provide feedback on the progress of
+     * long-running operations such as extraction, creation, or updating of the archive. The callback can be used to update progress
+     * bars or other UI elements to inform the user about the status of the ongoing operation.
+     */
     private ProgressNarchiveCallBack cb = null;
 
-    /** A static mapping of archive file paths to their corresponding File instances. This map is used to manage and reuse File instances for archives that are being processed, ensuring that multiple instances of the same archive file are not created unnecessarily. The map allows for efficient access to the File instance associated with a given archive path, and it helps to manage the lifecycle of the archive files during operations. */
+    /**
+     * A static mapping of archive file paths to their corresponding File instances. This map is used to manage and reuse File
+     * instances for archives that are being processed, ensuring that multiple instances of the same archive file are not created
+     * unnecessarily. The map allows for efficient access to the File instance associated with a given archive path, and it helps to
+     * manage the lifecycle of the archive files during operations.
+     */
     private static final Map<String, File> archives = new HashMap<>();
 
-    /** The format of the archive being processed. This is determined based on the file extension of the archive and is used to specify the appropriate handling and options for the archive operations. The format is set during the initialization of the NArchive instance and is used to configure the behavior of the SevenZipJBinding library when performing operations on the archive. */
+    /**
+     * The format of the archive being processed. This is determined based on the file extension of the archive and is used to
+     * specify the appropriate handling and options for the archive operations. The format is set during the initialization of the
+     * NArchive instance and is used to configure the behavior of the SevenZipJBinding library when performing operations on the
+     * archive.
+     */
     private ArchiveFormat format = ArchiveFormat.SEVEN_ZIP;
-    /** The file extension of the archive being processed. This is determined based on the name of the archive file and is used for various purposes, such as determining the format of the archive and managing temporary files during operations. The extension is set during the initialization of the NArchive instance and is used to ensure that the correct handling and options are applied based on the type of archive being processed. */
+    /**
+     * The file extension of the archive being processed. This is determined based on the name of the archive file and is used for
+     * various purposes, such as determining the format of the archive and managing temporary files during operations. The extension
+     * is set during the initialization of the NArchive instance and is used to ensure that the correct handling and options are
+     * applied based on the type of archive being processed.
+     */
     private String ext = "7z"; //$NON-NLS-1$
 
     /**
      * Constructor that default to readwrite
-     * @param session the session associated with this archive, used for accessing user settings and other session-related information during archive operations
+     * 
+     * @param session the session associated with this archive, used for accessing user settings and other session-related
+     *        information during archive operations
      * @param archive {@link File} to archive
+     * 
      * @throws IOException
-     * @throws SevenZipNativeInitializationException in case of problem to find and
-     *                                               initialize sevenzipjbinding
-     *                                               native libraries
+     * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
      */
     protected NArchive(final Session session, final File archive) throws IOException, SevenZipNativeInitializationException {
         this(session, archive, false, null);
@@ -100,13 +120,14 @@ abstract class NArchive extends NArchiveBase {
 
     /**
      * Constructor that default to readwrite
-     * @param session the session associated with this archive, used for accessing user settings and other session-related information during archive operations
+     * 
+     * @param session the session associated with this archive, used for accessing user settings and other session-related
+     *        information during archive operations
      * @param archive {@link File} to archive
-     * @param cb      {@link ProgressNarchiveCallBack} to show progress
+     * @param cb {@link ProgressNarchiveCallBack} to show progress
+     * 
      * @throws IOException
-     * @throws SevenZipNativeInitializationException in case of problem to find and
-     *                                               initialize sevenzipjbinding
-     *                                               native libraries
+     * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
      */
     protected NArchive(final Session session, final File archive, final ProgressNarchiveCallBack cb) throws IOException, SevenZipNativeInitializationException {
         this(session, archive, false, cb);
@@ -114,14 +135,15 @@ abstract class NArchive extends NArchiveBase {
 
     /**
      * Constructor with optional readonly mode
-     * @param session  the session associated with this archive, used for accessing user settings and other session-related information during archive operations
-     * @param archive  {@link File} to archive
+     * 
+     * @param session the session associated with this archive, used for accessing user settings and other session-related
+     *        information during archive operations
+     * @param archive {@link File} to archive
      * @param readonly if true, will set archive in readonly safe mode
-     * @param cb       {@link ProgressNarchiveCallBack} to show progress
+     * @param cb {@link ProgressNarchiveCallBack} to show progress
+     * 
      * @throws IOException
-     * @throws SevenZipNativeInitializationException in case of problem to find and
-     *                                               initialize sevenzipjbinding
-     *                                               native libraries
+     * @throws SevenZipNativeInitializationException in case of problem to find and initialize sevenzipjbinding native libraries
      */
     protected NArchive(final Session session, final File archive, final boolean readonly, final ProgressNarchiveCallBack cb)
             throws IOException, SevenZipNativeInitializationException {
@@ -168,10 +190,8 @@ abstract class NArchive extends NArchiveBase {
     }
 
     /**
-     * This is where all operations really take place! Almost all is inside
-     * {@link IOutCreateCallback} callback, then we are using
-     * {@link IOutUpdateArchive} or {@link IOutCreateArchive} in case of creation
-     * mode (where archive does not already exist)
+     * This is where all operations really take place! Almost all is inside {@link IOutCreateCallback} callback, then we are using
+     * {@link IOutUpdateArchive} or {@link IOutCreateArchive} in case of creation mode (where archive does not already exist)
      */
     @Override
     public void close() throws IOException {
@@ -237,6 +257,7 @@ abstract class NArchive extends NArchiveBase {
      * Mapper between SevenZipJBinding options and {@link GlobalSettings}
      * 
      * @param iout the archive feature to map (see code to know what is supported)
+     * 
      * @throws SevenZipException
      */
     private void setOptions(final Object iout) throws SevenZipException {
@@ -265,8 +286,10 @@ abstract class NArchive extends NArchiveBase {
      * Internal method to extract one entry into an arbitrary base directory
      * 
      * @param baseDir the base directory where we should extract file
-     * @param entry   the entry name of the file (with path)
+     * @param entry the entry name of the file (with path)
+     * 
      * @return 0 in case of success, -1 otherwise
+     * 
      * @throws IOException
      */
     private int extract(final File baseDir, final String entry) throws IOException {
@@ -305,23 +328,30 @@ abstract class NArchive extends NArchiveBase {
     }
 
     /**
-     * Extractor callback with progress support.  
+     * Extractor callback with progress support.
      */
     private final class ExtractorCallbackWithProgress extends ExtractorCallback {
-        /** Constructor for the ExtractorCallbackWithProgress class, which extends the ExtractorCallback to include progress reporting functionality. This constructor initializes the callback with the provided parameters and allows for progress updates to be sent to the associated ProgressNarchiveCallBack instance.
+        /**
+         * Constructor for the ExtractorCallbackWithProgress class, which extends the ExtractorCallback to include progress
+         * reporting functionality. This constructor initializes the callback with the provided parameters and allows for progress
+         * updates to be sent to the associated ProgressNarchiveCallBack instance.
          * 
          * @param nArchive the base archive instance associated with this callback
          * @param baseDir the base directory where extracted files should be moved after extraction
          * @param tmpfiles a mapping of archive entry indices to temporary files for writing extracted data
-         * @param rafs a mapping of archive entry indices to RandomAccessFile instances for writing extracted data 
+         * @param rafs a mapping of archive entry indices to RandomAccessFile instances for writing extracted data
          */
         private ExtractorCallbackWithProgress(NArchiveBase nArchive, File baseDir, Map<Integer, File> tmpfiles, Map<Integer, RandomAccessFile> rafs) {
             super(nArchive, baseDir, tmpfiles, rafs);
         }
 
-        /** Overrides the setTotal method to report the total progress of the extraction operation. If a ProgressNarchiveCallBack instance is associated with this callback, it calls the setTotal method on the callback to update the total progress value.
+        /**
+         * Overrides the setTotal method to report the total progress of the extraction operation. If a ProgressNarchiveCallBack
+         * instance is associated with this callback, it calls the setTotal method on the callback to update the total progress
+         * value.
          * 
          * @param total the total progress value to be set for the extraction operation
+         * 
          * @throws SevenZipException if an error occurs while setting the total progress (not applicable in this implementation)
          */
         @Override
@@ -330,9 +360,13 @@ abstract class NArchive extends NArchiveBase {
                 cb.setTotal(total);
         }
 
-        /** Overrides the setCompleted method to report the completed progress of the extraction operation. If a ProgressNarchiveCallBack instance is associated with this callback, it calls the setCompleted method on the callback to update the completed progress value.
+        /**
+         * Overrides the setCompleted method to report the completed progress of the extraction operation. If a
+         * ProgressNarchiveCallBack instance is associated with this callback, it calls the setCompleted method on the callback to
+         * update the completed progress value.
          * 
          * @param complete the completed progress value to be set for the extraction operation
+         * 
          * @throws SevenZipException if an error occurs while setting the completed progress (not applicable in this implementation)
          */
         @Override
@@ -342,9 +376,13 @@ abstract class NArchive extends NArchiveBase {
         }
     }
 
-    /** Extracts the entire archive to a temporary directory. This method calls the internal extract method with the temporary directory as the base directory and null as the entry, indicating that all entries should be extracted. It returns 0 in case of success, or -1 if an error occurs during extraction.
+    /**
+     * Extracts the entire archive to a temporary directory. This method calls the internal extract method with the temporary
+     * directory as the base directory and null as the entry, indicating that all entries should be extracted. It returns 0 in case
+     * of success, or -1 if an error occurs during extraction.
      * 
      * @return 0 if the extraction was successful, or -1 if an error occurred
+     * 
      * @throws IOException if an error occurs during extraction (e.g., file I/O errors)
      */
     @Override
@@ -352,10 +390,17 @@ abstract class NArchive extends NArchiveBase {
         return extract(getTempDir(), null);
     }
 
-    /** Extracts a specific entry from the archive to a temporary directory. This method calls the internal extract method with the temporary directory as the base directory and the specified entry name, indicating that only that entry should be extracted. If the extraction is successful and the resulting file exists, it returns a File instance representing the extracted file. If the extraction fails or the resulting file does not exist, it returns null.
+    /**
+     * Extracts a specific entry from the archive to a temporary directory. This method calls the internal extract method with the
+     * temporary directory as the base directory and the specified entry name, indicating that only that entry should be extracted.
+     * If the extraction is successful and the resulting file exists, it returns a File instance representing the extracted file. If
+     * the extraction fails or the resulting file does not exist, it returns null.
      * 
      * @param entry the name of the entry to be extracted (including path within the archive)
-     * @return a File instance representing the extracted file if successful, or null if extraction failed or the file does not exist
+     * 
+     * @return a File instance representing the extracted file if successful, or null if extraction failed or the file does not
+     *         exist
+     * 
      * @throws IOException if an error occurs during extraction (e.g., file I/O errors)
      */
     @Override
@@ -367,10 +412,16 @@ abstract class NArchive extends NArchiveBase {
         return null;
     }
 
-    /** Extracts a specific entry from the archive and returns it as an InputStream. This method calls the internal extract method with the temporary directory as the base directory and the specified entry name, indicating that only that entry should be extracted. If the extraction is successful, it returns an InputStream for reading the extracted file. If the extraction fails or the resulting file does not exist, it throws an IOException.
+    /**
+     * Extracts a specific entry from the archive and returns it as an InputStream. This method calls the internal extract method
+     * with the temporary directory as the base directory and the specified entry name, indicating that only that entry should be
+     * extracted. If the extraction is successful, it returns an InputStream for reading the extracted file. If the extraction fails
+     * or the resulting file does not exist, it throws an IOException.
      * 
      * @param entry the name of the entry to be extracted (including path within the archive)
+     * 
      * @return an InputStream for reading the extracted file if successful
+     * 
      * @throws IOException if an error occurs during extraction (e.g., file I/O errors) or if the resulting file does not exist
      */
     @Override
@@ -379,11 +430,18 @@ abstract class NArchive extends NArchiveBase {
         return new FileInputStream(new File(getTempDir(), entry));
     }
 
-    /** Adds a file entry to the archive from a specified base directory. This method checks if the archive is in read-only mode, and if so, it returns -1 to indicate that the operation is not allowed. If the base directory is a file, it copies the file to the temporary directory with the specified entry name. If the base directory is a directory and is not the same as the temporary directory, it copies the specified entry from the base directory to the temporary directory. Finally, it adds the entry name to the list of entries to be added to the archive and returns 0 to indicate success.
+    /**
+     * Adds a file entry to the archive from a specified base directory. This method checks if the archive is in read-only mode, and
+     * if so, it returns -1 to indicate that the operation is not allowed. If the base directory is a file, it copies the file to
+     * the temporary directory with the specified entry name. If the base directory is a directory and is not the same as the
+     * temporary directory, it copies the specified entry from the base directory to the temporary directory. Finally, it adds the
+     * entry name to the list of entries to be added to the archive and returns 0 to indicate success.
      * 
      * @param baseDir the base directory from which to add the file entry (can be a file or a directory)
      * @param entry the name of the entry to be added (including path within the archive)
+     * 
      * @return 0 if the entry was successfully added, or -1 if the archive is in read-only mode
+     * 
      * @throws IOException if an error occurs during file copying (e.g., file I/O errors)
      */
     @Override
@@ -398,11 +456,17 @@ abstract class NArchive extends NArchiveBase {
         return 0;
     }
 
-    /** Adds a file entry to the archive using an InputStream as the source. This method checks if the archive is in read-only mode, and if so, it returns -1 to indicate that the operation is not allowed. Otherwise, it copies the input stream to a file in the temporary directory with the specified entry name, adds the entry name to the list of entries to be added to the archive, and returns 0 to indicate success.
+    /**
+     * Adds a file entry to the archive using an InputStream as the source. This method checks if the archive is in read-only mode,
+     * and if so, it returns -1 to indicate that the operation is not allowed. Otherwise, it copies the input stream to a file in
+     * the temporary directory with the specified entry name, adds the entry name to the list of entries to be added to the archive,
+     * and returns 0 to indicate success.
      * 
      * @param src the InputStream containing the data for the new entry
      * @param entry the name of the entry to be added (including path within the archive)
+     * 
      * @return 0 if the entry was successfully added, or -1 if the archive is in read-only mode
+     * 
      * @throws IOException if an error occurs while writing the input stream to a file
      */
     @Override
@@ -414,10 +478,15 @@ abstract class NArchive extends NArchiveBase {
         return 0;
     }
 
-    /** Deletes a file entry from the archive. This method checks if the archive is in read-only mode, and if so, it returns -1 to indicate that the operation is not allowed. Otherwise, it adds the entry (after normalizing it) to the list of entries to be deleted during the archive update. It returns 0 to indicate success.
+    /**
+     * Deletes a file entry from the archive. This method checks if the archive is in read-only mode, and if so, it returns -1 to
+     * indicate that the operation is not allowed. Otherwise, it adds the entry (after normalizing it) to the list of entries to be
+     * deleted during the archive update. It returns 0 to indicate success.
      * 
      * @param entry the name of the entry to be deleted (including path within the archive)
+     * 
      * @return 0 if the deletion was successfully queued, or -1 if the archive is in read-only mode
+     * 
      * @throws IOException if an error occurs during deletion
      */
     @Override
@@ -428,12 +497,19 @@ abstract class NArchive extends NArchiveBase {
         return 0;
     }
 
-    /** Renames a file entry in the archive to a new name. This method checks if the archive is in read-only mode, and if so, it returns -1 to indicate that the operation is not allowed. Otherwise, it adds the mapping of the original entry to the new name (after normalizing both) to the list of entries to be renamed during the archive update. It returns 0 to indicate success.
+    /**
+     * Renames a file entry in the archive to a new name. This method checks if the archive is in read-only mode, and if so, it
+     * returns -1 to indicate that the operation is not allowed. Otherwise, it adds the mapping of the original entry to the new
+     * name (after normalizing both) to the list of entries to be renamed during the archive update. It returns 0 to indicate
+     * success.
      * 
      * @param entry the original name of the entry to be renamed (including path within the archive)
      * @param newname the new name for the entry (including path within the archive)
+     * 
      * @return 0 if the renaming was successfully queued, or -1 if the archive is in read-only mode
-     * @throws IOException if an error occurs during renaming         */
+     * 
+     * @throws IOException if an error occurs during renaming
+     */
     @Override
     public int rename(final String entry, final String newname) throws IOException {
         if (readonly)
@@ -442,12 +518,19 @@ abstract class NArchive extends NArchiveBase {
         return 0;
     }
 
-    /** Duplicates a file entry in the archive with a new name. This method checks if the archive is in read-only mode, and if so, it returns -1 to indicate that the operation is not allowed. Otherwise, it adds the mapping of the original entry to the new name (after normalizing both) to the list of entries to be copied during the archive update. It returns 0 to indicate success.
+    /**
+     * Duplicates a file entry in the archive with a new name. This method checks if the archive is in read-only mode, and if so, it
+     * returns -1 to indicate that the operation is not allowed. Otherwise, it adds the mapping of the original entry to the new
+     * name (after normalizing both) to the list of entries to be copied during the archive update. It returns 0 to indicate
+     * success.
      * 
      * @param entry the original name of the entry to be duplicated (including path within the archive)
      * @param newname the name for the duplicated entry (including path within the archive)
+     * 
      * @return 0 if the duplication was successfully queued, or -1 if the archive is in read-only mode
-     * @throws IOException if an error occurs during duplication         */
+     * 
+     * @throws IOException if an error occurs during duplication
+     */
     @Override
     public int duplicate(final String entry, final String newname) throws IOException {
         if (readonly)
@@ -460,6 +543,7 @@ abstract class NArchive extends NArchiveBase {
      * Normalize char separator according platform default separator
      * 
      * @param entry the entry to normalize
+     * 
      * @return the normalized entry
      */
     private String normalize(final String entry) {

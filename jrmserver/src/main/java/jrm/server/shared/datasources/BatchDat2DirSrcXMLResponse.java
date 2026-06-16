@@ -16,8 +16,8 @@ import jrm.xml.SimpleAttribute;
 /**
  * XML response handler for batch DAT to directory source directories.
  * <p>
- * This class processes XML requests to manage the list of source directories
- * used in batch DAT to directory operations, supporting fetch, add, and remove operations.
+ * This class processes XML requests to manage the list of source directories used in batch DAT to directory operations, supporting
+ * fetch, add, and remove operations.
  * </p>
  */
 public class BatchDat2DirSrcXMLResponse extends XMLResponse {
@@ -33,6 +33,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      * Constructs a new batch DAT to directory source directories XML response.
      *
      * @param request the XML request containing the operation to process
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML stream error occurs during initialization
      */
@@ -44,6 +45,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      * Fetches the current list of source directories and writes them to the XML response.
      *
      * @param operation the operation containing request parameters
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -68,6 +70,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      * Adds new source directories to the settings if they do not already exist.
      *
      * @param operation the operation containing the "name" data to add
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -92,6 +95,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      *
      * @param operation the operation containing request parameters
      * @param names the list of newly added source directory names
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     private void writeResponse(Operation operation, final List<String> names) throws XMLStreamException {
@@ -115,6 +119,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      * Writes a single source directory record to the XML stream.
      *
      * @param name the name of the source directory
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     private void writeRecord(final String name) throws XMLStreamException {
@@ -125,6 +130,7 @@ public class BatchDat2DirSrcXMLResponse extends XMLResponse {
      * Removes existing source directories from the settings.
      *
      * @param operation the operation containing the "name" data to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override

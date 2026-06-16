@@ -3,8 +3,8 @@ package jrm.profile.manager;
 import java.io.File;
 
 /**
- * Represents a logical directory in the ROM manager, wrapping a {@link File}
- * object and providing named display capability and safe creation.
+ * Represents a logical directory in the ROM manager, wrapping a {@link File} object and providing named display capability and safe
+ * creation.
  * 
  * @author optyfr
  */
@@ -20,8 +20,7 @@ public class Dir {
     private final String name;
 
     /**
-     * Constructs a new directory instance. If the directory on the physical
-     * filesystem does not exist, it is recursively created.
+     * Constructs a new directory instance. If the directory on the physical filesystem does not exist, it is recursively created.
      * 
      * @param file the physical folder location
      */
@@ -33,8 +32,7 @@ public class Dir {
     }
 
     /**
-     * Constructs a new directory instance with a custom display name. The physical
-     * directory is not automatically created.
+     * Constructs a new directory instance with a custom display name. The physical directory is not automatically created.
      * 
      * @param file the physical folder location
      * @param name the display name for the directory
@@ -64,12 +62,12 @@ public class Dir {
     }
 
     /**
-     * Compares this directory with another object for equality. Two directories are
-     * considered equal if they point to the exact same physical file path.
+     * Compares this directory with another object for equality. Two directories are considered equal if they point to the exact
+     * same physical file path.
      * 
      * @param obj the reference object with which to compare
-     * @return {@code true} if this object is the same as the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -92,8 +90,9 @@ public class Dir {
      * Renames the physical directory to a new target path on disk.
      * 
      * @param newFile the new physical target folder
-     * @return a new {@link Dir} instance representing the new path if the operation
-     *         succeeded, or {@code this} instance if renaming failed
+     * 
+     * @return a new {@link Dir} instance representing the new path if the operation succeeded, or {@code this} instance if renaming
+     *         failed
      */
     public Dir renameTo(File newFile) {
         if (this.file.renameTo(newFile))

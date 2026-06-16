@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -35,10 +27,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Defines a MESS or MAME software list software item. Encapsulates publisher,
- * release year, compatibility flags, and underlying parts like roms/disks.
+ * Defines a MESS or MAME software list software item. Encapsulates publisher, release year, compatibility flags, and underlying
+ * parts like roms/disks.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -63,15 +56,16 @@ public class Software extends Anyware implements Serializable {
      * Is this software supported (defaults to yes).
      * 
      * @param supported the support status to set
+     * 
      * @return the support status
      */
     private @Getter @Setter Supported supported = Supported.yes;
 
     /**
-     * The software compatibility string (a list of machine dependent tags separated
-     * by commas).
+     * The software compatibility string (a list of machine dependent tags separated by commas).
      * 
      * @param compatibility the compatibility string to set
+     * 
      * @return the compatibility string
      */
     private @Getter @Setter String compatibility = null;
@@ -87,6 +81,7 @@ public class Software extends Anyware implements Serializable {
      * The software list from which this software originated.
      * 
      * @param sl the software list to set
+     * 
      * @return the software list
      */
     private @Getter @Setter SoftwareList sl = null;
@@ -95,15 +90,16 @@ public class Software extends Anyware implements Serializable {
      * The Supported values definition.
      * 
      * @author optyfr
+     * 
      * @since 1.0
      */
     public enum Supported implements Serializable {
         /** Not supported. */
-        no,
+        no, // NOSONAR
         /** Partially supported. */
-        partial,
+        partial, // NOSONAR
         /** Fully supported. */
-        yes;
+        yes; // NOSONAR
 
         /**
          * Retrieves the XML-ready value representation.
@@ -119,6 +115,7 @@ public class Software extends Anyware implements Serializable {
      * Part of Data/Disk areas inside a software.
      * 
      * @author optyfr
+     * 
      * @since 1.0
      */
     public static class Part implements Serializable {
@@ -126,6 +123,7 @@ public class Software extends Anyware implements Serializable {
          * Data area containing {@link Rom}s and various definitions of the area.
          * 
          * @author optyfr
+         * 
          * @since 1.0
          */
         public static class DataArea implements Serializable {
@@ -133,13 +131,14 @@ public class Software extends Anyware implements Serializable {
              * Words endianness.
              * 
              * @author optyfr
+             * 
              * @since 1.0
              */
             public enum Endianness implements Serializable {
                 /** Big endian ordering. */
-                big,
+                big, // NOSONAR
                 /** Little endian ordering. */
-                little;
+                little; // NOSONAR
 
                 /**
                  * Retrieves the XML representation of endianness.
@@ -186,15 +185,17 @@ public class Software extends Anyware implements Serializable {
              * @return the list of ROMs
              */
             private @Getter List<Rom> roms = new ArrayList<>();
-            
+
             /** Default constructor for DataArea. Initializes the data area with default values. */
-            public DataArea() { /* default constructor */ }
+            public DataArea() {
+                /* default constructor */ }
         }
 
         /**
          * Disk area containing {@link Disk}s.
          * 
          * @author optyfr
+         * 
          * @since 1.0
          */
         public static class DiskArea implements Serializable {
@@ -211,9 +212,10 @@ public class Software extends Anyware implements Serializable {
              * @return the list of disks
              */
             private @Getter List<Disk> disks = new ArrayList<>();
-            
+
             /** Default constructor for DiskArea. Initializes the disk area with default values. */
-            public DiskArea() { /* default constructor */ }
+            public DiskArea() {
+                /* default constructor */ }
         }
 
         /**
@@ -227,6 +229,7 @@ public class Software extends Anyware implements Serializable {
          * The interface used to load this part.
          * 
          * @param intrface the interface to set
+         * 
          * @return the interface string
          */
         private @Getter @Setter String intrface;
@@ -244,9 +247,10 @@ public class Software extends Anyware implements Serializable {
          * @return the list of disk areas
          */
         private @Getter List<DiskArea> diskareas = new ArrayList<>();
-        
+
         /** Default constructor for Part. Initializes the part with default values. */
-        public Part() { /* default constructor */ }
+        public Part() {
+            /* default constructor */ }
     }
 
     /**
@@ -283,6 +287,7 @@ public class Software extends Anyware implements Serializable {
      * Retrieves the full name for a specific filename within this software.
      * 
      * @param filename the relative filename
+     * 
      * @return the full resolved path/filename
      */
     @Override
@@ -333,10 +338,10 @@ public class Software extends Anyware implements Serializable {
     /**
      * Export as dat entry.
      * 
-     * @param writer  the {@link EnhancedXMLStreamWriter} used to write the output
-     *                file
+     * @param writer the {@link EnhancedXMLStreamWriter} used to write the output file
      * @param entries filtered entries list (can be null)
-     * @param modes   active export modes
+     * @param modes active export modes
+     * 
      * @throws XMLStreamException if an XML writing error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, Set<ExportMode> modes) throws XMLStreamException {
@@ -346,9 +351,9 @@ public class Software extends Anyware implements Serializable {
                 new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
         );
         writer.writeElement("description", description); //$NON-NLS-1$
-        if (year.length() > 0)
+        if (!year.isEmpty())
             writer.writeElement("year", year); //$NON-NLS-1$
-        if (publisher.length() > 0)
+        if (!publisher.isEmpty())
             writer.writeElement("publisher", publisher); //$NON-NLS-1$
         for (final Part part : parts) {
             writer.writeStartElement("part", //$NON-NLS-1$
@@ -366,13 +371,13 @@ public class Software extends Anyware implements Serializable {
     /**
      * Internal helper to export ROMs inside a software part.
      * 
-     * @param writer  the XML writer
+     * @param writer the XML writer
      * @param entries active entries collection
-     * @param part    the target part
-     * @param modes   active export modes
+     * @param part the target part
+     * @param modes active export modes
+     * 
      * @throws XMLStreamException if an XML writing error occurs
      */
-    @SuppressWarnings("unlikely-arg-type")
     private void exportRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException {
         final var missing = modes.contains(ExportMode.MISSING);
         final var have = modes.contains(ExportMode.HAVE);
@@ -384,24 +389,42 @@ public class Software extends Anyware implements Serializable {
                     new SimpleAttribute("width", dataarea.databits), //$NON-NLS-1$
                     new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
             );
-            for (final Rom r : dataarea.roms)
-                if (entries == null || entries.contains(r)) // NOSONAR
-                    if (all || (missing && r.getStatus() == EntityStatus.KO) || (have && r.getStatus() == EntityStatus.OK))
-                        r.export(writer, true);
+            exportDataAreaRoms(writer, entries, dataarea, all, missing, have);
             writer.writeEndElement();
         }
     }
 
     /**
-     * Internal helper to export Disks inside a software part.
+     * Internal helper to export ROMs inside a data area.
      * 
-     * @param writer  the XML writer
+     * @param writer the XML writer
      * @param entries active entries collection
-     * @param part    the target part
-     * @param modes   active export modes
+     * @param dataarea the target data area
+     * @param all export all flag
+     * @param missing export missing flag
+     * @param have export have flag
+     * 
      * @throws XMLStreamException if an XML writing error occurs
      */
     @SuppressWarnings("unlikely-arg-type")
+    private void exportDataAreaRoms(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final DataArea dataarea, boolean all, boolean missing, boolean have)
+            throws XMLStreamException {
+        for (final Rom r : dataarea.roms)
+            if (entries == null || entries.contains(r)) // NOSONAR
+                if (all || (missing && r.getStatus() == EntityStatus.KO) || (have && r.getStatus() == EntityStatus.OK))
+                    r.export(writer, true);
+    }
+
+    /**
+     * Internal helper to export Disks inside a software part.
+     * 
+     * @param writer the XML writer
+     * @param entries active entries collection
+     * @param part the target part
+     * @param modes active export modes
+     * 
+     * @throws XMLStreamException if an XML writing error occurs
+     */
     private void exportDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final Part part, Set<ExportMode> modes) throws XMLStreamException {
         final var missing = modes.contains(ExportMode.MISSING);
         final var have = modes.contains(ExportMode.HAVE);
@@ -410,12 +433,30 @@ public class Software extends Anyware implements Serializable {
             writer.writeStartElement("diskarea", //$NON-NLS-1$
                     new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
             );
-            for (final Disk d : diskarea.disks)
-                if (entries == null || entries.contains(d)) // NOSONAR
-                    if (all || (missing && d.getStatus() == EntityStatus.KO) || (have && d.getStatus() == EntityStatus.OK))
-                        d.export(writer, true);
+            exportDiskAreaDisks(writer, entries, diskarea, all, missing, have);
             writer.writeEndElement();
         }
+    }
+
+    /**
+     * Internal helper to export Disks inside a disk area.
+     * 
+     * @param writer the XML writer
+     * @param entries active entries collection
+     * @param diskarea the target disk area
+     * @param all export all flag
+     * @param missing export missing flag
+     * @param have export have flag
+     * 
+     * @throws XMLStreamException if an XML writing error occurs
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    private void exportDiskAreaDisks(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, final DiskArea diskarea, boolean all, boolean missing, boolean have)
+            throws XMLStreamException {
+        for (final Disk d : diskarea.disks)
+            if (entries == null || entries.contains(d)) // NOSONAR
+                if (all || (missing && d.getStatus() == EntityStatus.KO) || (have && d.getStatus() == EntityStatus.OK))
+                    d.export(writer, true);
     }
 
     /**
@@ -429,12 +470,12 @@ public class Software extends Anyware implements Serializable {
     }
 
     /**
-     * Internal streaming provider. Excludes devices because software lists are
-     * treated separately from main emulator bios/devices.
+     * Internal streaming provider. Excludes devices because software lists are treated separately from main emulator bios/devices.
      * 
      * @param excludeBios exclude bios flag
-     * @param partial     partial flag
-     * @param recurse     recurse flag
+     * @param partial partial flag
+     * @param recurse recurse flag
+     * 
      * @return ROMs stream
      */
     @Override
@@ -446,6 +487,7 @@ public class Software extends Anyware implements Serializable {
      * Compares the specified object with this software for equality.
      * 
      * @param obj the reference object
+     * 
      * @return true if equivalent, false otherwise
      */
     @Override

@@ -8,13 +8,12 @@ import jrm.locale.Messages;
 import jrm.profile.data.Container;
 
 /**
- * Subject indicating that a physical container needs to be converted or
- * processed as a TorrentZip file.
+ * Subject indicating that a physical container needs to be converted or processed as a TorrentZip file.
  * <p>
- * TorrentZip format ensures standardized layout and compression properties
- * within ZIP files to facilitate exact hash matches.
+ * TorrentZip format ensures standardized layout and compression properties within ZIP files to facilitate exact hash matches.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class ContainerTZip extends ContainerSubject implements Serializable {
@@ -30,8 +29,7 @@ public class ContainerTZip extends ContainerSubject implements Serializable {
     }
 
     /**
-     * Returns a localized string summarizing that the container needs TorrentZip
-     * conversion.
+     * Returns a localized string summarizing that the container needs TorrentZip conversion.
      *
      * @return the localized message string
      */
@@ -44,6 +42,7 @@ public class ContainerTZip extends ContainerSubject implements Serializable {
      * Clones this subject without modifying notes.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return a cloned ContainerTZip instance
      */
     @Override
@@ -52,10 +51,10 @@ public class ContainerTZip extends ContainerSubject implements Serializable {
     }
 
     /**
-     * Streams the collection of status notes associated with this container
-     * subject.
+     * Streams the collection of status notes associated with this container subject.
      *
      * @param filterOptions the active filtering options to evaluate
+     * 
      * @return a stream of status Note instances
      */
     @Override

@@ -4,27 +4,18 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-/* Copyright (C) 2018  optyfr
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 
 /**
- * Base implementation of a CHD (Compressed Hunks of Data) file header parser.
- * It reads the basic signature tag, length, and version, and provides utility
- * methods for hex conversion and hash extraction from byte buffers.
+ * Base implementation of a CHD (Compressed Hunks of Data) file header parser. It reads the basic signature tag, length, and
+ * version, and provides utility methods for hex conversion and hash extraction from byte buffers.
  * 
  * @author optyfr
  */
@@ -101,10 +92,10 @@ class CHDHeader implements CHDHeaderIntf {
     private static final char[] hexArray = "0123456789abcdef".toCharArray(); //$NON-NLS-1$
 
     /**
-     * Utility method to convert a byte array to its lowercase hexadecimal string
-     * representation.
+     * Utility method to convert a byte array to its lowercase hexadecimal string representation.
      *
      * @param bytes the array of bytes to convert
+     * 
      * @return the converted lowercase hexadecimal string
      */
     protected static String bytesToHex(final byte[] bytes) {
@@ -118,8 +109,8 @@ class CHDHeader implements CHDHeaderIntf {
     }
 
     /**
-     * Retrieves the SHA-1 digest of the raw, uncompressed data. Default
-     * implementation returns {@code null} as base CHD header may not report it.
+     * Retrieves the SHA-1 digest of the raw, uncompressed data. Default implementation returns {@code null} as base CHD header may
+     * not report it.
      *
      * @return {@code null} or SHA-1 hash if available
      */
@@ -129,8 +120,8 @@ class CHDHeader implements CHDHeaderIntf {
     }
 
     /**
-     * Retrieves the MD5 digest of the raw, uncompressed data. Default
-     * implementation returns {@code null} as base CHD header may not report it.
+     * Retrieves the MD5 digest of the raw, uncompressed data. Default implementation returns {@code null} as base CHD header may
+     * not report it.
      *
      * @return {@code null} or MD5 hash if available
      */
@@ -140,13 +131,12 @@ class CHDHeader implements CHDHeaderIntf {
     }
 
     /**
-     * Reads a hash sequence of a specified size from the given byte buffer at the
-     * specified position.
+     * Reads a hash sequence of a specified size from the given byte buffer at the specified position.
      *
-     * @param bb       the byte buffer to read from
-     * @param position the 0-based offset position in the buffer to start reading
-     *                 the hash
-     * @param size     the size of the hash in bytes
+     * @param bb the byte buffer to read from
+     * @param position the 0-based offset position in the buffer to start reading the hash
+     * @param size the size of the hash in bytes
+     * 
      * @return the hexadecimal string representation of the parsed hash
      */
     protected String getHash(ByteBuffer bb, int position, int size) {

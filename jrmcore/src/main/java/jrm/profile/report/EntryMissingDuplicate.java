@@ -7,24 +7,22 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 
 /**
- * Report note indicating that a required expected metadata entity is missing,
- * but can be duplicated from another matching physical entry located inside the
- * same container.
+ * Report note indicating that a required expected metadata entity is missing, but can be duplicated from another matching physical
+ * entry located inside the same container.
  * <p>
- * This status allows local performance optimization by copying an existing file
- * within an archive without external fetches.
+ * This status allows local performance optimization by copying an existing file within an archive without external fetches.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public class EntryMissingDuplicate extends EntryExtNote implements Serializable {
     /**
-     * Constructs a new EntryMissingDuplicate note mapping a missing entity to an
-     * existing candidate file entry.
+     * Constructs a new EntryMissingDuplicate note mapping a missing entity to an existing candidate file entry.
      *
      * @param entity the missing expected metadata entity
-     * @param entry  the existing physical entry that can be duplicated
+     * @param entry the existing physical entry that can be duplicated
      */
     public EntryMissingDuplicate(final Entity entity, final Entry entry) {
         super(entity, entry);

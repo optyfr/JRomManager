@@ -451,6 +451,7 @@ public class ScannerFiltersPanel extends JSplitPane {
 
     /**
      * @param session
+     * 
      * @return
      */
     private JCheckBoxList<Systm>.CellRenderer getCheckBoxListSystemsCellRenderer(final Session session) {
@@ -467,6 +468,7 @@ public class ScannerFiltersPanel extends JSplitPane {
 
     /**
      * @param session
+     * 
      * @return
      */
     private JCheckBoxList<Source>.CellRenderer getCheckBoxListSourcesCellRenderer(final Session session) {

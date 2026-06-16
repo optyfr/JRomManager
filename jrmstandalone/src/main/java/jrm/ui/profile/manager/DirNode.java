@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.ui.profile.manager;
 
@@ -58,7 +49,7 @@ public class DirNode extends DefaultMutableTreeNode {
     /**
      * Builds the dir tree.
      *
-     * @param dir  the dir
+     * @param dir the dir
      * @param node the node
      */
     private void buildDirTree(final Dir dir, final DefaultMutableTreeNode node) {
@@ -92,6 +83,7 @@ public class DirNode extends DefaultMutableTreeNode {
      * Find.
      *
      * @param file the file
+     * 
      * @return the dir node
      */
     public DirNode find(final File file) {
@@ -103,6 +95,7 @@ public class DirNode extends DefaultMutableTreeNode {
      *
      * @param root the root
      * @param file the file
+     * 
      * @return the dir node
      */
     public static DirNode find(final DirNode root, final File file) {
@@ -131,6 +124,7 @@ public class DirNode extends DefaultMutableTreeNode {
      * Sets the dir.
      *
      * @param dir the dir to set
+     * 
      * @return the dir
      */
     public Dir setDir(Dir dir) {

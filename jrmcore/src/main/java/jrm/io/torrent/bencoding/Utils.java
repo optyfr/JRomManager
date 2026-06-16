@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent.bencoding;
 
@@ -28,9 +19,8 @@ import jrm.misc.Log;
 import lombok.experimental.UtilityClass;
 
 /**
- * Utility library providing byte manipulation, hexadecimal encoding, file
- * reading, and cryptographic hashing operations for torrent metadata
- * processing.
+ * Utility library providing byte manipulation, hexadecimal encoding, file reading, and cryptographic hashing operations for torrent
+ * metadata processing.
  *
  * @author Christophe De Troyer
  * @author Optyfr
@@ -45,6 +35,7 @@ public @UtilityClass class Utils {
      * Takes an array of bytes and converts them to an uppercase hexadecimal string.
      *
      * @param bytes the byte array to encode
+     * 
      * @return the encoded hexadecimal string
      */
     public static String bytesToHex(byte[] bytes) {
@@ -59,11 +50,11 @@ public @UtilityClass class Utils {
     }
 
     /**
-     * Reads and returns the byte at the specified index position from a file on
-     * disk.
+     * Reads and returns the byte at the specified index position from a file on disk.
      *
      * @param path the path of the file to read from
-     * @param nth  the 0-based offset of the byte to read
+     * @param nth the 0-based offset of the byte to read
+     * 
      * @return the read byte, or {@code 0} if an I/O error occurred
      */
     public static byte readNthByteFromFile(String path, long nth) {
@@ -80,11 +71,11 @@ public @UtilityClass class Utils {
     }
 
     /**
-     * Checks whether the bit at the specified 0-based position is set to 1 in the
-     * given byte.
+     * Checks whether the bit at the specified 0-based position is set to 1 in the given byte.
      *
-     * @param b        the source byte to check
+     * @param b the source byte to check
      * @param position the 0-based position starting from the least significant bit
+     * 
      * @return {@code true} if the bit is set (1), otherwise {@code false}
      */
     public static boolean isBitSet(byte b, int position) {
@@ -102,12 +93,11 @@ public @UtilityClass class Utils {
     }
 
     /**
-     * Checks whether all bytes in the given array represent printable ASCII
-     * characters (i.e. MSB is 0).
+     * Checks whether all bytes in the given array represent printable ASCII characters (i.e. MSB is 0).
      *
      * @param data the byte array to check
-     * @return {@code true} if all bytes are valid printable ASCII characters,
-     *         otherwise {@code false}
+     * 
+     * @return {@code true} if all bytes are valid printable ASCII characters, otherwise {@code false}
      */
     public static boolean allAscii(byte[] data) {
         for (byte b : data)
@@ -120,8 +110,8 @@ public @UtilityClass class Utils {
      * Calculates the cryptographic SHA-1 hash for the given input byte array.
      *
      * @param input the raw byte array to hash
-     * @return the lowercase hexadecimal SHA-1 digest, or {@code null} if the hash
-     *         calculation failed
+     * 
+     * @return the lowercase hexadecimal SHA-1 digest, or {@code null} if the hash calculation failed
      */
     public static String sumSHA(byte[] input) {
         MessageDigest md;
@@ -138,6 +128,7 @@ public @UtilityClass class Utils {
      * Formats a byte array into a lowercase hexadecimal string.
      *
      * @param bytes the raw bytes to convert
+     * 
      * @return the lowercase hexadecimal string representation
      */
     private static String byteArray2Hex(final byte[] bytes) {
@@ -153,8 +144,8 @@ public @UtilityClass class Utils {
      * Converts a standard String into its equivalent ASCII byte array.
      *
      * @param s the string to convert
-     * @return a byte array containing ASCII representations of the string
-     *         characters
+     * 
+     * @return a byte array containing ASCII representations of the string characters
      */
     public static byte[] stringToAsciiBytes(String s) {
         final var ascii = new byte[s.length()];

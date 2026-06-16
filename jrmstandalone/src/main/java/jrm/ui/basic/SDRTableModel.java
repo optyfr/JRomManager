@@ -25,6 +25,7 @@ public abstract class SDRTableModel extends AbstractEnhTableModel {
 
     /**
      * @param currentRow the current_row to set
+     * 
      * @return the current row
      */
     public int setCurrentRow(int currentRow) {
@@ -41,6 +42,7 @@ public abstract class SDRTableModel extends AbstractEnhTableModel {
 
     /**
      * @param currentCol the current_col to set
+     * 
      * @return the current col
      */
     public int setCurrentCol(int currentCol) {

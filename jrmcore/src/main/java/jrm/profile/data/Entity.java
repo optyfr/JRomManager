@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -26,10 +18,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The abstract common base class for {@link Rom} and {@link Disk}. This class
- * extends {@link EntityBase} and manages standard retro game files properties,
- * such as file sizes, CRC, MD5, and SHA-1 checksums, dump status, and merge
- * behaviors.
+ * The abstract common base class for {@link Rom} and {@link Disk}. This class extends {@link EntityBase} and manages standard retro
+ * game files properties, such as file sizes, CRC, MD5, and SHA-1 checksums, dump status, and merge behaviors.
  *
  * @author optyfr
  */
@@ -71,51 +61,52 @@ public abstract class Entity extends EntityBase implements Serializable {
      * The file size in bytes, defaults to 0 (always 0 for disks).
      *
      * @param size the file size in bytes to set
+     * 
      * @return the file size in bytes
      */
     protected @Getter @Setter long size = 0;
 
     /**
-     * The CRC32 value as a lowercase hexadecimal {@link String}, or null if none is
-     * defined (e.g. for disks).
+     * The CRC32 value as a lowercase hexadecimal {@link String}, or null if none is defined (e.g. for disks).
      *
      * @param crc the CRC32 hexadecimal string to set
+     * 
      * @return the CRC32 hexadecimal string
      */
     protected @Getter @Setter String crc = null;
 
     /**
-     * The SHA-1 checksum value as a lowercase hexadecimal {@link String}, or null
-     * if none is defined.
+     * The SHA-1 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
      *
      * @param sha1 the SHA-1 hexadecimal string to set
+     * 
      * @return the SHA-1 hexadecimal string
      */
     protected @Getter @Setter String sha1 = null;
 
     /**
-     * The MD5 checksum value as a lowercase hexadecimal {@link String}, or null if
-     * none is defined.
+     * The MD5 checksum value as a lowercase hexadecimal {@link String}, or null if none is defined.
      *
      * @param md5 the MD5 hexadecimal string to set
+     * 
      * @return the MD5 hexadecimal string
      */
     protected @Getter @Setter String md5 = null;
 
     /**
-     * The merge name target of this entity, or null if no explicit merge is
-     * defined.
+     * The merge name target of this entity, or null if no explicit merge is defined.
      *
      * @param merge the merge target name to set
+     * 
      * @return the merge target name
      */
     protected @Getter @Setter String merge = null;
 
     /**
-     * The dump status of this entity, defaulting to {@link Status#good} when not
-     * defined.
+     * The dump status of this entity, defaulting to {@link Status#good} when not defined.
      *
      * @param dumpStatus the dump status to set
+     * 
      * @return the dump status of the entity
      */
     protected @Getter @Setter Status dumpStatus = Status.good;
@@ -142,13 +133,11 @@ public abstract class Entity extends EntityBase implements Serializable {
         verified; // NOSONAR
 
         /**
-         * Maps the status value for XML output according to the requested export
-         * format.
+         * Maps the status value for XML output according to the requested export format.
          *
-         * @param is_mame {@code true} if the export format is MAME XML, {@code false}
-         *                for other formats
-         * @return the mapped {@link Status}, or {@code null} if good / default status
-         *         should be skipped in the XML output
+         * @param is_mame {@code true} if the export format is MAME XML, {@code false} for other formats
+         * 
+         * @return the mapped {@link Status}, or {@code null} if good / default status should be skipped in the XML output
          */
         public Status getXML(final boolean is_mame) {
             return (Status.good == this || (is_mame && Status.verified == this)) ? null : this;
@@ -169,6 +158,7 @@ public abstract class Entity extends EntityBase implements Serializable {
      * Custom serialization writer.
      *
      * @param stream the object output stream
+     * 
      * @throws IOException if an I/O error occurs
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -186,7 +176,8 @@ public abstract class Entity extends EntityBase implements Serializable {
      * Custom serialization reader.
      *
      * @param stream the object input stream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the class cannot be located
      */
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -214,8 +205,7 @@ public abstract class Entity extends EntityBase implements Serializable {
     }
 
     /**
-     * Enables collision mode for this entity and propagates it to parents or clone
-     * families depending on the configured
+     * Enables collision mode for this entity and propagates it to parents or clone families depending on the configured
      * {@link ProfileSettings#getHashCollisionMode()}.
      */
     public void setCollisionMode() {
@@ -229,8 +219,8 @@ public abstract class Entity extends EntityBase implements Serializable {
     /**
      * Checks if collision mode is currently active for this entity.
      *
-     * @param dumber {@code true} to assume collision mode for very dumb strategies,
-     *               {@code false} otherwise
+     * @param dumber {@code true} to assume collision mode for very dumb strategies, {@code false} otherwise
+     * 
      * @return {@code true} if collision mode is active, {@code false} otherwise
      */
     public boolean isCollisionMode(boolean dumber) {
@@ -251,8 +241,7 @@ public abstract class Entity extends EntityBase implements Serializable {
     }
 
     /**
-     * Resets both the {@link #collision} status flag and the internal
-     * {@link EntityBase#ownStatus}.
+     * Resets both the {@link #collision} status flag and the internal {@link EntityBase#ownStatus}.
      */
     void resetCollisionMode() {
         collision = false;
@@ -273,8 +262,8 @@ public abstract class Entity extends EntityBase implements Serializable {
      * Indicates whether some other object is "equal to" this one.
      *
      * @param obj the reference object with which to compare
-     * @return {@code true} if this object is equal to the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object obj) {

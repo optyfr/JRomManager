@@ -8,10 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * A simple generic tree data structure containing nodes linked to parent and
- * child nodes.
+ * A simple generic tree data structure containing nodes linked to parent and child nodes.
  * 
  * @param <T> the type of data stored within the tree nodes
+ * 
  * @author optyfr
  */
 public class Tree<T> {
@@ -32,8 +32,7 @@ public class Tree<T> {
     }
 
     /**
-     * Represents a single logical node inside the {@link Tree} structure.
-     * Implements {@link Iterable} over its direct children.
+     * Represents a single logical node inside the {@link Tree} structure. Implements {@link Iterable} over its direct children.
      * 
      * @param <T> the type of data stored within this node
      */
@@ -42,6 +41,7 @@ public class Tree<T> {
          * The generic data payload stored within this node.
          * 
          * @param data the data payload to set
+         * 
          * @return the generic data payload
          */
         private @Getter @Setter T data;
@@ -72,6 +72,7 @@ public class Tree<T> {
          * Creates and appends a child node with the specified data to this node.
          * 
          * @param child the generic data for the child node to create
+         * 
          * @return the newly created child node
          */
         public Node<T> addChild(T child) {

@@ -11,33 +11,31 @@ import jrm.misc.Log;
 import jrm.server.handlers.AbstractSessionServlet;
 import jrm.server.shared.WebSession;
 
-
-/** Servlet implementation for managing user sessions.
+/**
+ * Servlet implementation for managing user sessions.
  * <p>
- * This servlet handles POST requests to manage user sessions. It retrieves the
- * current session from the request, checks if the user is authenticated, and
- * returns a JSON response indicating the authentication status and whether the
- * user has admin privileges. If any exceptions occur during processing, it logs
- * the error and returns an internal server error status.
+ * This servlet handles POST requests to manage user sessions. It retrieves the current session from the request, checks if the user
+ * is authenticated, and returns a JSON response indicating the authentication status and whether the user has admin privileges. If
+ * any exceptions occur during processing, it logs the error and returns an internal server error status.
  * 
  * @author jrm
+ * 
  * @version 1.0
+ * 
  * @since 2024-06
- */     
+ */
 @SuppressWarnings("serial")
 public class SessionServlet extends AbstractSessionServlet {
     /**
-     * Handles POST requests to manage user sessions. It retrieves the current
-     * session, checks authentication status, and returns a JSON response with the
-     * authentication status and admin privileges. If an error occurs, it logs the
-     * error and returns an internal server error status.
+     * Handles POST requests to manage user sessions. It retrieves the current session, checks authentication status, and returns a
+     * JSON response with the authentication status and admin privileges. If an error occurs, it logs the error and returns an
+     * internal server error status.
      * 
-     * @param req  The HttpServletRequest object containing the client's request.
-     * @param resp The HttpServletResponse object for sending the response back to
-     *             the client.
+     * @param req The HttpServletRequest object containing the client's request.
+     * @param resp The HttpServletResponse object for sending the response back to the client.
+     * 
      * @throws ServletException if a servlet-specific error occurs during processing.
-     * @throws IOException      if an I/O error occurs during processing of the
-     *                          request or response.
+     * @throws IOException if an I/O error occurs during processing of the request or response.
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

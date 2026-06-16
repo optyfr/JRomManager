@@ -13,21 +13,21 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 /**
  * Handles XML responses for retrieving Category and Version (CatVer) classification data.
  * <p>
- * This class processes incoming XML requests to fetch a hierarchical tree structure of categories 
- * and sub-categories used for filtering ROMs in the Retro-Gaming ROM manager.
- * It outputs the data in a format suitable for UI tree components, including selection states 
- * and folder indicators.
+ * This class processes incoming XML requests to fetch a hierarchical tree structure of categories and sub-categories used for
+ * filtering ROMs in the Retro-Gaming ROM manager. It outputs the data in a format suitable for UI tree components, including
+ * selection states and folder indicators.
  * </p>
- * 
  * <h2>XML Protocol</h2>
  * <ul>
- *   <li><b>Incoming Request Parameters:</b>
- *     <ul>
- *       <li>No specific parameters required; relies on the current profile's CatVer data.</li>
- *     </ul>
- *   </li>
- *   <li><b>Outgoing Response Structure:</b>
- *     <pre><code class="language-xml">
+ * <li><b>Incoming Request Parameters:</b>
+ * <ul>
+ * <li>No specific parameters required; relies on the current profile's CatVer data.</li>
+ * </ul>
+ * </li>
+ * <li><b>Outgoing Response Structure:</b>
+ * 
+ * <pre>
+ * <code class="language-xml">
  * &lt;response&gt;
  *   &lt;status&gt;0&lt;/status&gt;
  *   &lt;startRow&gt;0&lt;/startRow&gt;
@@ -41,32 +41,35 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
  *     &lt;record ID="..." Name="..." ParentID="..." Cnt="..." isFolder="false" isSelected="..."/&gt;
  *   &lt;/data&gt;
  * &lt;/response&gt;
- *     </code></pre>
- *   </li>
+ *     </code>
+ * </pre>
+ * 
+ * </li>
  * </ul>
  *
  * @author JRomManager Team
+ * 
  * @see XMLResponse
  * @see XMLRequest.Operation
  * @see CatVer
  */
 public class CatVerXMLResponse extends XMLResponse {
-    
+
     /**
      * XML attribute name for the selection state.
      */
     private static final String IS_SELECTED = "isSelected";
-    
+
     /**
      * XML attribute name indicating if the node represents a folder (has children).
      */
     private static final String IS_FOLDER = "isFolder";
-    
+
     /**
      * XML attribute name for the parent node's ID.
      */
     private static final String PARENT_ID = "ParentID";
-    
+
     /**
      * XML element name for individual data records.
      */
@@ -76,6 +79,7 @@ public class CatVerXMLResponse extends XMLResponse {
      * Constructs a new CatVerXMLResponse for the given request.
      *
      * @param request The incoming XML request containing operation data.
+     * 
      * @throws IOException If an I/O error occurs during response generation.
      * @throws XMLStreamException If an XML streaming error occurs.
      */
@@ -87,6 +91,7 @@ public class CatVerXMLResponse extends XMLResponse {
      * Counts the total number of nodes (root, categories, and sub-categories) in the CatVer hierarchy.
      *
      * @param catver The CatVer object to count nodes for.
+     * 
      * @return The total number of nodes.
      */
     private int countNode(CatVer catver) {
@@ -108,6 +113,7 @@ public class CatVerXMLResponse extends XMLResponse {
      *
      * @param writer The XMLStreamWriter to write to.
      * @param catver The CatVer object containing the hierarchy.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs.
      */
     private void outputNode(XMLStreamWriter writer, CatVer catver) throws XMLStreamException {
@@ -126,8 +132,9 @@ public class CatVerXMLResponse extends XMLResponse {
      * Writes a single SubCategory node to the XML response.
      *
      * @param writer The XMLStreamWriter to write to.
-     * @param cat    The parent Category.
+     * @param cat The parent Category.
      * @param subcat The SubCategory to write.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs.
      */
     private void writeSubCatNode(XMLStreamWriter writer, Category cat, SubCategory subcat) throws XMLStreamException {
@@ -144,13 +151,13 @@ public class CatVerXMLResponse extends XMLResponse {
     /**
      * Writes a single Category node to the XML response.
      * <p>
-     * Calculates the {@code isOpen} state based on whether the sub-categories have mixed 
-     * or uniform selection states.
+     * Calculates the {@code isOpen} state based on whether the sub-categories have mixed or uniform selection states.
      * </p>
      *
      * @param writer The XMLStreamWriter to write to.
      * @param catver The parent CatVer object.
-     * @param cat    The Category to write.
+     * @param cat The Category to write.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs.
      */
     private void writeCatNode(XMLStreamWriter writer, CatVer catver, Category cat) throws XMLStreamException {
@@ -174,6 +181,7 @@ public class CatVerXMLResponse extends XMLResponse {
      *
      * @param writer The XMLStreamWriter to write to.
      * @param catver The CatVer object representing the root.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs.
      */
     private void writeRootNode(XMLStreamWriter writer, CatVer catver) throws XMLStreamException {
@@ -191,6 +199,7 @@ public class CatVerXMLResponse extends XMLResponse {
      * Fetches the CatVer data and writes it to the XML response.
      *
      * @param operation The operation containing request parameters.
+     * 
      * @throws XMLStreamException If an XML streaming error occurs during writing.
      */
     @Override

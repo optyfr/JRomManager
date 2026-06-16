@@ -244,6 +244,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         /**
          * @param files
          * @param extensions
+         * 
          * @throws IOException
          */
         private void addFiles(final List<File> files, final String[] extensions) throws IOException {
@@ -277,8 +278,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         /**
          * get selected values as a {@link List} of {@link SrcDstResult}
          * 
-         * @return the {@link List} of {@link FileResult} corresponding to selected
-         *         values
+         * @return the {@link List} of {@link FileResult} corresponding to selected values
          */
         public List<FileResult> getSelectedValuesList() {
             int[] rows = getSelectedRows();
@@ -428,6 +428,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 
     /**
      * @param extensions
+     * 
      * @return
      */
     private javax.swing.filechooser.FileFilter getFileFilter(final String[] extensions) {
@@ -448,6 +449,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
      * @param cnt
      * @param compressor
      * @param fr
+     * 
      * @throws IllegalArgumentException
      */
     private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException {
@@ -477,6 +479,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
@@ -501,6 +504,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
@@ -518,6 +522,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {

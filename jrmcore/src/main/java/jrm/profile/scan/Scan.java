@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.scan;
 
@@ -97,12 +88,12 @@ import jrm.security.PathAbstractor;
 import jtrrntzip.TrrntZipStatus;
 
 /**
- * The main Scan orchestration manager. Walks through source and destination
- * directory scanners, correlates scanned physical rom and CHD contents against
- * parsed metadata profiles, resolves gaps and wrong hashes/names, and builds a
- * comprehensive list of corrective fixing actions to repair the files.
+ * The main Scan orchestration manager. Walks through source and destination directory scanners, correlates scanned physical rom and
+ * CHD contents against parsed metadata profiles, resolves gaps and wrong hashes/names, and builds a comprehensive list of
+ * corrective fixing actions to repair the files.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class Scan extends PathAbstractor {
@@ -111,18 +102,15 @@ public class Scan extends PathAbstractor {
      */
     private static final String WORK_BACKUP = "%work/backup";
     /**
-     * Translation string resource bundle key showing active fixes searching
-     * progress.
+     * Translation string resource bundle key showing active fixes searching progress.
      */
     private static final String MSG_SCAN_SEARCHING_FOR_FIXES = "Scan.SearchingForFixes";
     /**
-     * The attached active auditing {@link Report} instance containing detected
-     * problems.
+     * The attached active auditing {@link Report} instance containing detected problems.
      */
     public final Report report;
     /**
-     * All corrective repairing actions grouped in execution phases to execute after
-     * completing scans.
+     * All corrective repairing actions grouped in execution phases to execute after completing scans.
      */
     public final List<Collection<jrm.profile.fix.actions.ContainerAction>> actions = new ArrayList<>();
 
@@ -145,8 +133,7 @@ public class Scan extends PathAbstractor {
      */
     private final FormatOptions format;
     /**
-     * Indicates whether the scanner should suggest container creation for missing
-     * items.
+     * Indicates whether the scanner should suggest container creation for missing items.
      */
     private final boolean createMode;
     /**
@@ -154,18 +141,15 @@ public class Scan extends PathAbstractor {
      */
     private final boolean createFullMode;
     /**
-     * Ignore unneeded containers that do not correspond to any active game/romset
-     * in the DAT profile.
+     * Ignore unneeded containers that do not correspond to any active game/romset in the DAT profile.
      */
     private final boolean ignoreUnneededContainers;
     /**
-     * Ignore extra files inside containers that do not belong to that romset
-     * definition.
+     * Ignore extra files inside containers that do not belong to that romset definition.
      */
     private final boolean ignoreUnneededEntries;
     /**
-     * Ignore totally unrecognized files/folders discovered in the scanned
-     * destinations.
+     * Ignore totally unrecognized files/folders discovered in the scanned destinations.
      */
     private final boolean ignoreUnknownContainers;
     /**
@@ -207,8 +191,7 @@ public class Scan extends PathAbstractor {
     private final List<DirScan> allScans = new ArrayList<>();
 
     /**
-     * Backups collection group executed first to preserve original content prior to
-     * applying repairs.
+     * Backups collection group executed first to preserve original content prior to applying repairs.
      */
     private final List<jrm.profile.fix.actions.ContainerAction> backupActions = Collections.synchronizedList(new ArrayList<>());
     /**
@@ -244,7 +227,8 @@ public class Scan extends PathAbstractor {
      * Creates a negated predicate.
      * 
      * @param predicate the predicate to negate
-     * @param <T>       the predicate argument type
+     * @param <T> the predicate argument type
+     * 
      * @return the negated predicate instance
      */
     private static <T> Predicate<T> not(final Predicate<T> predicate) {
@@ -256,8 +240,9 @@ public class Scan extends PathAbstractor {
      * 
      * @param profile the profile configuration
      * @param handler progress reporting UI channel
+     * 
      * @throws BreakException if scans are aborted
-     * @throws ScanException  if paths configuration contains errors
+     * @throws ScanException if paths configuration contains errors
      */
     public Scan(final Profile profile, final ProgressHandler handler) throws BreakException, ScanException {
         this(profile, handler, null);
@@ -266,11 +251,12 @@ public class Scan extends PathAbstractor {
     /**
      * Constructs a new Scan orchestrator using cache systems.
      * 
-     * @param profile   the profile configuration
-     * @param handler   progress reporting UI channel
+     * @param profile the profile configuration
+     * @param handler progress reporting UI channel
      * @param scancache the directories cache manager
+     * 
      * @throws BreakException if scans are aborted
-     * @throws ScanException  if paths configuration contains errors
+     * @throws ScanException if paths configuration contains errors
      */
     public Scan(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache) throws BreakException, ScanException {
         super(profile.getSession());
@@ -353,7 +339,9 @@ public class Scan extends PathAbstractor {
      * Prepares source paths collection folders from profile settings.
      * 
      * @param profile the active configurations profile
+     * 
      * @return paths collection of physical folders
+     * 
      * @throws SecurityException if file read/writes are prohibited
      */
     private ArrayList<File> initSrcDirs(final Profile profile) throws SecurityException {
@@ -388,7 +376,9 @@ public class Scan extends PathAbstractor {
      * Prepares audio samples destination path folder.
      * 
      * @param profile profile details
+     * 
      * @return directory folder handle, or {@code null} if disabled
+     * 
      * @throws ScanException if paths are invalid
      */
     private File initSamplesDstDir(final Profile profile) throws ScanException {
@@ -407,9 +397,11 @@ public class Scan extends PathAbstractor {
     /**
      * Prepares SoftwareList CHDs disk destination folder.
      * 
-     * @param profile      profile details
+     * @param profile profile details
      * @param swromsDstDir software list ROMs destination
+     * 
      * @return sw CHD disk destination folder
+     * 
      * @throws ScanException if paths are invalid
      */
     private File initSwDisksDstDir(final Profile profile, final File swromsDstDir) throws ScanException {
@@ -428,9 +420,11 @@ public class Scan extends PathAbstractor {
     /**
      * Prepares SoftwareList ROMs destination folder.
      * 
-     * @param profile    profile details
+     * @param profile profile details
      * @param romsDstDir general ROMs destination
+     * 
      * @return sw ROMs destination folder
+     * 
      * @throws ScanException if paths are invalid
      */
     private File initSwRomsDstDir(final Profile profile, final File romsDstDir) throws ScanException {
@@ -449,9 +443,11 @@ public class Scan extends PathAbstractor {
     /**
      * Prepares CHD disk images destination folder.
      * 
-     * @param profile    profile details
+     * @param profile profile details
      * @param romsDstDir general ROMs destination
+     * 
      * @return CHD images destination folder
+     * 
      * @throws ScanException if paths are invalid
      */
     private File initDisksDstDir(final Profile profile, final File romsDstDir) throws ScanException {
@@ -471,7 +467,9 @@ public class Scan extends PathAbstractor {
      * Prepares general ROMs destination folder.
      * 
      * @param profile profile details
+     * 
      * @return ROMs destination folder handle
+     * 
      * @throws ScanException if paths are invalid
      */
     private File initRomsDstDir(final Profile profile) throws ScanException {
@@ -487,17 +485,18 @@ public class Scan extends PathAbstractor {
     /**
      * Performs parallel scans over all parsed source paths.
      * 
-     * @param profile   active configurations profile
-     * @param handler   active progress monitor channel
+     * @param profile active configurations profile
+     * @param handler active progress monitor channel
      * @param scancache scans directory caching
-     * @param srcdirs   source folders to scan
+     * @param srcdirs source folders to scan
+     * 
      * @throws BreakException if process is aborted
      */
     private void scanSrcDirs(final Profile profile, final ProgressHandler handler, Map<String, DirScan> scancache, final ArrayList<File> srcdirs) throws BreakException {
         for (final var dir : srcdirs) {
             if (scancache != null) {
                 final var cachefile = DirScan.getCacheFile(profile.getSession(), dir, DirScan.getOptions(profile, false)).getAbsolutePath();
-                allScans.add(scancache.computeIfAbsent(cachefile, k -> new DirScan(profile, dir, handler, false)));
+                allScans.add(scancache.computeIfAbsent(cachefile, _ -> new DirScan(profile, dir, handler, false)));
             } else
                 allScans.add(new DirScan(profile, dir, handler, false));
             if (handler.isCancel())
@@ -508,13 +507,14 @@ public class Scan extends PathAbstractor {
     /**
      * Performs scans over target destinations files and folders.
      * 
-     * @param romsDstDir      ROMs destination folder
-     * @param disksDstDir     CHDs destination folder
-     * @param samplesDstDir   Audio samples destination folder
-     * @param unknown         receives unknown containers discovered
-     * @param unneeded        receives unneeded containers discovered
-     * @param samplesUnknown  receives unknown samples discovered
+     * @param romsDstDir ROMs destination folder
+     * @param disksDstDir CHDs destination folder
+     * @param samplesDstDir Audio samples destination folder
+     * @param unknown receives unknown containers discovered
+     * @param unneeded receives unneeded containers discovered
+     * @param samplesUnknown receives unknown samples discovered
      * @param samplesUnneeded receives unneeded samples discovered
+     * 
      * @throws BreakException if process is aborted
      */
     private void scanDstDirs(final File romsDstDir, final File disksDstDir, final File samplesDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded,
@@ -536,11 +536,12 @@ public class Scan extends PathAbstractor {
     /**
      * Performs scans over software lists folders.
      * 
-     * @param romsDstDir    ROMs destination folder
-     * @param swromsDstDir  sw ROMs destination folder
+     * @param romsDstDir ROMs destination folder
+     * @param swromsDstDir sw ROMs destination folder
      * @param swdisksDstDir sw CHD destination folder
-     * @param unknown       receives unknown containers discovered
-     * @param unneeded      receives unneeded containers discovered
+     * @param unknown receives unknown containers discovered
+     * @param unneeded receives unneeded containers discovered
+     * 
      * @throws BreakException if process is aborted
      */
     private void scanSWDstDirs(final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown, final ArrayList<Container> unneeded)
@@ -570,13 +571,13 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Scans and detects completely unrecognized subfolders residing inside sw lists
-     * destinations.
+     * Scans and detects completely unrecognized subfolders residing inside sw lists destinations.
      * 
-     * @param romsDstDir    general ROMs destination folder
-     * @param swromsDstDir  sw ROMs destination folder
+     * @param romsDstDir general ROMs destination folder
+     * @param swromsDstDir sw ROMs destination folder
      * @param swdisksDstDir sw CHD destination folder
-     * @param unknown       receives unknown containers discovered
+     * @param unknown receives unknown containers discovered
+     * 
      * @throws BreakException if process is aborted
      */
     private void searchUnknownDirs(final File romsDstDir, final File swromsDstDir, final File swdisksDstDir, final ArrayList<Container> unknown) throws BreakException {
@@ -587,12 +588,12 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Inspects directory listing structures and collects unmatched packages as
-     * completely unknown.
+     * Inspects directory listing structures and collects unmatched packages as completely unknown.
      * 
      * @param scanMap completed scanners map
      * @param unknown receives unknown containers discovered
-     * @param files   physical list of files to check
+     * @param files physical list of files to check
+     * 
      * @throws BreakException if process is aborted
      */
     private void deduceUnknownFilesFromScan(final Map<String, DirScan> scanMap, final ArrayList<Container> unknown, final File[] files) throws BreakException {
@@ -629,12 +630,12 @@ public class Scan extends PathAbstractor {
     /**
      * Processes unknown packages to generate reporting and queue deletion fixes.
      * 
-     * @param romsDstDir    general ROMs folder
-     * @param disksDstDir   general CHD folder
-     * @param swromsDstDir  sw ROMs folder
+     * @param romsDstDir general ROMs folder
+     * @param disksDstDir general CHD folder
+     * @param swromsDstDir sw ROMs folder
      * @param swdisksDstDir sw CHD folder
      * @param samplesDstDir general audio samples folder
-     * @param unknown       unknown physical containers listing
+     * @param unknown unknown physical containers listing
      */
     private void processAndReportUnknownActions(final File romsDstDir, final File disksDstDir, final File swromsDstDir, final File swdisksDstDir, final File samplesDstDir,
             final ArrayList<Container> unknown) {
@@ -656,9 +657,8 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Walks through retro platforms, BIOS listings, games, software collections,
-     * and audio assets, performing comparative verification to identify missing
-     * elements and suggest fixes.
+     * Walks through retro platforms, BIOS listings, games, software collections, and audio assets, performing comparative
+     * verification to identify missing elements and suggest fixes.
      */
     private void searchFixes() {
         final AtomicInteger i = new AtomicInteger();
@@ -691,7 +691,7 @@ public class Scan extends PathAbstractor {
             }
         }
         if (!profile.getMachineListList().getSoftwareListList().isEmpty()) {
-            profile.getMachineListList().getSoftwareListList().getFilteredStream().takeWhile(sl -> !handler.isCancel()).forEach(sl -> {
+            profile.getMachineListList().getSoftwareListList().getFilteredStream().takeWhile(_ -> !handler.isCancel()).forEach(sl -> {
                 handler.setProgress2(String.format("%s %d/%d (%s)", Messages.getString(MSG_SCAN_SEARCHING_FOR_FIXES), j.get(), profile.size(), sl.getName()), j.getAndIncrement(), //$NON-NLS-1$
                         profile.size());
                 romsDstScan = swromsDstScans.get(sl.getName());
@@ -712,14 +712,14 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Scans a folder matching standard profile designations and registers matching,
-     * unknown, or unneeded content properties.
+     * Scans a folder matching standard profile designations and registers matching, unknown, or unneeded content properties.
      * 
-     * @param byname   profile names categorizer
-     * @param dstdir   destination path folder
-     * @param unknown  unknown containers collection
+     * @param byname profile names categorizer
+     * @param dstdir destination path folder
+     * @param unknown unknown containers collection
      * @param unneeded unneeded containers collection
-     * @param handler  active progress tracker
+     * @param handler active progress tracker
+     * 
      * @return directory scanner instance
      */
     private DirScan dirscan(final ByName<?> byname, final File dstdir, final List<Container> unknown, final List<Container> unneeded, final ProgressHandler handler) {
@@ -750,6 +750,7 @@ public class Scan extends PathAbstractor {
      * Extracts and strips extensions from filenames.
      * 
      * @param file file handle target
+     * 
      * @return stripped raw filename string
      */
     private static String getBaseName(File file) {
@@ -761,13 +762,12 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Checks and updates TorrentZip formatting configurations final step repair
-     * operations.
+     * Checks and updates TorrentZip formatting configurations final step repair operations.
      * 
      * @param reportSubject active audited subject report
-     * @param archive       the target zipped archive container
-     * @param ware          the related software list or arcade machine definition
-     * @param roms          profile filtered ROMs list
+     * @param archive the target zipped archive container
+     * @param ware the related software list or arcade machine definition
+     * @param roms profile filtered ROMs list
      */
     private void prepTZip(final SubjectSet reportSubject, final Container archive, final Anyware ware, final List<Rom> roms) {
         if (format != FormatOptions.TZIP || (mergeMode.isMerge() && ware.isClone()) || reportSubject.isMissing() || reportSubject.isUnneeded() || roms.isEmpty())
@@ -793,12 +793,11 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Checks and updates TorrentZip formatting configurations for audio samples
-     * archives.
+     * Checks and updates TorrentZip formatting configurations for audio samples archives.
      * 
      * @param reportSubject audited subject report
-     * @param archive       the target container
-     * @param set           samples tracking group definition
+     * @param archive the target container
+     * @param set samples tracking group definition
      */
     private void prepTZip(final SubjectSet reportSubject, final Container archive, final Samples set) {
         if (format == FormatOptions.TZIP && !reportSubject.isMissing() && !reportSubject.isUnneeded() && set.getSamplesMap().size() > 0) {
@@ -834,12 +833,11 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Cleans up separate clone containers when rebuild properties migrate to merged
-     * models.
+     * Cleans up separate clone containers when rebuild properties migrate to merged models.
      * 
-     * @param ware  the active software/machine
+     * @param ware the active software/machine
      * @param disks the CHD images definition
-     * @param roms  the ROMs definition
+     * @param roms the ROMs definition
      */
     private void removeUnneededClone(final Anyware ware, final List<Disk> disks, final List<Rom> roms) {
         if (mergeMode.isMerge() && ware.isClone()) {
@@ -871,10 +869,11 @@ public class Scan extends PathAbstractor {
     /**
      * Inspects and audits disk images inside target folders.
      * 
-     * @param ware          active machine software definition
-     * @param disks         active disks CHD listing
-     * @param directory     parent container folder target
+     * @param ware active machine software definition
+     * @param disks active disks CHD listing
+     * @param directory parent container folder target
      * @param reportSubject audited subject report
+     * 
      * @return {@code true} if the disk image is missing, otherwise {@code false}
      */
     private boolean scanDisks(final Anyware ware, final List<Disk> disks, final Directory directory, final SubjectSet reportSubject) {
@@ -889,11 +888,10 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Handles audit checks when disk image containers are completely missing from
-     * destination paths.
+     * Handles audit checks when disk image containers are completely missing from destination paths.
      * 
-     * @param disks         active disk definition list
-     * @param directory     parent folder target
+     * @param disks active disk definition list
+     * @param directory parent folder target
      * @param reportSubject audited subject report
      */
     private void scanDisksForMissingContainer(final List<Disk> disks, final Directory directory, final SubjectSet reportSubject) {
@@ -929,6 +927,7 @@ public class Scan extends PathAbstractor {
      * Searches directories map indexes to resolve matching entries for a disk.
      * 
      * @param disk disk properties details
+     * 
      * @return physical file entry, or {@code null} if unmatched
      */
     private Entry searchDiskInAllScans(final Disk disk) {
@@ -943,10 +942,10 @@ public class Scan extends PathAbstractor {
     /**
      * Evaluates and maps entry gaps inside a discovered disk destination container.
      * 
-     * @param disks         active disk definition list
-     * @param directory     parent folder target
+     * @param disks active disk definition list
+     * @param directory parent folder target
      * @param reportSubject audited subject report
-     * @param container     discovered destination container
+     * @param container discovered destination container
      */
     private void scanDisksForFoundContainer(final List<Disk> disks, final Directory directory, final SubjectSet reportSubject, final Container container) {
         if (disks.isEmpty())
@@ -990,11 +989,12 @@ public class Scan extends PathAbstractor {
     /**
      * Iterates over potential matching entries to verify filenames.
      * 
-     * @param directory     parent directory folder
+     * @param directory parent directory folder
      * @param reportSubject subject report
-     * @param scanData      hashing cache structures
-     * @param disk          disk specifications
-     * @param entries       resolved entries list
+     * @param scanData hashing cache structures
+     * @param disk disk specifications
+     * @param entries resolved entries list
+     * 
      * @return matching entry details
      */
     private Entry scanDisksEntries(final Directory directory, final SubjectSet reportSubject, final ScanDisksData scanData, final Disk disk, final List<Entry> entries) {
@@ -1014,10 +1014,10 @@ public class Scan extends PathAbstractor {
     /**
      * Queues deletion for extra unneeded entries residing in audited folders.
      * 
-     * @param directory     parent directory folder
+     * @param directory parent directory folder
      * @param reportSubject subject report
-     * @param container     audited container
-     * @param data          tracking structures
+     * @param container audited container
+     * @param data tracking structures
      */
     private void removeUnneededEntries(final Directory directory, final SubjectSet reportSubject, final Container container, final ScanDisksData data) {
         if (!ignoreUnneededEntries) {
@@ -1033,18 +1033,20 @@ public class Scan extends PathAbstractor {
     /**
      * Handles disk filename discrepancies when checksums match.
      * 
-     * @param directory      parent folder
-     * @param reportSubject  subject report
-     * @param data           tracking structures
-     * @param disk           disk details
+     * @param directory parent folder
+     * @param reportSubject subject report
+     * @param data tracking structures
+     * @param disk disk details
      * @param candidateEntry matched checksum file entry
+     * 
      * @return {@code true} if discrepancy resolved, otherwise {@code false}
      */
     @SuppressWarnings("unlikely-arg-type")
     private boolean scanDisksEntriesNameMismatch(final Directory directory, final SubjectSet reportSubject, final ScanDisksData data, final Disk disk, final Entry candidateEntry) {
         Log.debug(() -> "\tbut this disk name does not match the disk name");
         final Disk anotherDisk = data.disksByName.get(candidateEntry.getName());
-        if (null != anotherDisk && candidateEntry.equals(anotherDisk)) {
+        if (null != anotherDisk && candidateEntry.equals(anotherDisk)) // NOSONAR
+        {
             if (scanDisksEntriesNameRetrieved(directory, reportSubject, data, disk, candidateEntry))
                 return true;
         } else {
@@ -1068,11 +1070,12 @@ public class Scan extends PathAbstractor {
     /**
      * Suggests dynamic file duplication if a file serves multiple purposes.
      * 
-     * @param directory      parent folder
-     * @param reportSubject  subject report
-     * @param data           tracking structures
-     * @param disk           disk details
+     * @param directory parent folder
+     * @param reportSubject subject report
+     * @param data tracking structures
+     * @param disk disk details
      * @param candidateEntry file entry
+     * 
      * @return {@code true} if suggestion queued, otherwise {@code false}
      */
     private boolean scanDisksEntriesNameRetrieved(final Directory directory, final SubjectSet reportSubject, final ScanDisksData data, final Disk disk,
@@ -1091,10 +1094,11 @@ public class Scan extends PathAbstractor {
     /**
      * Evaluates and audits ROMs inside destination packages.
      * 
-     * @param ware          audited software/arcade machine
-     * @param roms          filtered ROMs listing
-     * @param archive       audited container properties
+     * @param ware audited software/arcade machine
+     * @param roms filtered ROMs listing
+     * @param archive audited container properties
      * @param reportSubject subject report
+     * 
      * @return {@code true} if container is missing, otherwise {@code false}
      */
     private boolean scanRoms(final Anyware ware, final List<Rom> roms, final Container archive, final SubjectSet reportSubject) {
@@ -1159,11 +1163,11 @@ public class Scan extends PathAbstractor {
         private void initHashesFromContainerEntries(final Container container) {
             container.getEntries().forEach(e -> {
                 if (e.getSha1() != null)
-                    entriesBySha1.computeIfAbsent(e.getSha1(), k -> new ArrayList<>()).add(e);
+                    entriesBySha1.computeIfAbsent(e.getSha1(), _ -> new ArrayList<>()).add(e);
                 if (e.getMd5() != null)
-                    entriesByMd5.computeIfAbsent(e.getMd5(), k -> new ArrayList<>()).add(e);
+                    entriesByMd5.computeIfAbsent(e.getMd5(), _ -> new ArrayList<>()).add(e);
                 if (e.getCrc() != null)
-                    entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), k -> new ArrayList<>()).add(e);
+                    entriesByCrc.computeIfAbsent(e.getCrc() + '.' + e.getSize(), _ -> new ArrayList<>()).add(e);
             });
         }
     }
@@ -1195,10 +1199,10 @@ public class Scan extends PathAbstractor {
     /**
      * Scans and correlates ROMs inside a found destination file container.
      * 
-     * @param roms              active ROM definitions
-     * @param archive           audited container
-     * @param reportSubject     subject report
-     * @param container         destination audited container properties
+     * @param roms active ROM definitions
+     * @param archive audited container
+     * @param reportSubject subject report
+     * @param container destination audited container properties
      * @param estimatedRomsSize size metrics
      */
     private void scanRomsForFoundContainer(final List<Rom> roms, final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize) {
@@ -1248,7 +1252,8 @@ public class Scan extends PathAbstractor {
      * Detects wrong checksum errors when filenames are correct.
      * 
      * @param scanData scan cache
-     * @param rom      ROM properties
+     * @param rom ROM properties
+     * 
      * @return physical file entry, or {@code null}
      */
     private Entry checkWrongHash(final ScanRomsData scanData, final Rom rom) {
@@ -1264,7 +1269,8 @@ public class Scan extends PathAbstractor {
      * Detects wrong checksum errors when filenames are correct for CHD disks.
      * 
      * @param scanData scan cache
-     * @param disk     disk properties
+     * @param disk disk properties
+     * 
      * @return physical disk file entry, or {@code null}
      */
     private Entry checkWrongHash(final ScanDisksData scanData, final Disk disk) {
@@ -1279,11 +1285,11 @@ public class Scan extends PathAbstractor {
     /**
      * Deletes extra files discovered in a target ZIP or folder package.
      * 
-     * @param archive           audited container
-     * @param reportSubject     subject report
-     * @param container         container properties
+     * @param archive audited container
+     * @param reportSubject subject report
+     * @param container container properties
      * @param estimatedRomsSize size metrics
-     * @param scanData          scan cache
+     * @param scanData scan cache
      */
     private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final long estimatedRomsSize,
             final ScanRomsData scanData) {
@@ -1301,12 +1307,13 @@ public class Scan extends PathAbstractor {
     /**
      * Verifies matching entries lists for filename alignment.
      * 
-     * @param archive           audited container
-     * @param reportSubject     subject report
+     * @param archive audited container
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
-     * @param scanData          scan cache
-     * @param rom               ROM definitions
-     * @param entries           entries list
+     * @param scanData scan cache
+     * @param rom ROM definitions
+     * @param entries entries list
+     * 
      * @return matching entry details
      */
     private Entry scanRomsEntries(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom,
@@ -1327,12 +1334,13 @@ public class Scan extends PathAbstractor {
     /**
      * Handles filename mismatch when ROM checksum matches.
      * 
-     * @param archive           audited container
-     * @param reportSubject     subject report
+     * @param archive audited container
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
-     * @param scanData          scan cache
-     * @param rom               ROM definitions
-     * @param candidateEntry    matched checksum file entry
+     * @param scanData scan cache
+     * @param rom ROM definitions
+     * @param candidateEntry matched checksum file entry
+     * 
      * @return {@code true} if resolved, otherwise {@code false}
      */
     @SuppressWarnings("unlikely-arg-type")
@@ -1340,7 +1348,8 @@ public class Scan extends PathAbstractor {
             final Entry candidateEntry) {
         Log.debug(() -> "\tbut this entry name does not match the rom name");
         final Rom anotherRom = scanData.romsByName.get(candidateEntry.getName());
-        if (null != anotherRom && candidateEntry.equals(anotherRom)) {
+        if (null != anotherRom && candidateEntry.equals(anotherRom)) // NOSONAR
+        {
             if (scanRomsEntriesNameRetrieved(archive, reportSubject, estimatedRomsSize, scanData, rom, candidateEntry))
                 return true;
         } else {
@@ -1367,12 +1376,13 @@ public class Scan extends PathAbstractor {
     /**
      * Suggests filename duplication when files are shared across parent/clones.
      * 
-     * @param archive           audited container
-     * @param reportSubject     subject report
+     * @param archive audited container
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
-     * @param scanData          scan cache
-     * @param rom               ROM properties
-     * @param candidateEntry    matched checksum file entry
+     * @param scanData scan cache
+     * @param rom ROM properties
+     * @param candidateEntry matched checksum file entry
+     * 
      * @return {@code true} if suggestions queued, otherwise {@code false}
      */
     private boolean scanRomsEntriesNameRetrieved(final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanRomsData scanData, final Rom rom,
@@ -1391,12 +1401,12 @@ public class Scan extends PathAbstractor {
     /**
      * Queues duplication actions.
      * 
-     * @param container         parent package
-     * @param reportSubject     subject report
+     * @param container parent package
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
-     * @param scanData          scan cache
-     * @param entity            target ROM or disk image metadata reference
-     * @param entry             matching source file entry
+     * @param scanData scan cache
+     * @param entity target ROM or disk image metadata reference
+     * @param entry matching source file entry
      */
     private void scanDuplicate(final Container container, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData scanData, final Entity entity,
             final Entry entry) {
@@ -1407,12 +1417,12 @@ public class Scan extends PathAbstractor {
     /**
      * Queues file renaming actions to fix incorrect spelling.
      * 
-     * @param container         parent package
-     * @param reportSubject     subject report
+     * @param container parent package
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
-     * @param data              scan cache
-     * @param entity            target ROM or disk image reference
-     * @param entry             misspelled file entry
+     * @param data scan cache
+     * @param entity target ROM or disk image reference
+     * @param entry misspelled file entry
      */
     private void scanRename(final Container container, final SubjectSet reportSubject, final long estimatedRomsSize, final ScanData data, final Entity entity, final Entry entry) {
         reportSubject.add(new EntryWrongName(entity, entry));
@@ -1422,12 +1432,11 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * Suggestions auditing ROM containers when packages are completely missing from
-     * destination paths.
+     * Suggestions auditing ROM containers when packages are completely missing from destination paths.
      * 
-     * @param roms              filtered ROMs list
-     * @param archive           mismatched container
-     * @param reportSubject     subject report
+     * @param roms filtered ROMs list
+     * @param archive mismatched container
+     * @param reportSubject subject report
      * @param estimatedRomsSize size metrics
      */
     private void scanRomsForMissingContainer(final List<Rom> roms, final Container archive, final SubjectSet reportSubject, final long estimatedRomsSize) {
@@ -1463,6 +1472,7 @@ public class Scan extends PathAbstractor {
      * Searches directories scan listings to match a single ROM properties.
      * 
      * @param rom target ROM definitions
+     * 
      * @return physical file entry, or {@code null}
      */
     private Entry searchRomInAllScans(final Rom rom) {
@@ -1478,7 +1488,8 @@ public class Scan extends PathAbstractor {
      * Selects matching entry properties using hash metrics from ROM.
      * 
      * @param scanData scan cache
-     * @param rom      ROM definitions
+     * @param rom ROM definitions
+     * 
      * @return potential matching entries list
      */
     private List<Entry> findEntriesByHash(final ScanRomsData scanData, final Rom rom) {
@@ -1496,7 +1507,8 @@ public class Scan extends PathAbstractor {
      * Selects matching entry properties using hash metrics from CHD disk.
      * 
      * @param scanData scan cache
-     * @param disk     disk properties
+     * @param disk disk properties
+     * 
      * @return potential matching entries list
      */
     private List<Entry> findEntriesByHash(final ScanDisksData scanData, final Disk disk) {
@@ -1540,11 +1552,11 @@ public class Scan extends PathAbstractor {
     /**
      * Audits audio sample sets inside scanned target folders.
      * 
-     * @param set           active samples group details
-     * @param archive       audited container properties
+     * @param set active samples group details
+     * @param archive audited container properties
      * @param reportSubject subject report
-     * @return {@code true} if audio set container is missing, otherwise
-     *         {@code false}
+     * 
+     * @return {@code true} if audio set container is missing, otherwise {@code false}
      */
     private boolean scanSamples(final Samples set, final Container archive, final SubjectSet reportSubject) {
         final Container container = samplesDstScan.getContainerByName(archive.getFile().getName());
@@ -1560,10 +1572,10 @@ public class Scan extends PathAbstractor {
     /**
      * Handles audit checks when audio sample containers are found.
      * 
-     * @param set           active samples definitions
-     * @param archive       audited container
+     * @param set active samples definitions
+     * @param archive audited container
      * @param reportSubject subject report
-     * @param container     discovered container
+     * @param container discovered container
      */
     private void scanSamplesForFoundContainer(final Samples set, final Container archive, final SubjectSet reportSubject, final Container container) {
         reportSubject.setFound();
@@ -1599,10 +1611,10 @@ public class Scan extends PathAbstractor {
     /**
      * Deletes extra unneeded elements residing in audio sample folders.
      * 
-     * @param archive       audited container
+     * @param archive audited container
      * @param reportSubject subject report
-     * @param container     container properties
-     * @param data          tracking structures
+     * @param container container properties
+     * @param data tracking structures
      */
     private void removeUnneededEntries(final Container archive, final SubjectSet reportSubject, final Container container, final ScanSamplesData data) {
         if (!ignoreUnneededEntries) {
@@ -1619,24 +1631,24 @@ public class Scan extends PathAbstractor {
      * Resolves matching audio entries using case-insensitive filename comparison.
      * 
      * @param container audited container
-     * @param sample    audio sample specifications
+     * @param sample audio sample specifications
+     * 
      * @return physical file entry, or {@code null}
      */
     @SuppressWarnings("unlikely-arg-type")
     private Entry scanSamplesEntries(final Container container, final Sample sample) {
         for (final Entry candidate_entry : container.getEntries()) {
-            if (candidate_entry.equals(sample))
+            if (candidate_entry.equals(sample)) // NOSONAR
                 return candidate_entry;
         }
         return null;
     }
 
     /**
-     * Handles audit checks when audio sample containers are completely missing from
-     * folders.
+     * Handles audit checks when audio sample containers are completely missing from folders.
      * 
-     * @param set           active samples definitions
-     * @param archive       mismatched container
+     * @param set active samples definitions
+     * @param archive mismatched container
      * @param reportSubject subject report
      */
     private void scanSamplesForMissingContainer(final Samples set, final Container archive, final SubjectSet reportSubject) {
@@ -1670,8 +1682,9 @@ public class Scan extends PathAbstractor {
     /**
      * Searches directories scan listings to match a single audio Sample.
      * 
-     * @param set    active audio samples definitions
+     * @param set active audio samples definitions
      * @param sample audio sample details
+     * 
      * @return physical file entry, or {@code null}
      */
     private Entry searchSampleInAllScans(final Samples set, final Sample sample) {
@@ -1690,13 +1703,13 @@ public class Scan extends PathAbstractor {
     }
 
     /**
-     * High-level orchestration verifying a specific game/machine software,
-     * launching ROM verification and CHD disk image audits sequentially, compiling
-     * report metrics.
+     * High-level orchestration verifying a specific game/machine software, launching ROM verification and CHD disk image audits
+     * sequentially, compiling report metrics.
      * 
      * @param ware the software/machine definitions to audit
      */
-    private void scanWare(final Anyware ware) {
+    private void scanWare(final Anyware ware) // NOSONAR
+    {
         var missingSet = true;
 
         final var reportSubject = new SubjectSet(ware);
@@ -1737,19 +1750,24 @@ public class Scan extends PathAbstractor {
      * Prepares a new file container representation adjusted for format settings.
      * 
      * @param ware machine/software specs
+     * 
      * @return clean new container representation
      */
     private Container getArchive(final Anyware ware) {
         final Container archive;
-        if (format == FormatOptions.DIR) {
-            final var d = new File(romsDstScan.getDir(), ware.getDest().getName());
-            archive = new Directory(d, getRelativePath(d), ware);
-        } else if (format == FormatOptions.FAKE) {
-            final var fd = new File(romsDstScan.getDir(), ware.getDest().getName());
-            archive = new FakeDirectory(fd, getRelativePath(fd), ware);
-        } else {
-            final var af = new File(romsDstScan.getDir(), ware.getDest().getName() + format.getExt());
-            archive = new Archive(af, getRelativePath(af), ware);
+        switch (format) {
+            case FormatOptions.DIR -> {
+                final var d = new File(romsDstScan.getDir(), ware.getDest().getName());
+                archive = new Directory(d, getRelativePath(d), ware);
+            }
+            case FormatOptions.FAKE -> {
+                final var fd = new File(romsDstScan.getDir(), ware.getDest().getName());
+                archive = new FakeDirectory(fd, getRelativePath(fd), ware);
+            }
+            default -> {
+                final var af = new File(romsDstScan.getDir(), ware.getDest().getName() + format.getExt());
+                archive = new Archive(af, getRelativePath(af), ware);
+            }
         }
         return archive;
     }

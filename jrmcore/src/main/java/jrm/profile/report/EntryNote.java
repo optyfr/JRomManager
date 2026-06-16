@@ -8,13 +8,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Abstract base class for report notes that describe specific states or
- * discrepancies of an expected ROM metadata entity.
+ * Abstract base class for report notes that describe specific states or discrepancies of an expected ROM metadata entity.
  * <p>
- * This class maps expected database components to physical scan findings,
- * resolving names, sizes, and expected checksum hashes.
+ * This class maps expected database components to physical scan findings, resolving names, sizes, and expected checksum hashes.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @RequiredArgsConstructor
@@ -51,8 +50,7 @@ abstract class EntryNote extends Note {
     /**
      * Gets the expected CRC32 checksum string value of the entity.
      *
-     * @return the expected CRC32 hexadecimal string, or {@code null} if not
-     *         applicable
+     * @return the expected CRC32 hexadecimal string, or {@code null} if not applicable
      */
     @Override
     public String getCrc() {
@@ -64,8 +62,7 @@ abstract class EntryNote extends Note {
     /**
      * Gets the expected MD5 hash string value of the entity.
      *
-     * @return the expected MD5 hexadecimal string, or {@code null} if not
-     *         applicable
+     * @return the expected MD5 hexadecimal string, or {@code null} if not applicable
      */
     @Override
     public String getMd5() {
@@ -77,8 +74,7 @@ abstract class EntryNote extends Note {
     /**
      * Gets the expected SHA-1 hash string value of the entity.
      *
-     * @return the expected SHA-1 hexadecimal string, or {@code null} if not
-     *         applicable
+     * @return the expected SHA-1 hexadecimal string, or {@code null} if not applicable
      */
     @Override
     public String getSha1() {
@@ -88,11 +84,9 @@ abstract class EntryNote extends Note {
     }
 
     /**
-     * Gets the expected primary hash identifying the entity, selected in priority
-     * order: SHA-1, MD5, CRC32.
+     * Gets the expected primary hash identifying the entity, selected in priority order: SHA-1, MD5, CRC32.
      *
-     * @return the expected hexadecimal hash string, or {@code null} if none is
-     *         defined
+     * @return the expected hexadecimal hash string, or {@code null} if none is defined
      */
     @Override
     public String getHash() {

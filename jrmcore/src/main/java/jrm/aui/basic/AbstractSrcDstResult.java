@@ -10,7 +10,8 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 /**
- * AbstractSrcDstResult is an abstract class that represents a source-destination result. It provides methods to set and get the source, destination, result, and selection status. It also includes methods to convert the object to and from JSON format.
+ * AbstractSrcDstResult is an abstract class that represents a source-destination result. It provides methods to set and get the
+ * source, destination, result, and selection status. It also includes methods to convert the object to and from JSON format.
  */
 public abstract class AbstractSrcDstResult {
     /**
@@ -32,6 +33,7 @@ public abstract class AbstractSrcDstResult {
      * Converts a list of AbstractSrcDstResult objects to a JSON string.
      *
      * @param list the list of AbstractSrcDstResult objects to convert
+     * 
      * @return a JSON string representation of the list
      */
     public static String toJSON(List<? extends AbstractSrcDstResult> list) {
@@ -55,7 +57,7 @@ public abstract class AbstractSrcDstResult {
      */
     public abstract boolean isSelected();
 
-    /** 
+    /**
      * Sets the result value.
      *
      * @param result the result value to set
@@ -126,7 +128,6 @@ public abstract class AbstractSrcDstResult {
         return jso;
     }
 
-    
     /**
      * Populates the fields of this object from a JSON object.
      *
@@ -146,13 +147,13 @@ public abstract class AbstractSrcDstResult {
         setSelected(jso.getBoolean("selected", true)); //$NON-NLS-1$
     }
 
-    
     /**
      * Converts a JSON string to an SDRList of AbstractSrcDstResult objects.
      *
-     * @param <T>  the type of the AbstractSrcDstResult
+     * @param <T> the type of the AbstractSrcDstResult
      * @param json the JSON string to convert
-     * @param cls  the class of the AbstractSrcDstResult objects
+     * @param cls the class of the AbstractSrcDstResult objects
+     * 
      * @return an SDRList containing the AbstractSrcDstResult objects
      */
     public static <T extends AbstractSrcDstResult> SDRList<T> fromJSON(String json, Class<T> cls) {

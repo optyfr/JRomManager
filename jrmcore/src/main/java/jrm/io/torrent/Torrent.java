@@ -1,19 +1,10 @@
-/* Copyright (C) 2015  Christophe De Troyer
- * Copyright (C) 2018  Optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent;
 
@@ -21,9 +12,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Represents a parsed BitTorrent metainfo file (.torrent). Holds all metadata
- * regarding the trackers, files, piece hashes, sizes, creation details, and the
- * info-hash of the torrent.
+ * Represents a parsed BitTorrent metainfo file (.torrent). Holds all metadata regarding the trackers, files, piece hashes, sizes,
+ * creation details, and the info-hash of the torrent.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
@@ -55,8 +45,7 @@ public class Torrent {
     private List<String> pieces;
 
     /**
-     * Flag indicating whether the torrent represents a single file or a multi-file
-     * layout.
+     * Flag indicating whether the torrent represents a single file or a multi-file layout.
      */
     private boolean singleFileTorrent;
 
@@ -66,8 +55,7 @@ public class Torrent {
     private Long totalSize;
 
     /**
-     * The list of individual files included in a multi-file torrent, or null if
-     * single-file.
+     * The list of individual files included in a multi-file torrent, or null if single-file.
      */
     private List<TorrentFile> fileList;
 
@@ -77,8 +65,7 @@ public class Torrent {
     private String comment;
 
     /**
-     * An optional string identifying the creator or program that produced the
-     * torrent.
+     * An optional string identifying the creator or program that produced the torrent.
      */
     private String createdBy;
 
@@ -98,12 +85,13 @@ public class Torrent {
     private String infoHash;
 
     /**
-     * Constructs a new Torrent object with default values. The fields of the Torrent object are initialized to their default values (null for objects and false for boolean).
+     * Constructs a new Torrent object with default values. The fields of the Torrent object are initialized to their default values
+     * (null for objects and false for boolean).
      */
     public Torrent() {
         // Default constructor
     }
-    
+
     // Getters and setters
 
     /**

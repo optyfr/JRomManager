@@ -84,11 +84,11 @@ public class FullServer extends AbstractServer {
     /**
      * The default directory path pointing to the embedded key store certificates within the merged module resources.
      * <p>
-     * This variable defines the default location for the key store certificates used for SSL/TLS connections in the server. It points
-     * to a specific path within the merged module resources, which is expected to contain the necessary certificate files for secure
-     * communication. The key store files are typically in PKCS12 format and should include the certificates required for HTTPS
-     * connections. This default path can be overridden by command-line arguments or environment properties to allow for flexible
-     * configuration of the server's SSL/TLS settings.
+     * This variable defines the default location for the key store certificates used for SSL/TLS connections in the server. It
+     * points to a specific path within the merged module resources, which is expected to contain the necessary certificate files
+     * for secure communication. The key store files are typically in PKCS12 format and should include the certificates required for
+     * HTTPS connections. This default path can be overridden by command-line arguments or environment properties to allow for
+     * flexible configuration of the server's SSL/TLS settings.
      */
     private static final String KEY_STORE = "jrt:/jrm.merged.module/certs/";
 
@@ -96,10 +96,11 @@ public class FullServer extends AbstractServer {
      * The default path to the key store file, which is expected to be a PKCS12 file named "localhost.pfx" located in the KEY_STORE
      * directory.
      * <p>
-     * This variable defines the default location for the key store file used for SSL/TLS connections in the server. The key store file
-     * is expected to be in PKCS12 format and should contain the necessary certificates for secure communication. The default file name
-     * is "localhost.pfx", and it is located in the directory specified by the KEY_STORE variable. This default path can be overridden
-     * by command-line arguments or environment properties to allow for flexible configuration of the server's SSL/TLS settings.
+     * This variable defines the default location for the key store file used for SSL/TLS connections in the server. The key store
+     * file is expected to be in PKCS12 format and should contain the necessary certificates for secure communication. The default
+     * file name is "localhost.pfx", and it is located in the directory specified by the KEY_STORE variable. This default path can
+     * be overridden by command-line arguments or environment properties to allow for flexible configuration of the server's SSL/TLS
+     * settings.
      */
     private static final String KEY_STORE_PATH_DEFAULT = KEY_STORE + "localhost.pfx";
 
@@ -107,10 +108,10 @@ public class FullServer extends AbstractServer {
      * The default path to the key store password file, which is expected to be a text file named "localhost.pw" located in the
      * KEY_STORE directory. This file should contain the password for the key store.
      * <p>
-     * Note: The key store password file is expected to be a simple text file containing the password for the key store. It should be
-     * named "localhost.pw" and located in the same directory as the key store file specified by KEY_STORE_PATH_DEFAULT. This default
-     * path can be overridden by command-line arguments or environment properties to allow for flexible configuration of the server's
-     * SSL/TLS settings.
+     * Note: The key store password file is expected to be a simple text file containing the password for the key store. It should
+     * be named "localhost.pw" and located in the same directory as the key store file specified by KEY_STORE_PATH_DEFAULT. This
+     * default path can be overridden by command-line arguments or environment properties to allow for flexible configuration of the
+     * server's SSL/TLS settings.
      * 
      * @see #KEY_STORE_PATH_DEFAULT
      */
@@ -119,43 +120,44 @@ public class FullServer extends AbstractServer {
     /**
      * The default bind address (IP address) for the server connectors, representing all network interfaces.
      * <p>
-     * This variable defines the default IP address that the server will bind to when starting. The default value is "0.0.0.0", which
-     * means that the server will bind to all available network interfaces, allowing it to accept connections from any IP address. This
-     * default bind address can be overridden by command-line arguments or environment properties to allow for flexible configuration of
-     * the server's network settings, enabling it to bind to a specific IP address if desired.
+     * This variable defines the default IP address that the server will bind to when starting. The default value is "0.0.0.0",
+     * which means that the server will bind to all available network interfaces, allowing it to accept connections from any IP
+     * address. This default bind address can be overridden by command-line arguments or environment properties to allow for
+     * flexible configuration of the server's network settings, enabling it to bind to a specific IP address if desired.
      */
     private static final String BIND_DEFAULT = "0.0.0.0";
 
     /**
      * The default port number for HTTP connections.
      * <p>
-     * This variable defines the default port number that the server will listen on for cleartext HTTP connections. The default value is
-     * set to 8080, which is a common port for HTTP traffic. This default port can be overridden by command-line arguments or
-     * environment properties to allow for flexible configuration of the server's HTTP connection settings, enabling it to listen on a
-     * different port if needed.
+     * This variable defines the default port number that the server will listen on for cleartext HTTP connections. The default
+     * value is set to 8080, which is a common port for HTTP traffic. This default port can be overridden by command-line arguments
+     * or environment properties to allow for flexible configuration of the server's HTTP connection settings, enabling it to listen
+     * on a different port if needed.
      */
     private static final int HTTP_PORT_DEFAULT = 8080;
 
     /**
      * The default port number for HTTPS connections.
      * <p>
-     * This variable defines the default port number that the server will listen on for secure HTTPS connections. The default value is
-     * set to 8443, which is a common port for HTTPS traffic. This default port can be overridden by command-line arguments or
-     * environment properties to allow for flexible configuration of the server's secure connection settings, enabling it to listen on a
-     * different port if needed.
+     * This variable defines the default port number that the server will listen on for secure HTTPS connections. The default value
+     * is set to 8443, which is a common port for HTTPS traffic. This default port can be overridden by command-line arguments or
+     * environment properties to allow for flexible configuration of the server's secure connection settings, enabling it to listen
+     * on a different port if needed.
      * 
      * @see #HTTP_PORT_DEFAULT
      */
     private static final int HTTPS_PORT_DEFAULT = 8443;
 
     /**
-     * The default protocol configuration, represented as a bitmask where bit 1 = HTTP, bit 2 = HTTPS, and bit 3 = HTTP/2 (with bit 2).
+     * The default protocol configuration, represented as a bitmask where bit 1 = HTTP, bit 2 = HTTPS, and bit 3 = HTTP/2 (with bit
+     * 2).
      * <p>
      * This variable defines the default protocol configuration for the server, using a bitmask to specify which protocols are
      * supported. The bitmask allows for flexible configuration of supported protocols, enabling the server to be set up to support
      * HTTP, HTTPS, and HTTP/2 as needed. The default value is set to 0xff, which means that all three protocols are supported by
-     * default. This default configuration can be overridden by command-line arguments or environment properties to allow for customized
-     * protocol support based on the specific requirements of the deployment environment.
+     * default. This default configuration can be overridden by command-line arguments or environment properties to allow for
+     * customized protocol support based on the specific requirements of the deployment environment.
      * 
      * @see #HTTP_PORT_DEFAULT
      * @see #HTTPS_PORT_DEFAULT
@@ -165,22 +167,22 @@ public class FullServer extends AbstractServer {
     /**
      * The default maximum number of simultaneous connections allowed by the server.
      * <p>
-     * This variable defines the default connection limit for the server, which limits the total number of concurrent connections that
-     * the server can handle at any given time. The default value is set to 50, which helps to prevent resource exhaustion and manage
-     * server load by controlling the number of active connections. This default connection limit can be overridden by command-line
-     * arguments or environment properties to allow for flexible configuration of the server's connection handling capabilities based on
-     * the expected traffic and resource availability.
+     * This variable defines the default connection limit for the server, which limits the total number of concurrent connections
+     * that the server can handle at any given time. The default value is set to 50, which helps to prevent resource exhaustion and
+     * manage server load by controlling the number of active connections. This default connection limit can be overridden by
+     * command-line arguments or environment properties to allow for flexible configuration of the server's connection handling
+     * capabilities based on the expected traffic and resource availability.
      */
     private static final int CONNLIMIT_DEFAULT = 50;
 
     /**
      * The default maximum connection rate per second, calculated as one-tenth of the default connection limit.
      * <p>
-     * This variable defines the default rate limit for new connections to the server, which limits the number of new connections that
-     * can be accepted per second. The default value is calculated as one-tenth of the default connection limit, which helps to prevent
-     * denial-of-service attacks and manage server load by controlling the rate at which new connections are established. This default
-     * rate limit can be overridden by command-line arguments or environment properties to allow for flexible configuration of the
-     * server's connection handling capabilities based on the expected traffic and resource availability.
+     * This variable defines the default rate limit for new connections to the server, which limits the number of new connections
+     * that can be accepted per second. The default value is calculated as one-tenth of the default connection limit, which helps to
+     * prevent denial-of-service attacks and manage server load by controlling the rate at which new connections are established.
+     * This default rate limit can be overridden by command-line arguments or environment properties to allow for flexible
+     * configuration of the server's connection handling capabilities based on the expected traffic and resource availability.
      * 
      * @see #CONNLIMIT_DEFAULT
      */
@@ -190,10 +192,10 @@ public class FullServer extends AbstractServer {
      * The default maximum number of server threads, calculated as four times the default connection limit.
      * <p>
      * This variable defines the default maximum number of threads that the server can use to handle incoming requests. The default
-     * value is calculated as four times the default connection limit, which helps to manage server resources and ensure that the server
-     * can handle a sufficient number of concurrent requests without overwhelming the system. This default maximum thread count can be
-     * overridden by command-line arguments or environment properties to allow for flexible configuration of the server's threading
-     * capabilities based on the expected traffic and resource availability.
+     * value is calculated as four times the default connection limit, which helps to manage server resources and ensure that the
+     * server can handle a sufficient number of concurrent requests without overwhelming the system. This default maximum thread
+     * count can be overridden by command-line arguments or environment properties to allow for flexible configuration of the
+     * server's threading capabilities based on the expected traffic and resource availability.
      * 
      * @see #CONNLIMIT_DEFAULT
      */
@@ -202,11 +204,11 @@ public class FullServer extends AbstractServer {
     /**
      * The default minimum number of server threads, calculated as one-fourth of the default connection limit.
      * <p>
-     * This variable defines the default minimum number of threads that the server will maintain in its thread pool. The default value
-     * is calculated as one-fourth of the default connection limit, which helps to ensure that the server has a baseline number of
-     * threads available to handle incoming requests, even during periods of low traffic. This default minimum thread count can be
-     * overridden by command-line arguments or environment properties to allow for flexible configuration of the server's threading
-     * capabilities based on the expected traffic and resource availability.
+     * This variable defines the default minimum number of threads that the server will maintain in its thread pool. The default
+     * value is calculated as one-fourth of the default connection limit, which helps to ensure that the server has a baseline
+     * number of threads available to handle incoming requests, even during periods of low traffic. This default minimum thread
+     * count can be overridden by command-line arguments or environment properties to allow for flexible configuration of the
+     * server's threading capabilities based on the expected traffic and resource availability.
      * 
      * @see #CONNLIMIT_DEFAULT
      */
@@ -216,31 +218,32 @@ public class FullServer extends AbstractServer {
      * The default session timeout in seconds, set to 300 seconds (5 minutes).
      * <p>
      * This variable defines the default session inactivity timeout for user sessions on the server. The default value is set to 300
-     * seconds (5 minutes), which specifies the amount of time that a session can remain inactive before it is invalidated and removed
-     * from the server. This helps to manage server resources and improve security by ensuring that inactive sessions do not persist
-     * indefinitely. This default session timeout can be overridden by command-line arguments or environment properties to allow for
-     * flexible configuration of the server's session management settings based on the expected user behavior and security requirements
-     * of the deployment environment.
+     * seconds (5 minutes), which specifies the amount of time that a session can remain inactive before it is invalidated and
+     * removed from the server. This helps to manage server resources and improve security by ensuring that inactive sessions do not
+     * persist indefinitely. This default session timeout can be overridden by command-line arguments or environment properties to
+     * allow for flexible configuration of the server's session management settings based on the expected user behavior and security
+     * requirements of the deployment environment.
      */
     private static final int SESSIONTIMEOUT_DEFAULT = 300;
 
     /**
      * The resource path to the key store certificate file.
      * <p>
-     * This variable holds the resource path to the key store certificate file used for SSL/TLS connections. It is used to configure the
-     * SSL context factory with the correct certificate file to establish secure connections. The path can be set through command-line
-     * arguments or environment properties, and it defaults to a specific location within the merged module resources if not provided.
-     * The key store file is expected to be in PKCS12 format and should contain the necessary certificates for SSL/TLS communication.
+     * This variable holds the resource path to the key store certificate file used for SSL/TLS connections. It is used to configure
+     * the SSL context factory with the correct certificate file to establish secure connections. The path can be set through
+     * command-line arguments or environment properties, and it defaults to a specific location within the merged module resources
+     * if not provided. The key store file is expected to be in PKCS12 format and should contain the necessary certificates for
+     * SSL/TLS communication.
      */
     private static Resource keyStorePath;
 
     /**
      * The path to the key store password file.
      * <p>
-     * This variable holds the path to the file that contains the password for the key store used for SSL/TLS connections. It is used to
-     * configure the SSL context factory with the correct password to access the key store and establish secure connections. The path
-     * can be set through command-line arguments or environment properties, and it defaults to a specific location within the merged
-     * module resources if not provided.
+     * This variable holds the path to the file that contains the password for the key store used for SSL/TLS connections. It is
+     * used to configure the SSL context factory with the correct password to access the key store and establish secure connections.
+     * The path can be set through command-line arguments or environment properties, and it defaults to a specific location within
+     * the merged module resources if not provided.
      */
     private static String keyStorePWPath;
 
@@ -248,70 +251,70 @@ public class FullServer extends AbstractServer {
      * The protocol configuration bitmask (bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP/2 with bit 2).
      * <p>
      * This variable is used to determine which protocols the server should support based on the configuration provided through
-     * command-line arguments or environment properties. The bitmask allows for flexible configuration of supported protocols, enabling
-     * the server to be set up to support HTTP, HTTPS, and HTTP/2 as needed. The default value is set to 0xff, which means that all
-     * three protocols are supported by default.
+     * command-line arguments or environment properties. The bitmask allows for flexible configuration of supported protocols,
+     * enabling the server to be set up to support HTTP, HTTPS, and HTTP/2 as needed. The default value is set to 0xff, which means
+     * that all three protocols are supported by default.
      */
     private static int protocols; // bit 1 = HTTP, bit 2 = HTTPS, bit 3 = HTTP2 (with bit 2)
 
     /**
      * The port number for HTTP connections.
      * <p>
-     * This parameter specifies the port number that the server will listen on for cleartext HTTP connections. It is used to configure
-     * the HTTP connector for the server, allowing clients to establish non-secure connections. The default value is set to 8080, which
-     * is a common port for HTTP traffic. This parameter can be overridden by command-line arguments or environment properties to allow
-     * for flexible configuration of the server's HTTP connection settings.
+     * This parameter specifies the port number that the server will listen on for cleartext HTTP connections. It is used to
+     * configure the HTTP connector for the server, allowing clients to establish non-secure connections. The default value is set
+     * to 8080, which is a common port for HTTP traffic. This parameter can be overridden by command-line arguments or environment
+     * properties to allow for flexible configuration of the server's HTTP connection settings.
      */
     private static int httpPort;
 
     /**
      * The port number for HTTPS connections.
      * <p>
-     * This parameter specifies the port number that the server will listen on for secure HTTPS connections. It is used to configure the
-     * HTTPS connector for the server, allowing clients to establish secure connections using SSL/TLS. The default value is set to 8443,
-     * which is a common port for HTTPS traffic. This parameter can be overridden by command-line arguments or environment properties to
-     * allow for flexible configuration of the server's secure connection settings.
+     * This parameter specifies the port number that the server will listen on for secure HTTPS connections. It is used to configure
+     * the HTTPS connector for the server, allowing clients to establish secure connections using SSL/TLS. The default value is set
+     * to 8443, which is a common port for HTTPS traffic. This parameter can be overridden by command-line arguments or environment
+     * properties to allow for flexible configuration of the server's secure connection settings.
      */
     private static int httpsPort;
 
     /**
      * The IP address or host to bind the server to.
      * <p>
-     * This parameter specifies the network interface or host that the server will bind to when starting. It can be set to a specific IP
-     * address to bind to a particular network interface, or it can be set to "0.0.0.0" to bind to all available interfaces. The default
-     * value is set to "0.0.0.0", which allows the server to accept connections on any network interface.
+     * This parameter specifies the network interface or host that the server will bind to when starting. It can be set to a
+     * specific IP address to bind to a particular network interface, or it can be set to "0.0.0.0" to bind to all available
+     * interfaces. The default value is set to "0.0.0.0", which allows the server to accept connections on any network interface.
      */
     private static String bind;
 
     /**
      * The maximum number of simultaneous connections allowed by the server.
      * <p>
-     * This parameter is used to configure the ConnectionLimit for the server, which limits the total number of concurrent connections
-     * that the server can handle at any given time. It helps to prevent resource exhaustion and manage server load by controlling the
-     * number of active connections. The default value is set to 50.
+     * This parameter is used to configure the ConnectionLimit for the server, which limits the total number of concurrent
+     * connections that the server can handle at any given time. It helps to prevent resource exhaustion and manage server load by
+     * controlling the number of active connections. The default value is set to 50.
      */
     private static int connLimit = CONNLIMIT_DEFAULT;
     /**
      * The maximum connection rate per second allowed by the server.
      * <p>
-     * This parameter is used to configure the AcceptRateLimit for the server, which limits the number of new connections that can be
-     * accepted per second. It helps to prevent denial-of-service attacks and manage server load by controlling the rate at which new
-     * connections are established. The default value is set to one-tenth of the maximum connection limit.
+     * This parameter is used to configure the AcceptRateLimit for the server, which limits the number of new connections that can
+     * be accepted per second. It helps to prevent denial-of-service attacks and manage server load by controlling the rate at which
+     * new connections are established. The default value is set to one-tenth of the maximum connection limit.
      */
     private static int rateLimit = RATELIMIT_DEFAULT;
     /**
      * The maximum number of threads in the server's thread pool.
      * <p>
-     * This parameter is used to configure the maximum number of threads that the server can use to handle incoming requests. It helps
-     * to manage server resources and ensure that the server can handle a sufficient number of concurrent requests without overwhelming
-     * the system. The default value is set to four times the maximum connection limit.
+     * This parameter is used to configure the maximum number of threads that the server can use to handle incoming requests. It
+     * helps to manage server resources and ensure that the server can handle a sufficient number of concurrent requests without
+     * overwhelming the system. The default value is set to four times the maximum connection limit.
      */
     private static int maxThreads = MAXTHREADS_DEFAULT;
     /**
      * The minimum number of threads in the server's thread pool.
      * <p>
-     * This parameter is used to configure the minimum number of threads that the server will maintain in its thread pool. It helps to
-     * ensure that the server has a baseline number of threads available to handle incoming requests, even during periods of low
+     * This parameter is used to configure the minimum number of threads that the server will maintain in its thread pool. It helps
+     * to ensure that the server has a baseline number of threads available to handle incoming requests, even during periods of low
      * traffic. The default value is set to one-fourth of the maximum connection limit.
      */
     private static int minThreads = MINTHREADS_DEFAULT;
@@ -321,26 +324,27 @@ public class FullServer extends AbstractServer {
      * <p>
      * This parameter is used to configure the session timeout for user sessions on the server. It specifies the amount of time (in
      * seconds) that a session can remain inactive before it is invalidated and removed from the server. This helps to manage server
-     * resources and improve security by ensuring that inactive sessions do not persist indefinitely. The default value is set to 300
-     * seconds (5 minutes).
+     * resources and improve security by ensuring that inactive sessions do not persist indefinitely. The default value is set to
+     * 300 seconds (5 minutes).
      */
     private static int sessionTimeOut = SESSIONTIMEOUT_DEFAULT;
 
     /**
      * The environment properties instance used to retrieve configuration values for the server.
      * <p>
-     * This instance is initialized using the DefaultEnvironmentProperties class, which provides a way to access environment properties
-     * and configuration values for the server application. It allows the server to retrieve configuration settings from various
-     * sources, such as system properties, environment variables, or configuration files, and use them to initialize the server
-     * parameters and settings.
+     * This instance is initialized using the DefaultEnvironmentProperties class, which provides a way to access environment
+     * properties and configuration values for the server application. It allows the server to retrieve configuration settings from
+     * various sources, such as system properties, environment variables, or configuration files, and use them to initialize the
+     * server parameters and settings.
      */
     private static final DefaultEnvironmentProperties env = DefaultEnvironmentProperties.getInstance(FullServer.class);
 
     /**
      * A nested static class that defines the command-line arguments for the server application. It uses JCommander annotations to
-     * specify the argument names, descriptions, and default values. The Args class includes fields for client path, working path, debug
-     * mode, certificate file path, HTTPS port, HTTP port, bind address, connection limit, rate limit, maximum threads, minimum threads,
-     * and session timeout. This class is used to parse and store the command-line arguments provided when starting the server.
+     * specify the argument names, descriptions, and default values. The Args class includes fields for client path, working path,
+     * debug mode, certificate file path, HTTPS port, HTTP port, bind address, connection limit, rate limit, maximum threads,
+     * minimum threads, and session timeout. This class is used to parse and store the command-line arguments provided when starting
+     * the server.
      */
     @Parameters(separators = " =")
     private static class Args {
@@ -363,36 +367,36 @@ public class FullServer extends AbstractServer {
         private boolean debug = false;
 
         /**
-         * The path to the certificate file for HTTPS connections, which can be specified using the -C or --cert command-line arguments. The
-         * default value is defined by KEY_STORE_PATH_DEFAULT.
+         * The path to the certificate file for HTTPS connections, which can be specified using the -C or --cert command-line
+         * arguments. The default value is defined by KEY_STORE_PATH_DEFAULT.
          */
         @Parameter(names = { "-C", "--cert" }, arity = 1, description = "cert file, default is " + KEY_STORE_PATH_DEFAULT)
         private String cert = KEY_STORE_PATH_DEFAULT;
 
         /**
-         * The port number for HTTPS connections, which can be specified using the -s or --https command-line arguments. The default value
-         * is defined by HTTPS_PORT_DEFAULT.
+         * The port number for HTTPS connections, which can be specified using the -s or --https command-line arguments. The default
+         * value is defined by HTTPS_PORT_DEFAULT.
          */
         @Parameter(names = { "-s", "--https" }, arity = 1, description = "https port, default is " + HTTPS_PORT_DEFAULT)
         private int httpsPort = HTTPS_PORT_DEFAULT;
 
         /**
-         * The port number for HTTP connections, which can be specified using the -p or --http command-line arguments. The default value is
-         * defined by HTTP_PORT_DEFAULT.
+         * The port number for HTTP connections, which can be specified using the -p or --http command-line arguments. The default
+         * value is defined by HTTP_PORT_DEFAULT.
          */
         @Parameter(names = { "-p", "--http" }, arity = 1, description = "http port, default is " + HTTP_PORT_DEFAULT)
         private int httpPort = HTTP_PORT_DEFAULT;
 
         /**
-         * The IP address or host to bind the server to, which can be specified using the -b or --bind command-line arguments. The default
-         * value is defined by BIND_DEFAULT.
+         * The IP address or host to bind the server to, which can be specified using the -b or --bind command-line arguments. The
+         * default value is defined by BIND_DEFAULT.
          */
         @Parameter(names = { "-b", "--bind" }, arity = 1, description = "bind to address or host, default is " + BIND_DEFAULT)
         private String bind = BIND_DEFAULT;
 
         /**
-         * The maximum number of simultaneous connections allowed by the server, which can be specified using the --conn-limit command-line
-         * argument. The default value is defined by CONNLIMIT_DEFAULT.
+         * The maximum number of simultaneous connections allowed by the server, which can be specified using the --conn-limit
+         * command-line argument. The default value is defined by CONNLIMIT_DEFAULT.
          */
         @Parameter(names = { "--conn-limit" }, arity = 1, description = "max simultaneous connection, default is " + CONNLIMIT_DEFAULT)
         private int connlimit = CONNLIMIT_DEFAULT;
@@ -405,22 +409,22 @@ public class FullServer extends AbstractServer {
         private int ratelimit = RATELIMIT_DEFAULT;
 
         /**
-         * The maximum number of threads in the server's thread pool, which can be specified using the --max-threads command-line argument.
-         * The default value is defined by MAXTHREADS_DEFAULT.
+         * The maximum number of threads in the server's thread pool, which can be specified using the --max-threads command-line
+         * argument. The default value is defined by MAXTHREADS_DEFAULT.
          */
         @Parameter(names = { "--max-threads" }, arity = 1, description = "max server threads, default is " + MAXTHREADS_DEFAULT)
         private int maxThreads = MAXTHREADS_DEFAULT;
 
         /**
-         * The minimum number of threads in the server's thread pool, which can be specified using the --min-threads command-line argument.
-         * The default value is defined by MINTHREADS_DEFAULT.
+         * The minimum number of threads in the server's thread pool, which can be specified using the --min-threads command-line
+         * argument. The default value is defined by MINTHREADS_DEFAULT.
          */
         @Parameter(names = { "--min-threads" }, arity = 1, description = "min server threads, default is " + MINTHREADS_DEFAULT)
         private int minThreads = MINTHREADS_DEFAULT;
 
         /**
-         * The session inactivity timeout in seconds, which can be specified using the --session-timeout command-line argument. The default
-         * value is defined by SESSIONTIMEOUT_DEFAULT.
+         * The session inactivity timeout in seconds, which can be specified using the --session-timeout command-line argument. The
+         * default value is defined by SESSIONTIMEOUT_DEFAULT.
          */
         @Parameter(names = { "--session-timeout" }, arity = 1, description = "session timeout, default is " + SESSIONTIMEOUT_DEFAULT)
         private int sessionTimeOut = MINTHREADS_DEFAULT;
@@ -428,10 +432,10 @@ public class FullServer extends AbstractServer {
     }
 
     /**
-     * Initializes the server configuration by parsing command-line arguments and environment properties. It uses JCommander to parse
-     * the command-line arguments into an instance of the Args class, and then sets the server configuration parameters based on the
-     * parsed arguments and environment properties. The method also initializes logging and sets system properties for file encoding and
-     * default locale.
+     * Initializes the server configuration by parsing command-line arguments and environment properties. It uses JCommander to
+     * parse the command-line arguments into an instance of the Args class, and then sets the server configuration parameters based
+     * on the parsed arguments and environment properties. The method also initializes logging and sets system properties for file
+     * encoding and default locale.
      * 
      * @param args the command-line arguments passed to the server application
      * 
@@ -454,11 +458,11 @@ public class FullServer extends AbstractServer {
     }
 
     /**
-     * Parses the command-line arguments and merges them with the configuration values from the environment properties to initialize the
-     * server settings.
+     * Parses the command-line arguments and merges them with the configuration values from the environment properties to initialize
+     * the server settings.
      * <p>
-     * This method sets various server parameters such as ports, bind address, SSL certificates, connection limits, and configures the
-     * default locale, file encoding, and system logger.
+     * This method sets various server parameters such as ports, bind address, SSL certificates, connection limits, and configures
+     * the default locale, file encoding, and system logger.
      *
      * @param args the command-line arguments passed to the server application
      * 
@@ -540,8 +544,8 @@ public class FullServer extends AbstractServer {
     /**
      * Creates and configures a server connector for secure HTTP/2 connections.
      * <p>
-     * This method sets up the SSL context factory, configures ALPN and HTTP/2 connection factories, and applies temporary SSL provider
-     * security overrides to establish secure multiplexed HTTP/2 connections.
+     * This method sets up the SSL context factory, configures ALPN and HTTP/2 connection factories, and applies temporary SSL
+     * provider security overrides to establish secure multiplexed HTTP/2 connections.
      *
      * @param jettyserver the Jetty server instance to configure the connector for
      * 
@@ -580,8 +584,8 @@ public class FullServer extends AbstractServer {
     /**
      * Creates and configures the standard {@link HttpConfiguration} for secure connections.
      * <p>
-     * This configuration specifies the "https" scheme, sets the configured HTTPS port, and adds a {@link SecureRequestCustomizer} to
-     * the HTTP configuration.
+     * This configuration specifies the "https" scheme, sets the configured HTTPS port, and adds a {@link SecureRequestCustomizer}
+     * to the HTTP configuration.
      *
      * @return the configured {@link HttpConfiguration} for secure connections
      */
@@ -596,8 +600,8 @@ public class FullServer extends AbstractServer {
     /**
      * Creates and configures the SSL context factory for secure connections.
      * <p>
-     * This method sets up the key store type, path, cipher comparator, and password for the SSL context factory based on the configured
-     * key store and password paths.
+     * This method sets up the key store type, path, cipher comparator, and password for the SSL context factory based on the
+     * configured key store and password paths.
      *
      * @return the configured {@link SslContextFactory.Server} for secure connections
      * 
@@ -638,8 +642,8 @@ public class FullServer extends AbstractServer {
     /**
      * Configures the security handler and access constraints for the given context.
      * <p>
-     * This method sets up basic authentication using a custom {@link Login} service, restricting access to users with the "admin" or
-     * "user" role.
+     * This method sets up basic authentication using a custom {@link Login} service, restricting access to users with the "admin"
+     * or "user" role.
      *
      * @param context the {@link ServletContextHandler} to secure
      * 
@@ -689,9 +693,9 @@ public class FullServer extends AbstractServer {
     /**
      * Configures and starts the Jetty server with all required servlets, filters, security parameters, and connectors.
      * <p>
-     * This method sets up standard servlets (datasources, images, session, actions, upload, download), applies security constraints,
-     * configures cache-control filters, binds active HTTP/HTTPS/HTTP2 connectors depending on user preferences, and enforces rate
-     * limits and connection limits on the server before starting.
+     * This method sets up standard servlets (datasources, images, session, actions, upload, download), applies security
+     * constraints, configures cache-control filters, binds active HTTP/HTTPS/HTTP2 connectors depending on user preferences, and
+     * enforces rate limits and connection limits on the server before starting.
      *
      * @throws Exception if an error occurs while configuring or starting the server
      */
@@ -754,7 +758,8 @@ public class FullServer extends AbstractServer {
             @SuppressWarnings("removal")
             final var connectionLimit = new ConnectionLimit(connLimit, jettyserver);
             jettyserver.addBean(connectionLimit); // limit simultaneous connections
-            jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver)); // rate limit
+            jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver)); // rate
+                                                                                                                                      // limit
 
             jettyserver.start();
             Log.config("Start server");
@@ -798,8 +803,8 @@ public class FullServer extends AbstractServer {
     /**
      * Stops the daemon service.
      * <p>
-     * This is a lifecycle method called when the daemon is stopped. As the server teardown is handled during daemon destruction, this
-     * method has no action.
+     * This is a lifecycle method called when the daemon is stopped. As the server teardown is handled during daemon destruction,
+     * this method has no action.
      *
      * @throws Exception if an error occurs during the stop phase
      */
@@ -826,11 +831,11 @@ public class FullServer extends AbstractServer {
     /**
      * Entry point for managing the application when run as a Windows service.
      * <p>
-     * This method parses the service command (e.g., "start" or "stop") and the subsequent command-line arguments, then either starts
-     * the service execution loop or triggers a server shutdown depending on the command received.
+     * This method parses the service command (e.g., "start" or "stop") and the subsequent command-line arguments, then either
+     * starts the service execution loop or triggers a server shutdown depending on the command received.
      *
-     * @param args the command-line arguments passed by the Windows service manager, where the first element is typically the control
-     *        command ("start" or "stop")
+     * @param args the command-line arguments passed by the Windows service manager, where the first element is typically the
+     *        control command ("start" or "stop")
      * 
      * @throws Exception if an error occurs during argument parsing, server startup, or shutdown
      */
@@ -855,8 +860,8 @@ public class FullServer extends AbstractServer {
     /**
      * Starts the server execution when running as a Windows service.
      * <p>
-     * This method triggers the server initialization and enters a polling loop that periodically waits while checking if the server is
-     * still running.
+     * This method triggers the server initialization and enters a polling loop that periodically waits while checking if the server
+     * is still running.
      *
      * @throws Exception if an error occurs during server initialization or while waiting
      */
@@ -873,8 +878,8 @@ public class FullServer extends AbstractServer {
     /**
      * Stops the server execution when running as a Windows service.
      * <p>
-     * This method terminates the running Jetty server instance and notifies all waiting threads on the {@link Server} class to break
-     * the main service execution loop.
+     * This method terminates the running Jetty server instance and notifies all waiting threads on the {@link Server} class to
+     * break the main service execution loop.
      *
      * @throws Exception if an error occurs during server termination
      */

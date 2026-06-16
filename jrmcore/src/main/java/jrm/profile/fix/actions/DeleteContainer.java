@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -33,7 +25,6 @@ import lombok.val;
  * Delete a container (will all its entries)
  * 
  * @author optyfr
- *
  */
 public class DeleteContainer extends ContainerAction {
 
@@ -41,7 +32,7 @@ public class DeleteContainer extends ContainerAction {
      * constructor
      * 
      * @param container to delete
-     * @param format    format of the container
+     * @param format format of the container
      */
     public DeleteContainer(final Container container, final FormatOptions format) {
         super(container, format);
@@ -50,9 +41,10 @@ public class DeleteContainer extends ContainerAction {
     /**
      * shortcut static method to get an instance of {@link DeleteContainer}
      * 
-     * @param action    the potentially already existing {@link DeleteContainer}
+     * @param action the potentially already existing {@link DeleteContainer}
      * @param container the container to backup
-     * @param format    the format of the container
+     * @param format the format of the container
+     * 
      * @return a {@link DeleteContainer}
      */
     public static DeleteContainer getInstance(DeleteContainer action, final Container container, final FormatOptions format) {
@@ -67,7 +59,7 @@ public class DeleteContainer extends ContainerAction {
         if (container.getType() == Container.Type.ZIP || container.getType() == Container.Type.SEVENZIP || container.getType() == Container.Type.UNK) {
             try {
                 return Files.deleteIfExists(container.getFile().toPath());
-            } catch (IOException e1) {
+            } catch (IOException _) {
                 Log.err(() -> String.format("failed to delete %s", container.getFile()));
                 return false;
             }
@@ -87,7 +79,7 @@ public class DeleteContainer extends ContainerAction {
             try {
                 if (!Files.deleteIfExists(container.getFile().getParentFile().toPath().resolve(entry.getFile())))
                     return false;
-            } catch (final IOException e) {
+            } catch (final IOException _) {
                 Log.err("failed to delete " + container.getRelFile()); //$NON-NLS-1$
                 return false;
             }

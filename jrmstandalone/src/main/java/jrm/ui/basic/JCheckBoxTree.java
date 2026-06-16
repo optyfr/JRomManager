@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.ui.basic;
 
@@ -107,6 +99,7 @@ public class JCheckBoxTree extends JTree {
      * Checks if is selected partially.
      *
      * @param path the path
+     * 
      * @return true, if is selected partially
      */
     public boolean isSelectedPartially(final TreePath path) {
@@ -207,7 +200,7 @@ public class JCheckBoxTree extends JTree {
      * Sets the selected.
      *
      * @param selected the selected
-     * @param nodes    the nodes
+     * @param nodes the nodes
      */
     public void setSelected(final boolean selected, final NGTreeNode... nodes) {
         for (final NGTreeNode node : nodes) {
@@ -272,7 +265,7 @@ public class JCheckBoxTree extends JTree {
     /**
      * Check sub tree.
      *
-     * @param tp    the tp
+     * @param tp the tp
      * @param check the check
      */
     protected void checkSubTree(final TreePath tp, final boolean check) {

@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -21,40 +13,36 @@ import java.io.Serializable;
 import lombok.Getter;
 
 /**
- * Describes a machine driver containing status, emulation flags, cocktail mode
- * support, and save state details. This is commonly used for filtering games.
+ * Describes a machine driver containing status, emulation flags, cocktail mode support, and save state details. This is commonly
+ * used for filtering games.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
 public class Driver implements Serializable {
     /**
-     * The global status of the machine driver. Defaults to
-     * {@link StatusType#preliminary}.
+     * The global status of the machine driver. Defaults to {@link StatusType#preliminary}.
      *
      * @return the status type
      */
     private @Getter StatusType status = StatusType.preliminary;
 
     /**
-     * The emulation status of the machine driver. Defaults to
-     * {@link StatusType#preliminary}.
+     * The emulation status of the machine driver. Defaults to {@link StatusType#preliminary}.
      *
      * @return the emulation status type
      */
     private @Getter StatusType emulation = StatusType.preliminary;
 
     /**
-     * The cocktail mode status of the machine driver. Defaults to
-     * {@link StatusType#preliminary}.
+     * The cocktail mode status of the machine driver. Defaults to {@link StatusType#preliminary}.
      *
      * @return the cocktail status type
      */
     private @Getter StatusType cocktail = StatusType.preliminary;
 
     /**
-     * The save state support of the machine driver. Defaults to
-     * {@link SaveStateType#unsupported}.
+     * The save state support of the machine driver. Defaults to {@link SaveStateType#unsupported}.
      *
      * @return the save state support type
      */
@@ -99,8 +87,7 @@ public class Driver implements Serializable {
     }
 
     /**
-     * Sets the global driver status from a string representation. Supports trim and
-     * case-insensitive resolution.
+     * Sets the global driver status from a string representation. Supports trim and case-insensitive resolution.
      *
      * @param status the status string matching a {@link StatusType} value name
      */
@@ -117,11 +104,9 @@ public class Driver implements Serializable {
     }
 
     /**
-     * Sets the emulation status from a string representation. Supports trim and
-     * case-insensitive resolution.
+     * Sets the emulation status from a string representation. Supports trim and case-insensitive resolution.
      *
-     * @param status the emulation status string matching a {@link StatusType} value
-     *               name
+     * @param status the emulation status string matching a {@link StatusType} value name
      */
     public void setEmulation(final String status) {
         if (status != null) {
@@ -136,11 +121,9 @@ public class Driver implements Serializable {
     }
 
     /**
-     * Sets the cocktail mode status from a string representation. Supports trim and
-     * case-insensitive resolution.
+     * Sets the cocktail mode status from a string representation. Supports trim and case-insensitive resolution.
      *
-     * @param status the cocktail status string matching a {@link StatusType} value
-     *               name
+     * @param status the cocktail status string matching a {@link StatusType} value name
      */
     public void setCocktail(final String status) {
         if (status != null) {
@@ -155,11 +138,9 @@ public class Driver implements Serializable {
     }
 
     /**
-     * Sets the save state support type from a string representation. Supports trim
-     * and case-insensitive resolution.
+     * Sets the save state support type from a string representation. Supports trim and case-insensitive resolution.
      *
-     * @param status the save state support string matching a {@link SaveStateType}
-     *               value name
+     * @param status the save state support string matching a {@link SaveStateType} value name
      */
     public void setSaveState(final String status) {
         if (status != null) {

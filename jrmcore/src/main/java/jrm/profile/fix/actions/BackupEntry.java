@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -35,13 +27,13 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
 
 /**
- * Describe an entry to backup, will take appropriate actions to extract entry
- * before copying to provided backup {@link FileSystem}
+ * Describe an entry to backup, will take appropriate actions to extract entry before copying to provided backup {@link FileSystem}
  * 
  * @author optyfr
- *
  */
 public class BackupEntry extends EntryAction {
+    private static final String BACKUP_OF_S = "Backup of %s";
+
     /**
      * Constructor
      * 
@@ -63,7 +55,7 @@ public class BackupEntry extends EntryAction {
 
     @Override
     public String toString() {
-        return String.format("Backup of %s", entry); //$NON-NLS-1$
+        return String.format(BACKUP_OF_S, entry); // $NON-NLS-1$
     }
 
     @Override
@@ -76,7 +68,7 @@ public class BackupEntry extends EntryAction {
             dstPath = entry.getMd5();
         else
             dstPath = entry.getCrc() + '_' + entry.getSize();
-        handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
+        handler.setProgress(null, null, null, progress(i, max, String.format(BACKUP_OF_S, entry.getName()))); // $NON-NLS-1$
         String srcname = null;
         try {
             if (!dstPath.equals(dstPathCrc)) {
@@ -135,7 +127,7 @@ public class BackupEntry extends EntryAction {
             dstPath = dstfs.getPath(entry.getMd5());
         else
             dstPath = dstfs.getPath(entry.getCrc() + '_' + entry.getSize());
-        handler.setProgress(null, null, null, progress(i, max, String.format("Backup of %s", entry.getName()))); //$NON-NLS-1$
+        handler.setProgress(null, null, null, progress(i, max, String.format(BACKUP_OF_S, entry.getName()))); // $NON-NLS-1$
         Path srcpath = null;
         try {
             final var parent2 = dstPath.getParent();

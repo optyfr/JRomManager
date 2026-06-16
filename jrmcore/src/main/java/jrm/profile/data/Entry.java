@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -26,9 +18,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Entry is a container item (i.e., a directory file or a compressed archive
- * entry). It represents an individual scanned file with size, last modified
- * timestamp, and checksum hashes.
+ * Entry is a container item (i.e., a directory file or a compressed archive entry). It represents an individual scanned file with
+ * size, last modified timestamp, and checksum hashes.
  *
  * @author optyfr
  */
@@ -48,6 +39,7 @@ public class Entry implements Serializable {
      * The entry size in bytes.
      *
      * @param size the entry size to set
+     * 
      * @return the entry size in bytes
      */
     protected @Getter @Setter long size = 0;
@@ -56,6 +48,7 @@ public class Entry implements Serializable {
      * The last modified date in Unix time (milliseconds).
      *
      * @param modified the modified timestamp to set
+     * 
      * @return the modified timestamp in milliseconds
      */
     protected @Getter @Setter long modified = 0;
@@ -64,6 +57,7 @@ public class Entry implements Serializable {
      * The CRC32 checksum value as a lowercase hexadecimal string.
      *
      * @param crc the CRC32 string to set
+     * 
      * @return the CRC32 string
      */
     protected @Getter @Setter String crc = null;
@@ -72,6 +66,7 @@ public class Entry implements Serializable {
      * The SHA-1 checksum value as a lowercase hexadecimal string.
      *
      * @param sha1 the SHA-1 string to set
+     * 
      * @return the SHA-1 string
      */
     protected @Getter @Setter String sha1 = null;
@@ -80,6 +75,7 @@ public class Entry implements Serializable {
      * The MD5 checksum value as a lowercase hexadecimal string.
      *
      * @param md5 the MD5 string to set
+     * 
      * @return the MD5 string
      */
     protected @Getter @Setter String md5 = null;
@@ -95,6 +91,7 @@ public class Entry implements Serializable {
      * The specific type of the entry (e.g., CHD).
      *
      * @param type the entry type to set
+     * 
      * @return the entry type
      */
     protected @Getter @Setter Type type = Type.UNK;
@@ -116,7 +113,7 @@ public class Entry implements Serializable {
     /**
      * Constructs an entry based on a file path.
      *
-     * @param file    the physical file path string (with relative path)
+     * @param file the physical file path string (with relative path)
      * @param relfile the relative version of the file path to present to the user
      */
     public Entry(final String file, final String relfile) {
@@ -130,9 +127,9 @@ public class Entry implements Serializable {
     /**
      * Constructs an entry based on a file path and its attributes.
      *
-     * @param file    the physical file path string (with relative path)
+     * @param file the physical file path string (with relative path)
      * @param relfile the relative version of the file path to present to the user
-     * @param attr    the physical file attributes
+     * @param attr the physical file attributes
      */
     public Entry(final String file, final String relfile, final BasicFileAttributes attr) {
         this(file, relfile);
@@ -143,9 +140,9 @@ public class Entry implements Serializable {
     /**
      * Constructs an entry based on a file path, size, and modified date.
      *
-     * @param file     the physical file path string (with relative path)
-     * @param relfile  the relative version of the file path to present to the user
-     * @param size     the entry size in bytes
+     * @param file the physical file path string (with relative path)
+     * @param relfile the relative version of the file path to present to the user
+     * @param size the entry size in bytes
      * @param modified the last modified timestamp in milliseconds
      */
     public Entry(final String file, final String relfile, final long size, final long modified) {
@@ -157,7 +154,7 @@ public class Entry implements Serializable {
     /**
      * Renames the entry path names.
      *
-     * @param file    the new physical file path string
+     * @param file the new physical file path string
      * @param relfile the new relative file path string
      */
     public void rename(final String file, final String relfile) {
@@ -166,8 +163,7 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Retrieves the relative version of the file name, or fallback to absolute if
-     * not defined.
+     * Retrieves the relative version of the file name, or fallback to absolute if not defined.
      *
      * @return the relative file path string
      */
@@ -190,8 +186,7 @@ public class Entry implements Serializable {
     private String cachedName = null;
 
     /**
-     * Retrieves the relativized (against its parent) and normalized name (according
-     * to parent or file type).
+     * Retrieves the relativized (against its parent) and normalized name (according to parent or file type).
      *
      * @return the normalized name string
      */
@@ -216,13 +211,12 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Indicates whether some other object is "equal to" this entry. Supports
-     * comparison against other {@link Entry} objects, or domain {@link Rom} /
-     * {@link Disk} / {@link Sample} entities.
+     * Indicates whether some other object is "equal to" this entry. Supports comparison against other {@link Entry} objects, or
+     * domain {@link Rom} / {@link Disk} / {@link Sample} entities.
      *
      * @param obj the reference object to compare with
-     * @return {@code true} if this entry matches the properties of the compared
-     *         object, {@code false} otherwise
+     * 
+     * @return {@code true} if this entry matches the properties of the compared object, {@code false} otherwise
      */
     @Override
     public boolean equals(final Object obj) {
@@ -243,6 +237,7 @@ public class Entry implements Serializable {
      * Compares this entry with a sample audio entity based on name comparison.
      *
      * @param obj the reference sample object
+     * 
      * @return {@code true} if names match, {@code false} otherwise
      */
     protected boolean equalsSample(final Object obj) {
@@ -253,6 +248,7 @@ public class Entry implements Serializable {
      * Compares this entry with a disk entity based on SHA-1 or MD5 hashes.
      *
      * @param obj the reference disk object
+     * 
      * @return {@code true} if hashes match, {@code false} otherwise
      */
     protected boolean equalsDisk(final Object obj) {
@@ -267,6 +263,7 @@ public class Entry implements Serializable {
      * Compares this entry with a rom entity based on SHA-1, MD5, or CRC32 and size.
      *
      * @param obj the reference rom object
+     * 
      * @return {@code true} if hashes match, {@code false} otherwise
      */
     protected boolean equalsRom(final Object obj) {
@@ -280,12 +277,11 @@ public class Entry implements Serializable {
     }
 
     /**
-     * Compares this entry with another entry based on SHA-1, MD5, CRC32 and size,
-     * or modified timestamp and size.
+     * Compares this entry with another entry based on SHA-1, MD5, CRC32 and size, or modified timestamp and size.
      *
      * @param obj the reference entry object
-     * @return {@code true} if entries represent the same physical entity,
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if entries represent the same physical entity, {@code false} otherwise
      */
     protected boolean equalsEntry(final Object obj) {
         if (((Entry) obj).sha1 != null && sha1 != null)

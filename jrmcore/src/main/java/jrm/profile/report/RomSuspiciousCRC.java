@@ -8,14 +8,13 @@ import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 
 /**
- * Subject indicating that a suspicious CRC32 checksum mismatch was discovered
- * during scan validation.
+ * Subject indicating that a suspicious CRC32 checksum mismatch was discovered during scan validation.
  * <p>
- * A suspicious CRC checksum occurs when two distinct file entries share an
- * identical CRC32 value but have conflicting high-security cryptographic hashes
- * (MD5 or SHA-1), signaling potential collisions or errors.
+ * A suspicious CRC checksum occurs when two distinct file entries share an identical CRC32 value but have conflicting high-security
+ * cryptographic hashes (MD5 or SHA-1), signaling potential collisions or errors.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class RomSuspiciousCRC extends Subject implements Serializable {
@@ -27,8 +26,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable {
     private String crc;
 
     /**
-     * Constructs a new RomSuspiciousCRC subject with no parent {@link AnywareBase}
-     * reference.
+     * Constructs a new RomSuspiciousCRC subject with no parent {@link AnywareBase} reference.
      *
      * @param crc the suspicious CRC32 hex value
      */
@@ -61,6 +59,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable {
      * Clones this subject with the specified filtering options.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return a cloned RomSuspiciousCRC instance
      */
     @Override
@@ -72,6 +71,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable {
      * Streams the collection of status notes associated with this subject.
      *
      * @param filterOptions the active filtering options to evaluate
+     * 
      * @return a stream of status Note instances
      */
     @Override
@@ -80,8 +80,7 @@ public class RomSuspiciousCRC extends Subject implements Serializable {
     }
 
     /**
-     * Updates parent statistics. Suspicious CRC instances do not increment database
-     * statistics.
+     * Updates parent statistics. Suspicious CRC instances do not increment database statistics.
      */
     @Override
     public void updateStats() {

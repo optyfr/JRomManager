@@ -10,9 +10,8 @@ import jrm.profile.scan.options.MergeOptions;
 import jrm.profile.scan.options.ScanAutomation;
 
 /**
- * Enum defining all scan profile settings options and their respective default
- * values. Implements {@link EnumWithDefault} to allow lookup of default
- * configurations.
+ * Enum defining all scan profile settings options and their respective default values. Implements {@link EnumWithDefault} to allow
+ * lookup of default configurations.
  * 
  * @author optyfr
  */
@@ -233,8 +232,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault {
     zero_entry_matters(true); // NOSONAR
 
     /**
-     * Explicit custom string name of this option key. If null, the standard name()
-     * is used.
+     * Explicit custom string name of this option key. If null, the standard name() is used.
      */
     private String name = null;
 
@@ -244,8 +242,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault {
     private Object dflt = null;
 
     /**
-     * Constructs a new profile setting option with the specified default fallback
-     * value.
+     * Constructs a new profile setting option with the specified default fallback value.
      * 
      * @param dflt the default fallback value
      */
@@ -254,8 +251,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault {
     }
 
     /**
-     * Constructs a new profile setting option with the specified default fallback
-     * value and custom key name.
+     * Constructs a new profile setting option with the specified default fallback value and custom key name.
      * 
      * @param dflt the default fallback value
      * @param name the custom key name
@@ -266,8 +262,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault {
     }
 
     /**
-     * Returns the string representation of this option, favoring any defined custom
-     * name key.
+     * Returns the string representation of this option, favoring any defined custom name key.
      * 
      * @return the string key name
      */
@@ -292,6 +287,7 @@ public enum ProfileSettingsEnum implements EnumWithDefault {
      * Resolves a key name into its matching {@code ProfileSettingsEnum} constant.
      * 
      * @param name the raw string key name to parse
+     * 
      * @return the resolved enum constant, or {@code null} if no match is found
      */
     public static ProfileSettingsEnum from(String name) {

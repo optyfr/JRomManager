@@ -735,9 +735,11 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         swDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
         swDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         swDisksDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
-        swDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        swDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); // $NON-NLS-1$
+                                                                                                         // //$NON-NLS-2$
         samplesDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
-        samplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        samplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); // $NON-NLS-1$
+                                                                                                         // //$NON-NLS-2$
         backupDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
         backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|')).filter(s -> !s.isEmpty())

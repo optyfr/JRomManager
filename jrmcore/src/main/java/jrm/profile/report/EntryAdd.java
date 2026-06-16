@@ -7,24 +7,22 @@ import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
 
 /**
- * Report note indicating that a physical file entry can be added to the target
- * container.
+ * Report note indicating that a physical file entry can be added to the target container.
  * <p>
- * This status occurs when a matching ROM or file is found in another local
- * location or archive, and can be copied or imported to resolve a missing
- * dependency.
+ * This status occurs when a matching ROM or file is found in another local location or archive, and can be copied or imported to
+ * resolve a missing dependency.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public class EntryAdd extends EntryExtNote implements Serializable {
     /**
-     * Constructs a new EntryAdd note mapping an expected entity to an actual
-     * available entry.
+     * Constructs a new EntryAdd note mapping an expected entity to an actual available entry.
      *
      * @param entity the expected rom, disk, or sample metadata
-     * @param entry  the actual scanned file entry that is available for copy/add
+     * @param entry the actual scanned file entry that is available for copy/add
      */
     public EntryAdd(final EntityBase entity, final Entry entry) {
         super(entity, entry);

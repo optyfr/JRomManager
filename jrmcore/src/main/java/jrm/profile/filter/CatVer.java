@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.filter;
 
@@ -33,16 +25,14 @@ import jrm.profile.data.PropertyStub;
 import lombok.Getter;
 
 /**
- * Manages the parsing, storage, and retrieval of game category assignments from
- * a <code>catver.ini</code> metadata file.
+ * Manages the parsing, storage, and retrieval of game category assignments from a <code>catver.ini</code> metadata file.
  * <p>
- * This class maps games to categories and subcategories (e.g., "Shooter /
- * Gallery", "Sports / Soccer") and implements
- * {@link jrm.profile.filter.IniProcessor} to parse the configuration file
- * sections.
+ * This class maps games to categories and subcategories (e.g., "Shooter / Gallery", "Sports / Soccer") and implements
+ * {@link jrm.profile.filter.IniProcessor} to parse the configuration file sections.
  * </p>
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -50,11 +40,11 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     /**
      * Represents a game category containing hierarchical subcategories.
      * <p>
-     * This class delegates map operations to an internal map of subcategories
-     * indexed by their subcategory names.
+     * This class delegates map operations to an internal map of subcategories indexed by their subcategory names.
      * </p>
      * 
      * @author optyfr
+     * 
      * @since 1.0
      */
     public final class Category implements Map<String, Category.SubCategory>, Iterable<Category.SubCategory>, PropertyStub {
@@ -105,10 +95,10 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         }
 
         /**
-         * Checks whether a subcategory with the specified key name exists in this
-         * category.
+         * Checks whether a subcategory with the specified key name exists in this category.
          * 
          * @param key the name of the subcategory to look for
+         * 
          * @return {@code true} if the subcategory key exists, otherwise {@code false}
          */
         @Override
@@ -120,6 +110,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
          * Checks whether the specified subcategory object is mapped in this category.
          * 
          * @param value the subcategory instance to check
+         * 
          * @return {@code true} if the subcategory exists, otherwise {@code false}
          */
         @Override
@@ -131,8 +122,8 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
          * Retrieves the subcategory mapped to the specified key name.
          * 
          * @param key the name of the subcategory to get
-         * @return the associated {@link SubCategory} instance, or {@code null} if not
-         *         found
+         * 
+         * @return the associated {@link SubCategory} instance, or {@code null} if not found
          */
         @Override
         public SubCategory get(final Object key) {
@@ -140,11 +131,11 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         }
 
         /**
-         * Mappings a subcategory name to its corresponding {@link SubCategory}
-         * instance.
+         * Mappings a subcategory name to its corresponding {@link SubCategory} instance.
          * 
-         * @param key   the name of the subcategory
+         * @param key the name of the subcategory
          * @param value the {@link SubCategory} instance to store
+         * 
          * @return the previous subcategory mapped to the key, or {@code null} if none
          */
         @Override
@@ -156,8 +147,8 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
          * Removes the subcategory mapped to the specified key name.
          * 
          * @param key the name of the subcategory to remove
-         * @return the removed {@link SubCategory} instance, or {@code null} if none
-         *         existed
+         * 
+         * @return the removed {@link SubCategory} instance, or {@code null} if none existed
          */
         @Override
         public SubCategory remove(final Object key) {
@@ -165,8 +156,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         }
 
         /**
-         * Copies all of the subcategory mappings from the specified map into this
-         * category.
+         * Copies all of the subcategory mappings from the specified map into this category.
          * 
          * @param m the map containing subcategory mappings to insert
          */
@@ -214,8 +204,8 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         }
 
         /**
-         * Generates a descriptive user-friendly object representation of the category,
-         * showing its name and the sum of selected games within its subcategories.
+         * Generates a descriptive user-friendly object representation of the category, showing its name and the sum of selected
+         * games within its subcategories.
          * 
          * @return a descriptive string for display in user interfaces
          */
@@ -256,8 +246,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         /**
          * Sets the selection state of this category in the profile settings.
          * 
-         * @param selected {@code true} to enable this category filter, or {@code false}
-         *                 to disable it
+         * @param selected {@code true} to enable this category filter, or {@code false} to disable it
          */
         public void setSelected(final boolean selected) {
             PropertyStub.super.setSelected(profile, selected);
@@ -266,8 +255,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
         /**
          * Checks whether this category is currently selected in the active profile.
          * 
-         * @return {@code true} if this category filter is enabled, otherwise
-         *         {@code false}
+         * @return {@code true} if this category filter is enabled, otherwise {@code false}
          */
         public boolean isSelected() {
             return PropertyStub.super.isSelected(profile);
@@ -277,6 +265,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
          * Represents a game subcategory containing a collection of mapped games.
          * 
          * @author optyfr
+         * 
          * @since 1.0
          */
         public final class SubCategory extends GamesList implements PropertyStub {
@@ -295,8 +284,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
             }
 
             /**
-             * Generates a user-friendly descriptive representation of this subcategory,
-             * showing its name and total number of games.
+             * Generates a user-friendly descriptive representation of this subcategory, showing its name and total number of games.
              * 
              * @return a descriptive string for UI rendering
              */
@@ -315,8 +303,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
             }
 
             /**
-             * Resolves the configuration property key associated with this subcategory
-             * filter.
+             * Resolves the configuration property key associated with this subcategory filter.
              * 
              * @return the fully qualified configuration property key string
              */
@@ -328,8 +315,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
             /**
              * Sets the selection state of this subcategory in the profile settings.
              * 
-             * @param selected {@code true} to enable this subcategory filter, or
-             *                 {@code false} to disable it
+             * @param selected {@code true} to enable this subcategory filter, or {@code false} to disable it
              */
             public void setSelected(final boolean selected) {
                 PropertyStub.super.setSelected(profile, selected);
@@ -338,8 +324,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
             /**
              * Checks whether this subcategory is currently selected in the active profile.
              * 
-             * @return {@code true} if this subcategory filter is enabled, otherwise
-             *         {@code false}
+             * @return {@code true} if this subcategory filter is enabled, otherwise {@code false}
              */
             public boolean isSelected() {
                 return PropertyStub.super.isSelected(profile);
@@ -374,13 +359,13 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     public final File file;
 
     /**
-     * Main constructor, which reads the provided catver.ini and initializes the
-     * list of categories, subcategories, and mapped game codes.
+     * Main constructor, which reads the provided catver.ini and initializes the list of categories, subcategories, and mapped game
+     * codes.
      * 
      * @param profile the active {@link Profile} context
-     * @param file    the catver.ini configuration {@link File} to parse
-     * @throws IOException if a file reading error occurs, or if no valid categories
-     *                     are extracted
+     * @param file the catver.ini configuration {@link File} to parse
+     * 
+     * @throws IOException if a file reading error occurs, or if no valid categories are extracted
      */
     private CatVer(final Profile profile, final File file) throws IOException {
         final Map<String, Category> categories = new TreeMap<>();
@@ -402,8 +387,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     }
 
     /**
-     * Returns the specific section of the INI configuration file targeted for
-     * parsing.
+     * Returns the specific section of the INI configuration file targeted for parsing.
      * 
      * @return the section header {@code "[Category]"}
      */
@@ -413,23 +397,22 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     }
 
     /**
-     * Factory method to read and instantiate a new {@code CatVer} categories filter
-     * registry for the specified profile.
+     * Factory method to read and instantiate a new {@code CatVer} categories filter registry for the specified profile.
      * 
      * @param profile the active {@link Profile} context
-     * @param file    the target {@code catver.ini} file to parse
-     * @return an initialized {@link CatVer} manager containing mapped game
-     *         categories
-     * @throws IOException if a file reading error occurs, or if parsing fails to
-     *                     find valid entries
+     * @param file the target {@code catver.ini} file to parse
+     * 
+     * @return an initialized {@link CatVer} manager containing mapped game categories
+     * 
+     * @throws IOException if a file reading error occurs, or if parsing fails to find valid entries
      */
     public static CatVer read(final Profile profile, final File file) throws IOException {
         return new CatVer(profile, file);
     }
 
     /**
-     * Generates a descriptive user-friendly representation of all categories,
-     * showing a general label and the grand total of all selected games.
+     * Generates a descriptive user-friendly representation of all categories, showing a general label and the grand total of all
+     * selected games.
      * 
      * @return a descriptive string for UI representation
      */
@@ -459,8 +442,7 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     }
 
     /**
-     * Resolves the configuration property key associated with the global categories
-     * filter.
+     * Resolves the configuration property key associated with the global categories filter.
      * 
      * @return the fully qualified configuration property key string
      */
@@ -470,22 +452,18 @@ public final class CatVer implements Iterable<CatVer.Category>, PropertyStub, In
     }
 
     /**
-     * Sets the selection state of the global categories filter in the profile
-     * settings.
+     * Sets the selection state of the global categories filter in the profile settings.
      * 
-     * @param selected {@code true} to enable categories filtering, or {@code false}
-     *                 to disable it
+     * @param selected {@code true} to enable categories filtering, or {@code false} to disable it
      */
     public void setSelected(final boolean selected) {
         PropertyStub.super.setSelected(profile, selected);
     }
 
     /**
-     * Checks whether the global categories filter is currently enabled in the
-     * profile.
+     * Checks whether the global categories filter is currently enabled in the profile.
      * 
-     * @return {@code true} if categories filtering is enabled, otherwise
-     *         {@code false}
+     * @return {@code true} if categories filtering is enabled, otherwise {@code false}
      */
     public boolean isSelected() {
         return PropertyStub.super.isSelected(profile);

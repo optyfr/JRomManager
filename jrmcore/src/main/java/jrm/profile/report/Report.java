@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.report;
 
@@ -61,13 +53,13 @@ import lombok.Getter;
 import one.util.streamex.IntStreamEx;
 
 /**
- * The root node of a report hierarchy, managing a list of {@link Subject}s and
- * tracking overall profile validation metrics.
+ * The root node of a report hierarchy, managing a list of {@link Subject}s and tracking overall profile validation metrics.
  * <p>
- * This class coordinates the dynamic UI filtering model, supports serialization
- * of validation state caches, and outputs text-formatted reports.
+ * This class coordinates the dynamic UI filtering model, supports serialization of validation state caches, and outputs
+ * text-formatted reports.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class Report extends AbstractList<Subject> implements StatusRendererFactory, Serializable, ReportIntf<Report> {
@@ -125,8 +117,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     private @Getter List<Subject> subjects;
 
     /**
-     * Map indexing scanned report subjects by their case-insensitive full names for
-     * fast retrieval.
+     * Map indexing scanned report subjects by their case-insensitive full names for fast retrieval.
      */
     private transient Map<String, Subject> subjectHash;
 
@@ -136,28 +127,24 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     private transient int id;
 
     /**
-     * Atomic counter providing auto-incrementing ID sequences for subjects and
-     * notes in the active session.
+     * Atomic counter providing auto-incrementing ID sequences for subjects and notes in the active session.
      */
     private transient AtomicInteger idCnt;
 
     /**
-     * Flat lookup directory storing all subjects and notes indexed by their unique
-     * integer identifiers.
+     * Flat lookup directory storing all subjects and notes indexed by their unique integer identifiers.
      */
     private transient Map<Integer, Object> all;
 
     /**
-     * The aggregated validation statistics tracked during directory and ROM
-     * scanning.
+     * The aggregated validation statistics tracked during directory and ROM scanning.
      *
      * @return the compiled Stats metrics
      */
     private @Getter Stats stats;
 
     /**
-     * The linked UI presentation tree handler responsible for notifying components
-     * of structural changes.
+     * The linked UI presentation tree handler responsible for notifying components of structural changes.
      */
     private transient ReportTreeHandler<Report> handler = null;
 
@@ -174,6 +161,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Writes the persistent report state parameters to a Java serialization stream.
      *
      * @param stream the target ObjectOutputStream
+     * 
      * @throws IOException if an input/output exception occurs during serialization
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -185,14 +173,12 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Restores the persistent report state parameters from a Java serialization
-     * stream.
+     * Restores the persistent report state parameters from a Java serialization stream.
      *
      * @param stream the source ObjectInputStream
-     * @throws IOException            if an input/output exception occurs during
-     *                                deserialization
-     * @throws ClassNotFoundException if the target serializable class cannot be
-     *                                loaded
+     * 
+     * @throws IOException if an input/output exception occurs during deserialization
+     * @throws ClassNotFoundException if the target serializable class cannot be loaded
      */
     @SuppressWarnings("unchecked")
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -202,14 +188,13 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
         reportFile = (File) fields.get(REPORT_FILE_STR, (File) null);
         subjectHash = subjects.stream()
                 .peek(s -> s.parent = this) // NOSONAR
-                .collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+                .collect(Collectors.toMap(Subject::getWareName, Function.identity(), (_, _) -> null));
         filterPredicate = new FilterPredicate(new HashSet<>());
         handler = new ReportTreeDefaultHandler(this);
     }
 
     /**
-     * Aggregates summary statistics, missing counts, and repair indicators resolved
-     * during ROM scanning.
+     * Aggregates summary statistics, missing counts, and repair indicators resolved during ROM scanning.
      */
     public static class Stats implements Serializable {
         private static final long serialVersionUID = 2L;
@@ -501,8 +486,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Internal predicate implementation verifying if a Subject passes active
-     * filtering options.
+     * Internal predicate implementation verifying if a Subject passes active filtering options.
      */
     class FilterPredicate implements Predicate<Subject> {
         /**
@@ -523,8 +507,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
          * Evaluates the predicate on the given subject.
          *
          * @param t the input subject to test
-         * @return {@code true} if the subject should remain visible, {@code false}
-         *         otherwise
+         * 
+         * @return {@code true} if the subject should remain visible, {@code false} otherwise
          */
         @Override
         public boolean test(final Subject t) {
@@ -543,10 +527,9 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     private transient FilterPredicate filterPredicate = new FilterPredicate(new HashSet<>());
 
     /**
-     * Clones an existing report, applying the specified filtering configuration
-     * during structural extraction.
+     * Clones an existing report, applying the specified filtering configuration during structural extraction.
      *
-     * @param report        the source Report instance to copy
+     * @param report the source Report instance to copy
      * @param filterOptions the filtering options configured for the clone
      */
     private Report(final Report report, final Set<FilterOptions> filterOptions) {
@@ -566,7 +549,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
                 all.put(n.id, n);
             }
         }
-        subjectHash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (o, n) -> null));
+        subjectHash = subjects.stream().collect(Collectors.toMap(Subject::getWareName, Function.identity(), (_, _) -> null));
         stats = report.stats;
         file = report.file;
         reportFile = report.file;
@@ -577,6 +560,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Clones this report under the designated filtering conditions.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return the cloned Report instance
      */
     @Override
@@ -585,22 +569,26 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Filters and copies subjects into a sorted list using the current filtering
-     * options.
+     * Filters and copies subjects into a sorted list using the current filtering options.
      *
      * @param filterOptions the filtering options to apply
+     * 
      * @return a mutable, sorted, and filtered list of Subject instances
      */
     public List<Subject> filter(final Set<FilterOptions> filterOptions) {
         filterPredicate = new FilterPredicate(filterOptions);
-        return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList()); // NOSONAR list must be mutable
+        return stream(filterOptions).map(s -> s.clone(filterOptions)).sorted(Subject.getComparator()).collect(Collectors.toList()); // NOSONAR
+                                                                                                                                    // list
+                                                                                                                                    // must
+                                                                                                                                    // be
+                                                                                                                                    // mutable
     }
 
     /**
-     * Streams subjects passing active filtering constraints sorted alphabetically
-     * by associated ware name.
+     * Streams subjects passing active filtering constraints sorted alphabetically by associated ware name.
      *
      * @param filterOptions the active filtering options to evaluate
+     * 
      * @return a sorted stream of filtered Subject instances
      */
     public Stream<Subject> stream(final Set<FilterOptions> filterOptions) {
@@ -608,8 +596,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Links a scanning profile configuration to this report, clearing any existing
-     * state.
+     * Links a scanning profile configuration to this report, clearing any existing state.
      *
      * @param profile the Profile catalog to assign
      */
@@ -619,8 +606,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Resets this report to its initial state, clearing all compiled statistics,
-     * subjects, and caches.
+     * Resets this report to its initial state, clearing all compiled statistics, subjects, and caches.
      */
     public void reset() {
         subjectHash.clear();
@@ -656,8 +642,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Binds a report tree model handler to sync status changes with UI tree
-     * controls.
+     * Binds a report tree model handler to sync status changes with UI tree controls.
      *
      * @param handler the active UI tree handler
      */
@@ -666,12 +651,11 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Locates a subject instance within the flat registry map by its unique integer
-     * identifier.
+     * Locates a subject instance within the flat registry map by its unique integer identifier.
      *
      * @param id the unique subject ID
-     * @return the matching Subject, or {@code null} if not found or the ID refers
-     *         to a Note
+     * 
+     * @return the matching Subject, or {@code null} if not found or the ID refers to a Note
      */
     public Subject findSubject(final Integer id) {
         Object obj = all.get(id);
@@ -684,6 +668,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Locates a subject using its associated gaming system model.
      *
      * @param ware the target Anyware retro-gaming machine metadata
+     * 
      * @return the matching Subject, or {@code null} if none is found
      */
     public Subject findSubject(final Anyware ware) {
@@ -691,14 +676,12 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Resolves a subject from the index by its metadata model, registering a
-     * default fallback if none is mapped.
+     * Resolves a subject from the index by its metadata model, registering a default fallback if none is mapped.
      *
      * @param ware the target Anyware machine definition
-     * @param def  the default fallback Subject to register if none is currently
-     *             indexed
-     * @return the existing Subject matching the ware, or the newly registered
-     *         default instance
+     * @param def the default fallback Subject to register if none is currently indexed
+     * 
+     * @return the existing Subject matching the ware, or the newly registered default instance
      */
     public Subject findSubject(final Anyware ware, final Subject def) {
         if (ware != null) {
@@ -716,10 +699,10 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     private final transient Map<Integer, Subject> insertObjectCache = Collections.synchronizedMap(LinkedHashMap.newLinkedHashMap(250));
 
     /**
-     * Appends a report subject logically, synchronizing statistics and propagating
-     * batch updates to listeners.
+     * Appends a report subject logically, synchronizing statistics and propagating batch updates to listeners.
      *
      * @param subject the Subject to add
+     * 
      * @return {@code true} if successful, {@code false} otherwise
      */
     @Override
@@ -740,7 +723,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
             subject.updateStats();
             if (filterPredicate.test(subject)) // manually test predicate
             {
-                final Subject clonedSubject = subject.clone(filterPredicate.filterOptions); // clone the subject according filterPredicate
+                final Subject clonedSubject = subject.clone(filterPredicate.filterOptions); // clone the subject according
+                                                                                            // filterPredicate
                 clone.add(clonedSubject); // then call this method on clone object
                 insertObjectCache.put(clone.subjects.size() - 1, clonedSubject); // insert cloned subject into insert event cache
                 if (insertObjectCache.size() >= 250) // and call flush only if the event cache is at least 250 objects
@@ -751,8 +735,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Flushes the insertion batch cache, triggering a single structural insertion
-     * event to all UI tree listeners.
+     * Flushes the insertion batch cache, triggering a single structural insertion event to all UI tree listeners.
      */
     public synchronized void flush() {
         if (statusHandler != null)
@@ -765,8 +748,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Enumerates active output components and diagnostic groupings supported during
-     * text report exporting.
+     * Enumerates active output components and diagnostic groupings supported during text report exporting.
      */
     enum ReportMode {
         /** Include active configuration parameters. */
@@ -790,13 +772,27 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Formats and writes diagnostic validation logs to the user's workspace reports
-     * folder.
+     * Formats and writes diagnostic validation logs to the user's workspace reports folder.
      *
-     * @param session the user session containing workspace context and active
-     *                profile settings
+     * @param session the user session containing workspace context and active profile settings
      */
     public void write(final Session session) {
+        final var modes = parseReportModes(session);
+        final File reportdir = createReportDirectory(session);
+        reportFile = createReportFile(reportdir);
+
+        try (PrintWriter reportWriter = new PrintWriter(reportFile)) {
+            writeReportHeader(reportWriter);
+            writeReportSettings(reportWriter, modes);
+            writeReportStatistics(reportWriter, modes);
+            writeReportBody(reportWriter, modes);
+            reportWriter.println();
+        } catch (final IOException e) {
+            Log.err(e.getMessage(), e);
+        }
+    }
+
+    private EnumSet<ReportMode> parseReportModes(final Session session) {
         final var jsondata = session.getUser().getSettings().getProperty(SettingsEnum.report_settings);
         final var jsonarray = Json.parse(jsondata);
         final var modes = EnumSet.noneOf(ReportMode.class);
@@ -804,70 +800,103 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
             for (final var jsonvalue : jsonarray.asArray())
                 if (jsonvalue.isString())
                     modes.add(ReportMode.valueOf(jsonvalue.asString()));
+        return modes;
+    }
 
-        final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
-        final File reportdir = new File(workdir, "reports"); //$NON-NLS-1$
+    private File createReportDirectory(final Session session) {
+        final File workdir = session.getUser().getSettings().getWorkPath().toFile();
+        final File reportdir = new File(workdir, "reports");
         reportdir.mkdirs();
-        reportFile = new File(reportdir, "report-" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".log"); //$NON-NLS-1$
-        try (PrintWriter reportWriter = new PrintWriter(reportFile)) {
-            reportWriter.println("=== Scanned Profile ===");
-            reportWriter.println(profile.getNfo().getFile());
+        return reportdir;
+    }
+
+    private File createReportFile(final File reportdir) {
+        return new File(reportdir, "report-" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".log");
+    }
+
+    private void writeReportHeader(PrintWriter reportWriter) {
+        reportWriter.println("=== Scanned Profile ===");
+        reportWriter.println(profile.getNfo().getFile());
+        reportWriter.println();
+    }
+
+    private void writeReportSettings(PrintWriter reportWriter, EnumSet<ReportMode> modes) throws IOException {
+        if (!modes.contains(ReportMode.SETTINGS))
+            return;
+        reportWriter.println("=== Used Profile Properties ===");
+        profile.getSettings().getProperties().store(reportWriter, null);
+        reportWriter.println();
+    }
+
+    private void writeReportStatistics(PrintWriter reportWriter, EnumSet<ReportMode> modes) {
+        if (!modes.contains(ReportMode.STATS))
+            return;
+        reportWriter.println("=== Statistics ===");
+        reportWriter.println(String.format(Messages.getString("Report.MissingRoms"),
+                stats.missingRomsCnt, stats.missingRomsCnt - stats.fixableRomsCnt, profile.getRomsCnt()));
+        reportWriter.println(String.format(Messages.getString("Report.MissingDisks"),
+                stats.missingDisksCnt, stats.missingDisksCnt - stats.fixableDisksCnt, profile.getDisksCnt()));
+        reportWriter.println(String.format(Messages.getString("Report.MissingSets"),
+                profile.getMachinesCnt() - stats.setFoundOk,
+                profile.getMachinesCnt() - stats.setFoundOk - stats.setFoundFixComplete,
+                profile.getMachinesCnt()));
+        reportWriter.println();
+    }
+
+    private void writeReportBody(PrintWriter reportWriter, EnumSet<ReportMode> modes) {
+        reportWriter.println("=== Scanner Report ===");
+        if (modes.contains(ReportMode.GROUP_BY_TYPE_AND_STATUS))
+            writeGroupedReport(reportWriter, modes);
+        else
+            subjects.stream().filter(new ReportSubjectFilter(modes)).sorted(Subject.getComparator())
+                    .forEachOrdered(subject -> writeReport(reportWriter, subject, modes));
+    }
+
+    private void writeGroupedReport(PrintWriter reportWriter, EnumSet<ReportMode> modes) {
+        if (modes.contains(ReportMode.NO_ENTRIES))
+            writeGroupedSubjects(reportWriter, modes);
+        else
+            writeGroupedNotes(reportWriter, modes);
+    }
+
+    private void writeGroupedSubjects(PrintWriter reportWriter, EnumSet<ReportMode> modes) {
+        final Map<ReportMode, List<Subject>> grouped = subjects.stream()
+                .collect(Collectors.groupingBy(this::classifySubject));
+        grouped.forEach((mode, list) -> {
             reportWriter.println();
-            if (modes.contains(ReportMode.SETTINGS)) {
-                reportWriter.println("=== Used Profile Properties ===");
-                profile.getSettings().getProperties().store(reportWriter, null);
-                reportWriter.println();
-            }
-            if (modes.contains(ReportMode.STATS)) {
-                reportWriter.println("=== Statistics ===");
-                reportWriter
-                        .println(String.format(Messages.getString("Report.MissingRoms"), stats.missingRomsCnt, stats.missingRomsCnt - stats.fixableRomsCnt, profile.getRomsCnt())); //$NON-NLS-1$
-                reportWriter.println(
-                        String.format(Messages.getString("Report.MissingDisks"), stats.missingDisksCnt, stats.missingDisksCnt - stats.fixableDisksCnt, profile.getDisksCnt())); //$NON-NLS-1$
-                reportWriter.println(String.format(Messages.getString("Report.MissingSets"), profile.getMachinesCnt() - stats.setFoundOk, //$NON-NLS-1$
-                        profile.getMachinesCnt() - stats.setFoundOk - stats.setFoundFixComplete, profile.getMachinesCnt()));
-                reportWriter.println();
-            }
-            reportWriter.println("=== Scanner Report ===");
-            if (modes.contains(ReportMode.GROUP_BY_TYPE_AND_STATUS)) {
-                if (modes.contains(ReportMode.NO_ENTRIES)) {
-                    final Map<ReportMode, List<Subject>> grouped = subjects.stream().collect(Collectors.groupingBy(s -> {
-                        if (s instanceof SubjectSet ss) {
-                            if (ss.isFixable())
-                                return ReportMode.FIXABLE;
-                            if (ss.isMissing())
-                                return ReportMode.MISSING;
-                            return ReportMode.OK;
-                        }
-                        return ReportMode.OTHERS;
-                    }));
-                    grouped.forEach((mode, list) -> {
-                        reportWriter.println();
-                        reportWriter.println("== %s ==".formatted(mode));
-                        list.stream().sorted(Subject.getComparator()).forEachOrdered(n -> writeReport(reportWriter, n, modes));
-                        reportWriter.println();
-                    });
-                } else {
-                    final Map<String, List<Note>> grouped = subjects.stream().flatMap(s -> s.stream()).collect(Collectors.groupingBy(Note::getAbbrv));
-                    grouped.forEach((abbrv, list) -> {
-                        reportWriter.println();
-                        reportWriter.println("== %s ==".formatted(abbrv));
-                        list.stream().sorted((n1, n2) -> {
-                            int ret = n1.parent != null && n2.parent != null ? Subject.getComparator().compare(n1.parent, n2.parent) : 0;
-                            if (ret == 0)
-                                return n1.getName().compareToIgnoreCase(n2.getName());
-                            return ret;
-                        }).forEachOrdered(n -> writeReport(reportWriter, n, modes));
-                        reportWriter.println();
-                    });
-                }
-            } else {
-                subjects.stream().filter(new ReportSubjectFilter(modes)).sorted(Subject.getComparator()).forEachOrdered(subject -> writeReport(reportWriter, subject, modes));
-            }
+            reportWriter.println("== %s ==".formatted(mode));
+            list.stream().sorted(Subject.getComparator()).forEachOrdered(n -> writeReport(reportWriter, n, modes));
             reportWriter.println();
-        } catch (final IOException e) {
-            Log.err(e.getMessage(), e);
+        });
+    }
+
+    private ReportMode classifySubject(Subject s) {
+        if (s instanceof SubjectSet ss) {
+            if (ss.isFixable())
+                return ReportMode.FIXABLE;
+            if (ss.isMissing())
+                return ReportMode.MISSING;
+            return ReportMode.OK;
         }
+        return ReportMode.OTHERS;
+    }
+
+    private void writeGroupedNotes(PrintWriter reportWriter, EnumSet<ReportMode> modes) {
+        final Map<String, List<Note>> grouped = subjects.stream().flatMap(s -> s.stream())
+                .collect(Collectors.groupingBy(Note::getAbbrv));
+        grouped.forEach((abbrv, list) -> {
+            reportWriter.println();
+            reportWriter.println("== %s ==".formatted(abbrv));
+            list.stream().sorted(this::compareNotes).forEachOrdered(n -> writeReport(reportWriter, n, modes));
+            reportWriter.println();
+        });
+    }
+
+    private int compareNotes(Note n1, Note n2) {
+        int ret = n1.parent != null && n2.parent != null ? Subject.getComparator().compare(n1.parent, n2.parent) : 0;
+        if (ret == 0)
+            return n1.getName().compareToIgnoreCase(n2.getName());
+        return ret;
     }
 
     /**
@@ -906,8 +935,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Formats and outputs structural subject notes to a text print writer.
      *
      * @param reportWriter the target writer
-     * @param subject      the subject context
-     * @param modes        the active configuration options
+     * @param subject the subject context
+     * @param modes the active configuration options
      */
     private void writeReport(PrintWriter reportWriter, Subject subject, final EnumSet<ReportMode> modes) {
         if (modes.contains(ReportMode.NO_ENTRIES))
@@ -952,8 +981,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Formats and writes a single status note to the diagnostic output stream.
      *
      * @param reportWriter the destination writer
-     * @param note         the note to output
-     * @param modes        the configured export formats
+     * @param note the note to output
+     * @param modes the configured export formats
      */
     private void writeReport(PrintWriter reportWriter, Note note, final EnumSet<ReportMode> modes) {
         if (modes.contains(ReportMode.COMPACT)) {
@@ -969,8 +998,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Resolves the configuration profile catalog file location associated with this
-     * report.
+     * Resolves the configuration profile catalog file location associated with this report.
      *
      * @return the catalog file, or {@code null} if uninitialized
      */
@@ -980,8 +1008,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Gets the modification timestamp of the associated configuration profile
-     * catalog.
+     * Gets the modification timestamp of the associated configuration profile catalog.
      *
      * @return the timestamp in milliseconds
      */
@@ -991,8 +1018,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     /**
-     * Serializes the current report status and catalog structure to the default
-     * work directory path.
+     * Serializes the current report status and catalog structure to the default work directory path.
      *
      * @param session the target user execution session context
      */
@@ -1008,7 +1034,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     public void save(File file) {
         try (final ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
             oos.writeObject(Report.this);
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // Silently fail to maintain stability on faulty file systems
         }
     }
@@ -1017,7 +1043,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Restores a serialized report database instance from file storage.
      *
      * @param session the user execution context
-     * @param file    the original catalog metadata target path
+     * @param file the original catalog metadata target path
+     * 
      * @return the restored Report instance, or {@code null} if restoration fails
      */
     public static Report load(final Session session, final File file) {
@@ -1027,7 +1054,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
             report.fileModified = ReportIntf.getReportFile(session, file).lastModified();
             report.handler = new ReportTreeDefaultHandler(report);
             return report;
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // Returns null when serialized compatibility fails after structural codebase
             // updates
         }
@@ -1047,6 +1074,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
      * Gets the report subject located at the designated index.
      *
      * @param index the target position index
+     * 
      * @return the Subject instance
      */
     @Override

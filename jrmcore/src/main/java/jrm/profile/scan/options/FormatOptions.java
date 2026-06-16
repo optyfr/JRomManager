@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.scan.options;
 
@@ -25,12 +17,11 @@ import lombok.RequiredArgsConstructor;
 import net.lingala.zip4j.ZipFile;
 
 /**
- * Enumeration of supported file container format options used during scanning
- * and rebuilding. These format options specify whether romsets are stored as
- * standard zip files, seven-zip files, torrentzipped files, raw directories, or
- * single files.
+ * Enumeration of supported file container format options used during scanning and rebuilding. These format options specify whether
+ * romsets are stored as standard zip files, seven-zip files, torrentzipped files, raw directories, or single files.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public @RequiredArgsConstructor enum FormatOptions implements Descriptor {
@@ -47,8 +38,7 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor {
      */
     SEVENZIP(Messages.getString("FormatOptions.SevenZip"), Ext.SEVENZIP), //$NON-NLS-1$
     /**
-     * Torrentzip format (standard zip containing files sorted and compressed
-     * deterministically by jtrrntzip).
+     * Torrentzip format (standard zip containing files sorted and compressed deterministically by jtrrntzip).
      */
     TZIP(Messages.getString("FormatOptions.TorrentZip"), Ext.ZIP), //$NON-NLS-1$
     /**
@@ -61,8 +51,7 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor {
     FAKE(Messages.getString("FormatOptions.SingleFile"), Ext.FAKE); //$NON-NLS-1$
 
     /**
-     * Nested enumeration of standard file container extensions associated with
-     * format options.
+     * Nested enumeration of standard file container extensions associated with format options.
      */
     public @RequiredArgsConstructor enum Ext {
         /**
@@ -109,8 +98,7 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor {
         /**
          * Checks if this extension represents a standard directory format.
          * 
-         * @return {@code true} if this is the directory format, {@code false}
-         *         otherwise.
+         * @return {@code true} if this is the directory format, {@code false} otherwise.
          */
         public boolean isDir() {
             return this == DIR;
@@ -131,11 +119,9 @@ public @RequiredArgsConstructor enum FormatOptions implements Descriptor {
     private final @Getter Ext ext;
 
     /**
-     * Returns all format options except this current format option and the
-     * directory format.
+     * Returns all format options except this current format option and the directory format.
      * 
-     * @return a {@link Set} of {@link FormatOptions} representing alternative
-     *         target formats.
+     * @return a {@link Set} of {@link FormatOptions} representing alternative target formats.
      */
     public Set<FormatOptions> allExcept() {
         return EnumSet.complementOf(EnumSet.of(this, DIR));

@@ -1,8 +1,7 @@
 package jrm.io.torrent.options;
 
 /**
- * Enumeration of available verification modes for matching local files against
- * the metadata specified inside torrent files.
+ * Enumeration of available verification modes for matching local files against the metadata specified inside torrent files.
  * 
  * @author optyfr
  */

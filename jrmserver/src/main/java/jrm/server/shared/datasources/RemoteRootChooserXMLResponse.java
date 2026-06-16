@@ -15,9 +15,8 @@ import jrm.xml.SimpleAttribute;
 import lombok.val;
 
 /**
- * Handles XML responses for selecting a remote root directory or path.
- * This class processes fetch operations to list available root directories
- * or predefined workspace paths (e.g., Work, Shared, Presets) based on the operation context.
+ * Handles XML responses for selecting a remote root directory or path. This class processes fetch operations to list available root
+ * directories or predefined workspace paths (e.g., Work, Shared, Presets) based on the operation context.
  */
 public class RemoteRootChooserXMLResponse extends XMLResponse {
 
@@ -28,6 +27,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse {
      * Constructs a new RemoteRootChooserXMLResponse.
      *
      * @param request the incoming XML request containing operation details
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML writing error occurs during initialization
      */
@@ -36,11 +36,11 @@ public class RemoteRootChooserXMLResponse extends XMLResponse {
     }
 
     /**
-     * Fetches the available root paths and writes them to the XML response.
-     * The paths returned depend on whether the session is a multiuser server session
-     * and the specific context of the operation (e.g., importing settings, listing source directories).
+     * Fetches the available root paths and writes them to the XML response. The paths returned depend on whether the session is a
+     * multiuser server session and the specific context of the operation (e.g., importing settings, listing source directories).
      *
      * @param operation the operation details from the request, containing the context
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing the file system
      */
@@ -64,6 +64,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse {
      * Determines the appropriate root paths to return based on the operation context and session type.
      *
      * @param operation the operation details containing the context data
+     * 
      * @return a map of display names to their corresponding {@link Path} objects
      */
     protected Map<String, Path> getPaths(Operation operation) {

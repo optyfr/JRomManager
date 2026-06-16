@@ -1,24 +1,22 @@
 package jrm.misc;
 
 /**
- * Interface that provides formatting methods for rendering sizes and byte
- * counts into human-readable representations.
+ * Interface that provides formatting methods for rendering sizes and byte counts into human-readable representations.
  * 
  * @author optyfr
  */
 public interface UnitRenderer {
     /**
-     * Formats a given number of bytes into a human-readable string representation,
-     * optionally using SI units ($1000$ base) or binary units ($1024$ base).
+     * Formats a given number of bytes into a human-readable string representation, optionally using SI units ($1000$ base) or
+     * binary units ($1024$ base).
      * <p>
      * Formula for inline display: $bytes = value \times unit^{exp}$
      * </p>
      * 
      * @param bytes the quantity in bytes to render
-     * @param si    if {@code true}, uses SI unit base ($1000$); if {@code false},
-     *              uses binary unit base ($1024$)
-     * @return a formatted, human-readable string representation of the byte size
-     *         (e.g. {@code "1.5 MiB"} or {@code "1.6 MB"})
+     * @param si if {@code true}, uses SI unit base ($1000$); if {@code false}, uses binary unit base ($1024$)
+     * 
+     * @return a formatted, human-readable string representation of the byte size (e.g. {@code "1.5 MiB"} or {@code "1.6 MB"})
      */
     public default String humanReadableByteCount(long bytes, boolean si) {
         int unit = si ? 1000 : 1024;

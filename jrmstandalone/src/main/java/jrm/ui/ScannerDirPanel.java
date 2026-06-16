@@ -176,7 +176,8 @@ public class ScannerDirPanel extends JPanel {
         listSrcDir = new JFileDropList(
                 files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList()))); // $NON-NLS-1$ //$NON-NLS-1$
                                                                                                                                                                    // //$NON-NLS-2$
-                                                                                                                                                                   // // $NON-NLS-2$
+                                                                                                                                                                   // //
+                                                                                                                                                                   // $NON-NLS-2$
         listSrcDir.setMode(JFileDropMode.DIRECTORY);
         listSrcDir.setUI(new JListHintUI(Messages.getString(MAIN_FRAME_DROP_DIR_HINT), Color.gray)); // $NON-NLS-1$
         final GridBagConstraints gbcListSrcDir = new GridBagConstraints();
@@ -191,6 +192,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildSWDisksDestDir(final Session session) throws HeadlessException {
@@ -243,6 +245,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildSWDestDir(final Session session) throws HeadlessException {
@@ -297,6 +300,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildDisksDestDir(final Session session) throws HeadlessException {
@@ -351,6 +355,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildRomsDestDir(final Session session) throws HeadlessException {
@@ -380,7 +385,8 @@ public class ScannerDirPanel extends JPanel {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_ROMS_DESTINATION, workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null,
-                    Messages.getString(MAIN_FRAME_CHOOSE_ROMS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$ //$NON-NLS-2$
+                    Messages.getString(MAIN_FRAME_CHOOSE_ROMS_DESTINATION), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$
+                                                                                                                                             // //$NON-NLS-2$
                         session.getCurrProfile().setProperty(MAIN_FRAME_CHOOSE_ROMS_DESTINATION, chooser.getCurrentDirectory().getAbsolutePath()); // $NON-NLS-1$
                         txtRomsDest.setText(chooser.getSelectedFile().getAbsolutePath());
                         session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, txtRomsDest.getText()); // $NON-NLS-1$
@@ -397,6 +403,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildSamplesDestDir(final Session session) throws HeadlessException {
@@ -451,6 +458,7 @@ public class ScannerDirPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws HeadlessException
      */
     private void buildBackupDestDir(final Session session) throws HeadlessException {
@@ -510,13 +518,18 @@ public class ScannerDirPanel extends JPanel {
         lblSWDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
         tfSWDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swroms_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         lblSWDisksDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
-        tfSWDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        tfSWDisksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.swdisks_dest_dir)); // $NON-NLS-1$
+                                                                                                           // //$NON-NLS-2$
         lblSamplesDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
-        tfSamplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        tfSamplesDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.samples_dest_dir)); // $NON-NLS-1$
+                                                                                                           // //$NON-NLS-2$
         lblBackupDest.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class)); // $NON-NLS-1$
-        tfBackupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        tfBackupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$
+                                                                                                         // //$NON-NLS-2$
         listSrcDir.getModel().removeAllElements();
-        for (final String s : StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|')) // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        for (final String s : StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|')) // $NON-NLS-1$
+                                                                                                                         // //$NON-NLS-2$
+                                                                                                                         // //$NON-NLS-3$
             if (!s.isEmpty())
                 listSrcDir.getModel().addElement(new File(s));
 

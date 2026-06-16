@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -31,9 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Describes a disk entity (such as a MAME CHD) associated with a machine or
- * software. Tracks storage flags, placement, optional flags, and status
- * resolutions.
+ * Describes a disk entity (such as a MAME CHD) associated with a machine or software. Tracks storage flags, placement, optional
+ * flags, and status resolutions.
  *
  * @author optyfr
  */
@@ -49,8 +40,8 @@ public class Disk extends Entity implements Serializable {
     /**
      * Is the disk writable? Defaults to {@code false}.
      *
-     * @param writeable {@code true} if the disk is writable, {@code false}
-     *                  otherwise
+     * @param writeable {@code true} if the disk is writable, {@code false} otherwise
+     * 
      * @return {@code true} if the disk is writable, {@code false} otherwise
      */
     protected @Getter @Setter boolean writeable = false;
@@ -59,6 +50,7 @@ public class Disk extends Entity implements Serializable {
      * What's the disk index? Defaults to {@code null}.
      *
      * @param index the disk index integer
+     * 
      * @return the disk index integer
      */
     protected @Getter @Setter Integer index = null;
@@ -67,6 +59,7 @@ public class Disk extends Entity implements Serializable {
      * Is the disk optional? Defaults to {@code false}.
      *
      * @param optional {@code true} if the disk is optional, {@code false} otherwise
+     * 
      * @return {@code true} if the disk is optional, {@code false} otherwise
      */
     protected @Getter @Setter boolean optional = false;
@@ -75,6 +68,7 @@ public class Disk extends Entity implements Serializable {
      * What's the disk region?
      *
      * @param region the disk region string
+     * 
      * @return the disk region string
      */
     protected @Getter @Setter String region = null;
@@ -89,8 +83,7 @@ public class Disk extends Entity implements Serializable {
     }
 
     /**
-     * Retrieves the forged disk file name, applying merge mode naming conventions
-     * if applicable.
+     * Retrieves the forged disk file name, applying merge mode naming conventions if applicable.
      *
      * @return the disk file name with ".chd" extension
      */
@@ -108,13 +101,12 @@ public class Disk extends Entity implements Serializable {
     }
 
     /**
-     * Indicates whether some other object is "equal to" this one. Disks are
-     * compared first using their SHA-1 checksums, then MD5 checksums, and falling
-     * back to super equality.
+     * Indicates whether some other object is "equal to" this one. Disks are compared first using their SHA-1 checksums, then MD5
+     * checksums, and falling back to super equality.
      *
      * @param obj the reference object with which to compare
-     * @return {@code true} if this disk is the same as the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this disk is the same as the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(final Object obj) {
@@ -142,8 +134,7 @@ public class Disk extends Entity implements Serializable {
     }
 
     /**
-     * Retrieves the disk hash value (SHA-1 or MD5) as a string, or the forged disk
-     * name if no hash is available.
+     * Retrieves the disk hash value (SHA-1 or MD5) as a string, or the forged disk name if no hash is available.
      *
      * @return the hash value as a string, or name as a fallback
      */
@@ -156,22 +147,22 @@ public class Disk extends Entity implements Serializable {
     }
 
     /**
-     * Converts a list of disks into a map of disks indexed by their normalized
-     * names.
+     * Converts a list of disks into a map of disks indexed by their normalized names.
      *
      * @param disks the list of disks to convert
+     * 
      * @return a map of disks with normalized names as keys
      */
     public static Map<String, Disk> getDisksByName(final List<Disk> disks) {
-        return disks.stream().collect(Collectors.toMap(Disk::getNormalizedName, Function.identity(), (n, r) -> n));
+        return disks.stream().collect(Collectors.toMap(Disk::getNormalizedName, Function.identity(), (n, _) -> n));
     }
 
     /**
-     * Tries to find the disk status recursively across parent clones and systems
-     * (valid in merged mode).
+     * Tries to find the disk status recursively across parent clones and systems (valid in merged mode).
      *
      * @param parent the parent machine or software
-     * @param disk   the disk to search for
+     * @param disk the disk to search for
+     * 
      * @return the matched {@link EntityStatus} or {@code null} if not found
      */
     private static EntityStatus findDiskStatus(final Anyware parent, final Disk disk) {
@@ -199,7 +190,8 @@ public class Disk extends Entity implements Serializable {
      * Tries to find the disk status specifically inside sibling clone sets.
      *
      * @param parent the parent machine or software
-     * @param disk   the disk to search for
+     * @param disk the disk to search for
+     * 
      * @return the matched {@link EntityStatus} or {@code null} if not found
      */
     private static EntityStatus findDiskStatusInClones(final Anyware parent, final Disk disk) {
@@ -215,8 +207,7 @@ public class Disk extends Entity implements Serializable {
     }
 
     /**
-     * Retrieves the status of this disk, falling back to parent clone resolution if
-     * unknown.
+     * Retrieves the status of this disk, falling back to parent clone resolution if unknown.
      *
      * @return the status of the disk
      */
@@ -235,9 +226,9 @@ public class Disk extends Entity implements Serializable {
     /**
      * Exports the disk metadata into an XML format.
      *
-     * @param writer  the enhanced XML stream writer to output to
-     * @param is_mame {@code true} if exporting in MAME format, {@code false} for
-     *                logiqx format
+     * @param writer the enhanced XML stream writer to output to
+     * @param is_mame {@code true} if exporting in MAME format, {@code false} for logiqx format
+     * 
      * @throws XMLStreamException if an error occurs during XML writing
      */
     public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException {

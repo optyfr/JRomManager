@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.scan;
 
@@ -96,13 +88,12 @@ import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
 import one.util.streamex.IntStreamEx;
 
 /**
- * Parallel file, archive, and directory scanner. This class implements the core
- * parallel scanning and checksum evaluation strategy. It checks physical files
- * against previous cached runs (loaded from standard cache serialization
- * structures) and recalculates checksums (CRC32, MD5, SHA-1) only when
- * modification timestamps or sizes differ.
+ * Parallel file, archive, and directory scanner. This class implements the core parallel scanning and checksum evaluation strategy.
+ * It checks physical files against previous cached runs (loaded from standard cache serialization structures) and recalculates
+ * checksums (CRC32, MD5, SHA-1) only when modification timestamps or sizes differ.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public final class DirScan extends PathAbstractor {
@@ -115,8 +106,7 @@ public final class DirScan extends PathAbstractor {
      */
     private final List<Container> containers = Collections.synchronizedList(new ArrayList<>());
     /**
-     * Map of {@link Container}s by name {@link String}. Will be serialized for disk
-     * caching.
+     * Map of {@link Container}s by name {@link String}. Will be serialized for disk caching.
      */
     private final Map<String, Container> containersByName;
     /**
@@ -157,8 +147,7 @@ public final class DirScan extends PathAbstractor {
     private List<Map.Entry<String, PathMatcher>> exclusions = Collections.emptyList();
 
     /**
-     * Private helper structure aggregating scanning variables and options
-     * constraints.
+     * Private helper structure aggregating scanning variables and options constraints.
      */
     private class ScanOptions {
         /**
@@ -327,6 +316,7 @@ public final class DirScan extends PathAbstractor {
      * 
      * @param profile the active profile configuration
      * @param is_dest whether the target directory represents a destination path
+     * 
      * @return the configured scan options list
      */
     static EnumSet<Options> getOptions(Profile profile, final boolean is_dest) {
@@ -358,11 +348,11 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Prepares list of exclusion path matchers based on configuration strings in
-     * the profile.
+     * Prepares list of exclusion path matchers based on configuration strings in the profile.
      * 
      * @param profile the current profile
      * @param is_dest whether exclusions apply to a destination folder
+     * 
      * @return a {@link List} containing exclusion pattern matches
      */
     static List<Map.Entry<String, PathMatcher>> initExclusions(Profile profile, final boolean is_dest) {
@@ -382,12 +372,11 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Verifies whether a given checksum hash resides in the profile's list of
-     * suspicious CRCs.
+     * Verifies whether a given checksum hash resides in the profile's list of suspicious CRCs.
      * 
      * @param crc the target checksum to analyze
-     * @return {@code true} if the checksum represents a suspicious CRC,
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if the checksum represents a suspicious CRC, {@code false} otherwise
      */
     private boolean isSuspiciousCRC(String crc) {
         return suspiciousCrc != null && suspiciousCrc.contains(crc);
@@ -397,9 +386,10 @@ public final class DirScan extends PathAbstractor {
      * Constructs a new DirScan instance aligned with profile properties.
      * 
      * @param profile the configuration profile context
-     * @param dir     the physical folder to walk
+     * @param dir the physical folder to walk
      * @param handler the progress reporting channel
      * @param is_dest whether the directory is a destination path
+     * 
      * @throws BreakException if execution is stopped by the user
      */
     DirScan(final Profile profile, final File dir, final ProgressHandler handler, final boolean is_dest) throws BreakException {
@@ -410,9 +400,10 @@ public final class DirScan extends PathAbstractor {
      * Constructs a standalone DirScan instance without an active profile context.
      * 
      * @param session the active workspace session
-     * @param dir     the physical folder to walk
+     * @param dir the physical folder to walk
      * @param handler the progress reporting channel
      * @param options the filter options constraints
+     * 
      * @throws BreakException if execution is stopped by the user
      */
     DirScan(final Session session, final File dir, final ProgressHandler handler, Set<Options> options) throws BreakException {
@@ -420,15 +411,15 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Private internal constructor carrying out physical scanning and cache
-     * retrieval.
+     * Private internal constructor carrying out physical scanning and cache retrieval.
      * 
-     * @param session       the workspace session
-     * @param dir           the physical folder to walk
-     * @param handler       the progress monitoring channel
+     * @param session the workspace session
+     * @param dir the physical folder to walk
+     * @param handler the progress monitoring channel
      * @param suspiciousCrc list of suspicious CRC hashes
-     * @param soptions      options configurations
-     * @param exclusions    exclusion patterns list
+     * @param soptions options configurations
+     * @param exclusions exclusion patterns list
+     * 
      * @throws BreakException if scanning is aborted
      */
     private DirScan(final Session session, final File dir, final ProgressHandler handler, final Set<String> suspiciousCrc, Set<Options> soptions,
@@ -479,7 +470,7 @@ public final class DirScan extends PathAbstractor {
             } catch (final IOException e) {
                 c.setLoaded(0);
                 Log.err("IOException when scanning", e); //$NON-NLS-1$
-            } catch (final BreakException e) {
+            } catch (final BreakException _) {
                 c.setLoaded(0);
                 handler.doCancel();
             } catch (final Exception e) {
@@ -497,13 +488,13 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Inspects and updates file lists inside a specific container depending on its
-     * type.
+     * Inspects and updates file lists inside a specific container depending on its type.
      * 
      * @param container the target container representation
-     * @param progress  the progress handler channel
-     * @param options   options configurations
-     * @throws IOException              if folder reading operations fail
+     * @param progress the progress handler channel
+     * @param options options configurations
+     * 
+     * @throws IOException if folder reading operations fail
      * @throws NoSuchAlgorithmException if hashing algorithms are unavailable
      */
     private void scanContainer(Container container, final ProgressHandler progress, ScanOptions options) throws IOException, NoSuchAlgorithmException {
@@ -532,12 +523,11 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Lists and filters all physical files on the filesystem prior to performing
-     * full verification.
+     * Lists and filters all physical files on the filesystem prior to performing full verification.
      * 
-     * @param dir     the root physical source folder
+     * @param dir the root physical source folder
      * @param handler the progress monitoring channel
-     * @param path    the path representation of the folder
+     * @param path the path representation of the folder
      * @param options options configurations
      */
     private void listFiles(final File dir, final ProgressHandler handler, final Path path, final ScanOptions options) {
@@ -557,14 +547,14 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Creates a file visitor that walks files and registers containers into the
-     * scanner context.
+     * Creates a file visitor that walks files and registers containers into the scanner context.
      * 
-     * @param dir      the root file directory
-     * @param handler  the progress handler monitor
+     * @param dir the root file directory
+     * @param handler the progress handler monitor
      * @param rootPath the starting walk path
-     * @param options  the scanning configuration metrics
-     * @param i        progress incremental counter
+     * @param options the scanning configuration metrics
+     * @param i progress incremental counter
+     * 
      * @return the simple file visitor implementation
      */
     private SimpleFileVisitor<Path> listFilesVisitor(final File dir, final ProgressHandler handler, final Path rootPath,
@@ -573,48 +563,88 @@ public final class DirScan extends PathAbstractor {
 
             @Override
             public FileVisitResult visitFile(Path entryPath, BasicFileAttributes entryAttrs) throws IOException {
-                if (handler.isCancel())
-                    return FileVisitResult.TERMINATE;
-                if (rootPath.equals(entryPath))
-                    return FileVisitResult.CONTINUE;
-                final var entryFile = entryPath.toFile();
-                try {
-                    if (options.isDest) {
-                        if (exclusions.stream().anyMatch(pm -> {
-                            final var match = pm.getValue().matches(entryPath);
-                            if (pm.getValue().matches(entryPath))
-                                Log.info(() -> "match for exclusion %s on %s, will skip...".formatted(pm.getKey(), entryPath.toString()));
-                            return match;
-                        }))
-                            return FileVisitResult.CONTINUE;
-                        listFilesDest(entryFile, entryAttrs);
-                    } else
-                        listFilesSrc(rootPath, entryPath, entryFile, entryAttrs, options);
-                    handler.setProgress(rootPath.relativize(entryPath).toString(), -1); // $NON-NLS-1$
-                    handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
-                            getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
-                } catch (final IOException e) {
-                    Log.err(e.getMessage(), e);
-                } catch (final BreakException e) {
-                    handler.doCancel();
-                }
-
-                handler.setProgress(rootPath.relativize(entryPath).toString(), -1); // $NON-NLS-1$
-                handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
-                        getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
-                return FileVisitResult.CONTINUE;
+                return doVisitFile(entryPath, entryAttrs, dir, handler, rootPath, options, i);
             }
         };
     }
 
     /**
+     * Handles the visit of a single file during directory traversal, applying exclusion filters and dispatching to source or
+     * destination listing.
+     * 
+     * @param dir the root file directory
+     * @param handler the progress handler monitor
+     * @param rootPath the starting walk path
+     * @param options the scanning configuration metrics
+     * @param i progress incremental counter
+     * 
+     * @return the simple file visitor implementation
+     */
+    private FileVisitResult doVisitFile(Path entryPath, BasicFileAttributes entryAttrs, final File dir,
+            final ProgressHandler handler, final Path rootPath, final ScanOptions options, final AtomicInteger i) {
+        if (handler.isCancel())
+            return FileVisitResult.TERMINATE;
+        if (rootPath.equals(entryPath))
+            return FileVisitResult.CONTINUE;
+        final var entryFile = entryPath.toFile();
+        try {
+            if (options.isDest) {
+                if (isExcluded(entryPath))
+                    return FileVisitResult.CONTINUE;
+                listFilesDest(entryFile, entryAttrs);
+            } else
+                listFilesSrc(rootPath, entryPath, entryFile, entryAttrs, options);
+            updateVisitProgress(entryPath, rootPath, dir, i);
+        } catch (final IOException e) {
+            Log.err(e.getMessage(), e);
+        } catch (final BreakException _) {
+            handler.doCancel();
+        }
+
+        updateVisitProgress(entryPath, rootPath, dir, i);
+        return FileVisitResult.CONTINUE;
+    }
+
+    /**
+     * Checks whether the given path matches any configured exclusion pattern.
+     * 
+     * @param entryPath the path to check against exclusion patterns
+     * 
+     * @return {@code true} if the path is excluded, {@code false} otherwise
+     */
+    private boolean isExcluded(Path entryPath) {
+        return exclusions.stream().anyMatch(pm -> {
+            if (pm.getValue().matches(entryPath)) {
+                Log.info(() -> "match for exclusion %s on %s, will skip...".formatted(pm.getKey(), entryPath.toString()));
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Updates the progress handler with current file visit information.
+     * 
+     * @param entryPath the current entry path
+     * @param rootPath the root scan path
+     * @param dir the root directory file
+     * @param i progress incremental counter
+     */
+    private void updateVisitProgress(Path entryPath, final Path rootPath, final File dir, final AtomicInteger i) {
+        handler.setProgress(rootPath.relativize(entryPath).toString(), -1); // $NON-NLS-1$
+        handler.setProgress2(String.format(Messages.getString("DirScan.ListingFiles2"), //$NON-NLS-1$
+                getRelativePath(dir.toPath()), i.incrementAndGet()), 0);
+    }
+
+    /**
      * Registers files discovered during source directory scans.
      * 
-     * @param rootPath  the starting walker path
+     * @param rootPath the starting walker path
      * @param entryPath the entry path sequence
      * @param entryFile the entry file descriptor
      * @param entryAttr the entry attributes metadata
-     * @param options   options configurations
+     * @param options options configurations
+     * 
      * @throws IOException if folder descriptors cannot be resolved
      */
     private void listFilesSrc(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttr, ScanOptions options) throws IOException {
@@ -637,10 +667,11 @@ public final class DirScan extends PathAbstractor {
     /**
      * Registers discovered empty directories.
      * 
-     * @param rootPath   the scan starting path
-     * @param entryPath  the empty folder sequence path
-     * @param entryFile  the empty folder file handle
+     * @param rootPath the scan starting path
+     * @param entryPath the empty folder sequence path
+     * @param entryFile the empty folder file handle
      * @param entryAttrs the directory attributes
+     * 
      * @throws IOException if directory streams cannot be opened
      */
     private void listFilesSrcEmptyDir(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttrs) throws IOException {
@@ -669,10 +700,11 @@ public final class DirScan extends PathAbstractor {
     /**
      * Registers the parent directory of regular files with unknown extensions.
      * 
-     * @param rootPath   the scan starting path
-     * @param entryPath  the entry sequence path
-     * @param entryFile  the entry file handle
+     * @param rootPath the scan starting path
+     * @param entryPath the entry sequence path
+     * @param entryFile the entry file handle
      * @param entryAttrs the entry attributes
+     * 
      * @throws IOException if directory attributes cannot be read
      */
     private void listFilesSrcParentDir(final Path rootPath, Path entryPath, final File entryFile, final BasicFileAttributes entryAttrs) throws IOException {
@@ -721,10 +753,10 @@ public final class DirScan extends PathAbstractor {
     /**
      * Registers an archive package found during the source folder walk.
      * 
-     * @param rootPath  the scan starting path
+     * @param rootPath the scan starting path
      * @param entryPath the entry sequence path
-     * @param file      the physical file handle
-     * @param attr      the entry attributes
+     * @param file the physical file handle
+     * @param attr the entry attributes
      */
     private void listFilesSrcArchive(final Path rootPath, Path entryPath, final File file, final BasicFileAttributes attr) {
         final Container existingContainer;
@@ -773,12 +805,12 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Evaluates and populates entries inside a fake single file directory
-     * container.
+     * Evaluates and populates entries inside a fake single file directory container.
      * 
      * @param handler the progress handler monitor
-     * @param c       the fake container instance
+     * @param c the fake container instance
      * @param options options configurations
+     * 
      * @throws IOException if file reading fails
      */
     private void scanFake(final ProgressHandler handler, Container c, ScanOptions options) throws IOException {
@@ -786,7 +818,8 @@ public final class DirScan extends PathAbstractor {
             final var entry = new Entry(c.getFile().getName(), c.getRelFile().getName(), c.getSize(), c.getModified());
             if (options.archivesAndChdAsRoms)
                 entry.setType(Entry.Type.UNK);
-            handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()), -1, null, c.getFile().getName()); // $NON-NLS-1$ //$NON-NLS-2$
+            handler.setProgress(FilenameUtils.getBaseName(c.getFile().getName()), -1, null, c.getFile().getName()); // $NON-NLS-1$
+                                                                                                                    // //$NON-NLS-2$
             updateEntry(c.add(entry), c.getFile().toPath(), options);
             c.setLoaded(options.needSha1OrMd5 ? 2 : 1);
         } else {
@@ -799,8 +832,9 @@ public final class DirScan extends PathAbstractor {
      * Evaluates and populates entries inside standard physical directories.
      * 
      * @param handler the progress handler monitor
-     * @param c       the directory container
+     * @param c the directory container
      * @param options options configurations
+     * 
      * @throws IOException if files cannot be read
      */
     private void scanDir(final ProgressHandler handler, Container c, ScanOptions options) throws IOException {
@@ -816,8 +850,9 @@ public final class DirScan extends PathAbstractor {
      * Evaluates physical files in standard folders without utilizing cached data.
      * 
      * @param handler the progress handler monitor
-     * @param c       the directory container
+     * @param c the directory container
      * @param options options configurations
+     * 
      * @throws IOException if file attributes cannot be read
      */
     private void scanDirNoCache(final ProgressHandler handler, Container c, ScanOptions options) throws IOException {
@@ -843,7 +878,7 @@ public final class DirScan extends PathAbstractor {
                         }
                     });
             c.setLoaded(options.needSha1OrMd5 ? 2 : 1);
-        } catch (AccessDeniedException e) {
+        } catch (AccessDeniedException _) {
             // access denied
         }
     }
@@ -851,8 +886,9 @@ public final class DirScan extends PathAbstractor {
     /**
      * Scans and updates file list structures nested inside physical ZIP packages.
      * 
-     * @param c       the target ZIP container
+     * @param c the target ZIP container
      * @param options options configurations
+     * 
      * @throws IOException if the file stream cannot be opened
      */
     private void scanZip(Container c, ScanOptions options) throws IOException {
@@ -882,9 +918,9 @@ public final class DirScan extends PathAbstractor {
     /**
      * Updates properties of a single file entry in a ZIP package.
      * 
-     * @param entry   the target entry details
-     * @param zipf    the parent zip package
-     * @param hdr     the file header descriptor
+     * @param entry the target entry details
+     * @param zipf the parent zip package
+     * @param hdr the file header descriptor
      * @param options options configurations
      */
     private void updateEntry(Entry entry, ZipFile zipf, FileHeader hdr, ScanOptions options) {
@@ -911,7 +947,7 @@ public final class DirScan extends PathAbstractor {
     /**
      * Populates hash properties on a file entry with digested hash results.
      * 
-     * @param entry   the target entry details
+     * @param entry the target entry details
      * @param digests array of processed message digests
      */
     private void updateEntryFromHashes(Entry entry, MDigest[] digests) {
@@ -931,13 +967,12 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Helper class wrapping SevenZip JBinding extraction callbacks to calculate
-     * hashes for 7-zip or RAR archive formats in parallel.
+     * Helper class wrapping SevenZip JBinding extraction callbacks to calculate hashes for 7-zip or RAR archive formats in
+     * parallel.
      */
     private class SevenZUpdateEntries implements Closeable {
         /**
-         * Callback implementing extraction operations of the native 7-zip binding
-         * library.
+         * Callback implementing extraction operations of the native 7-zip binding library.
          */
         private final class ComputeHashes7ZipCallback implements IArchiveExtractCallback {
             /**
@@ -1035,7 +1070,8 @@ public final class DirScan extends PathAbstractor {
          * Instantiates a new multi-format archive worker.
          * 
          * @param container the parent file container
-         * @param options   options configurations
+         * @param options options configurations
+         * 
          * @throws NoSuchAlgorithmException if digest libraries are missing
          */
         private SevenZUpdateEntries(final Container container, ScanOptions options) throws NoSuchAlgorithmException {
@@ -1063,6 +1099,7 @@ public final class DirScan extends PathAbstractor {
          * Obtains the apache SevenZFile stream helper.
          * 
          * @return the commons compress reader instance
+         * 
          * @throws IOException if files cannot be opened
          */
         @SuppressWarnings("deprecation")
@@ -1076,6 +1113,7 @@ public final class DirScan extends PathAbstractor {
          * Obtains the JBinding native archive stream helper.
          * 
          * @return the archive abstraction wrapper
+         * 
          * @throws IOException if native libraries cannot load files
          */
         private SevenZipArchive getArchive() throws IOException {
@@ -1088,6 +1126,7 @@ public final class DirScan extends PathAbstractor {
          * Gets a simple native JBinding interface.
          * 
          * @return the JBinding simpler operations interface
+         * 
          * @throws IOException if native stream mapping fails
          */
         private ISimpleInArchive getNInterface() throws IOException {
@@ -1095,8 +1134,7 @@ public final class DirScan extends PathAbstractor {
         }
 
         /**
-         * Analyzes and registers all entries inside a 7-zip or RAR format archive
-         * container.
+         * Analyzes and registers all entries inside a 7-zip or RAR format archive container.
          * 
          * @throws IOException if reading operations fail
          */
@@ -1131,8 +1169,7 @@ public final class DirScan extends PathAbstractor {
         }
 
         /**
-         * Employs standard apache commons libraries to walk archives and compute
-         * hashes.
+         * Employs standard apache commons libraries to walk archives and compute hashes.
          * 
          * @throws IOException if file access fails
          */
@@ -1155,9 +1192,10 @@ public final class DirScan extends PathAbstractor {
         /**
          * Updates an entry structure from native JBinding item descriptors.
          * 
-         * @param entry   the target entry details
+         * @param entry the target entry details
          * @param entries map tracking entries by their integer index
-         * @param item    the native file reference
+         * @param item the native file reference
+         * 
          * @throws IOException if streams fail
          */
         private void updateEntry(final Entry entry, final Map<Integer, Entry> entries, ISimpleInArchiveItem item) throws IOException {
@@ -1179,9 +1217,10 @@ public final class DirScan extends PathAbstractor {
         /**
          * Handles extended property updating operations.
          * 
-         * @param entry   the target entry details
+         * @param entry the target entry details
          * @param entries map tracking entries by their integer index
-         * @param item    the native file reference
+         * @param item the native file reference
+         * 
          * @throws IOException if streams fail
          */
         private void updateEntryExt(final Entry entry, final Map<Integer, Entry> entries, ISimpleInArchiveItem item) throws IOException {
@@ -1201,8 +1240,8 @@ public final class DirScan extends PathAbstractor {
         /**
          * Updates an entry structure using commons compress descriptors.
          * 
-         * @param entry        the target entry details
-         * @param entries      map containing entries indexed by filename
+         * @param entry the target entry details
+         * @param entries map containing entries indexed by filename
          * @param archiveEntry the commons compress descriptor
          */
         private void updateEntry(final Entry entry, final Map<String, Entry> entries, final SevenZArchiveEntry archiveEntry) {
@@ -1223,10 +1262,10 @@ public final class DirScan extends PathAbstractor {
         }
 
         /**
-         * Performs native extract commands to parallel-process and update missing
-         * hashes.
+         * Performs native extract commands to parallel-process and update missing hashes.
          * 
          * @param entries mapped index registers of items to update
+         * 
          * @throws IOException if reading operations fail
          */
         private void computeHashes(final Map<Integer, Entry> entries) throws IOException {
@@ -1239,6 +1278,7 @@ public final class DirScan extends PathAbstractor {
          * Walks commons compress zip elements sequentially to compute missing hashes.
          * 
          * @param entries registered files to hash
+         * 
          * @throws IOException if reading operations fail
          */
         private void computeHashes(final HashMap<String, Entry> entries) throws IOException {
@@ -1268,6 +1308,7 @@ public final class DirScan extends PathAbstractor {
          * Pulls data chunks from SevenZFile streams to update digests.
          * 
          * @param size the size of the entry data
+         * 
          * @throws IOException if streams fail
          */
         private void computeHashes(long size) throws IOException {
@@ -1286,8 +1327,9 @@ public final class DirScan extends PathAbstractor {
     /**
      * Dispatches file entry property updates.
      * 
-     * @param entry   the target entry details
+     * @param entry the target entry details
      * @param options options configurations
+     * 
      * @throws IOException if stream errors occur
      */
     private void updateEntry(final Entry entry, ScanOptions options) throws IOException {
@@ -1297,9 +1339,10 @@ public final class DirScan extends PathAbstractor {
     /**
      * Updates properties of a standalone folder or archive entry.
      * 
-     * @param entry     the target entry details
+     * @param entry the target entry details
      * @param entryPath the path sequence mapping of the file (can be null)
-     * @param options   options configurations
+     * @param options options configurations
+     * 
      * @throws IOException if stream errors occur
      */
     private void updateEntry(final Entry entry, final Path entryPath, ScanOptions options) throws IOException {
@@ -1318,9 +1361,10 @@ public final class DirScan extends PathAbstractor {
     /**
      * Performs external hash calculation updates.
      * 
-     * @param entry     the target entry details
+     * @param entry the target entry details
      * @param entryPath the path sequence mapping of the file (can be null)
-     * @param options   options configurations
+     * @param options options configurations
+     * 
      * @throws IOException if stream errors occur
      */
     private void updateEntryExt(final Entry entry, final Path entryPath, ScanOptions options) throws IOException {
@@ -1344,11 +1388,11 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Resolves which algorithms should be executed on an entry based on current
-     * configurations.
+     * Resolves which algorithms should be executed on an entry based on current configurations.
      * 
-     * @param entry   the target entry
+     * @param entry the target entry
      * @param options scanning option metrics
+     * 
      * @return a {@link List} of algorithms to run
      */
     private List<Algo> getAlgorithms(final Entry entry, ScanOptions options) {
@@ -1365,9 +1409,10 @@ public final class DirScan extends PathAbstractor {
     /**
      * Executes digests and updates entry values for missing hashes.
      * 
-     * @param entry      the target entry
-     * @param entryPath  the physical path representation of the file (can be null)
+     * @param entry the target entry
+     * @param entryPath the physical path representation of the file (can be null)
      * @param algorithms the algorithms to run
+     * 
      * @throws IOException if stream reading fails
      */
     private void updateEntryExt(final Entry entry, final Path entryPath, List<Algo> algorithms) throws IOException {
@@ -1386,12 +1431,12 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Extracts and updates disk package hashes (CHDs) utilizing native header
-     * parsing.
+     * Extracts and updates disk package hashes (CHDs) utilizing native header parsing.
      * 
-     * @param entry     the target entry
+     * @param entry the target entry
      * @param entryPath the path sequence mapping of the file (can be null)
-     * @param options   options configurations
+     * @param options options configurations
+     * 
      * @throws IOException if stream reading fails
      */
     private void updateEntryCHD(final Entry entry, final Path entryPath, ScanOptions options) throws IOException {
@@ -1416,8 +1461,9 @@ public final class DirScan extends PathAbstractor {
     /**
      * Extracts and populates size and CRC values from zip filesystems.
      * 
-     * @param entry     the target entry
+     * @param entry the target entry
      * @param entryPath the path sequence mapping of the file (can be null)
+     * 
      * @throws IOException if zip filesystem access fails
      */
     private void updatEntryZip(final Entry entry, final Path entryPath) throws IOException {
@@ -1439,7 +1485,9 @@ public final class DirScan extends PathAbstractor {
      * 
      * @param entryPath the target file path
      * @param algorithm list of algorithms to run
+     * 
      * @return array of updated digests
+     * 
      * @throws NoSuchAlgorithmException if hashing libraries are missing
      */
     private MDigest[] computeHash(final Path entryPath, final List<Algo> algorithm) throws NoSuchAlgorithmException {
@@ -1451,7 +1499,9 @@ public final class DirScan extends PathAbstractor {
      * 
      * @param entryPath the target file path
      * @param algorithm array of algorithms to run
+     * 
      * @return array of updated digests
+     * 
      * @throws NoSuchAlgorithmException if hashing libraries are missing
      */
     private MDigest[] computeHash(final Path entryPath, final Algo[] algorithm) throws NoSuchAlgorithmException {
@@ -1468,7 +1518,9 @@ public final class DirScan extends PathAbstractor {
      * Obtains hashing helpers matching specified algorithms.
      * 
      * @param algorithm algorithms enum array
+     * 
      * @return array of custom message digests
+     * 
      * @throws NoSuchAlgorithmException if hashing libraries are missing
      */
     private MDigest[] getMDigest(final Algo[] algorithm) throws NoSuchAlgorithmException {
@@ -1481,10 +1533,12 @@ public final class DirScan extends PathAbstractor {
     /**
      * Computes message digests from generic streams.
      * 
-     * @param is        the target input stream
+     * @param is the target input stream
      * @param algorithm list of algorithms to run
+     * 
      * @return array of updated digests
-     * @throws IOException              if stream reading fails
+     * 
+     * @throws IOException if stream reading fails
      * @throws NoSuchAlgorithmException if hashing libraries are missing
      */
     private MDigest[] computeHash(final InputStream is, final List<Algo> algorithm) throws IOException, NoSuchAlgorithmException {
@@ -1494,10 +1548,12 @@ public final class DirScan extends PathAbstractor {
     /**
      * Computes message digests from generic streams using native array mappings.
      * 
-     * @param is        the target input stream
+     * @param is the target input stream
      * @param algorithm array of algorithms to run
+     * 
      * @return array of updated digests
-     * @throws IOException              if stream reading fails
+     * 
+     * @throws IOException if stream reading fails
      * @throws NoSuchAlgorithmException if hashing libraries are missing
      */
     private MDigest[] computeHash(final InputStream is, final Algo[] algorithm) throws IOException, NoSuchAlgorithmException {
@@ -1510,7 +1566,9 @@ public final class DirScan extends PathAbstractor {
      * Retrieves an isolated zip virtual path representing the target entry.
      * 
      * @param entry the target entry details
+     * 
      * @return a virtual file path sequence
+     * 
      * @throws IOException if the target archive zip filesystem cannot be mapped
      */
     private Path getPath(final Entry entry) throws IOException {
@@ -1520,10 +1578,10 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Resolves and returns a matching entry for a specific profile ROM using
-     * checksum indexes.
+     * Resolves and returns a matching entry for a specific profile ROM using checksum indexes.
      * 
      * @param r the profile ROM metadata
+     * 
      * @return the discovered physical file entry, or {@code null} if unmatched
      */
     Entry findByHash(final Rom r) {
@@ -1544,10 +1602,10 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Resolves and returns a matching entry for a specific profile hard disk CHD
-     * using checksum indexes.
+     * Resolves and returns a matching entry for a specific profile hard disk CHD using checksum indexes.
      * 
      * @param d the profile disk metadata
+     * 
      * @return the discovered physical disk file entry, or {@code null} if unmatched
      */
     Entry findByHash(final Disk d) {
@@ -1558,10 +1616,10 @@ public final class DirScan extends PathAbstractor {
     }
 
     /**
-     * Selects appropriate file caching extension based on configured scanning
-     * metrics.
+     * Selects appropriate file caching extension based on configured scanning metrics.
      * 
      * @param options options configurations
+     * 
      * @return extension suffix string (.scache, .dcache, etc.)
      */
     private static String getCacheExt(Set<Options> options) {
@@ -1583,6 +1641,7 @@ public final class DirScan extends PathAbstractor {
      * Resolves appropriate file caching extension for destination directories.
      * 
      * @param options options configurations
+     * 
      * @return extension suffix string (.dcache, etc.)
      */
     private static String getCacheExtDest(Set<Options> options) {
@@ -1600,8 +1659,9 @@ public final class DirScan extends PathAbstractor {
      * Computes the cache file matching a directory run.
      * 
      * @param session current workspace session
-     * @param file    root directory
+     * @param file root directory
      * @param options options configurations
+     * 
      * @return physical cache file location
      */
     public static File getCacheFile(final Session session, final File file, Set<Options> options) {
@@ -1610,19 +1670,20 @@ public final class DirScan extends PathAbstractor {
         cachedir.mkdirs();
         final var crc = new CRC32();
         crc.update(file.getAbsolutePath().getBytes());
-        return new File(cachedir, String.format("%08x", crc.getValue()) + getCacheExt(options)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return new File(cachedir, String.format("%08x", crc.getValue()) + getCacheExt(options)); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                 // //$NON-NLS-3$
     }
 
     /**
      * Serializes current scans properties to the computed cache file.
      * 
-     * @param file    root folder file
+     * @param file root folder file
      * @param options options configurations
      */
     private void save(final File file, Set<Options> options) {
         try (final var oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(getCacheFile(session, file, options))))) {
             oos.writeObject(containersByName);
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // ignore
         }
     }
@@ -1630,8 +1691,9 @@ public final class DirScan extends PathAbstractor {
     /**
      * Deserializes previous runs properties from disk.
      * 
-     * @param file    root directory file
+     * @param file root directory file
      * @param options options configurations
+     * 
      * @return containers mapping retrieved from caching
      */
     @SuppressWarnings("unchecked")
@@ -1641,7 +1703,7 @@ public final class DirScan extends PathAbstractor {
             handler.clearInfos();
             handler.setProgress(String.format(Messages.getString("DirScan.LoadingScanCache"), getRelativePath(file.toPath())), 0); //$NON-NLS-1$
             return (Map<String, Container>) ois.readObject();
-        } catch (final Exception e) {
+        } catch (final Exception _) {
             // ignore
         }
         return Collections.synchronizedMap(new HashMap<>());
@@ -1660,6 +1722,7 @@ public final class DirScan extends PathAbstractor {
      * Resolves a container reference by name.
      * 
      * @param name the container name
+     * 
      * @return discovered container, or {@code null} if unmatched
      */
     Container getContainerByName(String name) {

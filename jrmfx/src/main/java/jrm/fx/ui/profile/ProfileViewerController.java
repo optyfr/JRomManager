@@ -440,10 +440,12 @@ public class ProfileViewerController implements Initializable {
      * @param ware
      * @param profile
      * @param mame
+     * 
      * @return
      */
     private void getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args) {
-        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$ //$NON-NLS-2$
+        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
+                                                                                                                                          // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
             rompaths.add(profile.getProperty(ProfileSettingsEnum.disks_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         args.add(mame.getFile().getAbsolutePath());
@@ -459,11 +461,14 @@ public class ProfileViewerController implements Initializable {
      * @param profile
      * @param mame
      * @param args
+     * 
      * @return
+     * 
      * @throws HeadlessException
      */
     private void getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args) throws HeadlessException {
-        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$ //$NON-NLS-2$
+        final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
+                                                                                                                                          // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
             rompaths.add(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir)); // $NON-NLS-1$ //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
@@ -497,6 +502,7 @@ public class ProfileViewerController implements Initializable {
     /**
      * @param ware
      * @param profile
+     * 
      * @throws HeadlessException
      */
     private void launchMame(final Anyware ware, final Profile profile) throws HeadlessException {
@@ -845,6 +851,7 @@ public class ProfileViewerController implements Initializable {
 
     /**
      * @param newValue
+     * 
      * @return
      */
     private Predicate<? super Anyware> searchPredicate(String newValue) {

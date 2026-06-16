@@ -62,6 +62,7 @@ public class JRomManager {
      * Write lock file and keep it locked (rw) until program shutdown
      * 
      * @param lockFile the file to lock
+     * 
      * @return true if successful, false otherwise
      */
     private static boolean lockInstance(final Session session, final String lockFile) {
@@ -90,7 +91,9 @@ public class JRomManager {
     /**
      * @param session
      * @param lockFile
+     * 
      * @return
+     * 
      * @throws IOException
      */
     private static FileChannel getLock(final Session session, final String lockFile) throws IOException {

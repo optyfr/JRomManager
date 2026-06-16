@@ -6,13 +6,13 @@ import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 
 /**
- * Report note indicating that a physical entry found in the container is not
- * needed by the active database.
+ * Report note indicating that a physical entry found in the container is not needed by the active database.
  * <p>
- * This status describes files present inside romset containers or folders that
- * do not match any defined ROM, disk, or sample metadata.
+ * This status describes files present inside romset containers or folders that do not match any defined ROM, disk, or sample
+ * metadata.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")

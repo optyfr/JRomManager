@@ -15,8 +15,8 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 /**
  * XML response handler for batch transaction check report tree data.
  * <p>
- * This class processes XML requests to retrieve hierarchical transaction check report data,
- * supporting the fetching of root nodes and child nodes based on a parent ID.
+ * This class processes XML requests to retrieve hierarchical transaction check report data, supporting the fetching of root nodes
+ * and child nodes based on a parent ID.
  * </p>
  */
 public class BatchTrntChkReportTreeXMLResponse extends XMLResponse {
@@ -30,6 +30,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse {
      * Constructs a new batch transaction check report tree XML response.
      *
      * @param request the XML request containing the operation to process
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML stream error occurs during initialization
      */
@@ -40,12 +41,12 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse {
     /**
      * Fetches the transaction check report tree data and writes it to the XML response.
      * <p>
-     * Loads or retrieves the cached report based on the source file path. Depending on the
-     * requested parent ID, it delegates to either {@link #fetchRoot(Operation, TrntChkReport, Boolean)}
-     * or {@link #fetchNode(TrntChkReport, Long)}.
+     * Loads or retrieves the cached report based on the source file path. Depending on the requested parent ID, it delegates to
+     * either {@link #fetchRoot(Operation, TrntChkReport, Boolean)} or {@link #fetchNode(TrntChkReport, Long)}.
      * </p>
      *
      * @param operation the operation containing request parameters (e.g., "src", "showOK", "ParentID")
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -79,6 +80,7 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse {
      *
      * @param report the loaded transaction check report
      * @param parentID the unique identifier of the parent node whose children are to be fetched
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     private void fetchNode(TrntChkReport report, Long parentID) throws XMLStreamException {
@@ -108,14 +110,14 @@ public class BatchTrntChkReportTreeXMLResponse extends XMLResponse {
     /**
      * Fetches and writes the root nodes of the transaction check report to the XML response.
      * <p>
-     * Filters the root nodes based on the {@code showok} parameter. If {@code showok} is false,
-     * nodes with a status of {@link Status#OK} are excluded. Supports pagination via the operation's
-     * start and end row parameters.
+     * Filters the root nodes based on the {@code showok} parameter. If {@code showok} is false, nodes with a status of
+     * {@link Status#OK} are excluded. Supports pagination via the operation's start and end row parameters.
      * </p>
      *
      * @param operation the operation containing pagination parameters (start row, end row)
      * @param report the loaded transaction check report
      * @param showok whether to include nodes with an OK status in the response
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     private void fetchRoot(Operation operation, TrntChkReport report, Boolean showok) throws XMLStreamException {

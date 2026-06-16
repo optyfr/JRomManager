@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -35,9 +27,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The base class representing a group of entities on the filesystem, such as a
- * compressed archive or a directory. It manages entries (individual files) and
- * keeps track of scanning states, torrentzip checks, and metadata.
+ * The base class representing a group of entities on the filesystem, such as a compressed archive or a directory. It manages
+ * entries (individual files) and keeps track of scanning states, torrentzip checks, and metadata.
  *
  * @author optyfr
  */
@@ -49,8 +40,7 @@ public class Container implements Serializable, Comparable<Container> {
     private final File file;
 
     /**
-     * Relative file path representing the relative location of the container inside
-     * the workspace.
+     * Relative file path representing the relative location of the container inside the workspace.
      */
     private final File relfile;
 
@@ -69,18 +59,17 @@ public class Container implements Serializable, Comparable<Container> {
     private @Getter long size = 0L;
 
     /**
-     * Internal map storing container entry objects indexed by their respective file
-     * names.
+     * Internal map storing container entry objects indexed by their respective file names.
      *
      * @return the map of entry objects indexed by their file names
      */
     private final @Getter Map<String, Entry> entriesByFName = new HashMap<>();
 
     /**
-     * Flag for scanning removal indicating whether this container is up-to-date
-     * with the filesystem.
+     * Flag for scanning removal indicating whether this container is up-to-date with the filesystem.
      *
      * @param up2date {@code true} if up-to-date, {@code false} otherwise
+     * 
      * @return {@code true} if up-to-date, {@code false} otherwise
      */
     private transient @Getter @Setter boolean up2date = false;
@@ -94,6 +83,7 @@ public class Container implements Serializable, Comparable<Container> {
      * </ul>
      *
      * @param loaded the scan load status level (0, 1, or 2)
+     * 
      * @return the scan load status level (0, 1, or 2)
      */
     private @Getter @Setter int loaded = 0;
@@ -101,8 +91,8 @@ public class Container implements Serializable, Comparable<Container> {
     /**
      * Last time the archive was torrentzip checked (only valid for zip archives).
      *
-     * @param lastTZipCheck the timestamp of the last torrentzip check in
-     *                      milliseconds
+     * @param lastTZipCheck the timestamp of the last torrentzip check in milliseconds
+     * 
      * @return the timestamp of the last torrentzip check in milliseconds
      */
     private @Getter @Setter long lastTZipCheck = 0L;
@@ -111,6 +101,7 @@ public class Container implements Serializable, Comparable<Container> {
      * Last torrentzip check status flags (only valid for zip archives).
      *
      * @param lastTZipStatus the set of torrentzip status flags
+     * 
      * @return the set of torrentzip status flags
      */
     private @Getter @Setter Set<TrrntZipStatus> lastTZipStatus = EnumSet.noneOf(TrrntZipStatus.class);
@@ -119,6 +110,7 @@ public class Container implements Serializable, Comparable<Container> {
      * Related {@link AnywareBase} set that matches this container.
      *
      * @param relAW the related AnywareBase set
+     * 
      * @return the related AnywareBase set
      */
     protected transient @Getter @Setter AnywareBase relAW;
@@ -163,10 +155,10 @@ public class Container implements Serializable, Comparable<Container> {
     /**
      * Constructs a container where the related set is known.
      *
-     * @param type    the guessed type of the container
-     * @param file    the container {@link File}
+     * @param type the guessed type of the container
+     * @param file the container {@link File}
      * @param relfile the relative version of the container {@link File}
-     * @param m       the corresponding {@link AnywareBase} set
+     * @param m the corresponding {@link AnywareBase} set
      */
     protected Container(final Type type, final File file, final File relfile, final AnywareBase m) {
         this.type = type;
@@ -178,10 +170,10 @@ public class Container implements Serializable, Comparable<Container> {
     /**
      * Constructs a container file with no related set.
      *
-     * @param type    the guessed type of the container
-     * @param file    the container {@link File}
+     * @param type the guessed type of the container
+     * @param file the container {@link File}
      * @param relfile the relative version of the container {@link File}
-     * @param attr    the file attributes (modified time and size are extracted)
+     * @param attr the file attributes (modified time and size are extracted)
      */
     protected Container(final Type type, final File file, final File relfile, final BasicFileAttributes attr) {
         this(type, file, relfile, (AnywareBase) null);
@@ -191,8 +183,7 @@ public class Container implements Serializable, Comparable<Container> {
     }
 
     /**
-     * Retrieves the relative file path of the container, falling back to the
-     * absolute file path if not defined.
+     * Retrieves the relative file path of the container, falling back to the absolute file path if not defined.
      *
      * @return the relative {@link File}, or fallback to physical {@link File}
      */
@@ -210,11 +201,11 @@ public class Container implements Serializable, Comparable<Container> {
     }
 
     /**
-     * Adds a listed entry by its file name to the container mapping. If an
-     * identical entry with matching modification date and size is already present,
-     * it is returned and no insert takes place.
+     * Adds a listed entry by its file name to the container mapping. If an identical entry with matching modification date and size
+     * is already present, it is returned and no insert takes place.
      *
      * @param e the {@link Entry} to add
+     * 
      * @return the active or newly added entry
      */
     public Entry add(final Entry e) {
@@ -227,10 +218,10 @@ public class Container implements Serializable, Comparable<Container> {
     }
 
     /**
-     * Finds an existing {@link Entry} inside the container using the reference
-     * entry's name.
+     * Finds an existing {@link Entry} inside the container using the reference entry's name.
      *
      * @param e the {@link Entry} containing the file name to find
+     * 
      * @return the matched {@link Entry} found, or {@code null} if not found
      */
     public Entry find(final Entry e) {
@@ -252,14 +243,14 @@ public class Container implements Serializable, Comparable<Container> {
      * @return a {@link Map} of entries with their normalized names as keys
      */
     public Map<String, Entry> getEntriesByName() {
-        return entriesByFName.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, e) -> n));
+        return entriesByFName.values().stream().collect(Collectors.toMap(Entry::getName, Function.identity(), (n, _) -> n));
     }
 
     /**
-     * Statistically evaluates and guesses the {@link Type} of a given file based on
-     * its extension.
+     * Statistically evaluates and guesses the {@link Type} of a given file based on its extension.
      *
      * @param file the {@link File} to guess type of
+     * 
      * @return the guessed {@link Type}
      */
     public static Type getType(final File file) {
@@ -297,9 +288,9 @@ public class Container implements Serializable, Comparable<Container> {
      * Compares this container with another container based on their physical sizes.
      *
      * @param o the other container to compare with
-     * @return a negative integer, zero, or a positive integer as this container
-     *         size is less than, equal to, or greater than the specified
-     *         container's size
+     * 
+     * @return a negative integer, zero, or a positive integer as this container size is less than, equal to, or greater than the
+     *         specified container's size
      */
     @Override
     public int compareTo(Container o) {
@@ -310,8 +301,8 @@ public class Container implements Serializable, Comparable<Container> {
      * Indicates whether some other object is "equal to" this one.
      *
      * @param obj the reference object with which to compare
-     * @return {@code true} if this object is the same as the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -338,8 +329,7 @@ public class Container implements Serializable, Comparable<Container> {
     }
 
     /**
-     * Creates and returns a reverse comparator comparing containers by size in
-     * descending order.
+     * Creates and returns a reverse comparator comparing containers by size in descending order.
      *
      * @return a reverse {@link Comparator} for Container sorting
      */

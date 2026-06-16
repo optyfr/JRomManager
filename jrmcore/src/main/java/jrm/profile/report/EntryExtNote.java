@@ -5,14 +5,13 @@ import jrm.profile.data.Entry;
 import lombok.Getter;
 
 /**
- * Abstract base class for report notes that correlate an expected metadata
- * entity with a physical filesystem file entry.
+ * Abstract base class for report notes that correlate an expected metadata entity with a physical filesystem file entry.
  * <p>
- * This class provides standard accessors and formatting helpers to output
- * details, name resolutions, and expected checksum matches for specific entry
- * types.
+ * This class provides standard accessors and formatting helpers to output details, name resolutions, and expected checksum matches
+ * for specific entry types.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 abstract class EntryExtNote extends EntryNote {
@@ -26,11 +25,10 @@ abstract class EntryExtNote extends EntryNote {
     final @Getter Entry entry;
 
     /**
-     * Constructs a new EntryExtNote mapping an expected entity to a physical file
-     * entry.
+     * Constructs a new EntryExtNote mapping an expected entity to a physical file entry.
      *
      * @param entity the expected entity base metadata
-     * @param entry  the physical file entry
+     * @param entry the physical file entry
      */
     protected EntryExtNote(EntityBase entity, Entry entry) {
         super(entity);
@@ -38,8 +36,7 @@ abstract class EntryExtNote extends EntryNote {
     }
 
     /**
-     * Gets a detailed diagnostic report combining expected metadata and physical
-     * entry attributes.
+     * Gets a detailed diagnostic report combining expected metadata and physical entry attributes.
      *
      * @return the detailed diagnostic text
      */

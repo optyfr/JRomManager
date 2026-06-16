@@ -10,17 +10,16 @@ import jrm.misc.Log;
 import lombok.val;
 
 /**
- * Path abstracter and security sandbox manager for the ROM manager application.
- * This class translates fully resolved absolute filesystem paths to/from
- * stylized relative abstract paths using placeholders (such as {@code %work},
- * {@code %shared}, and {@code %presets}).
+ * Path abstracter and security sandbox manager for the ROM manager application. This class translates fully resolved absolute
+ * filesystem paths to/from stylized relative abstract paths using placeholders (such as {@code %work}, {@code %shared}, and
+ * {@code %presets}).
  * <p>
- * It also handles path validation to guard against directory traversal/forgery
- * attacks, and checks whether abstract paths are writeable by the active user
- * session depending on roles and directory rules.
+ * It also handles path validation to guard against directory traversal/forgery attacks, and checks whether abstract paths are
+ * writeable by the active user session depending on roles and directory rules.
  * </p>
  *
  * @author Expert Java Code Documentation Developer
+ * 
  * @since 1.0
  */
 public class PathAbstractor {
@@ -45,14 +44,12 @@ public class PathAbstractor {
     private static final String FORGED_PATH = "Forged path";
 
     /**
-     * The session context used by this abstracter for user lookup, settings
-     * resolution, and permission verification.
+     * The session context used by this abstracter for user lookup, settings resolution, and permission verification.
      */
     private Session session;
 
     /**
-     * Constructs a new {@code PathAbstractor} instance bound to the specified
-     * session.
+     * Constructs a new {@code PathAbstractor} instance bound to the specified session.
      *
      * @param session the user session context
      */
@@ -61,32 +58,28 @@ public class PathAbstractor {
     }
 
     /**
-     * Checks if the specified abstract path string is writeable by the user
-     * associated with this abstracter's session.
+     * Checks if the specified abstract path string is writeable by the user associated with this abstracter's session.
      *
-     * @param strpath the abstract path string (e.g., starting with {@code %work} or
-     *                {@code %shared})
-     * @return {@code true} if the path is writeable by the user, {@code false}
-     *         otherwise
+     * @param strpath the abstract path string (e.g., starting with {@code %work} or {@code %shared})
+     * 
+     * @return {@code true} if the path is writeable by the user, {@code false} otherwise
      */
     public boolean isWriteable(String strpath) {
         return isWriteable(session, strpath);
     }
 
     /**
-     * Checks if the specified abstract path string is writeable under the provided
-     * session context.
+     * Checks if the specified abstract path string is writeable under the provided session context.
      * <ul>
      * <li>Paths starting with {@code %work} are writeable by all users.</li>
-     * <li>Paths starting with {@code %shared} are writeable only by
-     * administrators.</li>
+     * <li>Paths starting with {@code %shared} are writeable only by administrators.</li>
      * <li>All other paths default to administrator-only write access.</li>
      * </ul>
      *
      * @param session the active user session context
      * @param strpath the abstract path string
-     * @return {@code true} if the path is writeable under the session,
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if the path is writeable under the session, {@code false} otherwise
      */
     public static boolean isWriteable(Session session, String strpath) {
         if (strpath.startsWith(WORK))
@@ -97,22 +90,21 @@ public class PathAbstractor {
     }
 
     /**
-     * Converts a fully resolved absolute {@link File} into an abstracted, relative
-     * version.
+     * Converts a fully resolved absolute {@link File} into an abstracted, relative version.
      *
      * @param file the absolute {@link File} to relative-ize
-     * @return a {@link File} instance containing the relative abstract path
-     *         representation
+     * 
+     * @return a {@link File} instance containing the relative abstract path representation
      */
     public File getRelativePath(File file) {
         return getRelativePath(session, file.toPath()).toFile();
     }
 
     /**
-     * Converts a fully resolved absolute {@link Path} into an abstracted, relative
-     * version.
+     * Converts a fully resolved absolute {@link Path} into an abstracted, relative version.
      *
      * @param path the absolute {@link Path} to relative-ize
+     * 
      * @return the relative abstract {@link Path} representation
      */
     public Path getRelativePath(Path path) {
@@ -120,22 +112,19 @@ public class PathAbstractor {
     }
 
     /**
-     * Converts a fully resolved absolute path into an abstracted relative path
-     * prefixed with the appropriate placeholder. Supported placeholders are:
+     * Converts a fully resolved absolute path into an abstracted relative path prefixed with the appropriate placeholder. Supported
+     * placeholders are:
      * <ul>
-     * <li>{@code %presets}: Resolves within the active user settings' workpath,
-     * inside a {@code presets} subdirectory.</li>
+     * <li>{@code %presets}: Resolves within the active user settings' workpath, inside a {@code presets} subdirectory.</li>
      * <li>{@code %work}: Resolves within the active user settings' workpath.</li>
-     * <li>{@code %shared}: Resolves within the global {@code users/shared}
-     * subdirectory of the base configuration path.</li>
+     * <li>{@code %shared}: Resolves within the global {@code users/shared} subdirectory of the base configuration path.</li>
      * </ul>
-     * If the absolute path does not fall inside any of these predefined base
-     * directories, it is returned unmodified.
+     * If the absolute path does not fall inside any of these predefined base directories, it is returned unmodified.
      *
      * @param session the active user session context
-     * @param path    the absolute path to process
-     * @return the abstracted path containing a placeholder, or the original path if
-     *         not matching any sub-directories
+     * @param path the absolute path to process
+     * 
+     * @return the abstracted path containing a placeholder, or the original path if not matching any sub-directories
      */
     public static Path getRelativePath(Session session, Path path) {
         try {
@@ -159,34 +148,33 @@ public class PathAbstractor {
     }
 
     /**
-     * Resolves an abstract string path containing placeholder prefixes into a fully
-     * qualified absolute {@link Path}.
+     * Resolves an abstract string path containing placeholder prefixes into a fully qualified absolute {@link Path}.
      *
      * @param strpath the abstract path string to resolve
+     * 
      * @return the absolute, normalized {@link Path}
-     * @throws SecurityException if the path attempts to traverse outside of its
-     *                           allowed root boundary (forgery check)
+     * 
+     * @throws SecurityException if the path attempts to traverse outside of its allowed root boundary (forgery check)
      */
     public Path getAbsolutePath(final String strpath) throws SecurityException {
         return getAbsolutePath(session, strpath);
     }
 
     /**
-     * Resolves an abstract string path containing placeholder prefixes into a fully
-     * qualified absolute {@link Path} under the specified session context.
+     * Resolves an abstract string path containing placeholder prefixes into a fully qualified absolute {@link Path} under the
+     * specified session context.
      * <p>
-     * This method replaces the {@code %presets}, {@code %work}, and {@code %shared}
-     * prefixes with their respective fully resolved filesystem counterparts. It
-     * then normalizes the path and verifies that the resulting path is safely
-     * nested within the target root folder to prevent directory traversal and
-     * arbitrary file read/write vulnerabilities.
+     * This method replaces the {@code %presets}, {@code %work}, and {@code %shared} prefixes with their respective fully resolved
+     * filesystem counterparts. It then normalizes the path and verifies that the resulting path is safely nested within the target
+     * root folder to prevent directory traversal and arbitrary file read/write vulnerabilities.
      * </p>
      *
      * @param session the active user session context
      * @param strpath the abstract path string to resolve
+     * 
      * @return the absolute, normalized {@link Path}
-     * @throws SecurityException if the resolved path does not start with the
-     *                           expected base directory (forged path)
+     * 
+     * @throws SecurityException if the resolved path does not start with the expected base directory (forged path)
      */
     public static Path getAbsolutePath(Session session, final String strpath) throws SecurityException {
         final Path path;

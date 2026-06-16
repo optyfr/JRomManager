@@ -72,7 +72,7 @@ public class XMLRequest {
         public Operation() {
             /* Default constructor for Operation; no initialization required */
         }
-        
+
         /**
          * Defines sorting criteria derived from the {@code sortBy} XML element.
          * <p>
@@ -353,6 +353,7 @@ public class XMLRequest {
 
         /**
          * Retrieves the list of operations contained within this transaction wrapper.
+         * 
          * @return the list of operations contained within this transaction wrapper
          */
         public List<Operation> getOperations() {

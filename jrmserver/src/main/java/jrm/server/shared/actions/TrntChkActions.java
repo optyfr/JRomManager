@@ -41,12 +41,14 @@ import jrm.server.shared.Worker;
  * This class processes incoming JSON messages with the following structure:
  * </p>
  * 
- * <pre><code class="language-json">
+ * <pre>
+ * <code class="language-json">
  * {
  *   "cmd": "TrntChk.start",
  *   "params": { ... }
  * }
- * </code></pre>
+ * </code>
+ * </pre>
  * <p>
  * Response messages are sent back with commands like:
  * </p>
@@ -169,7 +171,8 @@ public class TrntChkActions {
      * </p>
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class="language-json">
+     * <pre>
+     * <code class="language-json">
      * {
      *   "cmd": "TrntChk.updateResult",
      *   "params": {
@@ -177,7 +180,8 @@ public class TrntChkActions {
      *     "result": "Complete" | "Missing files" | "Error description"
      *   }
      * }
-     * </code></pre>
+     * </code>
+     * </pre>
      * 
      * <h4>Error Handling:</h4>
      * <ul>
@@ -213,11 +217,13 @@ public class TrntChkActions {
      * </p>
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class="language-json">
+     * <pre>
+     * <code class="language-json">
      * {
      *   "cmd": "TrntChk.clearResults"
      * }
-     * </code></pre>
+     * </code>
+     * </pre>
      * 
      * <h4>Error Handling:</h4>
      * <ul>
@@ -246,11 +252,13 @@ public class TrntChkActions {
      * </p>
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class="language-json">
+     * <pre>
+     * <code class="language-json">
      * {
      *   "cmd": "TrntChk.end"
      * }
-     * </code></pre>
+     * </code>
+     * </pre>
      * 
      * <h4>Error Handling:</h4>
      * <ul>

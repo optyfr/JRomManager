@@ -26,12 +26,14 @@ import jrm.misc.Log;
  * This class processes incoming JSON messages with the following structure:
  * </p>
  * 
- * <pre><code class="language-json">
+ * <pre>
+ * <code class="language-json">
  * {
  *   "cmd": "Global.setProperty" | "Global.setMemory" | "Global.gc",
  *   "params": { ... }
  * }
- * </code></pre>
+ * </code>
+ * </pre>
  * <p>
  * Response messages are sent back with commands like:
  * </p>
@@ -157,7 +159,8 @@ public class GlobalActions {
      * </p>
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class='language-json'>
+     * <pre>
+     * <code class='language-json'>
      * {
      *   "cmd": "Global.setMemory",
      *   "params": {
@@ -228,7 +231,8 @@ public class GlobalActions {
      * </p>
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class='language-json'>
+     * <pre>
+     * <code class='language-json'>
      * {
      *   "cmd": "Global.warn",
      *   "params": {

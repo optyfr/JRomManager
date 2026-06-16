@@ -206,8 +206,8 @@ public class Dat2DirActions {
      * 
      * <h4>Error Handling:</h4>
      * <p>
-     * If the profile settings cannot be loaded (e.g., file not found, parse error), the error is logged via {@link Log#err(String, Throwable)} and
-     * no response is sent.
+     * If the profile settings cannot be loaded (e.g., file not found, parse error), the error is logged via
+     * {@link Log#err(String, Throwable)} and no response is sent.
      * </p>
      *
      * @param jso the incoming JSON message containing the source file paths
@@ -302,7 +302,8 @@ public class Dat2DirActions {
      * Sends a message signaling the end of the DAT-to-Directory operation.
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class='language-json'>
+     * <pre>
+     * <code class='language-json'>
      * {
      *   "cmd": "Dat2Dir.end"
      * }

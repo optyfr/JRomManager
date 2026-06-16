@@ -12,23 +12,20 @@ import java.util.Set;
 /**
  * Utility class for common Input/Output operations.
  * <p>
- * Provides helpers to create temporary files, temporary directories, and
- * recursively build paths while applying POSIX file permissions if supported by
- * the host file system.
+ * Provides helpers to create temporary files, temporary directories, and recursively build paths while applying POSIX file
+ * permissions if supported by the host file system.
  * </p>
  * 
  * @author optyfr
  */
 public class IOUtils {
     /**
-     * Flag indicating whether the underlying filesystem supports POSIX file
-     * attributes.
+     * Flag indicating whether the underlying filesystem supports POSIX file attributes.
      */
     private static final boolean POSIX = FileSystems.getDefault().supportedFileAttributeViews().contains("posix"); //$NON-NLS-1$
 
     /**
-     * Standard POSIX file attributes used for newly created files/folders:
-     * {@code rwxr-x---}.
+     * Standard POSIX file attributes used for newly created files/folders: {@code rwxr-x---}.
      */
     private static final FileAttribute<Set<PosixFilePermission>> POSIX_ATTR = PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxr-x---")); //$NON-NLS-1$
 
@@ -41,10 +38,12 @@ public class IOUtils {
     /**
      * Creates a new temporary file in the specified directory.
      * 
-     * @param dir    the directory where the file should be created
+     * @param dir the directory where the file should be created
      * @param prefix the prefix string to be used in generating the file's name
      * @param suffix the suffix string to be used in generating the file's name
+     * 
      * @return the path to the newly created temporary file
+     * 
      * @throws IOException if an I/O error occurs
      */
     public static Path createTempFile(Path dir, String prefix, String suffix) throws IOException {
@@ -58,7 +57,9 @@ public class IOUtils {
      * 
      * @param prefix the prefix string to be used in generating the file's name
      * @param suffix the suffix string to be used in generating the file's name
+     * 
      * @return the path to the newly created temporary file
+     * 
      * @throws IOException if an I/O error occurs
      */
     public static Path createTempFile(String prefix, String suffix) throws IOException {
@@ -68,11 +69,12 @@ public class IOUtils {
     }
 
     /**
-     * Creates a new temporary directory under the default system temporary
-     * directory.
+     * Creates a new temporary directory under the default system temporary directory.
      * 
      * @param prefix the prefix string to be used in generating the directory's name
+     * 
      * @return the path to the newly created temporary directory
+     * 
      * @throws IOException if an I/O error occurs
      */
     public static Path createTempDirectory(String prefix) throws IOException {
@@ -82,11 +84,12 @@ public class IOUtils {
     }
 
     /**
-     * Recursively creates directories along the specified target path, applying
-     * POSIX permissions if supported.
+     * Recursively creates directories along the specified target path, applying POSIX permissions if supported.
      * 
      * @param target the target path to create
+     * 
      * @return the resolved target path
+     * 
      * @throws IOException if an I/O error occurs
      */
     public static Path createDirectories(Path target) throws IOException {

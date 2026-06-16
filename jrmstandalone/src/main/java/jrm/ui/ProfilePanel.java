@@ -144,7 +144,8 @@ public class ProfilePanel extends JPanel {
                 column.setPreferredWidth(FileTableModel.getColumnsWidths()[i]);
             } else {
                 final var format = "%0" + (-FileTableModel.getColumnsWidths()[i]) + "d";
-                final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format(format, 0)); // $NON-NLS-1$ //$NON-NLS-2$
+                final int width = profilesList.getFontMetrics(profilesList.getFont()).stringWidth(String.format(format, 0)); // $NON-NLS-1$
+                                                                                                                             // //$NON-NLS-2$
                 column.setMinWidth(width);
                 column.setMaxWidth(width);
             }
@@ -393,6 +394,7 @@ public class ProfilePanel extends JPanel {
     /**
      * @param nfo
      * @param chooser
+     * 
      * @return
      */
     private MameStatus updateFromMameRelocate(final ProfileNFO nfo, JRMFileChooser<MameStatus> chooser) {
@@ -473,7 +475,9 @@ public class ProfilePanel extends JPanel {
 
     /**
      * @param file
+     * 
      * @return
+     * 
      * @throws IllegalArgumentException
      */
     private File autoRenameFile(File file) throws IllegalArgumentException {
@@ -486,7 +490,9 @@ public class ProfilePanel extends JPanel {
 
     /**
      * @param file
+     * 
      * @return
+     * 
      * @throws HeadlessException
      * @throws IllegalArgumentException
      */
@@ -548,6 +554,7 @@ public class ProfilePanel extends JPanel {
      * @param session
      * @param nfo
      * @param imprt
+     * 
      * @throws IOException
      */
     private void updateFromMame(final Session session, final ProfileNFO nfo, Import imprt) throws IOException {
@@ -567,6 +574,7 @@ public class ProfilePanel extends JPanel {
      * @param session
      * @param sl
      * @param imprts
+     * 
      * @throws HeadlessException
      * @throws IllegalArgumentException
      */

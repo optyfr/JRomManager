@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -38,13 +30,12 @@ import jrm.xml.SimpleAttribute;
 import lombok.Getter;
 
 /**
- * A SoftwareList is a specialized {@link AnywareList} containing
- * {@link Software} definitions. It maps software items by their unique name,
- * tracks their compatibility/merging properties, and handles filtering based on
- * active profile settings (e.g., clone/disk exclusions or minimum support
- * levels).
+ * A SoftwareList is a specialized {@link AnywareList} containing {@link Software} definitions. It maps software items by their
+ * unique name, tracks their compatibility/merging properties, and handles filtering based on active profile settings (e.g.,
+ * clone/disk exclusions or minimum support levels).
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -77,11 +68,11 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     }
 
     /**
-     * Custom deserialization method to restore and initialize transient default
-     * values.
+     * Custom deserialization method to restore and initialize transient default values.
      * 
      * @param in the serialization input stream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if class resolution fails
      */
     private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -93,6 +84,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Adds a software item to the list, registering it under its unique name.
      * 
      * @param software the software item to add
+     * 
      * @return true if added successfully, false otherwise
      */
     @Override
@@ -153,10 +145,10 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     }
 
     /**
-     * Private filter options struct mapping system profile options to performance
-     * flags.
+     * Private filter options struct mapping system profile options to performance flags.
      * 
      * @author optyfr
+     * 
      * @since 1.0
      */
     private class FilterOptions {
@@ -170,15 +162,16 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
         final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class)); // $NON-NLS-1$
 
         /** The minimum release year boundary. */
-        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$ //$NON-NLS-2$
+        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$
+                                                                                                            // //$NON-NLS-2$
 
         /** The maximum release year boundary. */
-        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$ //$NON-NLS-2$
+        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$
+                                                                                                            // //$NON-NLS-2$
     }
 
     /**
-     * Evaluates and streams software items filtered against current profile
-     * preferences.
+     * Evaluates and streams software items filtered against current profile preferences.
      * 
      * @return a filtered stream of Software
      */
@@ -189,9 +182,17 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
         return getList().stream().filter(t -> {
             if (!getYearFilter(options, t))
                 return false;
-            if (options.filterMinSoftwareSupportedLevel == Supported.partial && t.getSupported() == Supported.no) // exclude support=no software if min software support is partial
+            if (options.filterMinSoftwareSupportedLevel == Supported.partial && t.getSupported() == Supported.no) // exclude
+                                                                                                                  // support=no
+                                                                                                                  // software if min
+                                                                                                                  // software
+                                                                                                                  // support is
+                                                                                                                  // partial
                 return false;
-            if (options.filterMinSoftwareSupportedLevel == Supported.yes && t.getSupported() != Supported.yes) // exclude support!=yes if min software support is yes
+            if (options.filterMinSoftwareSupportedLevel == Supported.yes && t.getSupported() != Supported.yes) // exclude
+                                                                                                               // support!=yes if
+                                                                                                               // min software
+                                                                                                               // support is yes
                 return false;
             if (!options.filterIncludeClones && t.isClone()) // exclude clones machines
                 return false;
@@ -205,11 +206,12 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Applies minimum and maximum release year filters on software items.
      * 
      * @param options the active filter options
-     * @param t       the target software item
+     * @param t the target software item
+     * 
      * @return true if the software matches the year bounds, false otherwise
      */
     private boolean getYearFilter(final FilterOptions options, Software t) {
-        if (t.year.length() > 0) { // exclude machines outside defined year range
+        if (!t.year.isEmpty()) { // exclude machines outside defined year range
             if (options.filterYearMin.compareTo(t.year.toString()) > 0)
                 return false;
             if (options.filterYearMax.compareTo(t.year.toString()) < 0)
@@ -219,8 +221,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     }
 
     /**
-     * Resolves and caches the filtered software list matching status and year
-     * rules.
+     * Resolves and caches the filtered software list matching status and year rules.
      * 
      * @return the filtered software items list
      */
@@ -254,9 +255,10 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     /**
      * Export the software list inside a XML document.
      * 
-     * @param writer   the EnhancedXMLStreamWriter used to write the XML output
-     * @param modes    the export configurations
+     * @param writer the EnhancedXMLStreamWriter used to write the XML output
+     * @param modes the export configurations
      * @param progress the UI progress indicator
+     * 
      * @throws XMLStreamException if an XML serialization error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, Set<ExportMode> modes, final ProgressHandler progress) throws XMLStreamException {
@@ -283,6 +285,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Checks if the list contains a software item with the specified name.
      * 
      * @param name the software name
+     * 
      * @return true if found, false otherwise
      */
     @Override
@@ -294,6 +297,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Retrieves the software item with the specified name.
      * 
      * @param name the software name
+     * 
      * @return the matching Software item, or null if not found
      */
     @Override
@@ -305,6 +309,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Registers a software item in the name map.
      * 
      * @param t the software item to register
+     * 
      * @return the previously registered Software item, or null if none
      */
     @Override
@@ -316,8 +321,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     private transient Map<String, Software> swFilteredByName = null;
 
     /**
-     * Resets and populates the named filtered cache based on active filtered
-     * stream.
+     * Resets and populates the named filtered cache based on active filtered stream.
      */
     @Override
     public void resetFilteredName() {
@@ -328,6 +332,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Checks if the list contains a software item with the specified filtered name.
      * 
      * @param name the filtered software name
+     * 
      * @return true if found, false otherwise
      */
     @Override
@@ -341,6 +346,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Retrieves the software item with the specified filtered name.
      * 
      * @param name the filtered software name
+     * 
      * @return the matching Software item, or null if not found
      */
     @Override
@@ -354,6 +360,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
      * Compares the specified object with this software list for equality.
      * 
      * @param obj the reference object
+     * 
      * @return true if equivalent, false otherwise
      */
     @Override

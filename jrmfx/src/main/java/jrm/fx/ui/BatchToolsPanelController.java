@@ -232,6 +232,7 @@ public class BatchToolsPanelController extends BaseController {
 
     /**
      * @return
+     * 
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -285,6 +286,7 @@ public class BatchToolsPanelController extends BaseController {
      * @param cnt
      * @param compressor
      * @param fr
+     * 
      * @throws IllegalArgumentException
      */
     private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException {
@@ -313,6 +315,7 @@ public class BatchToolsPanelController extends BaseController {
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
@@ -337,6 +340,7 @@ public class BatchToolsPanelController extends BaseController {
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
@@ -354,6 +358,7 @@ public class BatchToolsPanelController extends BaseController {
      * @param file
      * @param cb
      * @param scb
+     * 
      * @throws IllegalArgumentException
      */
     private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
@@ -671,7 +676,9 @@ public class BatchToolsPanelController extends BaseController {
 
     /**
      * @param sdrl
+     * 
      * @return
+     * 
      * @throws IOException
      * @throws URISyntaxException
      */
@@ -721,7 +728,9 @@ public class BatchToolsPanelController extends BaseController {
 
     /**
      * @param sdrl
+     * 
      * @return
+     * 
      * @throws IOException
      * @throws URISyntaxException
      */

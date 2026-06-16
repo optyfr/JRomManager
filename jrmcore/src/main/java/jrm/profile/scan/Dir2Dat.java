@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.scan;
 
@@ -55,17 +47,16 @@ import jrm.xml.EnhancedXMLStreamWriter;
 import jrm.xml.SimpleAttribute;
 
 /**
- * Exporter class that walks a physical directory, scans its ROM and CHD
- * contents, and serializes the metadata back into a standard MAME-compatible
- * XML DAT file. Supports MAME, software list, and generic database formats.
+ * Exporter class that walks a physical directory, scans its ROM and CHD contents, and serializes the metadata back into a standard
+ * MAME-compatible XML DAT file. Supports MAME, software list, and generic database formats.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class Dir2Dat {
     /**
-     * Localization resource bundle key for progress messaging during Dir2Dat saving
-     * operations.
+     * Localization resource bundle key for progress messaging during Dir2Dat saving operations.
      */
     private static final String DIR2_DAT_SAVING = "Dir2Dat.Saving";
     /**
@@ -86,17 +77,16 @@ public class Dir2Dat {
     private Session session;
 
     /**
-     * Constructs a new Dir2Dat converter, triggers a parallel directory scan, and
-     * serializes the scanned container metadata to the specified destination DAT
-     * file.
+     * Constructs a new Dir2Dat converter, triggers a parallel directory scan, and serializes the scanned container metadata to the
+     * specified destination DAT file.
      * 
-     * @param session  the active workspace session context
-     * @param srcdir   the physical source folder to scan
-     * @param dstdat   the target metadata XML DAT file to generate
+     * @param session the active workspace session context
+     * @param srcdir the physical source folder to scan
+     * @param dstdat the target metadata XML DAT file to generate
      * @param progress the progress handler UI updating monitor
-     * @param options  the scanning option ruleset filter configuration
-     * @param type     the target DAT file serialization style format
-     * @param headers  custom key-value pairs to write in the XML DAT header block
+     * @param options the scanning option ruleset filter configuration
+     * @param type the target DAT file serialization style format
+     * @param headers custom key-value pairs to write in the XML DAT header block
      */
     public Dir2Dat(final Session session, File srcdir, File dstdat, final ProgressHandler progress, Set<Options> options, ExportType type, Map<String, String> headers) {
         this.session = session;
@@ -105,21 +95,20 @@ public class Dir2Dat {
     }
 
     /**
-     * Orchestrates the physical writing of the scanned metadata to disk, wrapping
-     * exceptions.
+     * Orchestrates the physical writing of the scanned metadata to disk, wrapping exceptions.
      * 
-     * @param dstdat   the target physical metadata file
-     * @param scan     the completed physical directory scanner results context
+     * @param dstdat the target physical metadata file
+     * @param scan the completed physical directory scanner results context
      * @param progress the progress reporting channel
-     * @param options  the scanning configuration constraints
-     * @param type     the destination format type (MAME, DATAFILE, SOFTWARELIST)
-     * @param headers  custom headers map block
+     * @param options the scanning configuration constraints
+     * @param type the destination format type (MAME, DATAFILE, SOFTWARELIST)
+     * @param headers custom headers map block
      */
     private void write(final File dstdat, final DirScan scan, final ProgressHandler progress, Set<Options> options, final ExportType type, Map<String, String> headers) {
         progress.clearInfos();
         progress.setInfos(1, false);
         AtomicInteger i = new AtomicInteger();
-        scan.getContainersIterable().forEach(c -> i.incrementAndGet());
+        scan.getContainersIterable().forEach(_ -> i.incrementAndGet());
         progress.setProgress(Messages.getString(DIR2_DAT_SAVING), 0, i.get()); // $NON-NLS-1$
         i.set(0);
         try (BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(dstdat))) {
@@ -147,16 +136,16 @@ public class Dir2Dat {
     }
 
     /**
-     * Prepares, groups, and writes software list structures based on container
-     * layouts.
+     * Prepares, groups, and writes software list structures based on container layouts.
      * 
-     * @param scan     the directory scan results
+     * @param scan the directory scan results
      * @param progress the progress tracker
-     * @param options  the filter options
-     * @param i        progress counter
-     * @param writer   the XML formatting output stream writer
+     * @param options the filter options
+     * @param i progress counter
+     * @param writer the XML formatting output stream writer
+     * 
      * @throws XMLStreamException if writing fails
-     * @throws IOException        if resource files are missing
+     * @throws IOException if resource files are missing
      */
     private void writeSoftwareList(final DirScan scan, final ProgressHandler progress, Set<Options> options, AtomicInteger i, final EnhancedXMLStreamWriter writer)
             throws XMLStreamException, IOException {
@@ -179,9 +168,10 @@ public class Dir2Dat {
     /**
      * Serializes a single SoftwareList group mapping.
      * 
-     * @param writer  the destination stream writer
-     * @param sl      the software list mapping entry
+     * @param writer the destination stream writer
+     * @param sl the software list mapping entry
      * @param options the options filter ruleset
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeSoftwareList(final EnhancedXMLStreamWriter writer, final java.util.Map.Entry<String, SL> sl, Set<Options> options) throws XMLStreamException {
@@ -207,13 +197,13 @@ public class Dir2Dat {
     }
 
     /**
-     * Serializes a standard ROM entry nested inside a Software List partition
-     * element.
+     * Serializes a standard ROM entry nested inside a Software List partition element.
      * 
-     * @param writer  the stream writer
-     * @param entry   the parsed file details
-     * @param ii      incremental sequence element counter
+     * @param writer the stream writer
+     * @param entry the parsed file details
+     * @param ii incremental sequence element counter
      * @param options options filters ruleset
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeSWRom(final EnhancedXMLStreamWriter writer, Entry entry, final AtomicInteger ii, Set<Options> options) throws XMLStreamException {
@@ -243,13 +233,13 @@ public class Dir2Dat {
     }
 
     /**
-     * Serializes a CHD disk image entry nested inside a Software List partition
-     * element.
+     * Serializes a CHD disk image entry nested inside a Software List partition element.
      * 
-     * @param writer  the stream writer
-     * @param entry   the disk file details
-     * @param ii      incremental sequence element counter
+     * @param writer the stream writer
+     * @param entry the disk file details
+     * @param ii incremental sequence element counter
      * @param options options filters ruleset
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeSWCHD(final EnhancedXMLStreamWriter writer, Entry entry, final AtomicInteger ii, Set<Options> options) throws XMLStreamException {
@@ -276,15 +266,14 @@ public class Dir2Dat {
     }
 
     /**
-     * Walks containers to resolve local mappings of physical files to MAME Software
-     * and SoftwareList references.
+     * Walks containers to resolve local mappings of physical files to MAME Software and SoftwareList references.
      * 
-     * @param scan      the directory scanner
-     * @param progress  the progress handler monitor
-     * @param options   options filter configuration ruleset
-     * @param i         progress sequence step counter
+     * @param scan the directory scanner
+     * @param progress the progress handler monitor
+     * @param options options filter configuration ruleset
+     * @param i progress sequence step counter
      * @param slcounter duplicate naming protection count registry
-     * @param slmap     the resolved software list structure target map
+     * @param slmap the resolved software list structure target map
      */
     private void buildSLMap(final DirScan scan, final ProgressHandler progress, Set<Options> options, AtomicInteger i, Map<String, Map<String, AtomicInteger>> slcounter,
             Map<String, SL> slmap) {
@@ -298,24 +287,23 @@ public class Dir2Dat {
             final var swname = new StringBuilder(FilenameUtils.removeExtension(filename.toString()));
             final var slname = new StringBuilder(parent.toString());
             final var software = buildSLMapNames(swname, slname, options);
-            final var swcounter = slcounter.computeIfAbsent(slname.toString(), k -> new HashMap<>());
+            final var swcounter = slcounter.computeIfAbsent(slname.toString(), _ -> new HashMap<>());
             final var sl = slmap.computeIfAbsent(slname.toString(), k -> new SL(k, software != null ? software.getSl() : null));
-            final var val = swcounter.computeIfAbsent(swname.toString(), k -> new AtomicInteger());
+            final var val = swcounter.computeIfAbsent(swname.toString(), _ -> new AtomicInteger());
             if (val.incrementAndGet() > 1)
-                swname.append("_" + val.get()); //$NON-NLS-1$
+                swname.append("_").append(val.get());
             sl.sw.put(swname.toString(), new SL.SW(swname.toString(), software, c));
         }
     }
 
     /**
-     * Checks if the scanned elements correspond to known profile software
-     * structures, returning matches.
+     * Checks if the scanned elements correspond to known profile software structures, returning matches.
      * 
-     * @param swname  current scanned software set name builder
-     * @param slname  current scanned parent software list name builder
+     * @param swname current scanned software set name builder
+     * @param slname current scanned parent software list name builder
      * @param options options ruleset configuration
-     * @return the resolved profile {@link Software} structure, or {@code null} if
-     *         unmatched
+     * 
+     * @return the resolved profile {@link Software} structure, or {@code null} if unmatched
      */
     private Software buildSLMapNames(final StringBuilder swname, final StringBuilder slname, Set<Options> options) {
         final Software software;
@@ -339,14 +327,15 @@ public class Dir2Dat {
     /**
      * Serializes the scanned folder data into a generic dat XML schema format.
      * 
-     * @param scan     the parsed directory contents
+     * @param scan the parsed directory contents
      * @param progress the progress channel
-     * @param options  options constraints ruleset
-     * @param headers  the header tags map values
-     * @param i        incremental sequence counter
-     * @param writer   the stream writer target
+     * @param options options constraints ruleset
+     * @param headers the header tags map values
+     * @param i incremental sequence counter
+     * @param writer the stream writer target
+     * 
      * @throws XMLStreamException if serialization fails
-     * @throws IOException        if static template files cannot be read
+     * @throws IOException if static template files cannot be read
      */
     private void writeDataFile(final DirScan scan, final ProgressHandler progress, Set<Options> options, Map<String, String> headers, AtomicInteger i,
             final EnhancedXMLStreamWriter writer) throws XMLStreamException, IOException {
@@ -368,10 +357,11 @@ public class Dir2Dat {
     /**
      * Writes a single physical container out as a "game" XML element.
      * 
-     * @param writer    the XML formatting writer
+     * @param writer the XML formatting writer
      * @param container the scanned file package metadata
-     * @param counter   duplicate game protection counting registry
-     * @param options   the active scan options ruleset
+     * @param counter duplicate game protection counting registry
+     * @param options the active scan options ruleset
+     * 
      * @throws XMLStreamException if serialization fails
      */
     private void writeDataFile(final EnhancedXMLStreamWriter writer, Container container, Map<String, AtomicInteger> counter, Set<Options> options) throws XMLStreamException {
@@ -380,12 +370,12 @@ public class Dir2Dat {
                 : null;
         if (machine != null)
             name = machine.getBaseName();
-        final var val = counter.computeIfAbsent(name, n -> new AtomicInteger());
+        final var val = counter.computeIfAbsent(name, _ -> new AtomicInteger());
         if (val.incrementAndGet() > 1)
             name = name + "_" + val.get(); //$NON-NLS-1$
         writer.writeStartElement("game", //$NON-NLS-1$
                 new SimpleAttribute("name", name), //$NON-NLS-1$
-                new SimpleAttribute("isbios", Optional.ofNullable(machine).filter(Machine::isBios).map(m -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
+                new SimpleAttribute("isbios", Optional.ofNullable(machine).filter(Machine::isBios).map(_ -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
                 new SimpleAttribute("cloneof", Optional.ofNullable(machine).map(Machine::getCloneof).orElse(null)), //$NON-NLS-1$
                 new SimpleAttribute("romof", Optional.ofNullable(machine).map(Machine::getRomof).orElse(null)), //$NON-NLS-1$
                 new SimpleAttribute("sampleof", Optional.ofNullable(machine).map(Machine::getSampleof).orElse(null)) //$NON-NLS-1$
@@ -405,9 +395,10 @@ public class Dir2Dat {
     /**
      * Writes a "rom" element metadata tag.
      * 
-     * @param writer  the stream writer
-     * @param entry   the physical file metrics
+     * @param writer the stream writer
+     * @param entry the physical file metrics
      * @param options the scanning verification ruleset
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeDataFileRom(final EnhancedXMLStreamWriter writer, Entry entry, Set<Options> options) throws XMLStreamException {
@@ -432,9 +423,10 @@ public class Dir2Dat {
     /**
      * Writes a "disk" element metadata tag representing a CHD hard disk package.
      * 
-     * @param writer  the stream writer
-     * @param entry   the hard disk file properties
+     * @param writer the stream writer
+     * @param entry the hard disk file properties
      * @param options the active ruleset constraints
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeDataFileCHD(final EnhancedXMLStreamWriter writer, Entry entry, Set<Options> options) throws XMLStreamException {
@@ -453,16 +445,16 @@ public class Dir2Dat {
     }
 
     /**
-     * Writes a full list of physical files as a "mame" DTD-compliant XML
-     * representation.
+     * Writes a full list of physical files as a "mame" DTD-compliant XML representation.
      * 
-     * @param scan     the parsed directory contents
+     * @param scan the parsed directory contents
      * @param progress the progress handler channel
-     * @param options  the options filters ruleset
-     * @param i        incremental progress counter
-     * @param writer   the target stream writer
+     * @param options the options filters ruleset
+     * @param i incremental progress counter
+     * @param writer the target stream writer
+     * 
      * @throws XMLStreamException if serialization fails
-     * @throws IOException        if resource files are missing
+     * @throws IOException if resource files are missing
      */
     private void writeMame(final DirScan scan, final ProgressHandler progress, Set<Options> options, AtomicInteger i, final EnhancedXMLStreamWriter writer)
             throws XMLStreamException, IOException {
@@ -478,13 +470,13 @@ public class Dir2Dat {
     }
 
     /**
-     * Writes a single container as a standard "machine" element matching MAME
-     * specifications.
+     * Writes a single container as a standard "machine" element matching MAME specifications.
      * 
-     * @param writer    the XML stream writer
+     * @param writer the XML stream writer
      * @param container the scanned file package metadata
-     * @param counter   duplicate safety protections counter registry
-     * @param options   the active scanning ruleset constraints
+     * @param counter duplicate safety protections counter registry
+     * @param options the active scanning ruleset constraints
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeMame(final EnhancedXMLStreamWriter writer, Container container, Map<String, AtomicInteger> counter, Set<Options> options) throws XMLStreamException {
@@ -493,14 +485,14 @@ public class Dir2Dat {
                 : null;
         if (machine != null)
             name = machine.getBaseName();
-        final var val = counter.computeIfAbsent(name, n -> new AtomicInteger());
+        final var val = counter.computeIfAbsent(name, _ -> new AtomicInteger());
         if (val.incrementAndGet() > 1)
             name = name + "_" + val.get(); //$NON-NLS-1$
         writer.writeStartElement("machine", //$NON-NLS-1$
                 new SimpleAttribute("name", name), //$NON-NLS-1$
-                new SimpleAttribute("isbios", Optional.ofNullable(machine).filter(Machine::isBios).map(m -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
-                new SimpleAttribute("isdevice", Optional.ofNullable(machine).filter(Machine::isIsdevice).map(m -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
-                new SimpleAttribute("ismechanical", Optional.ofNullable(machine).filter(Machine::isIsmechanical).map(m -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
+                new SimpleAttribute("isbios", Optional.ofNullable(machine).filter(Machine::isBios).map(_ -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
+                new SimpleAttribute("isdevice", Optional.ofNullable(machine).filter(Machine::isIsdevice).map(_ -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
+                new SimpleAttribute("ismechanical", Optional.ofNullable(machine).filter(Machine::isIsmechanical).map(_ -> "yes").orElse(null)), //$NON-NLS-1$ //$NON-NLS-2$
                 new SimpleAttribute("cloneof", Optional.ofNullable(machine).map(Machine::getCloneof).orElse(null)), //$NON-NLS-1$
                 new SimpleAttribute("romof", Optional.ofNullable(machine).map(Machine::getRomof).orElse(null)), //$NON-NLS-1$
                 new SimpleAttribute("sampleof", Optional.ofNullable(machine).map(Machine::getSampleof).orElse(null)) //$NON-NLS-1$
@@ -520,9 +512,10 @@ public class Dir2Dat {
     /**
      * Writes a MAME-compatible "rom" element metadata tag.
      * 
-     * @param writer  the stream writer
-     * @param entry   the physical file properties
+     * @param writer the stream writer
+     * @param entry the physical file properties
      * @param options the active filters configuration ruleset
+     * 
      * @throws XMLStreamException if writing fails
      */
     private void writeMameRom(final EnhancedXMLStreamWriter writer, Entry entry, Set<Options> options) throws XMLStreamException {
@@ -543,8 +536,7 @@ public class Dir2Dat {
     }
 
     /**
-     * Local private structure containing software list category maps and sub
-     * software listings.
+     * Local private structure containing software list category maps and sub software listings.
      */
     private static class SL {
         /**
@@ -561,8 +553,7 @@ public class Dir2Dat {
         private Map<String, SW> sw = new HashMap<>();
 
         /**
-         * Local private structure describing an individual software instance within the
-         * software list container.
+         * Local private structure describing an individual software instance within the software list container.
          */
         private static class SW {
             /**
@@ -581,8 +572,8 @@ public class Dir2Dat {
             /**
              * Instantiates a new Software mapping wrapper.
              * 
-             * @param name      the game reference name
-             * @param software  the resolved profile details (can be null)
+             * @param name the game reference name
+             * @param software the resolved profile details (can be null)
              * @param container the scanned physical zip contents
              */
             private SW(String name, Software software, Container container) {
@@ -595,7 +586,7 @@ public class Dir2Dat {
         /**
          * Instantiates a new SoftwareList package tracking mapping.
          * 
-         * @param name         the partition sub-folder package name
+         * @param name the partition sub-folder package name
          * @param softwarelist the active profile SoftwareList details
          */
         private SL(String name, SoftwareList softwarelist) {
@@ -608,6 +599,7 @@ public class Dir2Dat {
      * Normalize path character separator markers based on standard OS platforms.
      * 
      * @param entry the path sequence string to normalize
+     * 
      * @return the platform corrected path representation sequence
      */
     private String normalize(final String entry) {

@@ -1,8 +1,7 @@
 package jrm.io.torrent;
 
 /**
- * Custom exception class indicating errors or failures encountered during
- * torrent file parsing, validating, or processing.
+ * Custom exception class indicating errors or failures encountered during torrent file parsing, validating, or processing.
  * 
  * @author optyfr
  */

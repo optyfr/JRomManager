@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -25,17 +17,16 @@ import jrm.profile.Profile;
 import lombok.Getter;
 
 /**
- * Samples is a set of unique {@link Sample} instances representing an audio
- * sample set.
+ * Samples is a set of unique {@link Sample} instances representing an audio sample set.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public final class Samples extends AnywareBase implements Serializable, Iterable<Sample> {
     /**
-     * The internal map of {@link Sample} instances with {@link NameBase#name} as
-     * key.
+     * The internal map of {@link Sample} instances with {@link NameBase#name} as key.
      * 
      * @return the map of samples indexed by their names
      */
@@ -54,6 +45,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
      * Adds a unique sample to the set, only adding it if it does not already exist.
      * 
      * @param sample the {@link Sample} to add
+     * 
      * @return the added {@link Sample}, or the already existing one if present
      */
     public Sample add(Sample sample) {
@@ -98,6 +90,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
      * Get the full name with a specific filename appended or resolved.
      * 
      * @param filename the file name to format
+     * 
      * @return the full path or filename
      */
     @Override
@@ -126,8 +119,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
     }
 
     /**
-     * Evaluates and returns the aggregated status of the sample set based on its
-     * individual samples.
+     * Evaluates and returns the aggregated status of the sample set based on its individual samples.
      * 
      * @return the evaluated {@link AnywareStatus}
      */
@@ -165,6 +157,7 @@ public final class Samples extends AnywareBase implements Serializable, Iterable
      * Compares the specified object with this samples set for equality.
      * 
      * @param obj the reference object to compare with
+     * 
      * @return true if equivalent, false otherwise
      */
     @Override

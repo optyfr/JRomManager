@@ -26,15 +26,15 @@ public class LongPollingReqMgr implements ActionsMgr {
      * A global registry storing active long polling request managers indexed by their web session IDs.
      * <p>
      * <strong>Concurrrency Note:</strong> This map is implemented as a standard, non-synchronized {@link HashMap}. Concurrent
-     * modifications (e.g., sessions being registered or unregistered from different threads) must be managed externally, or accessed
-     * under contexts ensuring thread safety.
+     * modifications (e.g., sessions being registered or unregistered from different threads) must be managed externally, or
+     * accessed under contexts ensuring thread safety.
      * </p>
      */
     private static final Map<String, LongPollingReqMgr> cmds = new HashMap<>();
 
     /**
-     * The web session associated with this long polling request manager. Used to retrieve session configurations, user profiles, and
-     * queue long-polling messages.
+     * The web session associated with this long polling request manager. Used to retrieve session configurations, user profiles,
+     * and queue long-polling messages.
      */
     private WebSession session;
 
@@ -51,8 +51,8 @@ public class LongPollingReqMgr implements ActionsMgr {
     }
 
     /**
-     * Processes an incoming client message in JSON format. Parses the raw message into a JSON object and routes the actions through the
-     * {@link #processActions(ActionsMgr, com.eclipsesource.json.JsonObject)} pipeline.
+     * Processes an incoming client message in JSON format. Parses the raw message into a JSON object and routes the actions through
+     * the {@link #processActions(ActionsMgr, com.eclipsesource.json.JsonObject)} pipeline.
      * 
      * @param msg the JSON message string received from the client
      */
@@ -62,8 +62,8 @@ public class LongPollingReqMgr implements ActionsMgr {
     }
 
     /**
-     * Sets and registers the active web session for this manager. Associates the session ID with this manager instance in the global
-     * command map {@link #cmds}.
+     * Sets and registers the active web session for this manager. Associates the session ID with this manager instance in the
+     * global command map {@link #cmds}.
      * 
      * @param session the {@link WebSession} to set, must not be null
      * 
@@ -78,8 +78,8 @@ public class LongPollingReqMgr implements ActionsMgr {
     }
 
     /**
-     * Unregisters the session, persists its active profile and user settings, and removes the session ID association from the global
-     * command map.
+     * Unregisters the session, persists its active profile and user settings, and removes the session ID association from the
+     * global command map.
      * 
      * @param session the {@link WebSession} to unset
      */
@@ -135,8 +135,8 @@ public class LongPollingReqMgr implements ActionsMgr {
     }
 
     /**
-     * Persists the current profile and user settings to persistent storage. Resets the active session reference to {@code null} after
-     * saving to prevent memory leaks.
+     * Persists the current profile and user settings to persistent storage. Resets the active session reference to {@code null}
+     * after saving to prevent memory leaks.
      */
     private void saveSettings() {
         if (session != null) {

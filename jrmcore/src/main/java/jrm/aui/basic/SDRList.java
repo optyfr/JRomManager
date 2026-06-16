@@ -5,18 +5,22 @@ import java.util.ArrayList;
 import lombok.Getter;
 
 /**
- * SDRList is a custom implementation of an ArrayList that includes a flag to indicate whether the list needs to be saved. It provides methods to check if the list needs saving and to set the flag accordingly.
+ * SDRList is a custom implementation of an ArrayList that includes a flag to indicate whether the list needs to be saved. It
+ * provides methods to check if the list needs saving and to set the flag accordingly.
  *
  * @param <T> the type of elements in this list
  */
 @SuppressWarnings("serial")
 public class SDRList<T> extends ArrayList<T> {
-    
+
     /**
-     * A flag to indicate whether the list needs to be saved. It is set to true when the list is modified and false when it is saved.
+     * A flag to indicate whether the list needs to be saved. It is set to true when the list is modified and false when it is
+     * saved.
+     * 
      * @return true if the list needs to be saved, false otherwise
      */
-    @Getter boolean needSave = false;
+    @Getter
+    boolean needSave = false;
 
     /**
      * Constructs an empty SDRList.

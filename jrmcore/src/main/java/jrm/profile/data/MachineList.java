@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -42,7 +34,6 @@ import jrm.xml.EnhancedXMLStreamWriter;
  * A list of {@link Machine}
  * 
  * @author optyfr
- *
  */
 @SuppressWarnings("serial")
 public final class MachineList extends AnywareList<Machine> implements Serializable {
@@ -70,11 +61,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     }
 
     /**
-     * the Serializable method for special serialization handling (in that case :
-     * initialize transient default values)
+     * the Serializable method for special serialization handling (in that case : initialize transient default values)
      * 
      * @param in the serialization inputstream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the class definition is missing
      */
     private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -88,8 +79,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     }
 
     /**
-     * Bundles the various filtering option values retrieved from the current
-     * profile configurations.
+     * Bundles the various filtering option values retrieved from the current profile configurations.
      */
     private class FilterOptions {
         final boolean excludeGames = profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class); // $NON-NLS-1$
@@ -100,8 +90,10 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
         final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DriverStatus, String.class)); // $NON-NLS-1$
         final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DisplayOrientation, String.class)); // $NON-NLS-1$
         final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_CabinetType, String.class)); // $NON-NLS-1$
-        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$ //$NON-NLS-2$
-        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$ //$NON-NLS-2$
+        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$
+                                                                                                            // //$NON-NLS-2$
+        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$
+                                                                                                            // //$NON-NLS-2$
     }
 
     @Override
@@ -116,7 +108,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
          */
 
         return getList().stream().filter(t -> {
-            if (options.excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine()) // exclude pure games (pure means not bios nor devices)
+            if (options.excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine()) // exclude pure games (pure means not bios
+                                                                                        // nor devices)
                 return false;
             if (options.excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine()) // exclude computer/console
                 return false;
@@ -139,8 +132,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
      * Applies more complex/advanced filters (like subcategory and player counts).
      *
      * @param t the machine to evaluate
-     * @return {@code true} if the machine passes advanced filters, {@code false}
-     *         otherwise
+     * 
+     * @return {@code true} if the machine passes advanced filters, {@code false} otherwise
      */
     private boolean getAdvancedFilters(Machine t) {
         if (t.subcat != null && !t.subcat.isSelected()) // exclude if subcat is not selected
@@ -151,13 +144,12 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     }
 
     /**
-     * Applies standard simple filters (like clones exclusion, mechanical state, and
-     * active disk/samples criteria).
+     * Applies standard simple filters (like clones exclusion, mechanical state, and active disk/samples criteria).
      *
      * @param options the retrieved filter options
-     * @param t       the machine to evaluate
-     * @return {@code true} if the machine passes simple filters, {@code false}
-     *         otherwise
+     * @param t the machine to evaluate
+     * 
+     * @return {@code true} if the machine passes simple filters, {@code false} otherwise
      */
     private boolean getSimpleFilters(final FilterOptions options, Machine t) {
         if (!getNonDeviceFilter(options, t))
@@ -172,7 +164,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
             return false;
         if (!t.getSystem().isSelected(profile)) // exclude machines for which their BIOS system were not selected
             return false;
-        if (t.getSource() != null && !t.getSource().isSelected(profile)) // exclude machines for which their source file were not selected
+        if (t.getSource() != null && !t.getSource().isSelected(profile)) // exclude machines for which their source file were not
+                                                                         // selected
             return false;
         return true;
     }
@@ -181,12 +174,12 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
      * Filters machines based on their release years range.
      *
      * @param options the active filter configurations
-     * @param t       the machine to evaluate
-     * @return {@code true} if the machine's release year is within the bounds,
-     *         {@code false} otherwise
+     * @param t the machine to evaluate
+     * 
+     * @return {@code true} if the machine's release year is within the bounds, {@code false} otherwise
      */
     private boolean getYearFilter(final FilterOptions options, Machine t) {
-        if (t.year.length() > 0) { // exclude machines outside defined year range
+        if (!t.year.isEmpty()) { // exclude machines outside defined year range
             if (options.filterYearMin.compareTo(t.year.toString()) > 0)
                 return false;
             if (options.filterYearMax.compareTo(t.year.toString()) < 0)
@@ -196,8 +189,7 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     }
 
     /**
-     * Resolves a special MESS filter stream retaining console/computers devices but
-     * omitting pure arcade machines.
+     * Resolves a special MESS filter stream retaining console/computers devices but omitting pure arcade machines.
      *
      * @return a filtered {@link Stream} of machines
      */
@@ -216,16 +208,25 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
      * Filters non-device machines based on driver support status levels.
      *
      * @param options the filter configurations
-     * @param t       the machine to evaluate
-     * @return {@code true} if the non-device machine is accepted, {@code false}
-     *         otherwise
+     * @param t the machine to evaluate
+     * 
+     * @return {@code true} if the non-device machine is accepted, {@code false} otherwise
      */
     private boolean getNonDeviceFilter(final FilterOptions options, Machine t) {
         if (!t.isdevice) // exception on devices
         {
-            if (options.filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary) // exclude preliminary when min driver status is imperfect
+            if (options.filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary) // exclude
+                                                                                                                         // preliminary
+                                                                                                                         // when min
+                                                                                                                         // driver
+                                                                                                                         // status
+                                                                                                                         // is
+                                                                                                                         // imperfect
                 return false;
-            if (options.filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good) // exclude non good status when min driver status is good
+            if (options.filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good) // exclude non good
+                                                                                                             // status when min
+                                                                                                             // driver status is
+                                                                                                             // good
                 return false;
             if (!getNonMechanicalFilter(options, t))
                 return false;
@@ -237,17 +238,32 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
      * Filters non-mechanical machines based on display orientations.
      *
      * @param options the filter configurations
-     * @param t       the machine to evaluate
+     * @param t the machine to evaluate
+     * 
      * @return {@code true} if accepted, {@code false} otherwise
      */
     private boolean getNonMechanicalFilter(final FilterOptions options, Machine t) {
         if (!t.ismechanical) // exception on mechanical
         {
-            if (options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal) // exclude "horizontal only" when display filter
-                                                                                                                                   // is "vertical only"
+            if (options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal) // exclude
+                                                                                                                                   // "horizontal
+                                                                                                                                   // only"
+                                                                                                                                   // when
+                                                                                                                                   // display
+                                                                                                                                   // filter
+                                                                                                                                   // is
+                                                                                                                                   // "vertical
+                                                                                                                                   // only"
                 return false;
-            if (options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical) // exclude "vertical only" when display filter is
-                                                                                                                                   // "horizontal only"
+            if (options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical) // exclude
+                                                                                                                                   // "vertical
+                                                                                                                                   // only"
+                                                                                                                                   // when
+                                                                                                                                   // display
+                                                                                                                                   // filter
+                                                                                                                                   // is
+                                                                                                                                   // "horizontal
+                                                                                                                                   // only"
                 return false;
             if (!getNonBiosFilter(options, t))
                 return false;
@@ -259,15 +275,21 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
      * Filters non-BIOS machines based on cabinet types.
      *
      * @param options the filter configurations
-     * @param t       the machine to evaluate
+     * @param t the machine to evaluate
+     * 
      * @return {@code true} if accepted, {@code false} otherwise
      */
     private boolean getNonBiosFilter(final FilterOptions options, Machine t) {
         if (!t.isbios) // exception on bios
         {
-            if (options.filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail) // exclude "cocktail only" if cabinet filter is "upright only"
+            if (options.filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail) // exclude "cocktail
+                                                                                                           // only" if cabinet
+                                                                                                           // filter is "upright
+                                                                                                           // only"
                 return false;
-            if (options.filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright) // exclude "upright only" if cabinet filter is "cocktail only"
+            if (options.filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright) // exclude "upright only"
+                                                                                                           // if cabinet filter is
+                                                                                                           // "cocktail only"
                 return false;
         }
         return true;
@@ -293,10 +315,11 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     /**
      * Export as dat
      * 
-     * @param writer   the {@link EnhancedXMLStreamWriter} used to write output file
+     * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
      * @param progress the {@link ProgressHandler} to show the current progress
-     * @param is_mame  is it mame (true) or logqix (false) format ?
-     * @param modes    the export modes
+     * @param is_mame is it mame (true) or logqix (false) format ?
+     * @param modes the export modes
+     * 
      * @throws XMLStreamException if an XML writing error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException {

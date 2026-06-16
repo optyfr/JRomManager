@@ -1,8 +1,7 @@
 package jrm.profile.data;
 
 /**
- * Enumerates the available export modes supported when exporting profile
- * databases or DAT lists.
+ * Enumerates the available export modes supported when exporting profile databases or DAT lists.
  *
  * @author optyfr
  */

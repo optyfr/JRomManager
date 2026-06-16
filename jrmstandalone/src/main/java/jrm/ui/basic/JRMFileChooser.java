@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.ui.basic;
 
@@ -98,6 +90,7 @@ public class JRMFileChooser<V> extends JFileChooser {
          * Call.
          *
          * @param chooser the chooser
+         * 
          * @return the v
          */
         public V call(JRMFileChooser<V> chooser);
@@ -123,8 +116,8 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Instantiates a new JRM file chooser.
      *
-     * @param type    the type
-     * @param mode    the mode
+     * @param type the type
+     * @param mode the mode
      * @param currdir the currdir
      */
     public JRMFileChooser(final int type, final int mode, final File currdir) {
@@ -134,13 +127,13 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Instantiates a new JRM file chooser.
      *
-     * @param type     the type
-     * @param mode     the mode
-     * @param currdir  the currdir
+     * @param type the type
+     * @param mode the mode
+     * @param currdir the currdir
      * @param selected the selected
-     * @param filters  the filters
-     * @param title    the title
-     * @param multi    the multi
+     * @param filters the filters
+     * @param title the title
+     * @param multi the multi
      */
     public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
             final boolean multi) {
@@ -151,13 +144,14 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Setup.
      *
-     * @param type     the type
-     * @param mode     the mode
-     * @param currdir  the currdir
+     * @param type the type
+     * @param mode the mode
+     * @param currdir the currdir
      * @param selected the selected
-     * @param filters  the filters
-     * @param title    the title
-     * @param multi    the multi
+     * @param filters the filters
+     * @param title the title
+     * @param multi the multi
+     * 
      * @return the JRM file chooser
      */
     public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
@@ -199,8 +193,9 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Show.
      *
-     * @param parent   the parent
+     * @param parent the parent
      * @param callback the callback
+     * 
      * @return the v
      */
     public V show(final Component parent, final CallBack<V> callback) {
@@ -212,8 +207,9 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Show open.
      *
-     * @param parent   the parent
+     * @param parent the parent
      * @param callback the callback
+     * 
      * @return the v
      */
     public V showOpen(final Component parent, final CallBack<V> callback) {
@@ -224,8 +220,9 @@ public class JRMFileChooser<V> extends JFileChooser {
     /**
      * Show save.
      *
-     * @param parent   the parent
+     * @param parent the parent
      * @param callback the callback
+     * 
      * @return the v
      */
     public V showSave(final Component parent, final CallBack<V> callback) {

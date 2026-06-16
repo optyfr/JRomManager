@@ -8,22 +8,19 @@ import jrm.compressors.ZipTempThreshold;
 import jrm.io.torrent.options.TrntChkMode;
 
 /**
- * Enum defining all general application settings options and their respective
- * default values. Implements {@link EnumWithDefault} to allow lookup of default
- * configurations.
+ * Enum defining all general application settings options and their respective default values. Implements {@link EnumWithDefault} to
+ * allow lookup of default configurations.
  * 
  * @author optyfr
  */
 public enum SettingsEnum implements EnumWithDefault {
     /**
-     * Flag enabling multi-threaded execution or parallel processing where
-     * supported.
+     * Flag enabling multi-threaded execution or parallel processing where supported.
      */
     use_parallelism(true), // NOSONAR
 
     /**
-     * Total thread count limit allocated for execution. Negative values indicate
-     * adaptive or virtual threads.
+     * Total thread count limit allocated for execution. Negative values indicate adaptive or virtual threads.
      */
     thread_count(-1), // NOSONAR
 
@@ -33,8 +30,7 @@ public enum SettingsEnum implements EnumWithDefault {
     zip_cmd(FindCmd.findZip()), // NOSONAR
 
     /**
-     * Threshold file size above which temporary files are utilized instead of
-     * memory buffers.
+     * Threshold file size above which temporary files are utilized instead of memory buffers.
      */
     zip_temp_threshold(ZipTempThreshold._10MB), // NOSONAR
 
@@ -44,8 +40,7 @@ public enum SettingsEnum implements EnumWithDefault {
     zip_compression_level(ZipLevel.DEFAULT), // NOSONAR
 
     /**
-     * Native ZIP compressor performance configuration options (e.g. FAST, NORMAL,
-     * MAXIMUM).
+     * Native ZIP compressor performance configuration options (e.g. FAST, NORMAL, MAXIMUM).
      */
     zip_level(ZipOptions.NORMAL), // NOSONAR
 
@@ -75,8 +70,7 @@ public enum SettingsEnum implements EnumWithDefault {
     sevenzip_threads(-1), // NOSONAR
 
     /**
-     * Debugging flag that forces scanning without reading or writing from local
-     * cache registries.
+     * Debugging flag that forces scanning without reading or writing from local cache registries.
      */
     debug_nocache(false), // NOSONAR
 
@@ -111,8 +105,7 @@ public enum SettingsEnum implements EnumWithDefault {
     dat2dir_sdr("[]", "dat2dir.sdr"), // NOSONAR
 
     /**
-     * Dry-run flag for dat2dir translation operations to simulate actions without
-     * disk changes.
+     * Dry-run flag for dat2dir translation operations to simulate actions without disk changes.
      */
     dat2dir_dry_run(false, "dat2dir.dry_run"), // NOSONAR
 
@@ -132,26 +125,22 @@ public enum SettingsEnum implements EnumWithDefault {
     trntchk_sdr("[]", "trntchk.sdr"), // NOSONAR
 
     /**
-     * Active comparison mode used during torrent check operations (e.g. FILENAME,
-     * HASH).
+     * Active comparison mode used during torrent check operations (e.g. FILENAME, HASH).
      */
     trntchk_mode(TrntChkMode.FILENAME, "trntchk.mode"), // NOSONAR
 
     /**
-     * Flag enabling search of archived folder directories inside TorrentZip
-     * verification.
+     * Flag enabling search of archived folder directories inside TorrentZip verification.
      */
     trntchk_detect_archived_folders(false, "trntchk.detect_archived_folders"), // NOSONAR
 
     /**
-     * Flag allowing removal of unidentified files from TorrentZip target
-     * containers.
+     * Flag allowing removal of unidentified files from TorrentZip target containers.
      */
     trntchk_remove_unknown_files(false, "trntchk.remove_unknown_files"), // NOSONAR
 
     /**
-     * Flag allowing removal of files with incorrect size attributes from
-     * containers.
+     * Flag allowing removal of files with incorrect size attributes from containers.
      */
     trntchk_remove_wrong_sized_files(false, "trntchk.remove_wrong_sized_files"), // NOSONAR
 
@@ -166,8 +155,7 @@ public enum SettingsEnum implements EnumWithDefault {
     compressor_format(CompressorFormat.TZIP, "compressor.format"), // NOSONAR
 
     /**
-     * Flag forcing re-compression of archives even if they match current
-     * configurations.
+     * Flag forcing re-compression of archives even if they match current configurations.
      */
     compressor_force(false, "compressor.force"), // NOSONAR
 
@@ -227,8 +215,7 @@ public enum SettingsEnum implements EnumWithDefault {
     dir2dat_junk_folders(false, "dir2dat.junk_folders"), // NOSONAR
 
     /**
-     * Flag that excludes compressed files (ZIP, 7z) from deep content scanning in
-     * dir2dat.
+     * Flag that excludes compressed files (ZIP, 7z) from deep content scanning in dir2dat.
      */
     dir2dat_do_not_scan_archives(false, "dir2dat.do_not_scan_archives"), // NOSONAR
 
@@ -243,14 +230,12 @@ public enum SettingsEnum implements EnumWithDefault {
     dir2dat_include_empty_dirs(false, "dir2dat.include_empty_dirs"), // NOSONAR
 
     /**
-     * JSON representation of display configurations inside scanning and matching
-     * report panels.
+     * JSON representation of display configurations inside scanning and matching report panels.
      */
     report_settings("[\"STATS\",\"COMPACT\",\"GROUP_BY_TYPE_AND_STATUS\"]", "report.settings"); // NOSONAR
 
     /**
-     * Explicit custom string name of this option key. If null, the standard name()
-     * is used.
+     * Explicit custom string name of this option key. If null, the standard name() is used.
      */
     private String name = null;
 
@@ -269,8 +254,7 @@ public enum SettingsEnum implements EnumWithDefault {
     }
 
     /**
-     * Constructs a new settings option with the specified default fallback value
-     * and custom key name.
+     * Constructs a new settings option with the specified default fallback value and custom key name.
      * 
      * @param dflt the default fallback value
      * @param name the custom key name
@@ -281,8 +265,7 @@ public enum SettingsEnum implements EnumWithDefault {
     }
 
     /**
-     * Returns the string representation of this option, favoring any defined custom
-     * name key.
+     * Returns the string representation of this option, favoring any defined custom name key.
      * 
      * @return the string key name
      */
@@ -307,6 +290,7 @@ public enum SettingsEnum implements EnumWithDefault {
      * Resolves a key name into its matching {@code SettingsEnum} constant.
      * 
      * @param name the raw string key name to parse
+     * 
      * @return the resolved enum constant, or {@code null} if no match is found
      */
     public static SettingsEnum from(String name) {

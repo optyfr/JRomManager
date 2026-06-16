@@ -18,23 +18,21 @@ import jrm.server.shared.datasources.XMLResponse;
 import lombok.val;
 
 /**
- * AdminXMLResponse is an XMLResponse that allows an admin user to manage user
- * credentials. It supports fetching all users, adding a new user, updating an
- * existing user, and removing a user. The response is structured in XML format,
- * and the operations are performed on a database using the Login class for
- * database interactions. The class checks if the user making the request is an
- * admin before allowing any operations. If the user is not an admin, it returns
- * a failure response with a message indicating that the operation cannot be
- * performed. The class uses the BeanHandler and BeanListHandler from Apache
- * Commons DbUtils to map database query results to UserCredential objects. It
- * also uses the CryptCredential class to hash passwords before storing them in
- * the database. The XML response structure includes a status element to
- * indicate the success or failure of the operation, and a data element that
- * contains the user records when fetching or modifying user credentials.
+ * AdminXMLResponse is an XMLResponse that allows an admin user to manage user credentials. It supports fetching all users, adding a
+ * new user, updating an existing user, and removing a user. The response is structured in XML format, and the operations are
+ * performed on a database using the Login class for database interactions. The class checks if the user making the request is an
+ * admin before allowing any operations. If the user is not an admin, it returns a failure response with a message indicating that
+ * the operation cannot be performed. The class uses the BeanHandler and BeanListHandler from Apache Commons DbUtils to map database
+ * query results to UserCredential objects. It also uses the CryptCredential class to hash passwords before storing them in the
+ * database. The XML response structure includes a status element to indicate the success or failure of the operation, and a data
+ * element that contains the user records when fetching or modifying user credentials.
  * 
  * @author jrm
+ * 
  * @version 1.0
+ * 
  * @since 2024-06
+ * 
  * @see XMLResponse
  * @see XMLRequest
  * @see Login
@@ -55,7 +53,8 @@ public class AdminXMLResponse extends XMLResponse {
      * Constructs a new AdminXMLResponse object.
      * 
      * @param request The XMLRequest object containing the request details.
-     * @throws IOException        If an I/O error occurs.
+     * 
+     * @throws IOException If an I/O error occurs.
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     public AdminXMLResponse(XMLRequest request) throws IOException, XMLStreamException {
@@ -63,11 +62,11 @@ public class AdminXMLResponse extends XMLResponse {
     }
 
     /**
-     * Fetches all user credentials from the database and writes them to the XML
-     * response. Only admin users are allowed to perform this operation. If the user
-     * is not an admin, a failure response is returned.
+     * Fetches all user credentials from the database and writes them to the XML response. Only admin users are allowed to perform
+     * this operation. If the user is not an admin, a failure response is returned.
      * 
      * @param operation The operation containing the request details.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     @Override
@@ -90,6 +89,7 @@ public class AdminXMLResponse extends XMLResponse {
      * Writes an individual user record to the XML output.
      * 
      * @param user The UserCredential object to be written.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML.
      */
     private void writeRecord(UserCredential user) throws XMLStreamException {
@@ -101,13 +101,12 @@ public class AdminXMLResponse extends XMLResponse {
     }
 
     /**
-     * Adds a new user credential to the database. Only admin users are allowed to
-     * perform this operation. The method checks if the required data (login and
-     * password) is provided in the operation. If the user is not an admin or if the
-     * required data is missing, a failure response is returned.
+     * Adds a new user credential to the database. Only admin users are allowed to perform this operation. The method checks if the
+     * required data (login and password) is provided in the operation. If the user is not an admin or if the required data is
+     * missing, a failure response is returned.
      * 
-     * @param operation The operation containing the request details and data for
-     *                  the new user.
+     * @param operation The operation containing the request details and data for the new user.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     @Override
@@ -128,13 +127,12 @@ public class AdminXMLResponse extends XMLResponse {
     }
 
     /**
-     * Updates an existing user credential in the database. Only admin users are
-     * allowed to perform this operation. The method checks if the required data
-     * (login and password) is provided in the operation. If the user is not an
-     * admin or if the required data is missing, a failure response is returned.
+     * Updates an existing user credential in the database. Only admin users are allowed to perform this operation. The method
+     * checks if the required data (login and password) is provided in the operation. If the user is not an admin or if the required
+     * data is missing, a failure response is returned.
      * 
-     * @param operation The operation containing the request details and data for
-     *                  the user to be updated.
+     * @param operation The operation containing the request details and data for the user to be updated.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     @Override
@@ -155,13 +153,12 @@ public class AdminXMLResponse extends XMLResponse {
     }
 
     /**
-     * Removes a user credential from the database. Only admin users are allowed to
-     * perform this operation. The method checks if the required data (login) is
-     * provided in the operation. If the user is not an admin or if the required
-     * data is missing, a failure response is returned.
+     * Removes a user credential from the database. Only admin users are allowed to perform this operation. The method checks if the
+     * required data (login) is provided in the operation. If the user is not an admin or if the required data is missing, a failure
+     * response is returned.
      * 
-     * @param operation The operation containing the request details and data for
-     *                  the user to be removed.
+     * @param operation The operation containing the request details and data for the user to be removed.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     @Override
@@ -190,12 +187,12 @@ public class AdminXMLResponse extends XMLResponse {
     }
 
     /**
-     * Fetches a single user credential from the database and writes it to the XML
-     * response.
+     * Fetches a single user credential from the database and writes it to the XML response.
      * 
      * @param operation The operation containing the request details.
-     * @param login     The Login object used for database interactions.
-     * @throws SQLException       If a database error occurs.
+     * @param login The Login object used for database interactions.
+     * 
+     * @throws SQLException If a database error occurs.
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     private void fetchSingle(Operation operation, final Login login) throws SQLException, XMLStreamException {
@@ -210,6 +207,7 @@ public class AdminXMLResponse extends XMLResponse {
      * Writes a single user credential to the XML response.
      * 
      * @param user The UserCredential object to be written to the XML response.
+     * 
      * @throws XMLStreamException If an error occurs while writing the XML response.
      */
     private void writeSingle(final jrm.fullserver.security.UserCredential user) throws XMLStreamException {

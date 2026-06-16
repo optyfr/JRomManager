@@ -14,8 +14,8 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 /**
  * XML response handler for batch transaction check Source-Destination Results (SDR).
  * <p>
- * This class processes XML requests to manage the list of source and destination paths
- * used in batch transaction check operations, supporting fetch, add, update, and remove operations.
+ * This class processes XML requests to manage the list of source and destination paths used in batch transaction check operations,
+ * supporting fetch, add, update, and remove operations.
  * </p>
  */
 public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
@@ -24,6 +24,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
      * Constructs a new batch transaction check SDR XML response.
      *
      * @param request the XML request containing the operation to process
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML stream error occurs during initialization
      */
@@ -35,6 +36,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
      * Fetches the current list of transaction check SDRs and writes them to the XML response.
      *
      * @param operation the operation containing request parameters
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -48,6 +50,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
      * Adds a new source-destination result to the settings if it does not already exist.
      *
      * @param operation the operation containing the "src" data to add
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -74,6 +77,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
      * Updates an existing source-destination result identified by its ID.
      *
      * @param operation the operation containing the "id" of the entry to update, and optionally "src", "dst", or "selected"
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -112,6 +116,7 @@ public class BatchTrntChkSDRXMLResponse extends SDRXMLResponse {
      * Removes a source-destination result from the settings by its ID.
      *
      * @param operation the operation containing the "id" of the entry to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override

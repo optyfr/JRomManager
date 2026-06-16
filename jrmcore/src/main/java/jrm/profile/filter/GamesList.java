@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.filter;
 
@@ -25,13 +17,13 @@ import java.util.ListIterator;
 /**
  * An abstract base class that encapsulates a list of game code names.
  * <p>
- * This class implements the {@link java.util.List} interface by delegating all
- * operations to an underlying {@link java.util.ArrayList}. It provides a
- * reusable base for specific types of game lists, such as category listings or
- * player mode listings.
+ * This class implements the {@link java.util.List} interface by delegating all operations to an underlying
+ * {@link java.util.ArrayList}. It provides a reusable base for specific types of game lists, such as category listings or player
+ * mode listings.
  * </p>
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 abstract class GamesList implements List<String> {
@@ -69,8 +61,7 @@ abstract class GamesList implements List<String> {
     /**
      * Returns {@code true} if this list contains no game code names.
      * 
-     * @return {@code true} if this list contains no game code names, otherwise
-     *         {@code false}
+     * @return {@code true} if this list contains no game code names, otherwise {@code false}
      */
     @Override
     public boolean isEmpty() {
@@ -81,8 +72,8 @@ abstract class GamesList implements List<String> {
      * Returns {@code true} if this list contains the specified game code name.
      * 
      * @param o element whose presence in this list is to be tested
-     * @return {@code true} if this list contains the specified element, otherwise
-     *         {@code false}
+     * 
+     * @return {@code true} if this list contains the specified element, otherwise {@code false}
      */
     @Override
     public boolean contains(final Object o) {
@@ -90,8 +81,7 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns an array containing all of the game code names in this list in proper
-     * sequence.
+     * Returns an array containing all of the game code names in this list in proper sequence.
      * 
      * @return an array containing all of the game code names in this list
      */
@@ -101,14 +91,13 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns an array containing all of the game code names in this list in proper
-     * sequence; the runtime type of the returned array is that of the specified
-     * array.
+     * Returns an array containing all of the game code names in this list in proper sequence; the runtime type of the returned
+     * array is that of the specified array.
      * 
      * @param <T> the component type of the array to contain the collection
-     * @param a   the array into which the elements of this list are to be stored,
-     *            if it is big enough; otherwise, a new array of the same runtime
-     *            type is allocated for this purpose.
+     * @param a the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the
+     *        same runtime type is allocated for this purpose.
+     * 
      * @return an array containing the game code names of this list
      */
     @Override
@@ -120,6 +109,7 @@ abstract class GamesList implements List<String> {
      * Appends the specified game code name to the end of this list.
      * 
      * @param e game code name to be appended to this list
+     * 
      * @return {@code true} if this list changed as a result of the call
      */
     @Override
@@ -128,12 +118,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Removes the first occurrence of the specified game code name from this list,
-     * if it is present.
+     * Removes the first occurrence of the specified game code name from this list, if it is present.
      * 
      * @param o game code name to be removed from this list, if present
-     * @return {@code true} if this list contained the specified element, otherwise
-     *         {@code false}
+     * 
+     * @return {@code true} if this list contained the specified element, otherwise {@code false}
      */
     @Override
     public boolean remove(final Object o) {
@@ -141,12 +130,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns {@code true} if this list contains all of the elements of the
-     * specified collection.
+     * Returns {@code true} if this list contains all of the elements of the specified collection.
      * 
      * @param c collection to be checked for containment in this list
-     * @return {@code true} if this list contains all of the elements of the
-     *         specified collection
+     * 
+     * @return {@code true} if this list contains all of the elements of the specified collection
      */
     @Override
     public boolean containsAll(final Collection<?> c) {
@@ -154,11 +142,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Appends all of the elements in the specified collection to the end of this
-     * list, in the order that they are returned by the specified collection's
-     * iterator.
+     * Appends all of the elements in the specified collection to the end of this list, in the order that they are returned by the
+     * specified collection's iterator.
      * 
      * @param c collection containing game code names to be added to this list
+     * 
      * @return {@code true} if this list changed as a result of the call
      */
     @Override
@@ -167,13 +155,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Inserts all of the elements in the specified collection into this list at the
-     * specified position.
+     * Inserts all of the elements in the specified collection into this list at the specified position.
      * 
-     * @param index index at which to insert the first element from the specified
-     *              collection
-     * @param c     collection containing game code names to be inserted into this
-     *              list
+     * @param index index at which to insert the first element from the specified collection
+     * @param c collection containing game code names to be inserted into this list
+     * 
      * @return {@code true} if this list changed as a result of the call
      */
     @Override
@@ -182,10 +168,10 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Removes from this list all of its elements that are contained in the
-     * specified collection.
+     * Removes from this list all of its elements that are contained in the specified collection.
      * 
      * @param c collection containing game code names to be removed from this list
+     * 
      * @return {@code true} if this list changed as a result of the call
      */
     @Override
@@ -194,10 +180,10 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Retains only the elements in this list that are contained in the specified
-     * collection.
+     * Retains only the elements in this list that are contained in the specified collection.
      * 
      * @param c collection containing game code names to be retained in this list
+     * 
      * @return {@code true} if this list changed as a result of the call
      */
     @Override
@@ -217,6 +203,7 @@ abstract class GamesList implements List<String> {
      * Returns the game code name at the specified position in this list.
      * 
      * @param index index of the element to return
+     * 
      * @return the game code name at the specified position in this list
      */
     @Override
@@ -225,11 +212,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Replaces the game code name at the specified position in this list with the
-     * specified element.
+     * Replaces the game code name at the specified position in this list with the specified element.
      * 
-     * @param index   index of the element to replace
+     * @param index index of the element to replace
      * @param element game code name to be stored at the specified position
+     * 
      * @return the game code name previously at the specified position
      */
     @Override
@@ -240,7 +227,7 @@ abstract class GamesList implements List<String> {
     /**
      * Inserts the specified game code name at the specified position in this list.
      * 
-     * @param index   index at which the specified element is to be inserted
+     * @param index index at which the specified element is to be inserted
      * @param element game code name to be inserted
      */
     @Override
@@ -252,6 +239,7 @@ abstract class GamesList implements List<String> {
      * Removes the game code name at the specified position in this list.
      * 
      * @param index the index of the element to be removed
+     * 
      * @return the game code name previously at the specified position
      */
     @Override
@@ -260,12 +248,12 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns the index of the first occurrence of the specified game code name in
-     * this list, or -1 if this list does not contain the element.
+     * Returns the index of the first occurrence of the specified game code name in this list, or -1 if this list does not contain
+     * the element.
      * 
      * @param o element to search for
-     * @return the index of the first occurrence of the specified element, or -1 if
-     *         not found
+     * 
+     * @return the index of the first occurrence of the specified element, or -1 if not found
      */
     @Override
     public int indexOf(final Object o) {
@@ -273,12 +261,12 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns the index of the last occurrence of the specified game code name in
-     * this list, or -1 if this list does not contain the element.
+     * Returns the index of the last occurrence of the specified game code name in this list, or -1 if this list does not contain
+     * the element.
      * 
      * @param o element to search for
-     * @return the index of the last occurrence of the specified element, or -1 if
-     *         not found
+     * 
+     * @return the index of the last occurrence of the specified element, or -1 if not found
      */
     @Override
     public int lastIndexOf(final Object o) {
@@ -296,12 +284,11 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns a list iterator over the game code names in this list, starting at
-     * the specified position.
+     * Returns a list iterator over the game code names in this list, starting at the specified position.
      * 
      * @param index index of the first element to be returned from the list iterator
-     * @return a list iterator over the game code names in this list, starting at
-     *         the specified position
+     * 
+     * @return a list iterator over the game code names in this list, starting at the specified position
      */
     @Override
     public ListIterator<String> listIterator(final int index) {
@@ -309,11 +296,12 @@ abstract class GamesList implements List<String> {
     }
 
     /**
-     * Returns a view of the portion of this list between the specified
-     * {@code fromIndex}, inclusive, and {@code toIndex}, exclusive.
+     * Returns a view of the portion of this list between the specified {@code fromIndex}, inclusive, and {@code toIndex},
+     * exclusive.
      * 
      * @param fromIndex low endpoint (inclusive) of the subList
-     * @param toIndex   high endpoint (exclusive) of the subList
+     * @param toIndex high endpoint (exclusive) of the subList
+     * 
      * @return a view of the specified range within this list
      */
     @Override

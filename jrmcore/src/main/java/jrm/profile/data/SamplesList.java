@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -24,10 +16,10 @@ import java.util.Map;
 import lombok.Getter;
 
 /**
- * Set of unique {@link Samples} sets. This class maps sample sets by their
- * unique names.
+ * Set of unique {@link Samples} sets. This class maps sample sets by their unique names.
  * 
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
@@ -43,6 +35,7 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
      * Checks if the sample list contains a set with the specified name.
      * 
      * @param name the name to look for
+     * 
      * @return true if the name exists, false otherwise
      */
     @Override
@@ -54,6 +47,7 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
      * Retrieves the sample set with the specified name.
      * 
      * @param name the name of the sample set
+     * 
      * @return the matching {@link Samples} set, or null if not found
      */
     @Override
@@ -65,8 +59,8 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
      * Stores the given sample set under its unique name.
      * 
      * @param t the {@link Samples} set to add
-     * @return the previously associated {@link Samples} set, or null if there was
-     *         none
+     * 
+     * @return the previously associated {@link Samples} set, or null if there was none
      */
     @Override
     public Samples putByName(Samples t) {
@@ -101,10 +95,11 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
     }
 
     /**
-     * Checks if the list contains a sample set with the specified filtered name.
-     * Delegates directly to {@link #containsName(String)}.
+     * Checks if the list contains a sample set with the specified filtered name. Delegates directly to
+     * {@link #containsName(String)}.
      * 
      * @param name the filtered name to check
+     * 
      * @return true if found, false otherwise
      */
     @Override
@@ -113,20 +108,19 @@ public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samp
     }
 
     /**
-     * Retrieves the sample set associated with the specified filtered name.
-     * Delegates directly to {@link #getByName(String)}.
+     * Retrieves the sample set associated with the specified filtered name. Delegates directly to {@link #getByName(String)}.
      * 
      * @param name the filtered name of the sample set
+     * 
      * @return the matching {@link Samples} set, or null if not found
      */
     @Override
     public Samples getFilteredByName(String name) {
         return getByName(name);
     }
-    
+
     /**
-     * Constructs a new empty SamplesList. This constructor initializes the internal
-     * map to store sample sets by their unique names.
+     * Constructs a new empty SamplesList. This constructor initializes the internal map to store sample sets by their unique names.
      */
     public SamplesList() {
         // default constructor

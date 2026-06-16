@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -36,7 +28,6 @@ import net.lingala.zip4j.model.ZipParameters;
  * Delete an entry from its container
  * 
  * @author optyfr
- *
  */
 public class DeleteEntry extends EntryAction {
     private static final String DELETE_S_AT_S_FAILED = "delete %s@%s failed";
@@ -59,8 +50,9 @@ public class DeleteEntry extends EntryAction {
             path = dstfs.getPath(entry.getFile());
             Files.deleteIfExists(path);
             return true;
-        } catch (final Exception e) {
-            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } catch (final Exception _) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$
+                                                                                                      // //$NON-NLS-3$
         }
         return false;
     }
@@ -81,7 +73,8 @@ public class DeleteEntry extends EntryAction {
             return true;
         } catch (final Exception e) {
             Log.err(e.getMessage(), e);
-            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$
+                                                                                                      // //$NON-NLS-3$
         }
         return false;
     }
@@ -94,8 +87,9 @@ public class DeleteEntry extends EntryAction {
             path = target.resolve(entry.getFile());
             Files.deleteIfExists(path);
             return true;
-        } catch (final Exception e) {
-            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } catch (final Exception _) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), path)); // $NON-NLS-1$ //$NON-NLS-2$
+                                                                                                      // //$NON-NLS-3$
         }
         return false;
     }
@@ -105,8 +99,10 @@ public class DeleteEntry extends EntryAction {
         try {
             handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DELETE_ENTRY_DELETING), entry.getRelFile()))); // $NON-NLS-1$
             return archive.delete(entry.getFile()) == 0;
-        } catch (final Exception e) {
-            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile())); // $NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        } catch (final Exception _) {
+            Log.err(String.format(DELETE_S_AT_S_FAILED, parent.container.getFile().getName(), entry.getRelFile())); // $NON-NLS-1$
+                                                                                                                    // //$NON-NLS-2$
+                                                                                                                    // //$NON-NLS-3$
         }
         return false;
     }

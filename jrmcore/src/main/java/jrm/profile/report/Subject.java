@@ -15,14 +15,13 @@ import jrm.profile.data.AnywareBase;
 import lombok.Getter;
 
 /**
- * Represents a logical report subject, typically a container file (such as a
- * zip file) or a retro-gaming system romset.
+ * Represents a logical report subject, typically a container file (such as a zip file) or a retro-gaming system romset.
  * <p>
- * A Subject acts as an intermediate group in the reporting hierarchy, extending
- * {@link AbstractList} of {@link Note}s to manage and filter individual leaf
- * status notes associated with the target metadata.
+ * A Subject acts as an intermediate group in the reporting hierarchy, extending {@link AbstractList} of {@link Note}s to manage and
+ * filter individual leaf status notes associated with the target metadata.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public abstract class Subject extends AbstractList<Note> implements StatusRendererFactory, Serializable {
@@ -46,8 +45,7 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
     protected @Getter AnywareBase ware;
 
     /**
-     * The underlying collection of leaf notes describing detailed validation issues
-     * or statuses.
+     * The underlying collection of leaf notes describing detailed validation issues or statuses.
      *
      * @return the list of Note instances
      */
@@ -75,6 +73,7 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
      * Serializes the state of this subject to an object output stream.
      *
      * @param stream the object output stream to write to
+     * 
      * @throws IOException if an I/O error occurs during serialization
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -88,9 +87,9 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
      * Deserializes the state of this subject from an object input stream.
      *
      * @param stream the object input stream to read from
-     * @throws IOException            if an I/O error occurs
-     * @throws ClassNotFoundException if the class of a serialized object cannot be
-     *                                found
+     * 
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if the class of a serialized object cannot be found
      */
     @SuppressWarnings("unchecked")
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -111,10 +110,9 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
     }
 
     /**
-     * Constructs a cloned Subject from an originating instance, applying a new
-     * filtered collection of notes.
+     * Constructs a cloned Subject from an originating instance, applying a new filtered collection of notes.
      *
-     * @param org   the originating Subject instance to copy
+     * @param org the originating Subject instance to copy
      * @param notes the list of filtered Note instances to populate in the clone
      */
     protected Subject(Subject org, final List<Note> notes) {
@@ -127,26 +125,26 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
      * Clones this subject based on the specified set of active filtering options.
      *
      * @param filterOptions the set of active filtering options to apply
+     * 
      * @return the cloned, filtered Subject instance
      */
     public abstract Subject clone(Set<FilterOptions> filterOptions);
 
     /**
-     * Returns a stream of leaf notes belonging to this subject, filtered according
-     * to the active options.
+     * Returns a stream of leaf notes belonging to this subject, filtered according to the active options.
      *
      * @param filterOptions the active filtering options to apply
+     * 
      * @return a stream of filtered Note instances
      */
     public abstract Stream<Note> stream(Set<FilterOptions> filterOptions);
 
     /**
-     * Appends a status note to this subject's collection and configures its parent
-     * reference.
+     * Appends a status note to this subject's collection and configures its parent reference.
      *
      * @param note the status note to add
-     * @return {@code true} if the note was successfully appended; {@code false}
-     *         otherwise
+     * 
+     * @return {@code true} if the note was successfully appended; {@code false} otherwise
      */
     @Override
     public boolean add(final Note note) {
@@ -157,8 +155,7 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
     /**
      * Gets the full display name of the gaming system model or ware, if available.
      *
-     * @return the full name string of the ware, or an empty string if the ware is
-     *         {@code null}
+     * @return the full name string of the ware, or an empty string if the ware is {@code null}
      */
     public String getWareName() {
         if (ware != null)
@@ -167,8 +164,7 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
     }
 
     /**
-     * Increments or updates the summary metrics in the parent report based on this
-     * subject's state.
+     * Increments or updates the summary metrics in the parent report based on this subject's state.
      */
     public abstract void updateStats();
 
@@ -203,7 +199,9 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
      * Retrieves the note located at the specified index position.
      *
      * @param index the 0-based position index to query
+     * 
      * @return the Note instance at the specified index
+     * 
      * @throws IndexOutOfBoundsException if the index is out of range
      */
     @Override
@@ -225,8 +223,8 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
      * Compares this subject with another object for equality.
      *
      * @param o the reference object with which to compare
-     * @return {@code true} if this object is equal to the specified argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is equal to the specified argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object o) {
@@ -234,8 +232,7 @@ public abstract class Subject extends AbstractList<Note> implements StatusRender
     }
 
     /**
-     * Returns a comparator for sorting subjects alphabetically by their associated
-     * ware name case-insensitively.
+     * Returns a comparator for sorting subjects alphabetically by their associated ware name case-insensitively.
      *
      * @return the subject sorting comparator
      */

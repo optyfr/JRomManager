@@ -20,26 +20,23 @@ import jrm.aui.progress.ProgressHandler;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Custom thread pool executor offering concurrent execution of tasks with an
- * optional adaptive load algorithm. The adaptive algorithm attempts to adjust
- * the number of active threads dynamically based on CPU consumption patterns or
- * system load averages.
+ * Custom thread pool executor offering concurrent execution of tasks with an optional adaptive load algorithm. The adaptive
+ * algorithm attempts to adjust the number of active threads dynamically based on CPU consumption patterns or system load averages.
  * <p>
- * Under adaptive mode, the pool calculates thread CPU utilization over a given
- * interval, scaling down when threads remain idle and scaling up when active
- * threads approach full saturation.
+ * Under adaptive mode, the pool calculates thread CPU utilization over a given interval, scaling down when threads remain idle and
+ * scaling up when active threads approach full saturation.
  * </p>
  * <p>
  * For system-wide load average adaptation: $$usage = \frac{load}{poolSize}$$
  * </p>
  * <p>
- * For JMX-based thread CPU time adaptation: $$load = \frac{\sum_{i=1}^{n}
- * \left(cpuTime_{end}^{(i)} - cpuTime_{start}^{(i)}\right) \times
- * 10^{-6}}{elapsed}$$ $$usage = \frac{load}{poolSize}$$ where $cpuTime$ is in
- * nanoseconds, $elapsed$ is in milliseconds, and $n$ is the active pool size.
+ * For JMX-based thread CPU time adaptation: $$load = \frac{\sum_{i=1}^{n} \left(cpuTime_{end}^{(i)} - cpuTime_{start}^{(i)}\right)
+ * \times 10^{-6}}{elapsed}$$ $$usage = \frac{load}{poolSize}$$ where $cpuTime$ is in nanoseconds, $elapsed$ is in milliseconds, and
+ * $n$ is the active pool size.
  * </p>
  * 
  * @param <T> the type of task element processed by this executor
+ * 
  * @author optyfr
  */
 public final class MultiThreading<T> extends ThreadPoolExecutor implements OffsetProvider {
@@ -64,8 +61,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     private final boolean adaptive;
 
     /**
-     * Interval duration (in milliseconds) between successive adaptive load
-     * evaluations.
+     * Interval duration (in milliseconds) between successive adaptive load evaluations.
      */
     private final long interval;
 
@@ -85,8 +81,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     private final AtomicLong count = new AtomicLong();
 
     /**
-     * Registry mapping active thread identifiers to their respective physical UI
-     * reporting offsets.
+     * Registry mapping active thread identifiers to their respective physical UI reporting offsets.
      */
     private final HashMap<Long, Integer> activeThreads = new HashMap<>();
 
@@ -108,11 +103,10 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     /**
      * Constructs a new {@code MultiThreading} executor.
      * 
-     * @param name     the base name used to identify the thread factory group
+     * @param name the base name used to identify the thread factory group
      * @param progress progress tracker coupled with this executor's offset provider
-     * @param nThreads the thread limit (negative values trigger adaptive scaling,
-     *                 zero requests standard system CPU cores capacity)
-     * @param cw       the executable logic applied to each stream element
+     * @param nThreads the thread limit (negative values trigger adaptive scaling, zero requests standard system CPU cores capacity)
+     * @param cw the executable logic applied to each stream element
      */
     public MultiThreading(final String name, final ProgressHandler progress, final int nThreads, final CalledWith<T> cw) {
         super(getNStartThreads(nThreads), getNStartThreads(nThreads), 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
@@ -162,6 +156,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
          * Allocates and configures a new thread inside this factory's thread group.
          * 
          * @param r the target runnable task
+         * 
          * @return the configured, non-daemon thread
          */
         @Override
@@ -179,6 +174,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
      * Translates raw thread counts into valid starting pool size values.
      * 
      * @param nThreads raw thread target requested
+     * 
      * @return positive starting pool capacity
      */
     private static int getNStartThreads(final int nThreads) {
@@ -191,16 +187,16 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
      * Determines if a given thread count activates adaptive profiling mode.
      * 
      * @param nThreads target thread count
-     * @return {@code true} if negative, triggering adaptive scaling; {@code false}
-     *         otherwise
+     * 
+     * @return {@code true} if negative, triggering adaptive scaling; {@code false} otherwise
      */
     private static boolean isAdaptive(final int nThreads) {
         return nThreads < 0;
     }
 
     /**
-     * Sequentially submits each element of a data stream into the executor pool and
-     * blocks until all queued threads terminate or timeout.
+     * Sequentially submits each element of a data stream into the executor pool and blocks until all queued threads terminate or
+     * timeout.
      * 
      * @param stream the source stream of data units to process
      */
@@ -240,8 +236,8 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     }
 
     /**
-     * Performs dynamic adaptive pool adjustment by querying either platform load
-     * averages or aggregating precise JMX-computed thread execution times.
+     * Performs dynamic adaptive pool adjustment by querying either platform load averages or aggregating precise JMX-computed
+     * thread execution times.
      * 
      * @param elapsed the exact duration in milliseconds since the last evaluation
      */
@@ -253,7 +249,8 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
             adaptiveLoad(load);
         time = System.currentTimeMillis();
         startCPUTimeByThread.entrySet().removeIf(e -> !e.getKey().isAlive()); // cleanup dead thread from list
-        startCPUTimeByThread.forEach((k, v) -> startCPUTimeByThread.put(k, tmxb.getThreadCpuTime(k.threadId()))); // reset startCPUTime
+        startCPUTimeByThread.forEach((k, v) -> startCPUTimeByThread.put(k, tmxb.getThreadCpuTime(k.threadId()))); // reset
+                                                                                                                  // startCPUTime
     }
 
     /**
@@ -289,9 +286,8 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     }
 
     /**
-     * Fallback adaptation logic for systems where system load averages are not
-     * queryable. Computes execution metrics based on accumulated JMX thread CPU
-     * consumption times.
+     * Fallback adaptation logic for systems where system load averages are not queryable. Computes execution metrics based on
+     * accumulated JMX thread CPU consumption times.
      * 
      * @param elapsed the exact measurement duration in milliseconds
      */
@@ -313,7 +309,8 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
             final var threshold = 1.0 / getMaximumPoolSize();
             if (usage < 1.0 - threshold) // there was at least 1 unused thread during the last sample
             {
-                final var newThreadCnt = Math.max(1, (int) Math.ceil(load)); // down to the rounded up used thread (equiv. to the load)
+                final var newThreadCnt = Math.max(1, (int) Math.ceil(load)); // down to the rounded up used thread (equiv. to the
+                                                                             // load)
                 if (newThreadCnt < getMaximumPoolSize()) {
                     Log.info(() -> String.format("setting down to %d from %d threads...%n", newThreadCnt, getMaximumPoolSize()));
                     setCorePoolSize(newThreadCnt); // core pool must be lowered first or we will get illegalArgumentException
@@ -351,8 +348,8 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
     }
 
     /**
-     * Internal task wrapper converting user payloads into callable execution units
-     * that handle reporting offset reservation and recycling.
+     * Internal task wrapper converting user payloads into callable execution units that handle reporting offset reservation and
+     * recycling.
      */
     @RequiredArgsConstructor
     private class CallableWith implements Callable<Void> {
@@ -394,6 +391,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
          * Standard task callable execution point that wraps user execution block.
          * 
          * @return {@code null} on successful execution
+         * 
          * @throws Exception if an error occurs during execution
          */
         @Override

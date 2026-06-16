@@ -15,9 +15,8 @@ import jrm.xml.SimpleAttribute;
 /**
  * XML response handler for batch compressor file results.
  * <p>
- * This class processes XML requests related to the batch compressor's file results,
- * supporting operations such as fetching the cached list, adding new file results,
- * updating existing entries, removing entries, and clearing the entire cache.
+ * This class processes XML requests related to the batch compressor's file results, supporting operations such as fetching the
+ * cached list, adding new file results, updating existing entries, removing entries, and clearing the entire cache.
  * </p>
  */
 public class BatchCompressorFRXMLResponse extends XMLResponse {
@@ -35,6 +34,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Constructs a new batch compressor file result XML response.
      *
      * @param request the XML request containing the operation to process
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML stream error occurs during initialization
      */
@@ -46,6 +46,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Fetches the cached list of compressor file results and writes them to the XML response.
      *
      * @param operation the operation containing request parameters (e.g., pagination)
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -67,6 +68,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Adds a new file result to the session's cached compressor list.
      *
      * @param operation the operation containing the "file" data to add
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -90,6 +92,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Updates an existing file result in the session's cached compressor list.
      *
      * @param operation the operation containing the "id" of the entry to update, and optionally "file" or "result"
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -129,6 +132,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * @param id the unique identifier of the file result
      * @param file the path to the file
      * @param result the result string associated with the file
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     private void writeRecord(EnhancedXMLStreamWriter writer, String id, Path file, String result) throws XMLStreamException {
@@ -139,6 +143,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Removes a file result from the session's cached compressor list by its ID.
      *
      * @param operation the operation containing the "id" of the entry to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override
@@ -164,6 +169,7 @@ public class BatchCompressorFRXMLResponse extends XMLResponse {
      * Executes a custom operation. Currently supports the "clear" operation to empty the cached compressor list.
      *
      * @param operation the operation containing the custom operation ID
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML stream
      */
     @Override

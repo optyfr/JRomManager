@@ -10,9 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Settings configuration holder specific to a ROM scan profile. Extends
- * {@link Settings} to incorporate custom options such as merge strategies,
- * implicit scanning, and hash collision conflict resolution.
+ * Settings configuration holder specific to a ROM scan profile. Extends {@link Settings} to incorporate custom options such as
+ * merge strategies, implicit scanning, and hash collision conflict resolution.
  * 
  * @author optyfr
  */
@@ -21,15 +20,16 @@ public class ProfileSettings extends Settings {
      * The merge mode used while filtering roms/disks.
      * 
      * @param mergeMode the merge options to set
+     * 
      * @return the active merge options
      */
     private @Getter @Setter MergeOptions mergeMode;
 
     /**
-     * Must we strictly conform to merge tag (explicit), or search merge-able ROMs
-     * by ourselves (implicit).
+     * Must we strictly conform to merge tag (explicit), or search merge-able ROMs by ourselves (implicit).
      * 
      * @param implicitMerge the implicit merge flag to set
+     * 
      * @return the active implicit merge flag
      */
     private @Getter @Setter Boolean implicitMerge;
@@ -38,24 +38,23 @@ public class ProfileSettings extends Settings {
      * What hash collision mode is used?
      * 
      * @param hashCollisionMode the hash collision options to set
+     * 
      * @return the active hash collision options
      */
     private @Getter @Setter HashCollisionOptions hashCollisionMode;
 
     /**
-     * Constructs a new empty {@code ProfileSettings} instance with default
-     * configuration.
+     * Constructs a new empty {@code ProfileSettings} instance with default configuration.
      */
     public ProfileSettings() {
         super();
     }
 
     /**
-     * Configures and saves directory-based format profile settings on the session
-     * user settings.
+     * Configures and saves directory-based format profile settings on the session user settings.
      * 
      * @param session the active session context
-     * @param src     the source profile file
+     * @param src the source profile file
      */
     public static void DIR(Session session, File src) // NOSONAR
     {
@@ -67,11 +66,10 @@ public class ProfileSettings extends Settings {
     }
 
     /**
-     * Configures and saves TorrentZip-based format profile settings on the session
-     * user settings.
+     * Configures and saves TorrentZip-based format profile settings on the session user settings.
      * 
      * @param session the active session context
-     * @param src     the source profile file
+     * @param src the source profile file
      */
     public static void TZIP(Session session, File src) // NOSONAR
     {

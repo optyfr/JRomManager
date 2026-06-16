@@ -30,7 +30,7 @@ public class DirItem extends TreeItem<Dir> {
     /**
      * Builds the dir tree.
      *
-     * @param dir  the dir
+     * @param dir the dir
      * @param node the node
      */
     private void buildDirTree(final Dir dir, final DirItem node) {

@@ -90,6 +90,7 @@ public class AnywareModel extends AbstractEnhTableModel {
      * get the declared renderer for a given column
      * 
      * @param columnIndex the requested column index
+     * 
      * @return a {@link TableCellRenderer} associated with the given columnindex
      */
     @Override

@@ -39,6 +39,7 @@ public abstract class SwingWorkerProgress<T, V> extends SwingWorker<T, V> implem
     /**
      * @param owner
      * @param e
+     * 
      * @throws HeadlessException
      */
     private void propertyChange(final Window owner, PropertyChangeEvent e) throws HeadlessException {

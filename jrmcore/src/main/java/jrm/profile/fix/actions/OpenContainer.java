@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -42,15 +34,14 @@ import jrm.security.Session;
 import net.lingala.zip4j.ZipFile;
 
 /**
- * specialized class when an already existing container have to be opened before
- * doing actions on entries (which should be only {@link AddEntry})
+ * specialized class when an already existing container have to be opened before doing actions on entries (which should be only
+ * {@link AddEntry})
  * 
  * @author optyfr
  */
 public class OpenContainer extends ContainerAction {
     /**
-     * the uncompressed datasize of all entries to add (for temp file threshold
-     * purpose)
+     * the uncompressed datasize of all entries to add (for temp file threshold purpose)
      */
     private final long dataSize;
 
@@ -58,8 +49,8 @@ public class OpenContainer extends ContainerAction {
      * constructor
      * 
      * @param container the container to open
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
      */
     public OpenContainer(final Container container, final FormatOptions format, final long dataSize) {
         super(container, format);
@@ -69,10 +60,11 @@ public class OpenContainer extends ContainerAction {
     /**
      * shortcut static method to get an instance of {@link OpenContainer}
      * 
-     * @param action    the potentially already existing {@link OpenContainer}
+     * @param action the potentially already existing {@link OpenContainer}
      * @param container the container to open
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
+     * 
      * @return a {@link OpenContainer}
      */
     public static OpenContainer getInstance(OpenContainer action, final Container container, final FormatOptions format, final long dataSize) {
@@ -84,11 +76,11 @@ public class OpenContainer extends ContainerAction {
     /**
      * shortcut static method to get an instance of {@link OpenContainer}
      * 
-     * @param action    the potentially {@link AtomicReference} to already existing
-     *                  {@link OpenContainer}
+     * @param action the potentially {@link AtomicReference} to already existing {@link OpenContainer}
      * @param container the container to open
-     * @param format    the desired format
-     * @param dataSize  the uncompressed data size supposed to be added
+     * @param format the desired format
+     * @param dataSize the uncompressed data size supposed to be added
+     * 
      * @return a {@link OpenContainer}
      */
     public static OpenContainer getInstance(final AtomicReference<OpenContainer> action, final Container container, final FormatOptions format, final long dataSize) {
@@ -118,6 +110,7 @@ public class OpenContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean doActionDir(final Session session, final ProgressHandler handler) {
@@ -132,6 +125,7 @@ public class OpenContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean doAction7z(final Session session, final ProgressHandler handler) {
@@ -146,6 +140,7 @@ public class OpenContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean doActionZipE(final Session session, final ProgressHandler handler) {
@@ -160,41 +155,41 @@ public class OpenContainer extends ContainerAction {
     /**
      * @param session
      * @param handler
+     * 
      * @return
      */
     private boolean doActionZip(final Session session, final ProgressHandler handler) {
-        if (!entryActions.isEmpty()) {
-            if (entryActions.get(0) instanceof RenameEntry) {
-                final Map<String, Object> env = new HashMap<>();
-                env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold)).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
-                env.put("compressionLevel", //$NON-NLS-1$
-                        format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level)).getLevel()); //$NON-NLS-2$
-                try (final var fs = FileSystems.newFileSystem(URI.create("jar:" + container.getFile().toURI()), env);) //$NON-NLS-1$
-                {
-                    if (!fsAction(session, handler, fs))
-                        return false;
-                    deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
-                    return true;
-                } catch (final Exception e) {
-                    Log.err(e.getMessage(), e);
-                }
+        if (entryActions.isEmpty())
+            return true;
+        if (entryActions.get(0) instanceof RenameEntry) {
+            final Map<String, Object> env = new HashMap<>();
+            env.put("useTempFile", dataSize > ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_temp_threshold)).getThreshold()); //$NON-NLS-1$ //$NON-NLS-2$
+            env.put("compressionLevel", //$NON-NLS-1$
+                    format == FormatOptions.TZIP ? 1 : ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level)).getLevel()); // $NON-NLS-2$
+            try (final var fs = FileSystems.newFileSystem(URI.create("jar:" + container.getFile().toURI()), env);) //$NON-NLS-1$
+            {
+                if (!fsAction(session, handler, fs))
+                    return false;
+                deleteEmptyFolders(fs.getPath("/")); //$NON-NLS-1$
+                return true;
+            } catch (final Exception e) {
+                Log.err(e.getMessage(), e);
+            }
 
-            } else
-                try (final var zif = new ZipFile(container.getFile())) {
-                    return zosAction(session, handler, zif);
-                } catch (final Exception e) {
-                    Log.err(e.getMessage(), e);
-                }
-            return false;
-        }
-        return true;
+        } else
+            try (final var zif = new ZipFile(container.getFile())) {
+                return zosAction(session, handler, zif);
+            } catch (final Exception e) {
+                Log.err(e.getMessage(), e);
+            }
+        return false;
     }
 
     /**
      * Delete recursively folders only if they are empty
      * 
-     * @param baseFolder the base folder as a {@link File} (may also be deleted if
-     *                   nothing left)
+     * @param baseFolder the base folder as a {@link File} (may also be deleted if nothing left)
+     * 
      * @return the number of bytes left in folders, 0 mean all folders were deleted
      */
     public long deleteEmptyFolders(final File baseFolder) {
@@ -219,8 +214,8 @@ public class OpenContainer extends ContainerAction {
     /**
      * Delete recursively folders only if they are empty
      * 
-     * @param baseFolder the base folder as a {@link Path} (may also be deleted if
-     *                   nothing left)
+     * @param baseFolder the base folder as a {@link Path} (may also be deleted if nothing left)
+     * 
      * @return the number of bytes left in folders, 0 mean all folders were deleted
      */
     public long deleteEmptyFolders(final Path baseFolder) {

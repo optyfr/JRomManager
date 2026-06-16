@@ -32,8 +32,8 @@ import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
 /**
- * Updates destination directories based on DAT files, scanning and fixing ROM
- * files from source directories according to configured profiles.
+ * Updates destination directories based on DAT files, scanning and fixing ROM files from source directories according to configured
+ * profiles.
  */
 public class DirUpdater {
     /** the active user session */
@@ -47,22 +47,19 @@ public class DirUpdater {
     /** the interface for updating results in the user interface */
     private final ResultColUpdater result;
     /**
-     * flag indicating whether to perform a dry run (no actual changes) or to apply
-     * fixes
+     * flag indicating whether to perform a dry run (no actual changes) or to apply fixes
      */
     private final boolean dryrun;
 
     /**
      * Constructs a DirUpdater with the specified parameters.
      *
-     * @param session  the active user session
-     * @param sdrl     the list of source-destination results to process
+     * @param session the active user session
+     * @param sdrl the list of source-destination results to process
      * @param progress the handler for reporting progress during the update process
-     * @param srcdirs  the list of source directories containing new ROM files to be
-     *                 processed
-     * @param result   the interface for updating results in the user interface
-     * @param dryrun   flag indicating whether to perform a dry run (no actual
-     *                 changes) or to apply fixes
+     * @param srcdirs the list of source directories containing new ROM files to be processed
+     * @param result the interface for updating results in the user interface
+     * @param dryrun flag indicating whether to perform a dry run (no actual changes) or to apply fixes
      */
     public DirUpdater(final Session session, final List<? extends AbstractSrcDstResult> sdrl, final ProgressHandler progress, final List<File> srcdirs,
             final ResultColUpdater result, final boolean dryrun) {
@@ -80,13 +77,13 @@ public class DirUpdater {
     }
 
     /**
-     * Processes the specified DAT file or directory of DAT files, updating the
-     * status and results.
+     * Processes the specified DAT file or directory of DAT files, updating the status and results.
      * 
      * @param scancache the cache of previous scans
-     * @param sdr       the source-destination result to update
+     * @param sdr the source-destination result to update
+     * 
      * @throws SecurityException if a security manager denies access
-     * @throws BreakException    if the process was cancelled
+     * @throws BreakException if the process was cancelled
      */
     private void update(final Map<String, DirScan> scancache, AbstractSrcDstResult sdr) throws SecurityException, BreakException {
         final var row = sdrl.indexOf(sdr);
@@ -119,18 +116,18 @@ public class DirUpdater {
     }
 
     /**
-     * Processes a list of DAT files and their corresponding destination
-     * directories, performing scans and optionally fixing mismatches for each
-     * entry.
+     * Processes a list of DAT files and their corresponding destination directories, performing scans and optionally fixing
+     * mismatches for each entry.
      *
      * @param scancache the cache of directory scans to optimize search operations
-     * @param row       the index of the row being updated in the results table
-     * @param dat       the source DAT file or directory containing DAT files
-     * @param dur       the accumulator for collecting update results
-     * @param datlist   the array of DAT files to process
-     * @param dstlist   the array of corresponding destination directories
+     * @param row the index of the row being updated in the results table
+     * @param dat the source DAT file or directory containing DAT files
+     * @param dur the accumulator for collecting update results
+     * @param datlist the array of DAT files to process
+     * @param dstlist the array of corresponding destination directories
+     * 
      * @throws BreakException if the update process is aborted or canceled
-     * @throws ScanException  if an error occurs while scanning the directories
+     * @throws ScanException if an error occurs while scanning the directories
      */
     private void update(final Map<String, DirScan> scancache, final int row, final File dat, final DirUpdaterResults dur, File[] datlist, File[] dstlist)
             throws BreakException, ScanException {

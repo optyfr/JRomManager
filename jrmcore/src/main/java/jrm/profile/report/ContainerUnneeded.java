@@ -8,21 +8,19 @@ import jrm.locale.Messages;
 import jrm.profile.data.Container;
 
 /**
- * Subject representing an unneeded container discovered on disk during
- * scanning.
+ * Subject representing an unneeded container discovered on disk during scanning.
  * <p>
- * This status indicates that the physical file or folder matches a known game
- * or romset, but is not selected or required by the active configuration
- * profile settings.
+ * This status indicates that the physical file or folder matches a known game or romset, but is not selected or required by the
+ * active configuration profile settings.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public class ContainerUnneeded extends ContainerSubject implements Serializable {
     /**
-     * Constructs a new ContainerUnneeded subject for the specified physical
-     * container.
+     * Constructs a new ContainerUnneeded subject for the specified physical container.
      *
      * @param c the physical storage container
      */
@@ -46,6 +44,7 @@ public class ContainerUnneeded extends ContainerSubject implements Serializable 
      * Clones this subject without modifying notes.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return a cloned ContainerUnneeded instance
      */
     @Override
@@ -54,10 +53,10 @@ public class ContainerUnneeded extends ContainerSubject implements Serializable 
     }
 
     /**
-     * Streams the collection of status notes associated with this container
-     * subject.
+     * Streams the collection of status notes associated with this container subject.
      *
      * @param filterOptions the active filtering options to evaluate
+     * 
      * @return a stream of status Note instances
      */
     @Override

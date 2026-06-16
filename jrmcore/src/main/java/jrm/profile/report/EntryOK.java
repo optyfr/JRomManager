@@ -6,10 +6,10 @@ import jrm.locale.Messages;
 import jrm.profile.data.EntityBase;
 
 /**
- * Report note indicating that a physical entry is successfully matched (found
- * and correct) or explicitly configured as not needed.
+ * Report note indicating that a physical entry is successfully matched (found and correct) or explicitly configured as not needed.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")

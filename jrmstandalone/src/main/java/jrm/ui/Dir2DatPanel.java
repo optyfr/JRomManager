@@ -384,7 +384,8 @@ public class Dir2DatPanel extends JPanel {
         panelDir2DatIO.add(lblDir2DatSrc, gbcLblDir2DatSrc);
 
         tfDir2DatSrc = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt)); // $NON-NLS-1$
-        tfDir2DatSrc.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir)); // $NON-NLS-1$ //$NON-NLS-2$
+        tfDir2DatSrc.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir)); // $NON-NLS-1$
+                                                                                                                  // //$NON-NLS-2$
         tfDir2DatSrc.setMode(JFileDropMode.DIRECTORY);
         tfDir2DatSrc.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropDirHint"), Color.gray)); //$NON-NLS-1$
         tfDir2DatSrc.setColumns(10);
@@ -402,7 +403,8 @@ public class Dir2DatPanel extends JPanel {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_SRC, workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null,
-                    Messages.getString(MAIN_FRAME_CHOOSE_DAT_SRC), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$ //$NON-NLS-2$
+                    Messages.getString(MAIN_FRAME_CHOOSE_DAT_SRC), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$
+                                                                                                                                    // //$NON-NLS-2$
                         session.getUser().getSettings().setProperty(MAIN_FRAME_CHOOSE_DAT_SRC, chooser.getCurrentDirectory().getAbsolutePath()); // $NON-NLS-1$
                         tfDir2DatSrc.setText(chooser.getSelectedFile().getAbsolutePath());
                         session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, tfDir2DatSrc.getText()); // $NON-NLS-1$
@@ -433,7 +435,8 @@ public class Dir2DatPanel extends JPanel {
         panelDir2DatIO.add(lblDir2DatDst, gbcLblDir2DatDst);
 
         tfDir2DatDst = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt)); // $NON-NLS-1$
-        tfDir2DatDst.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file)); // $NON-NLS-1$ //$NON-NLS-2$
+        tfDir2DatDst.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file)); // $NON-NLS-1$
+                                                                                                                   // //$NON-NLS-2$
         tfDir2DatDst.setMode(JFileDropMode.FILE);
         tfDir2DatDst.setUI(new JTextFieldHintUI(Messages.getString("MainFrame.DropFileHint"), Color.gray)); //$NON-NLS-1$
         tfDir2DatDst.setColumns(10);
@@ -451,7 +454,8 @@ public class Dir2DatPanel extends JPanel {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY,
                     new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_DST, workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null,
-                    Messages.getString(MAIN_FRAME_CHOOSE_DAT_DST), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$ //$NON-NLS-2$
+                    Messages.getString(MAIN_FRAME_CHOOSE_DAT_DST), false).show(SwingUtilities.getWindowAncestor(this), chooser -> { // $NON-NLS-1$
+                                                                                                                                    // //$NON-NLS-2$
                         session.getUser().getSettings().setProperty(MAIN_FRAME_CHOOSE_DAT_DST, chooser.getCurrentDirectory().getAbsolutePath()); // $NON-NLS-1$
                         tfDir2DatDst.setText(chooser.getSelectedFile().getAbsolutePath());
                         session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, tfDir2DatDst.getText()); // $NON-NLS-1$
@@ -539,6 +543,7 @@ public class Dir2DatPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @return
      */
     private EnumSet<DirScan.Options> initOptions(final Session session) {

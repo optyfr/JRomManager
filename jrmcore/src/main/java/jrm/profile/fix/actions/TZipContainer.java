@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.fix.actions;
 
@@ -34,7 +25,6 @@ import jtrrntzip.TrrntZipStatus;
  * The specialized container action for trrntzipping zip containers
  * 
  * @author optyfr
- *
  */
 public class TZipContainer extends ContainerAction {
     private long dataSize;
@@ -43,9 +33,8 @@ public class TZipContainer extends ContainerAction {
      * Constructor
      * 
      * @param container the container to tzip
-     * @param format    the desired format (should be always
-     *                  {@link FormatOptions#TZIP} otherwise nothing will happen)
-     * @param dataSize  the uncompressed data size of all entries to process
+     * @param format the desired format (should be always {@link FormatOptions#TZIP} otherwise nothing will happen)
+     * @param dataSize the uncompressed data size of all entries to process
      */
     public TZipContainer(final Container container, final FormatOptions format, final long dataSize) {
         super(container, format);

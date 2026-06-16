@@ -29,12 +29,12 @@ import lombok.val;
 public abstract class AbstractSessionServlet extends HttpServlet {
 
     /**
-     * Fills the provided JsonObject with session information, localized messages, and user settings, then sends it as a JSON response
-     * to the client.
+     * Fills the provided JsonObject with session information, localized messages, and user settings, then sends it as a JSON
+     * response to the client.
      * <p>
-     * This method retrieves the current web session, extracts the session ID, and adds it to the JSON object. It also loads localized
-     * messages based on the client's "Accept-Language" header and includes them in the response. Finally, it adds the user's settings
-     * to the JSON object before sending it back to the client.
+     * This method retrieves the current web session, extracts the session ID, and adds it to the JSON object. It also loads
+     * localized messages based on the client's "Accept-Language" header and includes them in the response. Finally, it adds the
+     * user's settings to the JSON object before sending it back to the client.
      *
      * @param req the HttpServletRequest object that contains the request made by the client
      * @param resp the HttpServletResponse object that contains the response to be sent to the client

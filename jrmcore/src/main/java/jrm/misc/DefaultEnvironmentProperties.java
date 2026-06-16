@@ -11,12 +11,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Handles application configuration properties loaded from input streams,
- * environment variables, or system properties, supporting placeholder
- * resolution.
+ * Handles application configuration properties loaded from input streams, environment variables, or system properties, supporting
+ * placeholder resolution.
  * <p>
- * Placeholders are specified using {@code ${property.name}} or
- * {@code $property.name} and are resolved recursively from the loaded
+ * Placeholders are specified using {@code ${property.name}} or {@code $property.name} and are resolved recursively from the loaded
  * properties or environment map.
  * </p>
  * 
@@ -29,14 +27,13 @@ public class DefaultEnvironmentProperties {
     private final Map<String, String> map;
 
     /**
-     * Regular expression pattern for detecting placeholders in property values,
-     * such as {@code $$}, {@code ${...}}, or {@code $...}.
+     * Regular expression pattern for detecting placeholders in property values, such as {@code $$}, {@code ${...}}, or
+     * {@code $...}.
      */
     private static final Pattern REPLACEMENT_PATTERN = Pattern.compile("([$][$])|([$][{].*[}])|([$]\\w+)");
 
     /**
-     * Constructs a new {@code DefaultEnvironmentProperties} instance by reading
-     * from the specified {@link InputStream}.
+     * Constructs a new {@code DefaultEnvironmentProperties} instance by reading from the specified {@link InputStream}.
      * 
      * @param is the input stream containing properties, can be null or fail-safe
      */
@@ -51,8 +48,7 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Constructs a new {@code DefaultEnvironmentProperties} instance wrapping
-     * pre-loaded {@link Properties}.
+     * Constructs a new {@code DefaultEnvironmentProperties} instance wrapping pre-loaded {@link Properties}.
      * 
      * @param properties the properties object containing initial key-value mappings
      */
@@ -61,12 +57,11 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Factory method to obtain an instance based on a properties resource located
-     * in the same package as the specified loader class, with the class name as the
-     * filename base.
+     * Factory method to obtain an instance based on a properties resource located in the same package as the specified loader
+     * class, with the class name as the filename base.
      * 
-     * @param loader the class whose class loader and package are used to find the
-     *               properties file
+     * @param loader the class whose class loader and package are used to find the properties file
+     * 
      * @return a configured {@code DefaultEnvironmentProperties} instance
      */
     public static DefaultEnvironmentProperties getInstance(Class<?> loader) {
@@ -78,10 +73,10 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Initializes the internal property map by copying, adding environment
-     * variables, and resolving placeholders.
+     * Initializes the internal property map by copying, adding environment variables, and resolving placeholders.
      * 
      * @param properties the initial raw properties
+     * 
      * @return an unmodifiable map containing resolved values
      */
     private Map<String, String> init(Properties properties) {
@@ -93,19 +88,20 @@ public class DefaultEnvironmentProperties {
      * Retrieves a raw environment/property configuration value by key.
      * 
      * @param key the property key to search for
-     * @return an {@link Optional} containing the value if present, or empty
-     *         otherwise
+     * 
+     * @return an {@link Optional} containing the value if present, or empty otherwise
      */
     private Optional<String> getEnvironmentProperties(String key) {
         return Optional.ofNullable(map.get(key));
     }
 
     /**
-     * Retrieves a string property value. If not found in the local configuration,
-     * system properties are queried before returning the default value.
+     * Retrieves a string property value. If not found in the local configuration, system properties are queried before returning
+     * the default value.
      * 
      * @param key the property key
      * @param def the default value to return if the key is not defined
+     * 
      * @return the resolved string value, or the default value
      */
     public String getProperty(String key, String def) {
@@ -113,11 +109,12 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Retrieves an integer property value. If not found or if a number format error
-     * occurs, system properties are checked, or the default value is returned.
+     * Retrieves an integer property value. If not found or if a number format error occurs, system properties are checked, or the
+     * default value is returned.
      * 
      * @param key the property key
      * @param def the default value to return on absence or error
+     * 
      * @return the resolved integer value, or the default value
      */
     public Integer getProperty(String key, Integer def) {
@@ -137,11 +134,11 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Retrieves a boolean property value. If not found, system properties are
-     * queried, or the default value is returned.
+     * Retrieves a boolean property value. If not found, system properties are queried, or the default value is returned.
      * 
      * @param key the property key
      * @param def the default value to return on absence or error
+     * 
      * @return the resolved boolean value, or the default value
      */
     public Boolean getProperty(String key, Boolean def) {
@@ -161,13 +158,13 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Retrieves an enum property value. Resolves the value to the matching constant
-     * of the specified enum class.
+     * Retrieves an enum property value. Resolves the value to the matching constant of the specified enum class.
      * 
      * @param <T> the type of the enum
      * @param cls the class of the enum type
      * @param key the property key
      * @param def the default enum value to return on absence or failure
+     * 
      * @return the resolved enum constant, or the default value
      */
     public <T extends Enum<T>> T getProperty(Class<T> cls, String key, T def) {
@@ -190,19 +187,19 @@ public class DefaultEnvironmentProperties {
      * Retrieves a string property value without a default fallback.
      * 
      * @param key the property key
-     * @return the property value, or the matching system property if not defined in
-     *         the local map
+     * 
+     * @return the property value, or the matching system property if not defined in the local map
      */
     public String getProperty(String key) {
         return getEnvironmentProperties(key).orElseGet(() -> System.getProperty(key));
     }
 
     /**
-     * Resolves all placeholders recursively within the provided map. Keys starting
-     * with {@code JRM_} have their values parsed for replacement sequences.
+     * Resolves all placeholders recursively within the provided map. Keys starting with {@code JRM_} have their values parsed for
+     * replacement sequences.
      * 
-     * @param mapin the input map of key-value pairs containing potential
-     *              placeholders
+     * @param mapin the input map of key-value pairs containing potential placeholders
+     * 
      * @return an unmodifiable map with fully resolved placeholder values
      */
     private static Map<String, String> resolvePlaceHolders(final Map<String, String> mapin) {
@@ -211,12 +208,12 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Replaces placeholders recursively within a single string value using the
-     * provided reference map. Supports {@code $$}, standard environment variable
-     * style, and custom braces syntax.
+     * Replaces placeholders recursively within a single string value using the provided reference map. Supports {@code $$},
+     * standard environment variable style, and custom braces syntax.
      * 
      * @param value the raw value containing placeholders
      * @param mapin the source map used for lookup
+     * 
      * @return the resolved string value
      */
     private static String replaceValue(final String value, final Map<String, String> mapin) {
@@ -237,10 +234,11 @@ public class DefaultEnvironmentProperties {
     }
 
     /**
-     * Merges system environment variables into the provided properties map.
-     * Converts keys to lower-case and replaces underscores with dots.
+     * Merges system environment variables into the provided properties map. Converts keys to lower-case and replaces underscores
+     * with dots.
      * 
      * @param mapin the source properties map
+     * 
      * @return a combined unmodifiable map of properties and environment values
      */
     @SuppressWarnings("unchecked")

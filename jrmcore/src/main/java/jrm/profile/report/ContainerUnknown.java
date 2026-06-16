@@ -10,17 +10,16 @@ import jrm.profile.data.Container;
 /**
  * Subject representing an unknown container discovered on disk during scanning.
  * <p>
- * This status usually indicates a file or directory that does not correspond to
- * any known game romset in the active database.
+ * This status usually indicates a file or directory that does not correspond to any known game romset in the active database.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public class ContainerUnknown extends ContainerSubject implements Serializable {
     /**
-     * Constructs a new ContainerUnknown subject for the specified physical
-     * container.
+     * Constructs a new ContainerUnknown subject for the specified physical container.
      *
      * @param c the physical storage container
      */
@@ -43,6 +42,7 @@ public class ContainerUnknown extends ContainerSubject implements Serializable {
      * Clones this subject without modifying notes.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return a cloned ContainerUnknown instance
      */
     @Override
@@ -51,10 +51,10 @@ public class ContainerUnknown extends ContainerSubject implements Serializable {
     }
 
     /**
-     * Streams the collection of status notes associated with this container
-     * subject.
+     * Streams the collection of status notes associated with this container subject.
      *
      * @param filterOptions the active filtering options to evaluate
+     * 
      * @return a stream of status Note instances
      */
     @Override

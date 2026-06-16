@@ -572,6 +572,7 @@ public class ReportViewController implements Initializable {
         /**
          * @param value
          * @param expanded
+         * 
          * @return
          */
         private String getFolderIcon(Object value, final boolean expanded) {

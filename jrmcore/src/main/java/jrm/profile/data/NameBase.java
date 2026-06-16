@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -41,6 +33,7 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
      * Writes the entity name during serialization.
      *
      * @param stream the object output stream
+     * 
      * @throws IOException if an I/O error occurs
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -53,7 +46,8 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
      * Reads the entity name during deserialization.
      *
      * @param stream the object input stream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the class cannot be located
      */
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -62,8 +56,7 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
     }
 
     /**
-     * Retrieves the forged name of the entity, which may be modified depending on
-     * its concrete subclass implementation.
+     * Retrieves the forged name of the entity, which may be modified depending on its concrete subclass implementation.
      *
      * @return the name of the entity
      */
@@ -79,8 +72,7 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
     }
 
     /**
-     * Retrieves a normalized version of the name where backslashes are replaced by
-     * forward slashes.
+     * Retrieves a normalized version of the name where backslashes are replaced by forward slashes.
      *
      * @return the normalized name string
      */
@@ -101,8 +93,9 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
      * Compares this entity with another named entity by name lexicographically.
      *
      * @param o the other entity to compare with
-     * @return a negative integer, zero, or a positive integer as this name is less
-     *         than, equal to, or greater than the specified entity's name
+     * 
+     * @return a negative integer, zero, or a positive integer as this name is less than, equal to, or greater than the specified
+     *         entity's name
      */
     @Override
     public final int compareTo(final NameBase o) {
@@ -110,10 +103,10 @@ abstract class NameBase implements Serializable, Comparable<NameBase> {
     }
 
     /**
-     * Indicates whether some other object is "equal to" this one by comparing their
-     * name strings.
+     * Indicates whether some other object is "equal to" this one by comparing their name strings.
      *
      * @param obj the reference object with which to compare
+     * 
      * @return {@code true} if names match, {@code false} otherwise
      */
     @Override

@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -38,8 +30,7 @@ import jrm.xml.EnhancedXMLStreamWriter;
 import lombok.Getter;
 
 /**
- * Singleton List of machines lists. This class inherits from
- * {@link AnywareListList} and handles multiple machine lists.
+ * Singleton List of machines lists. This class inherits from {@link AnywareListList} and handles multiple machine lists.
  *
  * @author optyfr
  */
@@ -63,8 +54,7 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     private final @Getter SoftwareListList softwareListList;
 
     /**
-     * A mapping between a software list name and list of machines declared to be at
-     * least compatible with that software list.
+     * A mapping between a software list name and list of machines declared to be at least compatible with that software list.
      *
      * @return the softwareListDefs mapping
      */
@@ -83,11 +73,11 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     }
 
     /**
-     * The Serializable method for special serialization handling (in that case :
-     * initialize transient default values).
+     * The Serializable method for special serialization handling (in that case : initialize transient default values).
      *
      * @param in the serialization inputstream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the class definition is missing
      */
     private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -124,14 +114,13 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     }
 
     /**
-     * Will return a list of machine for a given software list ordered by
-     * compatibility and driver status support.
+     * Will return a list of machine for a given software list ordered by compatibility and driver status support.
      *
-     * @param softwarelist  the name of the software list
-     * @param compatibility the compatibility string (if any) declared for a
-     *                      software in the software list
-     * @return the ordered {@link List} of {@link Machine} with best match first, or
-     *         empty list if no machine were found for this software list
+     * @param softwarelist the name of the software list
+     * @param compatibility the compatibility string (if any) declared for a software in the software list
+     * 
+     * @return the ordered {@link List} of {@link Machine} with best match first, or empty list if no machine were found for this
+     *         software list
      */
     public List<Machine> getSortedMachines(final String softwarelist, final String compatibility) {
         if (softwareListDefs.containsKey(softwarelist)) {
@@ -144,13 +133,13 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     }
 
     /**
-     * Helper method containing the logic to compare two machines based on
-     * softwarelist and compatibility score.
+     * Helper method containing the logic to compare two machines based on softwarelist and compatibility score.
      *
-     * @param softwarelist  the active software list name
+     * @param softwarelist the active software list name
      * @param compatibility the active compatibility settings string
-     * @param o1            the first machine to compare
-     * @param o2            the second machine to compare
+     * @param o1 the first machine to compare
+     * @param o2 the second machine to compare
+     * 
      * @return the comparison indicator
      */
     protected int getComparator(final String softwarelist, final String compatibility, Machine o1, Machine o2) {
@@ -172,12 +161,11 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     }
 
     /**
-     * Find the best matching machine for a given software list ordered by
-     * compatibility and driver status support.
+     * Find the best matching machine for a given software list ordered by compatibility and driver status support.
      *
-     * @param softwarelist  the name of the software list
-     * @param compatibility the compatibility string (if any) declared for a
-     *                      software in the software list
+     * @param softwarelist the name of the software list
+     * @param compatibility the compatibility string (if any) declared for a software in the software list
+     * 
      * @return the best matched {@link Machine}, or {@code null} if none is found
      */
     public Machine findMachine(final String softwarelist, final String compatibility) {
@@ -192,12 +180,13 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     /**
      * Export as dat.
      *
-     * @param writer   the {@link EnhancedXMLStreamWriter} used to write output file
+     * @param writer the {@link EnhancedXMLStreamWriter} used to write output file
      * @param progress the {@link ProgressHandler} to show the current progress
-     * @param is_mame  is it mame (true) or logqix (false) format ?
-     * @param modes    the export modes
+     * @param is_mame is it mame (true) or logqix (false) format ?
+     * @param modes the export modes
+     * 
      * @throws XMLStreamException if an XML stream writing error occurs
-     * @throws IOException        if an I/O error occurs
+     * @throws IOException if an I/O error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes)
             throws XMLStreamException, IOException {

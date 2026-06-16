@@ -18,28 +18,27 @@ import jrm.server.shared.datasources.XMLRequest.Operation;
 import lombok.val;
 
 /**
- * Handles XML responses for managing the profiles directory tree.
- * This class processes operations such as fetching the tree structure,
- * adding new directories, updating existing directory names, and removing directories.
- * It interacts with the user's workspace to maintain a hierarchical view of profile lists.
+ * Handles XML responses for managing the profiles directory tree. This class processes operations such as fetching the tree
+ * structure, adding new directories, updating existing directory names, and removing directories. It interacts with the user's
+ * workspace to maintain a hierarchical view of profile lists.
  */
 public class ProfilesTreeXMLResponse extends XMLResponse {
 
     /** XML element name for the operation status. */
     private static final String STATUS = "status";
-    
+
     /** XML element name for the root response wrapper. */
     private static final String RESPONSE = "response";
-    
+
     /** XML attribute name for the parent directory identifier. */
     private static final String PARENT_ID = "ParentID";
-    
+
     /** XML attribute name indicating if the node represents a folder. */
     private static final String IS_FOLDER = "isFolder";
-    
+
     /** XML attribute name for the directory or file title/name. */
     private static final String TITLE = "title";
-    
+
     /** XML element name for a single record in the data payload. */
     private static final String RECORD = "record";
 
@@ -47,6 +46,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * Constructs a new ProfilesTreeXMLResponse.
      *
      * @param request the incoming XML request containing operation details
+     * 
      * @throws IOException if an I/O error occurs during initialization
      * @throws XMLStreamException if an XML writing error occurs during initialization
      */
@@ -58,6 +58,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * Recursively counts the total number of leaf nodes in the directory tree.
      *
      * @param node the current tree node to evaluate
+     * 
      * @return the total count of leaf nodes under the given node
      */
     private int countNode(Node<Dir> node) {
@@ -78,6 +79,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * @param node the current tree node to process
      * @param parentID the string identifier of the parent node, or null if it is a root node
      * @param id an atomic integer used to generate and track unique node identifiers
+     * 
      * @throws XMLStreamException if an error occurs while writing to the XML stream
      */
     private void outputNode(XMLStreamWriter writer, Node<Dir> node, String parentID, AtomicInteger id) throws XMLStreamException {
@@ -100,10 +102,11 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
     }
 
     /**
-     * Fetches the complete directory tree structure and writes it to the XML response.
-     * It creates the root "xmlfiles" directory if it does not exist.
+     * Fetches the complete directory tree structure and writes it to the XML response. It creates the root "xmlfiles" directory if
+     * it does not exist.
      *
      * @param operation the operation details from the request (unused in fetch, but required by signature)
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while accessing the file system
      */
@@ -128,6 +131,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * Adds a new directory to the profile list based on the request data.
      *
      * @param operation the operation details containing the target path and the new directory title
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while creating the directory
      */
@@ -157,6 +161,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * Updates (renames) an existing directory in the profile list.
      *
      * @param operation the operation details containing the directory ID and the new title
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while moving/renaming the directory
      */
@@ -186,6 +191,7 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
      * Removes a directory and all its contents from the profile list.
      *
      * @param operation the operation details containing the directory ID to remove
+     * 
      * @throws XMLStreamException if an error occurs while writing the XML response
      * @throws IOException if an I/O error occurs while deleting the directory
      */

@@ -4,7 +4,9 @@ import jrm.aui.status.StatusRendererFactory;
 import jtrrntzip.LogCallback;
 
 /**
- * ProgressTZipCallBack is a class that implements the LogCallback and StatusRendererFactory interfaces. It is designed to handle progress updates and logging for a TZip operation. The class uses a ProgressHandler to update the progress status based on the percentage of completion.
+ * ProgressTZipCallBack is a class that implements the LogCallback and StatusRendererFactory interfaces. It is designed to handle
+ * progress updates and logging for a TZip operation. The class uses a ProgressHandler to update the progress status based on the
+ * percentage of completion.
  */
 public final class ProgressTZipCallBack implements LogCallback, StatusRendererFactory {
 
@@ -12,7 +14,8 @@ public final class ProgressTZipCallBack implements LogCallback, StatusRendererFa
     ProgressHandler ph;
 
     /**
-     * Constructs a new ProgressTZipCallBack with the specified ProgressHandler. The constructor initializes the ProgressHandler for reporting progress updates during the TZip operation.
+     * Constructs a new ProgressTZipCallBack with the specified ProgressHandler. The constructor initializes the ProgressHandler for
+     * reporting progress updates during the TZip operation.
      *
      * @param ph the ProgressHandler used to report progress updates
      */
@@ -21,7 +24,8 @@ public final class ProgressTZipCallBack implements LogCallback, StatusRendererFa
     }
 
     /**
-     * Updates the progress status based on the percentage of completion. This method is called to report the current progress of the TZip operation. If the ProgressHandler is available, it updates the progress status with the new percentage value.
+     * Updates the progress status based on the percentage of completion. This method is called to report the current progress of
+     * the TZip operation. If the ProgressHandler is available, it updates the progress status with the new percentage value.
      *
      * @param percent the percentage of completion for the TZip operation
      */
@@ -32,7 +36,8 @@ public final class ProgressTZipCallBack implements LogCallback, StatusRendererFa
     }
 
     /**
-     * Checks if the ProgressHandler is available for reporting progress updates. This method returns true if the ProgressHandler is not null, indicating that progress updates can be reported.
+     * Checks if the ProgressHandler is available for reporting progress updates. This method returns true if the ProgressHandler is
+     * not null, indicating that progress updates can be reported.
      *
      * @return true if the ProgressHandler is available, false otherwise
      */
@@ -42,7 +47,8 @@ public final class ProgressTZipCallBack implements LogCallback, StatusRendererFa
     }
 
     /**
-     * Logs a message for the TZip operation. This method is called to log messages related to the TZip operation. In this implementation, it does nothing, as logging is not required for this callback.
+     * Logs a message for the TZip operation. This method is called to log messages related to the TZip operation. In this
+     * implementation, it does nothing, as logging is not required for this callback.
      *
      * @param log the message to be logged
      */

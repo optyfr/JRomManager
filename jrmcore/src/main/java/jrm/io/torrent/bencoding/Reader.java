@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent.bencoding;
 
@@ -25,8 +16,7 @@ import jrm.io.torrent.bencoding.types.BList;
 import jrm.io.torrent.bencoding.types.IBencodable;
 
 /**
- * Parser utility that decodes a raw bencoded byte array stream into structured,
- * strongly-typed {@link IBencodable} objects.
+ * Parser utility that decodes a raw bencoded byte array stream into structured, strongly-typed {@link IBencodable} objects.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
@@ -57,8 +47,8 @@ public class Reader {
     /**
      * Reads and decodes the root bencoded object from the byte buffer.
      *
-     * @return the decoded {@link IBencodable} object (dictionary, list, string, or
-     *         integer)
+     * @return the decoded {@link IBencodable} object (dictionary, list, string, or integer)
+     * 
      * @throws TorrentException if the bencoded structure is corrupt or incomplete
      */
     public IBencodable read() throws TorrentException {
@@ -66,10 +56,10 @@ public class Reader {
     }
 
     /**
-     * Identifies and delegates decoding to the appropriate type-specific parser
-     * based on the prefix byte at the current index.
+     * Identifies and delegates decoding to the appropriate type-specific parser based on the prefix byte at the current index.
      *
      * @return the decoded {@link IBencodable} object
+     * 
      * @throws TorrentException if an unsupported prefix byte is encountered
      */
     private IBencodable readSingleType() throws TorrentException {
@@ -91,12 +81,11 @@ public class Reader {
     }
 
     /**
-     * Parses a bencoded byte string from the current index. Format:
-     * {@code <length>:<data>} (e.g., {@code 4:spam})
+     * Parses a bencoded byte string from the current index. Format: {@code <length>:<data>} (e.g., {@code 4:spam})
      *
      * @return a {@link BByteString} representing the parsed byte string
-     * @throws TorrentException if the length is invalid or the data does not match
-     *                          the length
+     * 
+     * @throws TorrentException if the length is invalid or the data does not match the length
      */
     private BByteString readString() throws TorrentException {
         var stringLengthAsAscii = new StringBuilder(); // $NON-NLS-1$
@@ -129,6 +118,7 @@ public class Reader {
      * Parses a bencoded list from the current index. Format: {@code l<elements>e}
      *
      * @return a {@link BList} containing the decoded elements
+     * 
      * @throws TorrentException if the list does not end with 'e'
      */
     private BList readList() throws TorrentException {
@@ -146,12 +136,11 @@ public class Reader {
     }
 
     /**
-     * Parses a bencoded dictionary from the current index. Format:
-     * {@code d<key><value>e} where keys must be byte strings.
+     * Parses a bencoded dictionary from the current index. Format: {@code d<key><value>e} where keys must be byte strings.
      *
      * @return a {@link BDictionary} representing the key-value map
-     * @throws TorrentException if keys are not strings or the dictionary does not
-     *                          end with 'e'
+     * 
+     * @throws TorrentException if keys are not strings or the dictionary does not end with 'e'
      */
     private BDictionary readDictionary() throws TorrentException {
         // If we got here, the current byte is a 'd'.
@@ -173,14 +162,12 @@ public class Reader {
     }
 
     /**
-     * Parses an integer in Bencode format. Example: 123 == i123e. An integer is
-     * encoded as i&lt;integer encoded in base ten ASCII&gt;e. Leading zeros are not
-     * allowed. Negative values are prefixed with a minus sign. Negative zero is not
-     * permitted.
+     * Parses an integer in Bencode format. Example: 123 == i123e. An integer is encoded as i&lt;integer encoded in base ten
+     * ASCII&gt;e. Leading zeros are not allowed. Negative values are prefixed with a minus sign. Negative zero is not permitted.
      *
      * @return BInt representing the value of the parsed integer.
-     * @throws TorrentException if the integer formatting is invalid or does not end
-     *                          with 'e'
+     * 
+     * @throws TorrentException if the integer formatting is invalid or does not end with 'e'
      */
     private BInt readInteger() throws TorrentException {
         // If we got here, the current byte is an 'i'.

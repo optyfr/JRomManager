@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.data;
 
@@ -26,19 +18,17 @@ import java.util.Set;
 import jrm.profile.Profile;
 
 /**
- * A list of {@link Anyware} objects. This class serves as an abstract base for
- * specialized collections of arcade machines or software systems.
+ * A list of {@link Anyware} objects. This class serves as an abstract base for specialized collections of arcade machines or
+ * software systems.
  * 
  * @author optyfr
  *
- * @param <T> extends {@link Anyware} (generally a {@link Machine} or a
- *            {@link Software})
+ * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
  */
 @SuppressWarnings("serial")
 public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, AWList<T>, ByName<T> {
     /**
-     * The profile associated with this list. Used to retrieve filter and
-     * configuration options.
+     * The profile associated with this list. Used to retrieve filter and configuration options.
      */
     Profile profile;
 
@@ -58,13 +48,12 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
     }
 
     /**
-     * the Serializable method for special serialization handling (in that case :
-     * initialize transient default values)
+     * the Serializable method for special serialization handling (in that case : initialize transient default values)
      * 
      * @param in the serialization inputstream
-     * @throws IOException            if an I/O error occurs
-     * @throws ClassNotFoundException if the class of a serialized object cannot be
-     *                                found
+     * 
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if the class of a serialized object cannot be found
      */
     private void readObject(final java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
@@ -88,8 +77,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
     /**
      * resets {@link T} list cache and fire a TableChanged event to listeners.
      * 
-     * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to
-     *               apply
+     * @param filter the new {@link EnumSet} of {@link AnywareStatus} filter to apply
      */
     public void setFilterCache(final Set<AnywareStatus> filter) {
         profile.setFilterList(filter);
@@ -98,19 +86,16 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
     /**
      * Gets the current filters applied to this list.
      * 
-     * @return a {@link Set} of {@link AnywareStatus} representing the active
-     *         filters
+     * @return a {@link Set} of {@link AnywareStatus} representing the active filters
      */
     public Set<AnywareStatus> getFilter() {
         return profile.getFilterList();
     }
 
     /**
-     * get the overall current status according the status of all its currently
-     * filtered {@link Anyware}s.
+     * get the overall current status according the status of all its currently filtered {@link Anyware}s.
      * 
-     * @return an {@link AnywareStatus} representing the combined status of all
-     *         items in this list
+     * @return an {@link AnywareStatus} representing the combined status of all items in this list
      */
     public AnywareStatus getStatus() {
         AnywareStatus status = AnywareStatus.COMPLETE;
@@ -149,6 +134,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
      * Find the index of a given {@link Anyware} in the filtered list.
      * 
      * @param anyware the given {@link Anyware}
+     * 
      * @return the int index or -1 if not found
      */
     public int find(final Anyware anyware) {
@@ -156,10 +142,10 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
     }
 
     /**
-     * Find the first index of the {@link Anyware} for which its name starts with
-     * the search string.
+     * Find the first index of the {@link Anyware} for which its name starts with the search string.
      * 
      * @param search the {@link String} to search for
+     * 
      * @return the int index or -1 if not found
      */
     public int find(final String search) {
@@ -170,6 +156,7 @@ public abstract class AnywareList<T extends Anyware> extends NameBase implements
      * Compares the specified object with this list for equality.
      * 
      * @param obj the object to compare with
+     * 
      * @return {@code true} if the objects are equal, {@code false} otherwise
      */
     @Override

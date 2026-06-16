@@ -6,9 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.binary.Hex;
 
 /**
- * An implementation of {@link MDigest} wrapping standard JDK
- * {@link MessageDigest} algorithms. Used for cryptographic hashing algorithms
- * such as MD5 and SHA-1.
+ * An implementation of {@link MDigest} wrapping standard JDK {@link MessageDigest} algorithms. Used for cryptographic hashing
+ * algorithms such as MD5 and SHA-1.
  * 
  * @author optyfr
  */
@@ -22,10 +21,9 @@ class MsgDigest extends MDigest {
      * Constructs a new {@code MsgDigest} for the specified algorithm.
      * 
      * @param algorithm the hashing algorithm to instantiate
-     * @throws NoSuchAlgorithmException if the underlying cryptographic provider
-     *                                  does not support the algorithm
-     * @throws NullPointerException     if the specified {@code algorithm} parameter
-     *                                  is {@code null}
+     * 
+     * @throws NoSuchAlgorithmException if the underlying cryptographic provider does not support the algorithm
+     * @throws NullPointerException if the specified {@code algorithm} parameter is {@code null}
      */
     MsgDigest(Algo algorithm) throws NoSuchAlgorithmException {
         digest = MessageDigest.getInstance(algorithm.getName());
@@ -34,10 +32,9 @@ class MsgDigest extends MDigest {
     /**
      * Updates the digest with the specified byte array input.
      * 
-     * @param input  the byte array input to update the digest with
+     * @param input the byte array input to update the digest with
      * @param offset the start offset in the byte array
-     * @param len    the length of bytes to read from the input, starting from the
-     *               offset
+     * @param len the length of bytes to read from the input, starting from the offset
      */
     @Override
     public void update(byte[] input, int offset, int len) {
@@ -45,8 +42,7 @@ class MsgDigest extends MDigest {
     }
 
     /**
-     * Completes the hash computation and returns the final hash formatted as a
-     * lower-case hexadecimal string.
+     * Completes the hash computation and returns the final hash formatted as a lower-case hexadecimal string.
      * 
      * @return the lower-case hexadecimal representation of the calculated hash
      */
@@ -56,8 +52,7 @@ class MsgDigest extends MDigest {
     }
 
     /**
-     * Gets the matching {@link Algo} representation of the current message digest
-     * algorithm.
+     * Gets the matching {@link Algo} representation of the current message digest algorithm.
      * 
      * @return the matching {@link Algo} enum instance
      */

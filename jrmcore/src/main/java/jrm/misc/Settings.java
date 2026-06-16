@@ -16,9 +16,8 @@ import lombok.Getter;
 import lombok.val;
 
 /**
- * Abstract base class managing general key-value properties. Provides
- * capabilities for reading, writing, and synchronizing XML-based property
- * files, as well as exporting configurations to JSON representations.
+ * Abstract base class managing general key-value properties. Provides capabilities for reading, writing, and synchronizing
+ * XML-based property files, as well as exporting configurations to JSON representations.
  * 
  * @author optyfr
  */
@@ -112,14 +111,13 @@ public abstract class Settings extends SettingsImpl {
      * Propagates property adjustments to internal variables or subclass fields.
      * 
      * @param property the enum reference representing the configuration key
-     * @param value    the string representation of the new value
+     * @param value the string representation of the new value
      */
     protected abstract void propagate(final Enum<?> property, final String value);
 
     /**
-     * Exports the configured key-value properties into a {@link JsonObject}.
-     * Ignores any properties related to system, list, or driver filter settings to
-     * preserve space.
+     * Exports the configured key-value properties into a {@link JsonObject}. Ignores any properties related to system, list, or
+     * driver filter settings to preserve space.
      * 
      * @return a JSON object containing the filtered properties
      */

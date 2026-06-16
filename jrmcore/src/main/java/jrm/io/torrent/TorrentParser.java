@@ -1,19 +1,10 @@
-/* Copyright (C) 2015  Christophe De Troyer
- * Copyright (C) 2018  Optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2015 Christophe De Troyer Copyright (C) 2018 Optyfr This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public
+ * License for more details. You should have received a copy of the GNU General Public License along with this program; if not,
+ * write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.io.torrent;
 
@@ -35,9 +26,8 @@ import jrm.io.torrent.bencoding.types.BList;
 import jrm.io.torrent.bencoding.types.IBencodable;
 
 /**
- * Utility parser class that decodes BitTorrent metainfo (.torrent) files. Reads
- * raw bencoded byte streams, extracts standard keys, calculates info-hashes,
- * and generates structured {@link Torrent} representations.
+ * Utility parser class that decodes BitTorrent metainfo (.torrent) files. Reads raw bencoded byte streams, extracts standard keys,
+ * calculates info-hashes, and generates structured {@link Torrent} representations.
  * 
  * @author Christophe De Troyer
  * @author Optyfr
@@ -53,10 +43,11 @@ public class TorrentParser {
      * Parses a bencoded torrent file from a file path.
      *
      * @param file the target .torrent file to read and parse
+     * 
      * @return a fully populated {@link Torrent} metainfo model
-     * @throws TorrentException if the bencoded structure is invalid or keys are
-     *                          missing
-     * @throws IOException      if an I/O error occurs while reading the file
+     * 
+     * @throws TorrentException if the bencoded structure is invalid or keys are missing
+     * @throws IOException if an I/O error occurs while reading the file
      */
     public static Torrent parseTorrent(File file) throws TorrentException, IOException {
         return parseTorrent(Files.readAllBytes(file.toPath()));
@@ -66,10 +57,11 @@ public class TorrentParser {
      * Parses a bencoded torrent file from a file path string.
      *
      * @param filePath the path to the target .torrent file
+     * 
      * @return a fully populated {@link Torrent} metainfo model
-     * @throws TorrentException if the bencoded structure is invalid or keys are
-     *                          missing
-     * @throws IOException      if an I/O error occurs while reading the file
+     * 
+     * @throws TorrentException if the bencoded structure is invalid or keys are missing
+     * @throws IOException if an I/O error occurs while reading the file
      */
     public static Torrent parseTorrent(String filePath) throws TorrentException, IOException {
         return parseTorrent(new File(filePath));
@@ -79,9 +71,10 @@ public class TorrentParser {
      * Parses a bencoded torrent file from a raw byte array.
      *
      * @param torrentData the raw byte content of a .torrent file
+     * 
      * @return a fully populated {@link Torrent} metainfo model
-     * @throws TorrentException if the bencoded structure is invalid or
-     *                          key-constraints are violated
+     * 
+     * @throws TorrentException if the bencoded structure is invalid or key-constraints are violated
      */
     public static Torrent parseTorrent(byte[] torrentData) throws TorrentException {
         final var t = new Torrent();
@@ -156,6 +149,7 @@ public class TorrentParser {
      * Helper method to sum up the length of all files in a multi-file torrent.
      *
      * @param files the list of torrent files
+     * 
      * @return the aggregated total size of all files in bytes
      */
     private static Long calculateTotalSize(List<TorrentFile> files) {
@@ -168,10 +162,9 @@ public class TorrentParser {
     /**
      * Parses the raw pieces byte blob into individual SHA-1 piece hashes.
      *
-     * @param piecesBlob the raw pieces byte string containing concatenated 20-byte
-     *                   SHA-1 hashes
-     * @return a list of 20-byte piece hashes formatted as lowercase hexadecimal
-     *         strings
+     * @param piecesBlob the raw pieces byte string containing concatenated 20-byte SHA-1 hashes
+     * 
+     * @return a list of 20-byte piece hashes formatted as lowercase hexadecimal strings
      */
     private static List<String> parsePieces(BByteString piecesBlob) {
         final var piecesList = new ArrayList<String>();
@@ -189,10 +182,10 @@ public class TorrentParser {
     }
 
     /**
-     * Parses a BList of file dictionary representations inside a multi-file
-     * torrent.
+     * Parses a BList of file dictionary representations inside a multi-file torrent.
      *
      * @param filesBList the list of bencoded file dictionaries
+     * 
      * @return a list of decoded {@link TorrentFile} descriptors
      */
     private static List<TorrentFile> parseFiles(BList filesBList) {
@@ -219,10 +212,10 @@ public class TorrentParser {
     }
 
     /**
-     * Parses the optional multi-tracker announce list (announce-list) of lists from
-     * the metainfo dictionary.
+     * Parses the optional multi-tracker announce list (announce-list) of lists from the metainfo dictionary.
      *
      * @param dictionary the root torrent metainfo dictionary
+     * 
      * @return a flat list of tracker announce URLs
      */
     private static List<String> parseAnnounceList(BDictionary dictionary) {

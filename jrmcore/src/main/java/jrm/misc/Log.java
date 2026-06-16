@@ -1,19 +1,10 @@
 /*
- * Copyright (C) 2018 optyfr
- *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51
- * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.misc;
 
@@ -34,28 +25,31 @@ import lombok.Getter;
 import lombok.NonNull;
 
 /**
- * Standard centralized logging facility for the application. Wraps
- * {@link java.util.logging.Logger} to provide consistent formatting,
- * console/file routing, and simplified debugging levels (INFO, WARNING, SEVERE,
- * FINE, FINEST, CONFIG).
+ * Standard centralized logging facility for the application. Wraps {@link java.util.logging.Logger} to provide consistent
+ * formatting, console/file routing, and simplified debugging levels (INFO, WARNING, SEVERE, FINE, FINEST, CONFIG).
  * 
  * @author optyfr
  */
 public class Log {
     /**
-     * Custom log record formatter that outputs logs using a formatted timestamp,
-     * logging level, the message, and any associated stack traces.
+     * Custom log record formatter that outputs logs using a formatted timestamp, logging level, the message, and any associated
+     * stack traces.
      */
     public static class Formatter extends java.util.logging.Formatter {
-        
-        /** Constructs a new Formatter instance with default settings. This constructor does not perform any specific initialization and can be used to create a basic log formatter for formatting log records in a consistent manner. */
-        public Formatter() { /* default constructor */ }
-        
+
         /**
-         * Formats the given log record into a single-line string with a trailing
-         * newline. Supports formatting embedded exception stack traces.
+         * Constructs a new Formatter instance with default settings. This constructor does not perform any specific initialization
+         * and can be used to create a basic log formatter for formatting log records in a consistent manner.
+         */
+        public Formatter() {
+            /* default constructor */ }
+
+        /**
+         * Formats the given log record into a single-line string with a trailing newline. Supports formatting embedded exception
+         * stack traces.
          * 
          * @param theRecord the log record to format
+         * 
          * @return the formatted log message
          */
         @Override
@@ -89,8 +83,7 @@ public class Log {
     private static @Getter boolean init = false;
 
     /**
-     * Private constructor to prevent direct instantiation. Registers a fallback
-     * console handler on the global logger.
+     * Private constructor to prevent direct instantiation. Registers a fallback console handler on the global logger.
      */
     private Log() {
         Logger.getGlobal().addHandler(new ConsoleHandler());
@@ -99,12 +92,10 @@ public class Log {
     /**
      * Initializes the logger with a file handler and optional console output.
      * 
-     * @param file  the path to the output log file
+     * @param file the path to the output log file
      * @param debug if {@code true}, console log outputs are enabled at FINE level
-     * @param limit maximum file size limit (currently overridden to 100MB
-     *              internally)
-     * @param count maximum number of log files to keep in rotation (currently
-     *              overridden to 5 internally)
+     * @param limit maximum file size limit (currently overridden to 100MB internally)
+     * @param count maximum number of log files to keep in rotation (currently overridden to 5 internally)
      */
     public static void init(final String file, final boolean debug, final int limit, final int count) // NOSONAR
     {
@@ -127,8 +118,7 @@ public class Log {
     }
 
     /**
-     * Sets the active logging level for all registered handlers and the root
-     * logger.
+     * Sets the active logging level for all registered handlers and the root logger.
      * 
      * @param level the new logging level
      */
@@ -220,18 +210,17 @@ public class Log {
      * Log an error message alongside its throwing exception cause.
      * 
      * @param msg the message to log
-     * @param e   the underlying throwable exception cause
+     * @param e the underlying throwable exception cause
      */
     public static void err(final String msg, final Throwable e) {
         Logger.getGlobal().log(Level.SEVERE, msg, e);
     }
 
     /**
-     * Log an error message retrieved from a supplier alongside its throwing
-     * exception cause.
+     * Log an error message retrieved from a supplier alongside its throwing exception cause.
      * 
      * @param msgSupplier the supplier providing the message to log
-     * @param e           the underlying throwable exception cause
+     * @param e the underlying throwable exception cause
      */
     public static void err(final Supplier<String> msgSupplier, final Throwable e) {
         Logger.getGlobal().log(Level.SEVERE, e, msgSupplier);
@@ -309,9 +298,9 @@ public class Log {
     /**
      * Log an exception throwing stack trace event.
      * 
-     * @param sourceClass  the class from which the exception is thrown
+     * @param sourceClass the class from which the exception is thrown
      * @param sourceMethod the method from which the exception is thrown
-     * @param thrown       the throwing exception instance
+     * @param thrown the throwing exception instance
      */
     public static void throwing(String sourceClass, String sourceMethod, Throwable thrown) {
         Logger.getGlobal().throwing(sourceClass, sourceMethod, thrown);

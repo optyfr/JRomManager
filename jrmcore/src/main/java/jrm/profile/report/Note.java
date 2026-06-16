@@ -12,15 +12,15 @@ import lombok.Getter;
 /**
  * Represents an individual report note (leaf node) within a container subject.
  * <p>
- * A Note describes specific structural states, details, and differences
- * discovered during the ROM scanning process, such as wrong hash values,
- * missing items, unneeded files, or successful matches.
+ * A Note describes specific structural states, details, and differences discovered during the ROM scanning process, such as wrong
+ * hash values, missing items, unneeded files, or successful matches.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public abstract class Note implements StatusRendererFactory, Serializable {
-    
+
     /** Serial version UID for serialization backward compatibility of Note records. */
     private static final long serialVersionUID = 2L;
 
@@ -36,12 +36,15 @@ public abstract class Note implements StatusRendererFactory, Serializable {
      */
     transient int id = -1;
 
-    /** Default constructor for Note. This constructor does not perform any specific initialization and is intended to be used by subclasses that will provide concrete implementations of the abstract methods defined in this class. */
-    protected Note() { /* default constructor */ }
-    
     /**
-     * Gets a short abbreviation code representing the type of this note (e.g.,
-     * "OK", "MISS", "UNNEED", "ADD").
+     * Default constructor for Note. This constructor does not perform any specific initialization and is intended to be used by
+     * subclasses that will provide concrete implementations of the abstract methods defined in this class.
+     */
+    protected Note() {
+        /* default constructor */ }
+
+    /**
+     * Gets a short abbreviation code representing the type of this note (e.g., "OK", "MISS", "UNNEED", "ADD").
      *
      * @return the abbreviation code string
      */
@@ -56,8 +59,7 @@ public abstract class Note implements StatusRendererFactory, Serializable {
     public abstract String toString();
 
     /**
-     * Gets a detailed diagnostic report mapping expected metadata against current
-     * physical state attributes.
+     * Gets a detailed diagnostic report mapping expected metadata against current physical state attributes.
      *
      * @return the detailed diagnostic text
      */
@@ -73,30 +75,26 @@ public abstract class Note implements StatusRendererFactory, Serializable {
     /**
      * Gets the expected or current CRC32 checksum string value.
      *
-     * @return the CRC32 hexadecimal string, or {@code null} if not applicable or
-     *         available
+     * @return the CRC32 hexadecimal string, or {@code null} if not applicable or available
      */
     public abstract String getCrc();
 
     /**
      * Gets the expected or current MD5 hash string value.
      *
-     * @return the MD5 hexadecimal string, or {@code null} if not applicable or
-     *         available
+     * @return the MD5 hexadecimal string, or {@code null} if not applicable or available
      */
     public abstract String getMd5();
 
     /**
      * Gets the expected or current SHA-1 hash string value.
      *
-     * @return the SHA-1 hexadecimal string, or {@code null} if not applicable or
-     *         available
+     * @return the SHA-1 hexadecimal string, or {@code null} if not applicable or available
      */
     public abstract String getSha1();
 
     /**
-     * Gets the primary checksum or hash identifying this note, selected in priority
-     * order: SHA-1, MD5, CRC32.
+     * Gets the primary checksum or hash identifying this note, selected in priority order: SHA-1, MD5, CRC32.
      *
      * @return the hexadecimal hash string, or {@code null} if none is defined
      */
@@ -125,8 +123,8 @@ public abstract class Note implements StatusRendererFactory, Serializable {
      * Compares this note with another object for equality.
      *
      * @param obj the reference object with which to compare
-     * @return {@code true} if this object is equal to the obj argument;
-     *         {@code false} otherwise
+     * 
+     * @return {@code true} if this object is equal to the obj argument; {@code false} otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -134,12 +132,11 @@ public abstract class Note implements StatusRendererFactory, Serializable {
     }
 
     /**
-     * Formats a diagnostic text block summarizing the expected attributes of the
-     * target entity.
+     * Formats a diagnostic text block summarizing the expected attributes of the target entity.
      *
      * @param entity the expected entity definition
-     * @return the formatted diagnostic string, or an empty string if entity is
-     *         {@code null}
+     * 
+     * @return the formatted diagnostic string, or an empty string if entity is {@code null}
      */
     protected String getExpectedEntity(EntityBase entity) {
         if (entity == null)
@@ -161,12 +158,11 @@ public abstract class Note implements StatusRendererFactory, Serializable {
     }
 
     /**
-     * Formats a diagnostic text block summarizing the actual attributes of the
-     * physical file entry.
+     * Formats a diagnostic text block summarizing the actual attributes of the physical file entry.
      *
      * @param entry the actual scanned file entry
-     * @return the formatted diagnostic string, or an empty string if entry is
-     *         {@code null}
+     * 
+     * @return the formatted diagnostic string, or an empty string if entry is {@code null}
      */
     protected String getCurrentEntry(Entry entry) {
         if (entry == null)
@@ -186,8 +182,7 @@ public abstract class Note implements StatusRendererFactory, Serializable {
     }
 
     /**
-     * Gets a comparator for sorting notes alphabetically by their name
-     * case-insensitively.
+     * Gets a comparator for sorting notes alphabetically by their name case-insensitively.
      *
      * @return the sorting comparator
      */

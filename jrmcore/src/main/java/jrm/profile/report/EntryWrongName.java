@@ -7,23 +7,21 @@ import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
 
 /**
- * Report note indicating that a physical entry is found for an expected ROM or
- * file entity, but has a wrong or mismatched filename.
+ * Report note indicating that a physical entry is found for an expected ROM or file entity, but has a wrong or mismatched filename.
  * <p>
- * This status represents entries that can be repaired in-place by simply
- * renaming the file to the expected name.
+ * This status represents entries that can be repaired in-place by simply renaming the file to the expected name.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 @SuppressWarnings("serial")
 public class EntryWrongName extends EntryExtNote implements Serializable {
     /**
-     * Constructs a new EntryWrongName note mapping an expected entity to a
-     * wrongly-named physical entry.
+     * Constructs a new EntryWrongName note mapping an expected entity to a wrongly-named physical entry.
      *
      * @param entity the expected entity definition
-     * @param entry  the wrongly-named physical entry
+     * @param entry the wrongly-named physical entry
      */
     public EntryWrongName(final Entity entity, final Entry entry) {
         super(entity, entry);

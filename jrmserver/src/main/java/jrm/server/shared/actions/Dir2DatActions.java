@@ -37,7 +37,8 @@ import jrm.server.shared.Worker;
  * This class processes incoming JSON messages with the following structure:
  * </p>
  * 
- * <pre><code class="language-json">
+ * <pre>
+ * <code class="language-json">
  * {
  *   "cmd": "Dir2Dat.start",
  *   "params": {
@@ -59,7 +60,8 @@ import jrm.server.shared.Worker;
  *     }
  *   }
  * }
- * </code></pre>
+ * </code>
+ * </pre>
  * <p>
  * Response messages are sent back with commands like:
  * </p>
@@ -200,11 +202,13 @@ public class Dir2DatActions {
      * Sends a message signaling the end of the Directory-to-DAT operation.
      * <h4>Response JSON Structure:</h4>
      * 
-     * <pre><code class='language-json'>
+     * <pre>
+     * <code class='language-json'>
      * {
      *   "cmd": "Dir2Dat.end"
      * }
-     * </code></pre>
+     * </code>
+     * </pre>
      * 
      * <h4>Error Handling:</h4>
      * <p>

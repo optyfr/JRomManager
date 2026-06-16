@@ -14,13 +14,13 @@ import jrm.locale.Messages;
 import jrm.profile.data.AnywareBase;
 
 /**
- * Represents a standard retro-gaming system romset validation subject within a
- * profile scan report.
+ * Represents a standard retro-gaming system romset validation subject within a profile scan report.
  * <p>
- * This subject manages an active set status (such as missing, found, or
- * repairable) and compiles associated notes detailing file-level discrepancies.
+ * This subject manages an active set status (such as missing, found, or repairable) and compiles associated notes detailing
+ * file-level discrepancies.
  *
  * @author optyfr
+ * 
  * @since 1.0
  */
 public class SubjectSet extends Subject implements Serializable {
@@ -52,13 +52,11 @@ public class SubjectSet extends Subject implements Serializable {
          */
         FOUND,
         /**
-         * The romset is missing but can be partially assembled or created from local
-         * resources.
+         * The romset is missing but can be partially assembled or created from local resources.
          */
         CREATE,
         /**
-         * The romset is missing but can be fully assembled or created from local
-         * resources.
+         * The romset is missing but can be fully assembled or created from local resources.
          */
         CREATEFULL,
         /**
@@ -82,6 +80,7 @@ public class SubjectSet extends Subject implements Serializable {
      * Serializes the status of this subject set.
      *
      * @param stream the destination ObjectOutputStream
+     * 
      * @throws IOException if an I/O error occurs
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -94,7 +93,8 @@ public class SubjectSet extends Subject implements Serializable {
      * Deserializes the status of this subject set.
      *
      * @param stream the source ObjectInputStream
-     * @throws IOException            if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws ClassNotFoundException if the target class cannot be loaded
      */
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -112,10 +112,9 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Clones a SubjectSet from an originating instance, applying a filtered list of
-     * notes.
+     * Clones a SubjectSet from an originating instance, applying a filtered list of notes.
      *
-     * @param org   the originating SubjectSet to replicate
+     * @param org the originating SubjectSet to replicate
      * @param notes the list of filtered Note instances
      */
     private SubjectSet(final SubjectSet org, final List<Note> notes) {
@@ -126,6 +125,7 @@ public class SubjectSet extends Subject implements Serializable {
      * Clones this SubjectSet according to the active filtering options.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return the cloned, filtered SubjectSet instance
      */
     @Override
@@ -137,10 +137,10 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Filters and sorts notes belonging to this subject based on the active
-     * filtering options.
+     * Filters and sorts notes belonging to this subject based on the active filtering options.
      *
      * @param filterOptions the active filtering options to apply
+     * 
      * @return a sorted, filtered list of Note instances
      */
     public List<Note> filter(final Set<FilterOptions> filterOptions) {
@@ -148,10 +148,10 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Streams notes belonging to this subject, filtering out perfect matches unless
-     * showing OK items is enabled.
+     * Streams notes belonging to this subject, filtering out perfect matches unless showing OK items is enabled.
      *
      * @param filterOptions the active filtering options
+     * 
      * @return a filtered stream of Note instances
      */
     @Override
@@ -204,11 +204,9 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Checks if this subject set contains any status notes other than standard
-     * successful matches.
+     * Checks if this subject set contains any status notes other than standard successful matches.
      *
-     * @return {@code true} if there is at least one non-OK validation note;
-     *         {@code false} otherwise
+     * @return {@code true} if there is at least one non-OK validation note; {@code false} otherwise
      */
     public boolean hasNotes() {
         return notes.stream().filter(n -> !(n instanceof EntryOK)).count() > 0;
@@ -217,11 +215,9 @@ public class SubjectSet extends Subject implements Serializable {
     /**
      * Checks if all issues within this subject set can be fully repaired.
      * <p>
-     * A set is fully repairable if it does not contain any completely missing or
-     * mismatched hash files.
+     * A set is fully repairable if it does not contain any completely missing or mismatched hash files.
      *
-     * @return {@code true} if the romset is fully repairable; {@code false}
-     *         otherwise
+     * @return {@code true} if the romset is fully repairable; {@code false} otherwise
      */
     public boolean isFixable() {
         return notes.stream().filter(n -> (n instanceof EntryMissing || n instanceof EntryWrongHash)).count() == 0;
@@ -230,16 +226,14 @@ public class SubjectSet extends Subject implements Serializable {
     /**
      * Checks if this subject set contains at least one repairable issue.
      *
-     * @return {@code true} if there are repairable discrepancies; {@code false}
-     *         otherwise
+     * @return {@code true} if there are repairable discrepancies; {@code false} otherwise
      */
     public boolean hasFix() {
         return notes.stream().filter(n -> !(n instanceof EntryOK || n instanceof EntryMissing || n instanceof EntryWrongHash)).count() > 0;
     }
 
     /**
-     * Checks if the validation status is currently configured to
-     * {@link Status#FOUND}.
+     * Checks if the validation status is currently configured to {@link Status#FOUND}.
      *
      * @return {@code true} if found; {@code false} otherwise
      */
@@ -248,8 +242,7 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Checks if the validation status is currently configured to
-     * {@link Status#MISSING}.
+     * Checks if the validation status is currently configured to {@link Status#MISSING}.
      *
      * @return {@code true} if missing; {@code false} otherwise
      */
@@ -258,8 +251,7 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Checks if the validation status is currently configured to
-     * {@link Status#UNNEEDED}.
+     * Checks if the validation status is currently configured to {@link Status#UNNEEDED}.
      *
      * @return {@code true} if unneeded; {@code false} otherwise
      */
@@ -268,8 +260,7 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Checks if the romset is perfectly OK on disk with no validation
-     * discrepancies.
+     * Checks if the romset is perfectly OK on disk with no validation discrepancies.
      *
      * @return {@code true} if found and free of issues; {@code false} otherwise
      */
@@ -336,8 +327,7 @@ public class SubjectSet extends Subject implements Serializable {
     }
 
     /**
-     * Increments the appropriate summary validation metrics in the parent report
-     * depending on the active status.
+     * Increments the appropriate summary validation metrics in the parent report depending on the active status.
      */
     @Override
     public void updateStats() {

@@ -69,6 +69,7 @@ public class BatchTorrentResultsController implements Initializable {
 
     /**
      * @param status
+     * 
      * @return
      */
     protected String statusColor(final Status status) {

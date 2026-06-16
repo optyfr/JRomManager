@@ -1,18 +1,10 @@
-/* Copyright (C) 2018  optyfr
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+/*
+ * Copyright (C) 2018 optyfr This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any
+ * later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should
+ * have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package jrm.profile.manager;
 
@@ -26,11 +18,9 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * Contains comprehensive statistics and audit tracking metadata for a ROM
- * profile. Stores information regarding owned versus total counts of sets,
- * ROMs, and disks, as well as timestamps of profile lifecycle events like
- * creation, scanning, and fixing. Fully supports compliant and custom manual
- * serialization.
+ * Contains comprehensive statistics and audit tracking metadata for a ROM profile. Stores information regarding owned versus total
+ * counts of sets, ROMs, and disks, as well as timestamps of profile lifecycle events like creation, scanning, and fixing. Fully
+ * supports compliant and custom manual serialization.
  * 
  * @author optyfr
  */
@@ -86,8 +76,7 @@ public final @Data class ProfileNFOStats implements Serializable {
     private static final String VERSION_STR = "version";
 
     /**
-     * Serial version UID for maintaining serialization compatibility across
-     * releases.
+     * Serial version UID for maintaining serialization compatibility across releases.
      */
     private static final long serialVersionUID = 2L;
 
@@ -95,6 +84,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The MAME or metadata catalog database version string.
      * 
      * @param version the catalog database version to set
+     * 
      * @return the catalog database version
      */
     private String version = null;
@@ -103,6 +93,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of game sets owned in the user's collection.
      * 
      * @param haveSets the count of owned game sets to set
+     * 
      * @return the count of owned game sets
      */
     private Long haveSets = null;
@@ -111,6 +102,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of game sets defined in the metadata profile.
      * 
      * @param totalSets the total count of defined game sets to set
+     * 
      * @return the total count of defined game sets
      */
     private Long totalSets = null;
@@ -119,6 +111,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of ROM files owned in the user's collection.
      * 
      * @param haveRoms the count of owned ROMs to set
+     * 
      * @return the count of owned ROMs
      */
     private Long haveRoms = null;
@@ -127,6 +120,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of ROM files defined in the metadata profile.
      * 
      * @param totalRoms the total count of defined ROMs to set
+     * 
      * @return the total count of defined ROMs
      */
     private Long totalRoms = null;
@@ -135,6 +129,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of CHD or disk files owned in the user's collection.
      * 
      * @param haveDisks the count of owned disks to set
+     * 
      * @return the count of owned disks
      */
     private Long haveDisks = null;
@@ -143,6 +138,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The total count of CHD or disk files defined in the metadata profile.
      * 
      * @param totalDisks the total count of defined disks to set
+     * 
      * @return the total count of defined disks
      */
     private Long totalDisks = null;
@@ -151,6 +147,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The timestamp of when this profile NFO metadata was originally created.
      * 
      * @param created the creation date to set
+     * 
      * @return the creation date
      */
     private Date created = null;
@@ -159,6 +156,7 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The timestamp of the last complete directory or filesystem scan.
      * 
      * @param scanned the last scan date to set
+     * 
      * @return the last scan date
      */
     private Date scanned = null;
@@ -167,24 +165,24 @@ public final @Data class ProfileNFOStats implements Serializable {
      * The timestamp of when the last repair or repair-fix operation occurred.
      * 
      * @param fixed the last fix date to set
+     * 
      * @return the last fix date
      */
     private Date fixed = null;
 
     /**
-     * Declares persistent serialization fields for compliant and predictable manual
-     * object serialization.
+     * Declares persistent serialization fields for compliant and predictable manual object serialization.
      * 
-     * @serialField version    String catalog database version
-     * @serialField haveSets   Long count of owned game sets
-     * @serialField totalSets  Long total count of defined game sets
-     * @serialField haveRoms   Long count of owned ROM files
-     * @serialField totalRoms  Long total count of defined ROM files
-     * @serialField haveDisks  Long count of owned disks
+     * @serialField version String catalog database version
+     * @serialField haveSets Long count of owned game sets
+     * @serialField totalSets Long total count of defined game sets
+     * @serialField haveRoms Long count of owned ROM files
+     * @serialField totalRoms Long total count of defined ROM files
+     * @serialField haveDisks Long count of owned disks
      * @serialField totalDisks Long total count of defined disks
-     * @serialField created    Date creation date of this metadata
-     * @serialField scanned    Date last filesystem scan date
-     * @serialField fixed      Date last fix/repair operation date
+     * @serialField created Date creation date of this metadata
+     * @serialField scanned Date last filesystem scan date
+     * @serialField fixed Date last fix/repair operation date
      */
     private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
             new ObjectStreamField(VERSION_STR, String.class), // $NON-NLS-1$
@@ -200,18 +198,17 @@ public final @Data class ProfileNFOStats implements Serializable {
     };
 
     /**
-     * Default zero-argument constructor initializing an empty profile statistics
-     * container.
+     * Default zero-argument constructor initializing an empty profile statistics container.
      */
     public ProfileNFOStats() {
         // Default constructor
     }
 
     /**
-     * Manually serializes the state of this statistics instance to the destination
-     * stream.
+     * Manually serializes the state of this statistics instance to the destination stream.
      * 
      * @param stream the target {@link ObjectOutputStream}
+     * 
      * @throws IOException if a physical write error occurs
      */
     private void writeObject(final java.io.ObjectOutputStream stream) throws IOException {
@@ -230,13 +227,12 @@ public final @Data class ProfileNFOStats implements Serializable {
     }
 
     /**
-     * Manually deserializes the state of this statistics instance from the source
-     * stream.
+     * Manually deserializes the state of this statistics instance from the source stream.
      * 
      * @param stream the source {@link ObjectInputStream}
-     * @throws IOException            if a physical read error occurs
-     * @throws ClassNotFoundException if any serialized class representation cannot
-     *                                be resolved
+     * 
+     * @throws IOException if a physical read error occurs
+     * @throws ClassNotFoundException if any serialized class representation cannot be resolved
      */
     private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
         final ObjectInputStream.GetField fields = stream.readFields();
@@ -253,8 +249,8 @@ public final @Data class ProfileNFOStats implements Serializable {
     }
 
     /**
-     * Resets all statistics values, clearing counts and timestamps and setting the
-     * profile creation timestamp to the current system date.
+     * Resets all statistics values, clearing counts and timestamps and setting the profile creation timestamp to the current system
+     * date.
      */
     public void reset() {
         version = null;
@@ -270,8 +266,7 @@ public final @Data class ProfileNFOStats implements Serializable {
     }
 
     /**
-     * Nested immutable record-like structure pairing the number of owned items
-     * ("have") with the total expected items ("total").
+     * Nested immutable record-like structure pairing the number of owned items ("have") with the total expected items ("total").
      * 
      * @author optyfr
      */
@@ -280,6 +275,7 @@ public final @Data class ProfileNFOStats implements Serializable {
          * The count of successfully acquired/owned physical elements.
          * 
          * @param have the count of owned items
+         * 
          * @return the count of owned items
          */
         private final Long have;
@@ -288,6 +284,7 @@ public final @Data class ProfileNFOStats implements Serializable {
          * The total target count of expected elements in the profile.
          * 
          * @param total the total count of items
+         * 
          * @return the total count of items
          */
         private final Long total;

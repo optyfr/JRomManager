@@ -99,6 +99,7 @@ public class JRomManagerCLI {
 
     /**
      * @param cmd
+     * 
      * @throws FileNotFoundException
      */
     private void stream(Args cmd) throws FileNotFoundException {
@@ -231,7 +232,8 @@ public class JRomManagerCLI {
         for (val cmd : CMD.values()) {
             if (cmd != CMD.EMPTY && cmd != CMD.UNKNOWN) {
                 System.out.append(cmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ //NOSONAR
-                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_" + cmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                 // //NOSONAR
                 System.out.append("\n"); //$NON-NLS-1$ //NOSONAR
             }
         }
@@ -240,6 +242,7 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
      */
     private int cd(String... args) {
@@ -252,6 +255,7 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
      */
     private int prefs(String... args) {
@@ -266,6 +270,7 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
      */
     private int load(String... args) {
@@ -276,6 +281,7 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
      */
     private int settings(String... args) {
@@ -301,7 +307,9 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws ParseException
      * @throws IOException
      */
@@ -344,6 +352,7 @@ public class JRomManagerCLI {
 
     /**
      * @return
+     * 
      * @throws BreakException
      * @throws ScanException
      */
@@ -365,7 +374,9 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws ParseException
      * @throws IOException
      */
@@ -386,6 +397,7 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
      */
     private int set(String... args) {
@@ -411,6 +423,7 @@ public class JRomManagerCLI {
     /**
      * @param cmdline
      * @param path
+     * 
      * @throws IOException
      */
     private void recursiveDelete(final Path path, final boolean recurse) throws IOException {
@@ -464,7 +477,8 @@ public class JRomManagerCLI {
                 break;
             }
             case ADDSDR: {
-                val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+                val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
+                                                                                                                                  // //$NON-NLS-2$
                 list.add(new SrcDstResult(args[0], args[1]));
                 prefs(jrm.misc.SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(list)); // $NON-NLS-1$
                 break;
@@ -490,7 +504,8 @@ public class JRomManagerCLI {
         for (val ducmd : CMD_DIRUPD8R.values()) {
             if (ducmd != CMD_DIRUPD8R.EMPTY && ducmd != CMD_DIRUPD8R.UNKNOWN) {
                 System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ //NOSONAR
-                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_DIRUPD8R_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                            // //NOSONAR
                 System.out.append("\n"); //$NON-NLS-1$ //NOSONAR
             }
         }
@@ -505,11 +520,14 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws ParseException
      */
     private int dirupd8rStart(String... args) throws ParameterException {
-        final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+        final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
+                                                                                                                                // //$NON-NLS-2$
         List<File> srcdirs = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|')).map(File::new)
                 .collect(Collectors.toCollection(ArrayList::new)); // $NON-NLS-1$
                                                                    // //$NON-NLS-2$
@@ -536,13 +554,16 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws NumberFormatException
      * @throws SecurityException
      */
     private int dirupd8rSettings(String... args) throws NumberFormatException, SecurityException {
         if (args.length > 0) {
-            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
+                                                                                                                              // //$NON-NLS-2$
             final var index = Integer.parseInt(args[0]);
             if (index < list.size()) {
                 ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
@@ -550,7 +571,8 @@ public class JRomManagerCLI {
                     settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
                     session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
                 } else if (args.length == 2)
-                    System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]))); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+                    System.out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]))); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                          // //NOSONAR
                 else
                     for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
                         System.out.format("%s=%s%n", entry.getKey(), entry.getValue()); //$NON-NLS-1$ //NOSONAR
@@ -562,7 +584,9 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws NumberFormatException
      * @throws SecurityException
      */
@@ -572,7 +596,8 @@ public class JRomManagerCLI {
             System.out.println("DIR"); //$NON-NLS-1$ //NOSONAR
             return 0;
         } else if (args.length == 2) {
-            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
+                                                                                                                              // //$NON-NLS-2$
             final var index = Integer.parseInt(args[0]);
             if (index < list.size()) {
                 switch (args[1]) {
@@ -605,7 +630,8 @@ public class JRomManagerCLI {
                 break;
             case ADDSDR:
                 if (args.length == 2) {
-                    val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+                    val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$
+                                                                                                                                      // //$NON-NLS-2$
                     list.add(new SrcDstResult(args[0], args[1]));
                     prefs(jrm.misc.SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(list)); // $NON-NLS-1$
                 } else
@@ -632,7 +658,8 @@ public class JRomManagerCLI {
         for (val ducmd : CMD_TRNTCHK.values()) {
             if (ducmd != CMD_TRNTCHK.EMPTY && ducmd != CMD_TRNTCHK.UNKNOWN) {
                 System.out.append(ducmd.allStrings().collect(Collectors.joining(", "))); //$NON-NLS-1$ //NOSONAR
-                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+                System.out.append(": ").append(CLIMessages.getString("CLI_HELP_TRNTCHK_" + ducmd.name())); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                           // //NOSONAR
                 System.out.append("\n"); //$NON-NLS-1$ //NOSONAR
             }
         }
@@ -656,11 +683,14 @@ public class JRomManagerCLI {
 
     /**
      * @param args
+     * 
      * @return
+     * 
      * @throws ParseException
      */
     private int trntchkStart(String... args) throws ParameterException {
-        final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$ //$NON-NLS-2$
+        final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$
+                                                                                                                                // //$NON-NLS-2$
         final var results = new String[sdrl.size()];
         ResultColUpdater resulthandler = new ResultColUpdater() {
             @Override
@@ -744,7 +774,8 @@ public class JRomManagerCLI {
         if (!session.getUser().getSettings().hasProperty(name))
             System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$ //NOSONAR
         else if (name instanceof EnumWithDefault n)
-            System.out.format("%s=%s%n", name, session.getUser().getSettings().getProperty(n)); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+            System.out.format("%s=%s%n", name, session.getUser().getSettings().getProperty(n)); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                // //NOSONAR
         return 0;
     }
 
@@ -764,7 +795,8 @@ public class JRomManagerCLI {
         if (!session.getCurrProfile().getSettings().hasProperty(name))
             System.out.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name); //$NON-NLS-1$ //NOSONAR
         else if (name instanceof EnumWithDefault n)
-            System.out.format("%s=%s%n", name, session.getCurrProfile().getSettings().getProperty(n)); //$NON-NLS-1$ //$NON-NLS-2$ //NOSONAR
+            System.out.format("%s=%s%n", name, session.getCurrProfile().getSettings().getProperty(n)); //$NON-NLS-1$ //$NON-NLS-2$
+                                                                                                       // //NOSONAR
         return 0;
     }
 

@@ -185,7 +185,8 @@ public class BatchDirUpd8rPanel extends JPanel {
         mntmCustom.addActionListener(e -> customPreset(session));
         mnDat2DirPresets.add(mntmCustom);
         if (session != null)
-            for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')) // $NON-NLS-1$ //$NON-NLS-2$
+            for (final String s : StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')) // $NON-NLS-1$
+                                                                                                                                     // //$NON-NLS-2$
                 if (!s.isEmpty())
                     listBatchToolsDat2DirSrc.getModel().addElement(new File(s));
 
@@ -213,6 +214,7 @@ public class BatchDirUpd8rPanel extends JPanel {
 
     /**
      * @param session
+     * 
      * @throws SecurityException
      */
     private void customPreset(final Session session) throws SecurityException {
@@ -254,6 +256,7 @@ public class BatchDirUpd8rPanel extends JPanel {
      * @param col
      * @param row
      * @param chooser
+     * 
      * @return
      */
     private Void chosen(final int col, final int row, JRMFileChooser<Void> chooser) {
@@ -298,7 +301,9 @@ public class BatchDirUpd8rPanel extends JPanel {
 
     /**
      * @param file
+     * 
      * @return
+     * 
      * @throws IllegalArgumentException
      */
     private boolean srcFilter(File file) throws IllegalArgumentException {
