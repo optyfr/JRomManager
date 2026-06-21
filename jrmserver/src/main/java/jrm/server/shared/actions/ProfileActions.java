@@ -157,7 +157,7 @@ public class ProfileActions extends PathAbstractor {
                         new GlobalActions(ws).warn("Could not import anything from Mame");
                 } else
                     new GlobalActions(ws).warn("Mame not found in system's search path");
-            } catch (BreakException ex) {
+            } catch (BreakException _) {
                 // user cancelled action
             } catch (IOException e) {
                 Log.err(e.getMessage(), e);
@@ -273,7 +273,7 @@ public class ProfileActions extends PathAbstractor {
                     new CatVerActions(ws).loaded(session.getCurrProfile());
                     new NPlayersActions(ws).loaded(session.getCurrProfile());
                 }
-            } catch (BreakException ex) {
+            } catch (BreakException _) {
                 // user cancelled action
             } finally {
                 session.getWorker().progress.close();
@@ -414,7 +414,7 @@ public class ProfileActions extends PathAbstractor {
             session.getWorker().progress = new ProgressActions(ws);
             try {
                 session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
-            } catch (BreakException ex) {
+            } catch (BreakException _) {
                 // user cancelled action
             } catch (ScanException ex) {
                 session.getWorker().progress.addError(ex.getMessage());

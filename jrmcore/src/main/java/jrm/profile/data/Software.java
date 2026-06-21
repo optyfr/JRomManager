@@ -411,7 +411,7 @@ public class Software extends Anyware implements Serializable {
             throws XMLStreamException {
         for (final Rom r : dataarea.roms)
             if (entries == null || entries.contains(r)) // NOSONAR
-                if (all || (missing && r.getStatus() == EntityStatus.KO) || (have && r.getStatus() == EntityStatus.OK))
+                if (all || (missing && r.getStatus() == EntityStatus.KO) || (have && r.getStatus() == EntityStatus.OK)) //NOSONAR
                     r.export(writer, true);
     }
 
@@ -455,7 +455,7 @@ public class Software extends Anyware implements Serializable {
             throws XMLStreamException {
         for (final Disk d : diskarea.disks)
             if (entries == null || entries.contains(d)) // NOSONAR
-                if (all || (missing && d.getStatus() == EntityStatus.KO) || (have && d.getStatus() == EntityStatus.OK))
+                if (all || (missing && d.getStatus() == EntityStatus.KO) || (have && d.getStatus() == EntityStatus.OK)) //NOSONAR
                     d.export(writer, true);
     }
 

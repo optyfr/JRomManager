@@ -921,7 +921,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
                     return true;
                 if (ss.isFixable() && modes.contains(ReportMode.FIXABLE))
                     return true;
-                if (ss.isMissing()) // Mapped by default
+                // Mapped by default
+                if (ss.isMissing()) //NOSONAR
                     return true;
                 return false;
             } else if (modes.contains(ReportMode.OTHERS))
@@ -970,7 +971,8 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
             if (modes.contains(ReportMode.FIXABLE)
                     && (note instanceof EntryAdd || note instanceof EntryMissingDuplicate || note instanceof EntryUnneeded || note instanceof EntryWrongName))
                 return true;
-            if (note instanceof EntryWrongHash || note instanceof EntryMissing) // Mapped by default
+            // Mapped by default
+            if (note instanceof EntryWrongHash || note instanceof EntryMissing) //NOSONAR
                 return true;
             return false;
         }

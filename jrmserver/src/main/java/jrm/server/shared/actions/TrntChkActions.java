@@ -151,7 +151,7 @@ public class TrntChkActions {
                         TrntChkActions.this.clearResults();
                     }
                 }, opts);
-            } catch (BreakException e) {
+            } catch (BreakException _) {
                 // user cancelled action
             } finally {
                 TrntChkActions.this.end();

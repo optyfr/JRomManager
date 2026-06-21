@@ -909,6 +909,22 @@ public final class DirScan extends PathAbstractor {
         } catch (Exception e) {
             Log.err(() -> c.getRelFile() + " : " + e.getMessage());
         }
+        checkTorrentZip(c, options);
+    }
+
+    /**
+     * Checks and updates TorrentZip compliance for a destination container if needed.
+     * 
+     * <p>
+     * This method checks if the container was modified since last TorrentZip compliance check and if so, it will attempt to
+     * update the container properties to match the TorrentZip specification.
+     * </p>
+     * 
+     * @param c the target container
+     * @param options options configurations
+     * @throws IOException 
+     */
+    private void checkTorrentZip(Container c, ScanOptions options) throws IOException {
         if (options.isDest && options.formatTZip && c.getLastTZipCheck() < c.getModified()) {
             c.setLastTZipStatus(options.torrentzip.process(c.getFile()));
             c.setLastTZipCheck(System.currentTimeMillis());

@@ -219,7 +219,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
         super.beforeExecute(t, r);
         if (adaptive) {
             synchronized (this) {
-                startCPUTimeByThread.computeIfAbsent(t, thread -> tmxb.getCurrentThreadCpuTime());
+                startCPUTimeByThread.computeIfAbsent(t, _ -> tmxb.getCurrentThreadCpuTime());
             }
         }
     }
@@ -249,7 +249,7 @@ public final class MultiThreading<T> extends ThreadPoolExecutor implements Offse
             adaptiveLoad(load);
         time = System.currentTimeMillis();
         startCPUTimeByThread.entrySet().removeIf(e -> !e.getKey().isAlive()); // cleanup dead thread from list
-        startCPUTimeByThread.forEach((k, v) -> startCPUTimeByThread.put(k, tmxb.getThreadCpuTime(k.threadId()))); // reset
+        startCPUTimeByThread.forEach((k, _) -> startCPUTimeByThread.put(k, tmxb.getThreadCpuTime(k.threadId()))); // reset
                                                                                                                   // startCPUTime
     }
 

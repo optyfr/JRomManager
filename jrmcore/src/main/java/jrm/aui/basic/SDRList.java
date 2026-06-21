@@ -28,4 +28,24 @@ public class SDRList<T> extends ArrayList<T> {
     public SDRList() {
         super();
     }
+    
+    /**
+     * Compares this SDRList to the specified object for equality. Only returns true if the other object is also an SDRList and the
+     * contents are equal.
+     *
+     * @param o the object to compare for equality
+     * @return true if the specified object is an SDRList with equal contents, false otherwise
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof SDRList) {
+            return super.equals(o);
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    } 
 }

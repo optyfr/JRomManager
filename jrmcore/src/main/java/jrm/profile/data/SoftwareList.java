@@ -228,7 +228,8 @@ public final class SoftwareList extends AnywareList<Software> implements Systm, 
     @Override
     public List<Software> getFilteredList() {
         if (filteredList == null)
-            filteredList = getFilteredStream().filter(t -> profile.getFilterList().contains(t.getStatus())).sorted().collect(Collectors.toList());
+            filteredList = getFilteredStream().filter(t -> profile.getFilterList().contains(t.getStatus())).sorted()
+                .collect(Collectors.toList()); //NOSONAR
         return filteredList;
     }
 

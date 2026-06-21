@@ -139,7 +139,7 @@ public class Dir2DatActions {
                 });
                 if (srcdir != null && dstdat != null)
                     new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.getWorker().progress, options, ExportType.valueOf(format), headers);
-            } catch (BreakException e) {
+            } catch (BreakException _) {
                 // user cancelled action
             } finally {
                 Dir2DatActions.this.end();

@@ -95,7 +95,7 @@ public class ReportActions {
                 else
                     options.remove(option);
 
-            } catch (IllegalArgumentException ex) {
+            } catch (IllegalArgumentException _) {
                 // is it even possible?
             }
         }

@@ -156,16 +156,20 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
             return false;
         if (!getYearFilter(options, t))
             return false;
-        if (!options.filterIncludeClones && t.isClone()) // exclude clones machines
+        // exclude clones machines
+        if (!options.filterIncludeClones && t.isClone())
             return false;
-        if (!options.filterIncludeDisks && t.getDisks().size() > 0) // exclude machines with disks
+        // exclude machines with disks
+        if (!options.filterIncludeDisks && t.getDisks().size() > 0)
             return false;
-        if (!options.filterIncludeSamples && t.getSamples().size() > 0) // exclude machines with samples
+        // exclude machines with samples
+        if (!options.filterIncludeSamples && t.getSamples().size() > 0)
             return false;
-        if (!t.getSystem().isSelected(profile)) // exclude machines for which their BIOS system were not selected
+        // exclude machines for which their BIOS system were not selected
+        if (!t.getSystem().isSelected(profile))
             return false;
-        if (t.getSource() != null && !t.getSource().isSelected(profile)) // exclude machines for which their source file were not
-                                                                         // selected
+        // exclude machines for which their source file were not selected
+        if (t.getSource() != null && !t.getSource().isSelected(profile)) // NOSONAR
             return false;
         return true;
     }
@@ -298,7 +302,8 @@ public final class MachineList extends AnywareList<Machine> implements Serializa
     @Override
     public List<Machine> getFilteredList() {
         if (filteredList == null)
-            filteredList = getFilteredStream().filter(machine -> profile.getFilterList().contains(machine.getStatus())).sorted().collect(Collectors.toList());
+            filteredList = getFilteredStream().filter(machine -> profile.getFilterList().contains(machine.getStatus())).sorted()
+                .collect(Collectors.toList()); //NOSONAR
         return filteredList;
     }
 

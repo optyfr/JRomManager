@@ -371,7 +371,7 @@ public class AddEntry extends EntryAction {
      */
     private boolean zip2Archive(final Archive dstarchive) {
         try (final var srczf = new ZipFile(entry.getParent().getFile())) {
-            srczf.setBufferSize((int) Math.clamp(entry.getSize(), InternalZipConstants.MIN_BUFF_SIZE, 65536));
+            srczf.setBufferSize( Math.clamp(entry.getSize(), InternalZipConstants.MIN_BUFF_SIZE, 65536));
             final var srcheader = srczf.getFileHeader(ZipTools.toZipEntry(entry.getFile()));
             final var srcstream = srczf.getInputStream(srcheader);
             return dstarchive.addStdIn(srcstream, entity.getName()) == 0;

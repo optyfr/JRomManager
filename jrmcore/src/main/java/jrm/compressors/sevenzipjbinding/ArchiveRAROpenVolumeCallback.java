@@ -100,7 +100,7 @@ public class ArchiveRAROpenVolumeCallback implements IArchiveOpenVolumeCallback,
             }
             name = filename;
             return new RandomAccessFileInStream(randomAccessFile);
-        } catch (FileNotFoundException fileNotFoundException) {
+        } catch (FileNotFoundException _) {
             return null; // We return always null in this case
         } catch (Exception e) {
             throw new RARException(e);

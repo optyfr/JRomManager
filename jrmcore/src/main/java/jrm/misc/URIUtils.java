@@ -2,7 +2,6 @@ package jrm.misc;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +30,7 @@ public @UtilityClass class URIUtils {
         try {
             Path p = getPath(path);
             return Files.exists(p);
-        } catch (Exception e) {
+        } catch (Exception _) {
             return Files.exists(Paths.get(path));
         }
     }
@@ -47,7 +46,7 @@ public @UtilityClass class URIUtils {
     {
         try {
             return Files.exists(getPath(uri));
-        } catch (Exception e) {
+        } catch (Exception _) {
             return false;
         }
     }
@@ -63,12 +62,8 @@ public @UtilityClass class URIUtils {
     public static Path getPath(String path) {
         try {
             var uri = URI.create(path);
-            /*
-             * if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules")) uri = new URI("jrt:/modules/" +
-             * uri.getPath());
-             */
             return Path.of(uri);
-        } catch (Exception e) {
+        } catch (Exception _) {
             return Paths.get(path);
         }
 
@@ -80,14 +75,8 @@ public @UtilityClass class URIUtils {
      * @param uri the URI to resolve
      * 
      * @return the resolved {@link Path} instance
-     * 
-     * @throws URISyntaxException if the URI is not formatted correctly
      */
-    public static Path getPath(URI uri) throws URISyntaxException {
-        /*
-         * if(uri.getScheme().startsWith("jrt") && !uri.getPath().startsWith("modules")) uri = new URI("jrt:/modules/" +
-         * uri.getPath());
-         */
+    public static Path getPath(URI uri) {
         return Path.of(uri);
     }
 

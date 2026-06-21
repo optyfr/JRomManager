@@ -239,7 +239,7 @@ public abstract class Anyware extends AnywareBase implements Serializable, Systm
                                                            // if I'm bios or
                                                            // the disk is not
                                                            // in parent
-        }).collect(Collectors.toList());
+        }).collect(Collectors.toList()); //NOSONAR
     }
 
     /**

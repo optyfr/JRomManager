@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Attempt to set APP_HOME
+app_path=$0
+
+while [ -h "$app_path" ]; do
+    link=${app_path##*/}
+    app_path=${app_path%/*}/$link
+done
+
+APP_BASE_NAME=${0##*/}
+
+MAX_FD=maximum
+
+warn () {
+    echo "$*" >&2
+} >&2
+
+die () {
+    echo
+    echo "$*" >&2
+    exit 1
+}
+
+# Resolve APP_HOME
+APP_HOME=$( cd -P "${APP_HOME:-./}" > /dev/null && printf '%s\n' "$PWD" ) || exit
+
+MAX_FD=maximum
+
+warn 'Attempt to set MAX_FD'
+die 'maxFD not supported'
+
+exec java -jar build/gradle/gradle.jar $@

@@ -65,7 +65,7 @@ public class IOUtils {
     public static Path createTempFile(String prefix, String suffix) throws IOException {
         if (POSIX)
             return Files.createTempFile(prefix, suffix, POSIX_ATTR); // $NON-NLS-1$
-        return Files.createTempFile(prefix, suffix);
+        return Files.createTempFile(prefix, suffix); //NOSONAR
     }
 
     /**
@@ -80,7 +80,7 @@ public class IOUtils {
     public static Path createTempDirectory(String prefix) throws IOException {
         if (POSIX)
             return Files.createTempDirectory(prefix, POSIX_ATTR); // $NON-NLS-1$
-        return Files.createTempDirectory(prefix);
+        return Files.createTempDirectory(prefix); //NOSONAR
     }
 
     /**

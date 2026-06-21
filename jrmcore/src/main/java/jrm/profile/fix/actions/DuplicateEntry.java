@@ -18,6 +18,7 @@ import jrm.aui.progress.ProgressHandler;
 import jrm.compressors.Archive;
 import jrm.compressors.ZipTools;
 import jrm.locale.Messages;
+import jrm.misc.IOUtils;
 import jrm.misc.Log;
 import jrm.profile.data.Entry;
 import jrm.security.Session;
@@ -70,7 +71,7 @@ public class DuplicateEntry extends EntryAction {
     public boolean doAction(Session session, ZipFile zipf, ZipParameters zipp, ProgressHandler handler, int i, int max) {
         Path tmpdir = null;
         try {
-            tmpdir = Files.createTempDirectory("JRM");
+            tmpdir = IOUtils.createTempFile("JRM", null);
             handler.setProgress(null, null, null, progress(i, max, String.format(session.getMsgs().getString(DUPLICATE_ENTRY_DUPLICATING), entry.getRelFile(), newname))); // $NON-NLS-1$
             zipf.extractFile(ZipTools.toZipEntry(entry.getFile()), tmpdir.toString(), "file");
             zipp.setFileNameInZip(newname);

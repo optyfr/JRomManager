@@ -104,7 +104,7 @@ public class ZipArchive implements Archive {
         this.archive = archive;
         try {
             nativeZip = new ZipNArchive(session, archive, readonly, cb);
-        } catch (final SevenZipNativeInitializationException e) {
+        } catch (final SevenZipNativeInitializationException _) {
             throw new IOException("not supported on that platform"); //$NON-NLS-1$
         }
     }

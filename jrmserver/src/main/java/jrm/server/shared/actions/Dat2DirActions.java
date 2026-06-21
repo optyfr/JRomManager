@@ -2,7 +2,6 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -139,7 +138,7 @@ public class Dat2DirActions {
                         new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
                     else {
                         new DirUpdater(session, sdrl, session.getWorker().progress,
-                                Stream.of(srcdirs).map(s -> PathAbstractor.getAbsolutePath(session, s).toFile()).collect(Collectors.toList()), new ResultColUpdater() {
+                                Stream.of(srcdirs).map(s -> PathAbstractor.getAbsolutePath(session, s).toFile()).toList(), new ResultColUpdater() {
                                     @Override
                                     public void updateResult(int row, String result) {
                                         sdrl.get(row).setResult(result);
@@ -159,7 +158,7 @@ public class Dat2DirActions {
                     }
                 } else
                     new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AtLeastOneSrcDir"));
-            } catch (BreakException e) {
+            } catch (BreakException _) {
                 // user cancelled action
             } finally {
                 Dat2DirActions.this.end();

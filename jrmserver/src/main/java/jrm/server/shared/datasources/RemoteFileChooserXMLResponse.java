@@ -504,7 +504,7 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
                             writer.writeAttribute("Name", file.getFileName().toString());
                             writer.writeAttribute("Path", pathAbstractor.getRelativePath(file).toString());
                             cnt.incrementAndGet();
-                        } catch (XMLStreamException e) {
+                        } catch (XMLStreamException _) {
                             // ignore silently
                         }
                     }

@@ -30,7 +30,7 @@ public class DefaultEnvironmentProperties {
      * Regular expression pattern for detecting placeholders in property values, such as {@code $$}, {@code ${...}}, or
      * {@code $...}.
      */
-    private static final Pattern REPLACEMENT_PATTERN = Pattern.compile("([$][$])|([$][{].*[}])|([$]\\w+)");
+    private static final Pattern REPLACEMENT_PATTERN = Pattern.compile("([$][$])|([$]\\{.*\\})|([$]\\w+)");
 
     /**
      * Constructs a new {@code DefaultEnvironmentProperties} instance by reading from the specified {@link InputStream}.
@@ -41,7 +41,7 @@ public class DefaultEnvironmentProperties {
         Properties properties = new Properties();
         try {
             properties.load(is);
-        } catch (IOException | NullPointerException ex) {
+        } catch (IOException | NullPointerException _) {
             properties.clear();
         }
         map = init(properties);
@@ -67,7 +67,7 @@ public class DefaultEnvironmentProperties {
     public static DefaultEnvironmentProperties getInstance(Class<?> loader) {
         try (final var is = loader.getResourceAsStream(loader.getSimpleName() + ".properties")) {
             return new DefaultEnvironmentProperties(is);
-        } catch (IOException e) {
+        } catch (IOException _) {
             return new DefaultEnvironmentProperties(new Properties());
         }
     }
@@ -121,13 +121,13 @@ public class DefaultEnvironmentProperties {
         return getEnvironmentProperties(key).map(v -> {
             try {
                 return Integer.valueOf(v);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 return null;
             }
         }).orElseGet(() -> {
             try {
                 return Integer.valueOf(System.getProperty(key, def.toString()));
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 return def;
             }
         });
@@ -145,13 +145,13 @@ public class DefaultEnvironmentProperties {
         return getEnvironmentProperties(key).map(v -> {
             try {
                 return Boolean.valueOf(v);
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 return null;
             }
         }).orElseGet(() -> {
             try {
                 return Boolean.valueOf(System.getProperty(key, def.toString()));
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException _) {
                 return def;
             }
         });
@@ -171,13 +171,13 @@ public class DefaultEnvironmentProperties {
         return getEnvironmentProperties(key).map(v -> {
             try {
                 return Enum.valueOf(cls, v);
-            } catch (Exception e) {
+            } catch (Exception _) {
                 return null;
             }
         }).orElseGet(() -> {
             try {
                 return Enum.valueOf(cls, System.getProperty(key, def.toString()));
-            } catch (Exception e) {
+            } catch (Exception _) {
                 return def;
             }
         });

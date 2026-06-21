@@ -73,7 +73,7 @@ public class DirUpdater {
         final Map<String, DirScan> scancache = new HashMap<>();
         sdrl.stream().filter(AbstractSrcDstResult::isSelected).forEach(sdr -> result.updateResult(sdrl.indexOf(sdr), "") //$NON-NLS-1$
         );
-        sdrl.stream().filter(AbstractSrcDstResult::isSelected).takeWhile(p -> !progress.isCancel()).forEach(sdr -> update(scancache, sdr));
+        sdrl.stream().filter(AbstractSrcDstResult::isSelected).takeWhile(_ -> !progress.isCancel()).forEach(sdr -> update(scancache, sdr));
     }
 
     /**
@@ -96,7 +96,7 @@ public class DirUpdater {
             var datlist = new File[] { dat };
             var dstlist = new File[] { dst };
             if (dat.isDirectory()) {
-                datlist = dat.listFiles((sdir, sfilename) -> Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase())); //$NON-NLS-1$ //$NON-NLS-2$
+                datlist = dat.listFiles((_, sfilename) -> Sets.newHashSet("xml", "dat").contains(FilenameUtils.getExtension(sfilename).toLowerCase())); //$NON-NLS-1$ //$NON-NLS-2$
                 Arrays.sort(datlist, (a, b) -> a.getAbsolutePath().compareTo(b.getAbsolutePath()));
                 for (File d : datlist)
                     Files.copy(session.getUser().getSettings().getProfileSettingsFile(dat).toPath(), session.getUser().getSettings().getProfileSettingsFile(d).toPath(),

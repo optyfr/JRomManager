@@ -133,7 +133,7 @@ public abstract class Settings extends SettingsImpl {
                     jso.add((String) k, value);
                 else
                     jso.add((String) k, (String) v);
-            } catch (Exception e) {
+            } catch (Exception _) {
                 jso.add((String) k, (String) v);
             }
         });

@@ -74,7 +74,7 @@ public @UtilityClass class ExceptionUtils {
     public <T, R> R test(Function<T, R> test, T t, R def) {
         try {
             return test.apply(t);
-        } catch (Exception e) {
+        } catch (Exception _) {
             return def;
         }
     }
@@ -93,7 +93,7 @@ public @UtilityClass class ExceptionUtils {
     public <T, R> R testF(Function<T, R> test, T t, Function<Function<T, R>, R> def) {
         try {
             return test.apply(t);
-        } catch (Exception e) {
+        } catch (Exception _) {
             return def.apply(test);
         }
     }

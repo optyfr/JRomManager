@@ -47,6 +47,10 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jrm.fullserver.handlers.FullDataSourceServlet;
@@ -700,76 +704,132 @@ public class FullServer extends AbstractServer {
      * @throws Exception if an error occurs while configuring or starting the server
      */
     public static void initialize() throws Exception {
-        if (jettyserver == null) {
-            jettyserver = new Server(new QueuedThreadPool(maxThreads > 0 ? maxThreads : (connLimit * 4), minThreads > 0 ? minThreads : (connLimit / 4)));
-
-            final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-            final var resourceFactory = ResourceFactory.of(context);
-            context.setBaseResource(getClientPath(resourceFactory, clientPath));
-            context.setContextPath("/");
-
-            context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
-            context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
-            context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
-            context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
-            context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
-            context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
-
-            context.addFilter(new FilterHolder((request, response, chain) -> {
-                if (request instanceof HttpServletRequest httprequest && response instanceof HttpServletResponse httpresponse) {
-                    if (httprequest.getRequestURI().endsWith(".nocache.js"))
-                        httpresponse.setHeader("cache-control", "no-store");
-                    else if (!httprequest.getRequestURI().endsWith(".cache.js"))
-                        httpresponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
-                }
-                chain.doFilter(request, response);
-            }), "*.js", EnumSet.of(DispatcherType.REQUEST));
-
-            context.addServlet(holderStatic(), "/");
-
-            setSecurity(context);
-
-            context.getSessionHandler().setMaxInactiveInterval(sessionTimeOut);
-            context.getSessionHandler().addEventListener(new SessionListener(true));
-
-            final var gh = gzipHandler();
-            gh.setHandler(context);
-            jettyserver.setHandler(gh);
-            jettyserver.setStopAtShutdown(true);
-
-            // LetsEncrypt certs with embedded Jetty on
-            // HTTP Configuration
-            final var config = new HttpConfiguration();
-            config.addCustomizer(new SecureRequestCustomizer());
-            config.addCustomizer(new ForwardedRequestCustomizer());
-
-            if ((protocols & 0x1) == 0x1) {
-                // Create the HTTP connection
-                jettyserver.addConnector(httpConnector(jettyserver, config));
-            }
-
-            if ((protocols & 0x2) == 0x2 && keyStorePath.exists()) {
-                if ((protocols & 0x4) == 0x4)
-                    jettyserver.addConnector(http2Connector(jettyserver));
-                else
-                    jettyserver.addConnector(httpsConnector(jettyserver));
-            }
-
-            @SuppressWarnings("removal")
-            final var connectionLimit = new ConnectionLimit(connLimit, jettyserver);
-            jettyserver.addBean(connectionLimit); // limit simultaneous connections
-            jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver)); // rate
-                                                                                                                                      // limit
-
-            jettyserver.start();
-            Log.config("Start server");
-            for (final var connector : jettyserver.getConnectors())
-                Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to "
-                        + ((ServerConnector) connector).getHost());
-            Log.config("clientPath: " + context.getBaseResource());
-            Log.config("workPath: " + getWorkPath());
-        } else
+        if (jettyserver != null) {
             Log.err("Already initialized");
+            return;
+        }
+        jettyserver = new Server(createThreadPool());
+
+        final var context = createContext();
+
+        final var gh = gzipHandler();
+        gh.setHandler(context);
+        jettyserver.setHandler(gh);
+        jettyserver.setStopAtShutdown(true);
+
+        final var config = new HttpConfiguration();
+        config.addCustomizer(new SecureRequestCustomizer());
+        config.addCustomizer(new ForwardedRequestCustomizer());
+
+        addConnectors(jettyserver, config);
+
+        @SuppressWarnings("removal")
+        final var connectionLimit = new ConnectionLimit(connLimit, jettyserver);
+        jettyserver.addBean(connectionLimit);
+        jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver));
+
+        jettyserver.start();
+        Log.config("Start server");
+        for (final var connector : jettyserver.getConnectors())
+            Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to "
+                    + ((ServerConnector) connector).getHost());
+        Log.config("clientPath: " + context.getBaseResource());
+        Log.config("workPath: " + getWorkPath());
+    }
+
+    /**
+     * Creates the thread pool with safe defaults for max and min thread counts.
+     *
+     * @return a configured {@link QueuedThreadPool}
+     */
+    private static QueuedThreadPool createThreadPool() {
+        final int max = maxThreads > 0 ? maxThreads : (connLimit * 4);
+        final int min = minThreads > 0 ? minThreads : (connLimit / 4);
+        return new QueuedThreadPool(max, min);
+    }
+
+    /**
+     * Creates and configures the servlet context with all servlets, filters, security, and session settings.
+     *
+     * @return the configured {@link ServletContextHandler}
+     * @throws URISyntaxException if an error occurs while resolving the client path URI
+     * @throws IOException if an I/O error occurs while setting up the context
+     * @throws SQLException if a database error occurs while initializing the context
+     * @throws Exception if an error occurs during context setup
+     */
+    private static ServletContextHandler createContext() throws IOException, URISyntaxException, SQLException  {
+        final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        final var resourceFactory = ResourceFactory.of(context);
+        context.setBaseResource(getClientPath(resourceFactory, clientPath));
+        context.setContextPath("/");
+
+        context.addServlet(new ServletHolder("datasources", FullDataSourceServlet.class), "/datasources/*");
+        context.addServlet(new ServletHolder("images", ImageServlet.class), "/images/*");
+        context.addServlet(new ServletHolder("session", SessionServlet.class), "/session");
+        context.addServlet(new ServletHolder("actions", ActionServlet.class), "/actions/*");
+        context.addServlet(new ServletHolder("upload", UploadServlet.class), "/upload/*");
+        context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
+
+        context.addFilter(new FilterHolder(FullServer::cacheControlFilter), "*.js", EnumSet.of(DispatcherType.REQUEST));
+
+        context.addServlet(holderStatic(), "/");
+
+        setSecurity(context);
+
+        context.getSessionHandler().setMaxInactiveInterval(sessionTimeOut);
+        context.getSessionHandler().addEventListener(new SessionListener(true));
+
+        return context;
+    }
+
+    /**
+     * Cache-control filter callback for JavaScript resources.
+     *
+     * @param request  the servlet request
+     * @param response the servlet response
+     * @param chain    the filter chain
+     * @throws IOException      if an I/O error occurs
+     * @throws ServletException if a servlet error occurs
+     */
+    private static void cacheControlFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        if (request instanceof HttpServletRequest httprequest && response instanceof HttpServletResponse httpresponse) {
+            final var uri = httprequest.getRequestURI();
+            if (uri.endsWith(".nocache.js"))
+                httpresponse.setHeader("cache-control", "no-store");
+            else if (!uri.endsWith(".cache.js"))
+                httpresponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
+        }
+        chain.doFilter(request, response);
+    }
+
+    /**
+     * Adds HTTP, HTTPS, and/or HTTP/2 connectors based on the protocol bitmask configuration.
+     *
+     * @param server the Jetty server
+     * @param config the HTTP configuration for the HTTP connector
+     * @throws IOException if an error occurs while creating SSL contexts
+     */
+    private static void addConnectors(Server server, HttpConfiguration config) throws IOException {
+        if ((protocols & 0x1) == 0x1) {
+            server.addConnector(httpConnector(server, config));
+        }
+        if ((protocols & 0x2) == 0x2 && keyStorePath.exists()) {
+            addSecureConnector(server);
+        }
+    }
+
+    /**
+     * Adds either an HTTP/2 or HTTPS connector depending on the protocol bitmask.
+     *
+     * @param server the Jetty server
+     * @throws IOException if an error occurs while creating the SSL context
+     */
+    private static void addSecureConnector(Server server) throws IOException {
+        if ((protocols & 0x4) == 0x4)
+            server.addConnector(http2Connector(server));
+        else
+            server.addConnector(httpsConnector(server));
     }
 
     /**

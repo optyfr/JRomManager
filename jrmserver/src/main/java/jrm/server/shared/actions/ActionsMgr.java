@@ -2,12 +2,14 @@ package jrm.server.shared.actions;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Optional;
 
 import com.eclipsesource.json.JsonObject;
 
 import jrm.misc.Log;
 import jrm.server.shared.SessionStub;
 import jrm.server.shared.WebSession;
+import jrm.server.shared.Worker;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -91,30 +93,26 @@ public interface ActionsMgr extends SessionStub {
             if (jso != null) {
                 mgr.getSession().setLastAction(new Date());
                 switch (jso.getString("cmd", "unknown")) {
-                    case "Global.setProperty" -> new GlobalActions(this).setProperty(jso);
-                    case "Global.getMemory" -> new GlobalActions(this).setMemory(jso);
-                    case "Global.GC" -> new GlobalActions(this).gc(jso);
-                    case "Profile.import" -> new ProfileActions(this).imprt(jso);
-                    case "Profile.load" -> new ProfileActions(this).load(jso);
-                    case "Profile.scan" -> new ProfileActions(this).scan(jso, true);
-                    case "Profile.fix" -> new ProfileActions(this).fix(jso);
-                    case "Profile.importSettings" -> new ProfileActions(this).importSettings(jso);
-                    case "Profile.exportSettings" -> new ProfileActions(this).exportSettings(jso);
-                    case "Profile.setProperty" -> new ProfileActions(this).setProperty(jso);
-                    case "ReportLite.setFilter" -> new ReportActions(this).setFilter(jso, true);
-                    case "Report.setFilter" -> new ReportActions(this).setFilter(jso, false);
-                    case "CatVer.load" -> new CatVerActions(this).load(jso);
-                    case "NPlayers.load" -> new NPlayersActions(this).load(jso);
-                    case "Progress.cancel" -> {
-                        if (mgr.getSession().getWorker() != null && mgr.getSession().getWorker().isAlive() && mgr.getSession().getWorker().progress != null) {
-                            mgr.getSession().getWorker().getProgress().doCancel();
-                        }
-                    }
-                    case "Dat2Dir.start" -> new Dat2DirActions(this).start(jso);
-                    case "Dir2Dat.start" -> new Dir2DatActions(this).start(jso);
-                    case "TrntChk.start" -> new TrntChkActions(this).start(jso);
-                    case "Compressor.start" -> new CompressorActions(this).start(jso);
-                    case "Dat2Dir.settings" -> new Dat2DirActions(this).settings(jso);
+                    case "Global.setProperty" -> new GlobalActions(mgr).setProperty(jso);
+                    case "Global.getMemory" -> new GlobalActions(mgr).setMemory(jso);
+                    case "Global.GC" -> new GlobalActions(mgr).gc(jso);
+                    case "Profile.import" -> new ProfileActions(mgr).imprt(jso);
+                    case "Profile.load" -> new ProfileActions(mgr).load(jso);
+                    case "Profile.scan" -> new ProfileActions(mgr).scan(jso, true);
+                    case "Profile.fix" -> new ProfileActions(mgr).fix(jso);
+                    case "Profile.importSettings" -> new ProfileActions(mgr).importSettings(jso);
+                    case "Profile.exportSettings" -> new ProfileActions(mgr).exportSettings(jso);
+                    case "Profile.setProperty" -> new ProfileActions(mgr).setProperty(jso);
+                    case "ReportLite.setFilter" -> new ReportActions(mgr).setFilter(jso, true);
+                    case "Report.setFilter" -> new ReportActions(mgr).setFilter(jso, false);
+                    case "CatVer.load" -> new CatVerActions(mgr).load(jso);
+                    case "NPlayers.load" -> new NPlayersActions(mgr).load(jso);
+                    case "Progress.cancel" -> Optional.ofNullable(mgr.getSession().getWorker()).filter(Worker::isAlive).map(Worker::getProgress).ifPresent(ProgressActions::doCancel);
+                    case "Dat2Dir.start" -> new Dat2DirActions(mgr).start(jso);
+                    case "Dir2Dat.start" -> new Dir2DatActions(mgr).start(jso);
+                    case "TrntChk.start" -> new TrntChkActions(mgr).start(jso);
+                    case "Compressor.start" -> new CompressorActions(mgr).start(jso);
+                    case "Dat2Dir.settings" -> new Dat2DirActions(mgr).settings(jso);
                     default -> Log.err(() -> "Unknown command : " + jso.getString("cmd", "unknown"));
                 }
             }

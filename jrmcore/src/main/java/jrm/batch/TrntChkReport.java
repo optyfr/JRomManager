@@ -434,7 +434,8 @@ public final class TrntChkReport implements Serializable, StatusRendererFactory,
      * @return a {@link List} of {@link Subject}
      */
     public List<Child> filter(final Set<FilterOptions> filterOptions) {
-        return stream(filterOptions)/* .map(n -> n.clone()) */.collect(Collectors.toList());
+        return stream(filterOptions)
+                .collect(Collectors.toList()); //NOSONAR
     }
 
     /**

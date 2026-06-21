@@ -87,7 +87,7 @@ public class Archive7ZOpenVolumeCallback implements IArchiveOpenVolumeCallback {
                 openedRandomAccessFileList.put(filename, randomAccessFile);
             }
             return new RandomAccessFileInStream(randomAccessFile);
-        } catch (FileNotFoundException fileNotFoundException) {
+        } catch (FileNotFoundException _) {
             return null; // We return always null in this case
         } catch (Exception e) {
             throw new Archive7ZVolCBException(e);

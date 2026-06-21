@@ -85,7 +85,7 @@ public class RemoteRootChooserXMLResponse extends XMLResponse {
             try {
                 if (Files.isDirectory(root) && Files.exists(root))
                     paths.put((root.getFileName() != null ? root.getFileName() : root).toString(), root);
-            } catch (Exception e) {
+            } catch (Exception _) {
                 // do nothing
             }
         }

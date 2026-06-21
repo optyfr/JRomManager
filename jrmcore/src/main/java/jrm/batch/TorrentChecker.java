@@ -553,7 +553,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
                 filesToRemove.forEach(t -> {
                     try {
                         Files.delete(t);
-                    } catch (IOException e) {
+                    } catch (IOException _) {
                         // ignore
                     }
                 });
@@ -668,7 +668,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
                     final var destFile = Paths.get(destDir.toString(), file.toString());
                     try {
                         Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (DirectoryNotEmptyException ignore) {
+                    } catch (DirectoryNotEmptyException _) {
                         // ignore
                     }
                     return FileVisitResult.CONTINUE;

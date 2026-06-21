@@ -144,7 +144,8 @@ public class SubjectSet extends Subject implements Serializable {
      * @return a sorted, filtered list of Note instances
      */
     public List<Note> filter(final Set<FilterOptions> filterOptions) {
-        return stream(filterOptions).sorted(Note.getComparator()).collect(Collectors.toList());
+        return stream(filterOptions).sorted(Note.getComparator())
+                .collect(Collectors.toList()); //NOSONAR
     }
 
     /**

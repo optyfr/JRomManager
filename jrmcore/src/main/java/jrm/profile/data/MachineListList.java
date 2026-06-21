@@ -109,7 +109,8 @@ public final class MachineListList extends AnywareListList<MachineList> implemen
     @Override
     public List<MachineList> getFilteredList() {
         if (filteredList == null)
-            filteredList = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted().collect(Collectors.toList());
+            filteredList = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted()
+                .collect(Collectors.toList()); //NOSONAR
         return filteredList;
     }
 

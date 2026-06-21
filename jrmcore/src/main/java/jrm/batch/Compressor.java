@@ -174,7 +174,7 @@ public class Compressor implements StatusRendererFactory {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        } catch (IOException e) {
+        } catch (IOException _) {
             throw new AssertionError("walkFileTree will not throw IOException if the FileVisitor does not");
         }
         return size.get();
@@ -233,7 +233,7 @@ public class Compressor implements StatusRendererFactory {
             if (sevenZip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
                 return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
             }
-        } catch (IOException e) {
+        } catch (IOException _) {
             cb.apply(FAILED);
         } finally {
             // do nothing
@@ -310,7 +310,7 @@ public class Compressor implements StatusRendererFactory {
                 cb.apply("extract failed");
                 return false;
             }
-        } catch (Exception e) {
+        } catch (Exception _) {
             Files.deleteIfExists(tmpfile);
             cb.apply("7z creation failed");
             return false;
@@ -342,7 +342,7 @@ public class Compressor implements StatusRendererFactory {
             if (sevenZip2Zip(file, tzip, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
                 return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
             }
-        } catch (final IOException e) {
+        } catch (final IOException _) {
             cb.apply(FAILED);
         } finally {
             progress.setProgress("", null, null, "");
@@ -385,7 +385,7 @@ public class Compressor implements StatusRendererFactory {
                 }
                 FileUtils.forceMkdirParent(tmpfile.toFile());
                 progress.setProgress(toDocument("creating " + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
-                try (final var srczipf = new ZipFile(file); final var dstzipf = new ZipFile(tmpfile.toFile())) {
+                try (final var dstzipf = new ZipFile(tmpfile.toFile())) {
                     Files.walkFileTree(basedir.toPath(), new SimpleFileVisitor<Path>() {
                         @Override
                         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -455,7 +455,7 @@ public class Compressor implements StatusRendererFactory {
             if (Files.exists(tmpfile)) {
                 return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
             }
-        } catch (IOException e) {
+        } catch (IOException _) {
             cb.apply(FAILED);
         } finally {
             progress.setProgress("", null, null, "");
@@ -485,7 +485,7 @@ public class Compressor implements StatusRendererFactory {
             if (zip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
                 return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
             }
-        } catch (IOException e) {
+        } catch (IOException _) {
             cb.apply("failed");
         } finally {
             progress.setProgress("", null, null, "");
@@ -550,7 +550,7 @@ public class Compressor implements StatusRendererFactory {
                 return file;
             }
             cb.apply(status.toString());
-        } catch (IOException e) {
+        } catch (IOException _) {
             cb.apply("failed");
         } finally {
             progress.setProgress("", null, null, "");
