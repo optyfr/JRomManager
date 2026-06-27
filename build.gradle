@@ -266,7 +266,7 @@ project(':jrmcli') {
 		implementation 'org.apache.commons:commons-lang3:3.+'
 		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 		implementation 'org.jline:jline:4.2.1'
-		implementation 'org.jline:jline-terminal-jansi:3.29.0'
+		implementation 'org.jline:jline-terminal-jansi:3.30.14'
 	
 		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
 		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
