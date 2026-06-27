@@ -82,6 +82,7 @@ public class JRomManagerCLI {
     private static final AttributedStyle STYLE_YELLOW_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW).bold();
     private static final AttributedStyle STYLE_GREEN_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN).bold();
     private static final AttributedStyle STYLE_CYAN_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN).bold();
+    @SuppressWarnings("unused")
     private static final AttributedStyle STYLE_DIM = AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT).italic();
     Session session;
     Path cwdir = null;
@@ -106,7 +107,6 @@ public class JRomManagerCLI {
     public JRomManagerCLI(Args cmd) throws IOException {
         terminal = TerminalBuilder.builder()
                 .system(true)
-                .jansi(true)
                 .build();
         out = terminal.writer();
 
@@ -160,6 +160,7 @@ public class JRomManagerCLI {
     /**
      * Print label:value with colored label
      */
+    @SuppressWarnings("unused")
     private void printLabel(String label, String value, AttributedStyle labelStyle) {
         AttributedStringBuilder sb = new AttributedStringBuilder();
         sb.style(labelStyle);
@@ -254,7 +255,6 @@ public class JRomManagerCLI {
     private void interactive() throws IOException {
         terminal = TerminalBuilder.builder()
                 .system(true)
-                .jansi(true)
                 .build();
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
