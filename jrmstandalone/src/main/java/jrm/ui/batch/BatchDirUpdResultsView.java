@@ -48,7 +48,7 @@ public class BatchDirUpdResultsView extends JScrollPane {
         private BatchDirUpdResultsViewModel(DirUpdaterResults results, Session session) {
             this.results = results;
             buttons.addHandler(
-                    (int row, int column) -> new ReportLite(session, SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this), results.getResults().get(row).getDat()));
+                    (int row, int _) -> new ReportLite(session, SwingUtilities.getWindowAncestor(BatchDirUpdResultsView.this), results.getResults().get(row).getDat()));
         }
 
         @Override

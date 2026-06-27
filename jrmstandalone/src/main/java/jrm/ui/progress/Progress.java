@@ -207,7 +207,7 @@ public class Progress extends JDialog {
 
         btnCancel = new JButton(Messages.getString("Progress.btnCancel.text")); //$NON-NLS-1$
         btnCancel.setIcon(MainFrame.getIcon("/jrm/resicons/icons/stop.png")); //$NON-NLS-1$
-        btnCancel.addActionListener(e -> cancel());
+        btnCancel.addActionListener(_ -> cancel());
         final GridBagConstraints gbcBtnCancel = new GridBagConstraints();
         gbcBtnCancel.insets = new Insets(5, 5, 5, 5);
         gbcBtnCancel.gridwidth = 2;

@@ -27,8 +27,8 @@ public class Keywords extends Stage {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         getIcons().add(parent.getIcons().get(0));
-        setOnShowing(e -> Settings.fromJson(session.getUser().getSettings().getProperty("Keywords.Bounds", null), this));
-        setOnCloseRequest(e -> controller.onClose());
+        setOnShowing(_ -> Settings.fromJson(session.getUser().getSettings().getProperty("Keywords.Bounds", null), this));
+        setOnCloseRequest(_ -> controller.onClose());
         final var loader = new FXMLLoader(getClass().getResource("Keywords.fxml").toURI().toURL(), Messages.getBundle());
         final var root = loader.<Scene>load();
         controller = loader.getController();

@@ -44,7 +44,7 @@ public class BatchTorrentResultsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        treeview.setCellFactory(param -> new TreeCell<>() {
+        treeview.setCellFactory(_ -> new TreeCell<>() {
             @Override
             protected void updateItem(Child item, boolean empty) {
                 super.updateItem(item, empty);

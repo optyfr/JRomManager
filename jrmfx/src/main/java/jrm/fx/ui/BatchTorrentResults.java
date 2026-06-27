@@ -24,8 +24,8 @@ class BatchTorrentResults extends Stage {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         getIcons().add(parent.getIcons().get(0));
-        setOnShowing(e -> Settings.fromJson(session.getUser().getSettings().getProperty("BatchTorrentResults.Bounds", null), this));
-        setOnCloseRequest(e -> {
+        setOnShowing(_ -> Settings.fromJson(session.getUser().getSettings().getProperty("BatchTorrentResults.Bounds", null), this));
+        setOnCloseRequest(_ -> {
             session.getUser().getSettings().setProperty("BatchTorrentResults.Bounds", Settings.toJson(this));
             hide();
         });

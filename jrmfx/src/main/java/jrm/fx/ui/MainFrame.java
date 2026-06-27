@@ -60,7 +60,7 @@ public class MainFrame extends Application {
         final var loading = new Loading();
         Platform.runLater(() -> {
             try {
-                primaryStage.setOnCloseRequest(e -> {
+                primaryStage.setOnCloseRequest(_ -> {
                     session.getUser().getSettings().setProperty("MainFrame.Bounds", Settings.toJson(primaryStage));
                     controller.getSettingsPanelController().scheduler.shutdown();
                 });

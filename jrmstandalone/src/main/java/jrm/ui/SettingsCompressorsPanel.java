@@ -97,7 +97,7 @@ public class SettingsCompressorsPanel extends JPanel {
         cbbxZipTempThreshold.setModel(new DefaultComboBoxModel<>(ZipTempThreshold.values()));
         cbbxZipTempThreshold.setSelectedItem(ZipTempThreshold.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_temp_threshold))); // $NON-NLS-1$
         cbbxZipTempThreshold
-                .addActionListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.zip_temp_threshold, cbbxZipTempThreshold.getSelectedItem().toString()));
+                .addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.zip_temp_threshold, cbbxZipTempThreshold.getSelectedItem().toString()));
         cbbxZipTempThreshold.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
@@ -124,7 +124,7 @@ public class SettingsCompressorsPanel extends JPanel {
         cbbxZipLevel = new JComboBox<>();
         cbbxZipLevel.setModel(new DefaultComboBoxModel<>(ZipLevel.values()));
         cbbxZipLevel.setSelectedItem(ZipLevel.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_compression_level))); // $NON-NLS-1$
-        cbbxZipLevel.addActionListener(e -> session.getUser().getSettings().setProperty(SettingsEnum.zip_compression_level, cbbxZipLevel.getSelectedItem().toString()));
+        cbbxZipLevel.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.zip_compression_level, cbbxZipLevel.getSelectedItem().toString()));
         cbbxZipLevel.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(final JList<?> list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
@@ -196,7 +196,7 @@ public class SettingsCompressorsPanel extends JPanel {
                 return this;
             }
         });
-        cbZipEArgs.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.zip_level, cbZipEArgs.getSelectedItem().toString())); // $NON-NLS-1$
+        cbZipEArgs.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.zip_level, cbZipEArgs.getSelectedItem().toString())); // $NON-NLS-1$
         cbZipEArgs.setSelectedItem(ZipOptions.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.zip_level))); // $NON-NLS-1$
         final GridBagConstraints gbcCbZipEArgs = new GridBagConstraints();
         gbcCbZipEArgs.insets = new Insets(0, 0, 5, 5);
@@ -286,7 +286,7 @@ public class SettingsCompressorsPanel extends JPanel {
         panel7Zip.add(lbl7zArgs, gbcLbl7zArgs);
 
         cb7zArgs = new JComboBox<>();
-        cb7zArgs.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_level, cb7zArgs.getSelectedItem().toString())); // $NON-NLS-1$
+        cb7zArgs.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_level, cb7zArgs.getSelectedItem().toString())); // $NON-NLS-1$
         cb7zArgs.setEditable(false);
         cb7zArgs.setModel(new DefaultComboBoxModel<>(SevenZipOptions.values()));
         cb7zArgs.setRenderer(new DefaultListCellRenderer() {
@@ -322,7 +322,7 @@ public class SettingsCompressorsPanel extends JPanel {
                 session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, tf7zThreads.getText()); // $NON-NLS-1$
             }
         });
-        tf7zThreads.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, tf7zThreads.getText())); // $NON-NLS-1$
+        tf7zThreads.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, tf7zThreads.getText())); // $NON-NLS-1$
         final GridBagConstraints gbcTF7zThreads = new GridBagConstraints();
         gbcTF7zThreads.fill = GridBagConstraints.VERTICAL;
         gbcTF7zThreads.anchor = GridBagConstraints.WEST;
@@ -334,7 +334,7 @@ public class SettingsCompressorsPanel extends JPanel {
 
         ckbx7zSolid = new JCheckBox(Messages.getString("MainFrame.ckbx7zSolid.text")); //$NON-NLS-1$
         ckbx7zSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class)); // $NON-NLS-1$
-        ckbx7zSolid.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, ckbx7zSolid.isSelected()));
+        ckbx7zSolid.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, ckbx7zSolid.isSelected()));
         final GridBagConstraints gbcCkbx7zSolid = new GridBagConstraints();
         gbcCkbx7zSolid.insets = new Insets(0, 0, 5, 5);
         gbcCkbx7zSolid.gridx = 2;

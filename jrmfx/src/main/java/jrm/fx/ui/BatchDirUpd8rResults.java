@@ -24,8 +24,8 @@ class BatchDirUpd8rResults extends Stage {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         getIcons().add(parent.getIcons().get(0));
-        setOnShowing(e -> Settings.fromJson(session.getUser().getSettings().getProperty("BatchDirUpd8rResults.Bounds", null), this));
-        setOnCloseRequest(e -> {
+        setOnShowing(_ -> Settings.fromJson(session.getUser().getSettings().getProperty("BatchDirUpd8rResults.Bounds", null), this));
+        setOnCloseRequest(_ -> {
             session.getUser().getSettings().setProperty("BatchDirUpd8rResults.Bounds", Settings.toJson(this));
             hide();
         });

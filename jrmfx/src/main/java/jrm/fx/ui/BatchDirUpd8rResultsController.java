@@ -47,7 +47,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        ok.setOnAction(e -> ok.getScene().getWindow().hide());
+        ok.setOnAction(_ -> ok.getScene().getWindow().hide());
         resultList.setSelectionModel(null);
         
         setupStringColumn(datCol, result -> result.getDat().toString());
@@ -60,7 +60,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
         setupIntegerColumn(totalCol, null, stats -> 
             stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing());
         
-        reportCol.setCellFactory(param -> new ButtonCellFactory<>("Report", cell -> {
+        reportCol.setCellFactory(_ -> new ButtonCellFactory<>("Report", cell -> {
             final var result = resultList.getItems().get(cell.getIndex());
             try {
                 new ReportLite((Stage) resultList.getScene().getWindow(), Report.load(session, result.getDat()));
@@ -79,7 +79,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
      */
     private void setupIntegerColumn(TableColumn<DirUpdaterResult, Integer> col, Color color, 
                                      ToIntFunction<Report.Stats> extractor) {
-        col.setCellFactory(param -> new ColoredIntegerCellFactory<>(color, Pos.CENTER_RIGHT));
+        col.setCellFactory(_ -> new ColoredIntegerCellFactory<>(color, Pos.CENTER_RIGHT));
         col.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public Integer getValue() {
@@ -96,7 +96,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
      */
     private void setupStringColumn(TableColumn<DirUpdaterResult, String> col, 
                                    Function<DirUpdaterResult, String> extractor) {
-        col.setCellFactory(param -> new EllipsisStringCellFactory<>(OverrunStyle.LEADING_ELLIPSIS));
+        col.setCellFactory(_ -> new EllipsisStringCellFactory<>(OverrunStyle.LEADING_ELLIPSIS));
         col.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public String getValue() {

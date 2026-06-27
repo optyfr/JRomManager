@@ -93,7 +93,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
         this.add(scannerBtnPanel, gbcScannerBtnPanel);
 
         JButton btnInfo = new JButton(Messages.getString("MainFrame.btnInfo.text")); //$NON-NLS-1$
-        btnInfo.addActionListener(e -> {
+        btnInfo.addActionListener(_ -> {
             if (MainFrame.getProfileViewer() == null)
                 MainFrame.setProfileViewer(new ProfileViewer(session, SwingUtilities.getWindowAncestor(this), session.getCurrProfile()));
             MainFrame.getProfileViewer().setVisible(true);
@@ -114,13 +114,13 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
 
         JButton btnReport = new JButton(Messages.getString("MainFrame.btnReport.text")); //$NON-NLS-1$
         btnReport.setIcon(MainFrame.getIcon("/jrm/resicons/icons/report.png")); //$NON-NLS-1$
-        btnReport.addActionListener(e -> EventQueue.invokeLater(() -> MainFrame.getReportFrame().setVisible(true)));
+        btnReport.addActionListener(_ -> EventQueue.invokeLater(() -> MainFrame.getReportFrame().setVisible(true)));
         scannerBtnPanel.add(btnReport);
 
         btnFix = new JButton(Messages.getString("MainFrame.btnFix.text")); //$NON-NLS-1$
         btnFix.setIcon(MainFrame.getIcon("/jrm/resicons/icons/tick.png")); //$NON-NLS-1$
         scannerBtnPanel.add(btnFix);
-        btnFix.addActionListener(e -> fix(session));
+        btnFix.addActionListener(_ -> fix(session));
         btnFix.setEnabled(false);
 
         separator2 = new JSeparator();
@@ -131,7 +131,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
 
         btnLoadPreset = new JButton("Import Settings");
         btnLoadPreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_refresh.png")); //$NON-NLS-1$
-        btnLoadPreset.addActionListener(e -> {
+        btnLoadPreset.addActionListener(_ -> {
             final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
             final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
             try {
@@ -152,7 +152,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
 
         btnSavePreset = new JButton("Export Settings");
         btnSavePreset.setIcon(MainFrame.getIcon("/jrm/resicons/icons/table_save.png")); //$NON-NLS-1$
-        btnSavePreset.addActionListener(e -> {
+        btnSavePreset.addActionListener(_ -> {
             final List<FileFilter> filters = Arrays.asList(new FileNameExtensionFilter("Properties", "properties"));
             final Path presets = session.getUser().getSettings().getWorkPath().resolve("presets");
             try {
@@ -168,7 +168,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
 
         });
         scannerBtnPanel.add(btnSavePreset);
-        btnScan.addActionListener(e -> scan(session, true));
+        btnScan.addActionListener(_ -> scan(session, true));
 
         scannerTabbedPane = new JTabbedPane(SwingConstants.TOP);
         final GridBagConstraints gbcScannerTabbedPane = new GridBagConstraints();

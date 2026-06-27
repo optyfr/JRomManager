@@ -50,7 +50,7 @@ public class DragNDrop {
     }
 
     public void addAny(SetFilesCallBack cb) {
-        addFiltered(f -> true, cb);
+        addFiltered(_ -> true, cb);
     }
 
     public void addDir(SetCallBack cb) {
@@ -75,7 +75,7 @@ public class DragNDrop {
             event.consume();
         });
 
-        control.setOnDragExited(event -> control.setStyle(""));
+        control.setOnDragExited(_ -> control.setStyle(""));
 
         control.setOnDragDropped(event -> {
             final var db = event.getDragboard();
@@ -100,7 +100,7 @@ public class DragNDrop {
 
     public void addFiltered(Predicate<File> filter, SetCallBack cb) {
         if (control instanceof TextField tf) {
-            tf.textProperty().addListener((observable, oldValue, newValue) -> {
+            tf.textProperty().addListener((_, _, newValue) -> {
                 if (newValue == null || newValue.isBlank() || tf.isDisabled())
                     tf.setStyle(null);
                 else if (filter.test(PathAbstractor.getAbsolutePath(Sessions.getSingleSession(), newValue).toFile())) {
@@ -124,7 +124,7 @@ public class DragNDrop {
             event.consume();
         });
 
-        control.setOnDragExited(event -> control.setStyle(""));
+        control.setOnDragExited(_ -> control.setStyle(""));
 
         control.setOnDragDropped(event -> {
             final var db = event.getDragboard();

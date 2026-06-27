@@ -275,7 +275,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     private void initSrcList() {
-        srcList.setCellFactory(param -> new ListCell<File>() {
+        srcList.setCellFactory(_ -> new ListCell<File>() {
             @Override
             protected void updateItem(File item, boolean empty) {
                 super.updateItem(item, empty);
@@ -293,12 +293,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 }
             }
         });
-        srcListMenu.setOnShowing(e -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
-        srcListDelMenuItem.setOnAction(e -> {
+        srcListMenu.setOnShowing(_ -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
+        srcListDelMenuItem.setOnAction(_ -> {
             srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
             saveSrcList();
         });
-        srcListAddMenuItem.setOnAction(e -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
+        srcListAddMenuItem.setOnAction(_ -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
     }
 
     private void initDestDragNDrop() {
@@ -315,7 +315,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     private void initFilters() {
         systemsFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
             BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((obs, wasSelected, isNowSelected) -> {
+            observable.addListener((_, _, isNowSelected) -> {
                 item.setSelected(session.getCurrProfile(), isNowSelected);
                 ProfileViewer.getResetCounter().incrementAndGet();
             });
@@ -324,7 +324,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 
         sourcesFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
             BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((obs, wasSelected, isNowSelected) -> {
+            observable.addListener((_, _, isNowSelected) -> {
                 item.setSelected(session.getCurrProfile(), isNowSelected);
                 ProfileViewer.getResetCounter().incrementAndGet();
             });
@@ -335,39 +335,39 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         cbbxFilterCabinetType.setItems(FXCollections.observableArrayList(CabinetType.values()));
         cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
         cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
-        chckbxIncludeClones.setOnAction(e -> {
+        chckbxIncludeClones.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        chckbxIncludeDisks.setOnAction(e -> {
+        chckbxIncludeDisks.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        chckbxIncludeSamples.setOnAction(e -> {
+        chckbxIncludeSamples.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxFilterCabinetType.setOnAction(e -> {
+        cbbxFilterCabinetType.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxFilterDisplayOrientation.setOnAction(e -> {
+        cbbxFilterDisplayOrientation.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxDriverStatus.setOnAction(e -> {
+        cbbxDriverStatus.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxSWMinSupportedLvl.setOnAction(e -> {
+        cbbxSWMinSupportedLvl.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxYearMin.setOnAction(e -> {
+        cbbxYearMin.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        cbbxYearMax.setOnAction(e -> {
+        cbbxYearMax.setOnAction(_ -> {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
             ProfileViewer.getResetCounter().incrementAndGet();
         });
@@ -377,7 +377,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         new DragNDrop(tfNPlayers).addFile(this::selectNPlayersFile);
         listNPlayers.setCellFactory(CheckBoxListCell.forListView(item -> {
             BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((obs, wasSelected, isNowSelected) -> {
+            observable.addListener((_, _, isNowSelected) -> {
                 item.setSelected(session.getCurrProfile(), isNowSelected);
                 ProfileViewer.getResetCounter().incrementAndGet();
             });
@@ -407,13 +407,13 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 
     private void initAutomation() {
         cbAutomation.setItems(FXCollections.observableArrayList(ScanAutomation.values()));
-        cbAutomation.setCellFactory(param -> new DescriptorCellFactory());
+        cbAutomation.setCellFactory(_ -> new DescriptorCellFactory());
         cbAutomation.setButtonCell(cbAutomation.getCellFactory().call(null));
-        cbAutomation.setOnAction(e -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
+        cbAutomation.setOnAction(_ -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
     }
 
     private void initImportExport() {
-        importBtn.setOnAction(e -> {
+        importBtn.setOnAction(_ -> {
             final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
             final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
             chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
@@ -424,7 +424,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             });
         });
 
-        exportBtn.setOnAction(e -> {
+        exportBtn.setOnAction(_ -> {
             final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
             final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
             try {
@@ -729,12 +729,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             });
             treeCatVer.setRoot(rootitem);
 
-            rootitem.selectedProperty().addListener((observable, oldvalue, newvalue) -> root.setSelected(newvalue));
+            rootitem.selectedProperty().addListener((_, _, newvalue) -> root.setSelected(newvalue));
             rootitem.getChildren().forEach(catitem -> {
                 ((CheckBoxTreeItem<PropertyStub>) catitem).selectedProperty()
-                        .addListener((observable, oldvalue, newvalue) -> ((Category) catitem.getValue()).setSelected(newvalue));
+                        .addListener((_, _, newvalue) -> ((Category) catitem.getValue()).setSelected(newvalue));
                 catitem.getChildren().forEach(subcatitem -> {
-                    ((CheckBoxTreeItem<PropertyStub>) subcatitem).selectedProperty().addListener((observable, oldvalue, newvalue) -> {
+                    ((CheckBoxTreeItem<PropertyStub>) subcatitem).selectedProperty().addListener((_, _, newvalue) -> {
                         ((SubCategory) subcatitem.getValue()).setSelected(newvalue);
                         treeCatVer.refresh();
                         ProfileViewer.getResetCounter().incrementAndGet();
@@ -969,7 +969,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     private void initDestCheckBox(CheckBox cb, TextField tf, Button btn, ProfileSettingsEnum enabledProp) {
-        cb.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        cb.selectedProperty().addListener((_, _, newValue) -> {
             tf.setDisable(!newValue);
             btn.setDisable(!newValue);
             session.getCurrProfile().setProperty(enabledProp, newValue);

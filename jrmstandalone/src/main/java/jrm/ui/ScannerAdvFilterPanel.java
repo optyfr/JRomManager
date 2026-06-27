@@ -125,22 +125,22 @@ public class ScannerAdvFilterPanel extends JPanel {
         Popup.addPopup(listNPlayers, popupMenuNPlay);
 
         JMenuItem mntmSelectAllNPlay = new JMenuItem(Messages.getString("MainFrame.SelectAll")); //$NON-NLS-1$
-        mntmSelectAllNPlay.addActionListener(e -> listNPlayers.selectAll());
+        mntmSelectAllNPlay.addActionListener(_ -> listNPlayers.selectAll());
         popupMenuNPlay.add(mntmSelectAllNPlay);
 
         JMenuItem mntmSelectNoneNPlay = new JMenuItem(Messages.getString("MainFrame.SelectNone")); //$NON-NLS-1$
-        mntmSelectNoneNPlay.addActionListener(e -> listNPlayers.selectNone());
+        mntmSelectNoneNPlay.addActionListener(_ -> listNPlayers.selectNone());
         popupMenuNPlay.add(mntmSelectNoneNPlay);
 
         JMenuItem mntmInvertSelectionNPlay = new JMenuItem(Messages.getString("MainFrame.InvertSelection")); //$NON-NLS-1$
-        mntmInvertSelectionNPlay.addActionListener(e -> listNPlayers.selectInvert());
+        mntmInvertSelectionNPlay.addActionListener(_ -> listNPlayers.selectInvert());
         popupMenuNPlay.add(mntmInvertSelectionNPlay);
 
         JSeparator separator1 = new JSeparator();
         popupMenuNPlay.add(separator1);
 
         JMenuItem mntmClearNPlayers = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear_1.text")); //$NON-NLS-1$
-        mntmClearNPlayers.addActionListener(e -> listNPlayersClear(session));
+        mntmClearNPlayers.addActionListener(_ -> listNPlayersClear(session));
         popupMenuNPlay.add(mntmClearNPlayers);
 
         JScrollPane scrollPaneCatVer = new JScrollPane();
@@ -152,7 +152,7 @@ public class ScannerAdvFilterPanel extends JPanel {
         this.add(scrollPaneCatVer, gbcScrollPaneCatVer);
 
         treeCatVer = new JCheckBoxTree(new CatVerModel());
-        treeCatVer.addCheckChangeEventListener(event -> {
+        treeCatVer.addCheckChangeEventListener(_ -> {
             session.getCurrProfile().saveSettings();
             if (MainFrame.getProfileViewer() != null)
                 MainFrame.getProfileViewer().reset(session.getCurrProfile());
@@ -168,29 +168,29 @@ public class ScannerAdvFilterPanel extends JPanel {
         popupMenuCat.add(mnSelectCat);
 
         JMenuItem mntmSelectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
-        mntmSelectAllCat.addActionListener(e -> treeCatVer.selectAll());
+        mntmSelectAllCat.addActionListener(_ -> treeCatVer.selectAll());
         mnSelectCat.add(mntmSelectAllCat);
 
         JMenuItem mntmSelectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
-        mntmSelectMatureCat.addActionListener(e -> catVerMatureSelect(session));
+        mntmSelectMatureCat.addActionListener(_ -> catVerMatureSelect(session));
         mnSelectCat.add(mntmSelectMatureCat);
 
         JMenu mnUnselectCat = new JMenu(Messages.getString("MainFrame.Unselect")); //$NON-NLS-1$
         popupMenuCat.add(mnUnselectCat);
 
         JMenuItem mntmUnselectAllCat = new JMenuItem(Messages.getString("MainFrame.All")); //$NON-NLS-1$
-        mntmUnselectAllCat.addActionListener(e -> treeCatVer.selectNone());
+        mntmUnselectAllCat.addActionListener(_ -> treeCatVer.selectNone());
         mnUnselectCat.add(mntmUnselectAllCat);
 
         JMenuItem mntmUnselectMatureCat = new JMenuItem(Messages.getString("MainFrame.Mature")); //$NON-NLS-1$
-        mntmUnselectMatureCat.addActionListener(e -> catVerMatureUnselect(session));
+        mntmUnselectMatureCat.addActionListener(_ -> catVerMatureUnselect(session));
         mnUnselectCat.add(mntmUnselectMatureCat);
 
         JSeparator separator = new JSeparator();
         popupMenuCat.add(separator);
 
         JMenuItem mntmClearCat = new JMenuItem(Messages.getString("ScannerAdvFilterPanel.mntmClear.text")); //$NON-NLS-1$
-        mntmClearCat.addActionListener(e -> catVerClear(session));
+        mntmClearCat.addActionListener(_ -> catVerClear(session));
         popupMenuCat.add(mntmClearCat);
 
     }

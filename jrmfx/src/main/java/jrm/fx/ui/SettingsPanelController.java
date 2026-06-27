@@ -89,8 +89,8 @@ public class SettingsPanelController extends BaseController {
         cbThreading.getItems().setAll(ThreadCnt.build());
         cbThreading.getSelectionModel().select(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class)));
         cbThreading.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt()));
-        ckbBackupDst.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt()));
+        ckbBackupDst.selectedProperty().addListener((_, _, newValue) -> {
             tfBackupDst.setDisable(!newValue);
             btBackupDst.setDisable(!newValue);
             session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue); // $NON-NLS-1$
@@ -102,13 +102,13 @@ public class SettingsPanelController extends BaseController {
         btBackupDst.setGraphic(backupdstiv);
         tfBackupDst.setText(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$
         new DragNDrop(btBackupDst).addDir(txt -> session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt));
-        btBackupDst.setOnAction(e -> chooseDir(btBackupDst, tfBackupDst.getText(), null, path -> {
+        btBackupDst.setOnAction(_ -> chooseDir(btBackupDst, tfBackupDst.getText(), null, path -> {
             session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, path.toString());
             tfBackupDst.setText(path.toString());
         }));
         cbStyleSheet.getItems().setAll(JRMScene.StyleSheet.values());
         cbStyleSheet.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
-        cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
             session.getUser().getSettings().setEnumProperty(JRMScene.ScenePrefs.style_sheet, newValue);
             MainFrame.applyCSS();
         });
@@ -137,7 +137,7 @@ public class SettingsPanelController extends BaseController {
         });
         cbZipTempThreshold.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.zip_temp_threshold, ZipTempThreshold.class));
         cbZipTempThreshold.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_temp_threshold, newValue));
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_temp_threshold, newValue));
         cbZipLevel.getItems().setAll(ZipLevel.values());
         cbZipLevel.setConverter(new StringConverter<>() {
 
@@ -153,7 +153,7 @@ public class SettingsPanelController extends BaseController {
         });
         cbZipLevel.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.zip_compression_level, ZipLevel.class));
         cbZipLevel.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, newValue));
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, newValue));
 
         cb7zArgs.getItems().setAll(SevenZipOptions.values());
         cb7zArgs.setConverter(new StringConverter<>() {
@@ -181,9 +181,9 @@ public class SettingsPanelController extends BaseController {
             }
         });
         tf7zThreads.getValueFactory().setValue(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class));
-        tf7zThreads.valueProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, newValue));
+        tf7zThreads.valueProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, newValue));
         ckb7ZSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class));
-        ckb7ZSolid.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, newValue));
+        ckb7ZSolid.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, newValue));
     }
 
     /**
@@ -196,11 +196,11 @@ public class SettingsPanelController extends BaseController {
         paneDebug.setGraphic(debugiv);
         cbDbgLevel.getItems().setAll(levels);
         cbDbgLevel.getSelectionModel().select(Level.parse(session.getUser().getSettings().getProperty(SettingsEnum.debug_level)));
-        cbDbgLevel.getSelectionModel().selectedItemProperty().addListener((ChangeListener<Level>) (observable, oldValue, newValue) -> {
+        cbDbgLevel.getSelectionModel().selectedItemProperty().addListener((ChangeListener<Level>) (_, _, newValue) -> {
             session.getUser().getSettings().setProperty(SettingsEnum.debug_level, newValue.toString());
             Log.setLevel(newValue);
         });
-        gc.setOnAction(e -> {
+        gc.setOnAction(_ -> {
             System.gc(); // NOSONAR
             updateMemory();
         });

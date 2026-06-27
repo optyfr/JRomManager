@@ -92,33 +92,33 @@ public class Dir2DatController extends BaseController {
     public void initialize(URL location, ResourceBundle resources) {
         scanSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, Boolean.class));
         scanSubfolders.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, newValue));
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, newValue));
         deepScanFor.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, Boolean.class)); // $NON-NLS-1$
         deepScanFor.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, newValue)); // $NON-NLS-1$
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, newValue)); // $NON-NLS-1$
         addMd.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, Boolean.class)); // $NON-NLS-1$
-        addMd.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, newValue)); // $NON-NLS-1$
+        addMd.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, newValue)); // $NON-NLS-1$
         addShamd.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, Boolean.class)); // $NON-NLS-1$
-        addShamd.selectedProperty().addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, newValue)); // $NON-NLS-1$
+        addShamd.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, newValue)); // $NON-NLS-1$
         junkSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, Boolean.class)); // $NON-NLS-1$
         junkSubfolders.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, newValue)); // $NON-NLS-1$
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, newValue)); // $NON-NLS-1$
         doNotScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, Boolean.class)); // $NON-NLS-1$
         doNotScan.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, newValue)); // $NON-NLS-1$
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, newValue)); // $NON-NLS-1$
         matchCurrentProfile.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, Boolean.class)); // $NON-NLS-1$
         matchCurrentProfile.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, newValue)); // $NON-NLS-1$
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, newValue)); // $NON-NLS-1$
         includeEmptyDirs.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, Boolean.class)); // $NON-NLS-1$
         includeEmptyDirs.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue)); // $NON-NLS-1$
+                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue)); // $NON-NLS-1$
         new DragNDrop(srcDir).addDir(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt));
         srcDir.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir));
         ImageView srciv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
         srciv.setPreserveRatio(true);
         srciv.getStyleClass().add("icon");
         srcDirBtn.setGraphic(srciv);
-        srcDirBtn.setOnAction(e -> {
+        srcDirBtn.setOnAction(_ -> {
             final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
             final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastsrcdir)).map(File::new).filter(File::exists)
                     .orElse(workdir.toFile());
@@ -135,7 +135,7 @@ public class Dir2DatController extends BaseController {
         dstiv.setPreserveRatio(true);
         dstiv.getStyleClass().add("icon");
         dstDatBtn.setGraphic(dstiv);
-        dstDatBtn.setOnAction(e -> {
+        dstDatBtn.setOnAction(_ -> {
             final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
             final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastdstdir)).map(File::new).filter(File::exists)
                     .orElse(workdir.toFile());
@@ -152,7 +152,7 @@ public class Dir2DatController extends BaseController {
             case SOFTWARELIST -> formatSWList;
             default -> formatMame;
         });
-        format.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+        format.selectedToggleProperty().addListener((_, _, newValue) -> {
             if (newValue == formatMame)
                 session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString());
             else if (newValue == formatLogiqxDat)
@@ -160,7 +160,7 @@ public class Dir2DatController extends BaseController {
             else if (newValue == formatSWList)
                 session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString());
         });
-        generate.setOnAction(e -> dir2dat());
+        generate.setOnAction(_ -> dir2dat());
     }
 
     /**

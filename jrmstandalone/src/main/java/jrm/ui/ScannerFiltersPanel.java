@@ -270,34 +270,34 @@ public class ScannerFiltersPanel extends JSplitPane {
         popupMenu.add(mnSelect);
 
         JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
-        mntmSelectAll.addActionListener(e -> checkBoxListSystems.selectAll());
+        mntmSelectAll.addActionListener(_ -> checkBoxListSystems.selectAll());
         mnSelect.add(mntmSelectAll);
 
         JMenuItem mntmSelectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-        mntmSelectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
+        mntmSelectAllBios.addActionListener(_ -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, true));
         mnSelect.add(mntmSelectAllBios);
 
         JMenuItem mntmSelectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-        mntmSelectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
+        mntmSelectAllSoftwares.addActionListener(_ -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, true));
         mnSelect.add(mntmSelectAllSoftwares);
 
         JMenu mnUnselect = new JMenu(Messages.getString("MainFrame.mnUnselect.text")); //$NON-NLS-1$
         popupMenu.add(mnUnselect);
 
         JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
-        mntmUnselectAll.addActionListener(e -> checkBoxListSystems.selectNone());
+        mntmUnselectAll.addActionListener(_ -> checkBoxListSystems.selectNone());
         mnUnselect.add(mntmUnselectAll);
 
         JMenuItem mntmUnselectAllBios = new JMenuItem(Messages.getString("MainFrame.mntmAllBios.text")); //$NON-NLS-1$
-        mntmUnselectAllBios.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
+        mntmUnselectAllBios.addActionListener(_ -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.BIOS, false));
         mnUnselect.add(mntmUnselectAllBios);
 
         JMenuItem mntmUnselectAllSoftwares = new JMenuItem(Messages.getString("MainFrame.mntmAllSoftwares.text")); //$NON-NLS-1$
-        mntmUnselectAllSoftwares.addActionListener(e -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
+        mntmUnselectAllSoftwares.addActionListener(_ -> checkBoxListSystems.select(sys -> sys.getType() == Systm.Type.SOFTWARELIST, false));
         mnUnselect.add(mntmUnselectAllSoftwares);
 
         JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
-        mntmInvertSelection.addActionListener(e -> checkBoxListSystems.selectInvert());
+        mntmInvertSelection.addActionListener(_ -> checkBoxListSystems.selectInvert());
         popupMenu.add(mntmInvertSelection);
     }
 
@@ -309,15 +309,15 @@ public class ScannerFiltersPanel extends JSplitPane {
         Popup.addPopup(checkBoxListSources, popupMenu);
 
         JMenuItem mntmSelectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectAll.text")); //$NON-NLS-1$
-        mntmSelectAll.addActionListener(e -> checkBoxListSources.selectAll());
+        mntmSelectAll.addActionListener(_ -> checkBoxListSources.selectAll());
         popupMenu.add(mntmSelectAll);
 
         JMenuItem mntmUnselectAll = new JMenuItem(Messages.getString("MainFrame.mntmSelectNone.text")); //$NON-NLS-1$
-        mntmUnselectAll.addActionListener(e -> checkBoxListSources.selectNone());
+        mntmUnselectAll.addActionListener(_ -> checkBoxListSources.selectNone());
         popupMenu.add(mntmUnselectAll);
 
         JMenuItem mntmInvertSelection = new JMenuItem(Messages.getString("MainFrame.mntmInvertSelection.text")); //$NON-NLS-1$
-        mntmInvertSelection.addActionListener(e -> checkBoxListSources.selectInvert());
+        mntmInvertSelection.addActionListener(_ -> checkBoxListSources.selectInvert());
         popupMenu.add(mntmInvertSelection);
     }
 

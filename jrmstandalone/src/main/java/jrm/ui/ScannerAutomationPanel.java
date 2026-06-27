@@ -47,7 +47,7 @@ public final class ScannerAutomationPanel extends JPanel {
                 return this;
             }
         });
-        comboBox.addActionListener(e -> settings.setProperty(ProfileSettingsEnum.automation_scan, comboBox.getSelectedItem().toString())); // $NON-NLS-1$
+        comboBox.addActionListener(_ -> settings.setProperty(ProfileSettingsEnum.automation_scan, comboBox.getSelectedItem().toString())); // $NON-NLS-1$
         GridBagConstraints gbcComboBox = new GridBagConstraints();
         gbcComboBox.insets = new Insets(0, 0, 5, 5);
         gbcComboBox.fill = GridBagConstraints.HORIZONTAL;

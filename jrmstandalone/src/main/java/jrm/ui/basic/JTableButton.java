@@ -102,7 +102,7 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
             if (value instanceof String s) {
                 button.setText(s);
             }
-            button.addActionListener(e -> {
+            button.addActionListener(_ -> {
                 if (handlers != null)
                     for (TableButtonPressedHandler handler : handlers)
                         handler.onButtonPress(row, column);

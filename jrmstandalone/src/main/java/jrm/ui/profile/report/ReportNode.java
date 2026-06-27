@@ -21,7 +21,7 @@ public class ReportNode extends ReportNodeGeneric<Report> {
     }
 
     public SubjectNode getNode(Subject subject) {
-        return subjectNodeCache.computeIfAbsent(subject.getId(), id -> new SubjectNode(subject));
+        return subjectNodeCache.computeIfAbsent(subject.getId(), _ -> new SubjectNode(subject));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ReportNode extends ReportNodeGeneric<Report> {
         }
 
         public NoteNode getNode(Note note) {
-            return noteNodeCache.computeIfAbsent(note.getId(), id -> new NoteNode(note));
+            return noteNodeCache.computeIfAbsent(note.getId(), _ -> new NoteNode(note));
         }
 
         @Override

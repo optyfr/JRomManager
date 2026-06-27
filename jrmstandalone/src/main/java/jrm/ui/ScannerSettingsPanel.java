@@ -104,7 +104,7 @@ public class ScannerSettingsPanel extends JPanel {
         JMenuItem mntmPdMameSplit = new JMenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text")); //$NON-NLS-1$
         mnPdMame.add(mntmPdMameSplit);
 
-        mntmPdMameSplit.addActionListener(e -> {
+        mntmPdMameSplit.addActionListener(_ -> {
             chckbxCreateMissingSets.setSelected(true);
             chckbxCreateOnlyComplete.setSelected(false);
             chckbxIgnoreUnneededContainers.setSelected(false);
@@ -117,7 +117,7 @@ public class ScannerSettingsPanel extends JPanel {
             cbbxMergeMode.setSelectedItem(MergeOptions.SPLIT);
 
         });
-        mntmPdMameNon.addActionListener(e -> {
+        mntmPdMameNon.addActionListener(_ -> {
             chckbxCreateMissingSets.setSelected(true);
             chckbxCreateOnlyComplete.setSelected(false);
             chckbxIgnoreUnneededContainers.setSelected(false);
@@ -129,7 +129,7 @@ public class ScannerSettingsPanel extends JPanel {
             cbCompression.setSelectedItem(FormatOptions.TZIP);
             cbbxMergeMode.setSelectedItem(MergeOptions.SUPERFULLNOMERGE);
         });
-        mntmPleasuredome.addActionListener(e -> {
+        mntmPleasuredome.addActionListener(_ -> {
             chckbxCreateMissingSets.setSelected(true);
             chckbxCreateOnlyComplete.setSelected(false);
             chckbxIgnoreUnneededContainers.setSelected(false);
@@ -304,7 +304,7 @@ public class ScannerSettingsPanel extends JPanel {
                 return this;
             }
         });
-        cbCompression.addActionListener(e -> settings.setProperty(ProfileSettingsEnum.format, cbCompression.getSelectedItem().toString())); // $NON-NLS-1$
+        cbCompression.addActionListener(_ -> settings.setProperty(ProfileSettingsEnum.format, cbCompression.getSelectedItem().toString())); // $NON-NLS-1$
         final GridBagConstraints gbcCBCompression = new GridBagConstraints();
         gbcCBCompression.gridwidth = 2;
         gbcCBCompression.insets = new Insets(0, 0, 5, 5);
@@ -338,7 +338,7 @@ public class ScannerSettingsPanel extends JPanel {
                 return this;
             }
         });
-        cbbxMergeMode.addActionListener(e -> {
+        cbbxMergeMode.addActionListener(_ -> {
             settings.setProperty(ProfileSettingsEnum.merge_mode, cbbxMergeMode.getSelectedItem().toString()); // $NON-NLS-1$
             cbHashCollision.setEnabled(((MergeOptions) cbbxMergeMode.getSelectedItem()).isMerge());
         });
@@ -360,7 +360,7 @@ public class ScannerSettingsPanel extends JPanel {
                 return this;
             }
         });
-        cbHashCollision.addActionListener(e -> settings.setProperty(ProfileSettingsEnum.hash_collision_mode, cbHashCollision.getSelectedItem().toString())); // $NON-NLS-1$
+        cbHashCollision.addActionListener(_ -> settings.setProperty(ProfileSettingsEnum.hash_collision_mode, cbHashCollision.getSelectedItem().toString())); // $NON-NLS-1$
         final GridBagConstraints gbcCbHashCollision = new GridBagConstraints();
         gbcCbHashCollision.gridwidth = 2;
         gbcCbHashCollision.insets = new Insets(0, 0, 5, 5);

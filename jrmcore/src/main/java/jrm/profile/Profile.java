@@ -99,6 +99,21 @@ public class Profile implements Serializable, StatusRendererFactory {
     private static final String DESCRIPTION = "description";
     private static final String VERSION = "version";
 
+    static {
+        System.setProperty("jdk.xml.entityExpansionLimit", "0");
+        System.setProperty("jdk.xml.maxAttributeCount", "0");
+        System.setProperty("jdk.xml.maxElementCount", "0");
+        System.setProperty("jdk.xml.maxElementDepth", "0");
+        System.setProperty("jdk.xml.maxEntityCount", "0");
+        System.setProperty("jdk.xml.maxGeneralEntityCount", "0");
+        System.setProperty("jdk.xml.maxGeneralEntitySizeLimit", "0");
+        System.setProperty("jdk.xml.maxParameterEntityCount", "0");
+        System.setProperty("jdk.xml.maxParameterEntitySizeLimit", "0");
+        System.setProperty("jdk.xml.maxOccurLimit", "0");
+        System.setProperty("jdk.xml.maxXMLNameLimit", "0");
+        System.setProperty("jdk.xml.totalEntitySizeLimit", "0");
+    }
+    
     /**
      * Scanned machines count.
      * 

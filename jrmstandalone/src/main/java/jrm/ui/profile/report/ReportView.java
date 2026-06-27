@@ -65,7 +65,7 @@ public class ReportView extends JScrollPane implements Popup {
 
         final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
         mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
-        mntmOpenAllNodes.addActionListener(e -> openAllNodes());
+        mntmOpenAllNodes.addActionListener(_ -> openAllNodes());
         popupMenu.add(mntmOpenAllNodes);
 
         final JCheckBoxMenuItem chckbxmntmShowOkEntries = new JCheckBoxMenuItem(Messages.getString("ReportFrame.chckbxmntmShowOkEntries.text")); //$NON-NLS-1$
@@ -73,7 +73,7 @@ public class ReportView extends JScrollPane implements Popup {
         chckbxmntmShowOkEntries.addItemListener(e -> showOKEntries(report, e));
 
         final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
-        mntmCloseAllNodes.addActionListener(e -> closeAllNodes());
+        mntmCloseAllNodes.addActionListener(_ -> closeAllNodes());
         mntmCloseAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed.png")); //$NON-NLS-1$
         popupMenu.add(mntmCloseAllNodes);
         popupMenu.add(chckbxmntmShowOkEntries);
@@ -86,28 +86,28 @@ public class ReportView extends JScrollPane implements Popup {
         popupMenu.addSeparator();
 
         JMenuItem mntmDetail = new JMenuItem(Messages.getString("ReportView.mntmDetail.text")); //$NON-NLS-1$
-        mntmDetail.addActionListener(e -> showDetail());
+        mntmDetail.addActionListener(_ -> showDetail());
         mntmDetail.setEnabled(false);
         popupMenu.add(mntmDetail);
 
         JMenuItem mntmCopyCRC = new JMenuItem("Copy CRC");
         mntmCopyCRC.setEnabled(false);
-        mntmCopyCRC.addActionListener(e -> copyCRC());
+        mntmCopyCRC.addActionListener(_ -> copyCRC());
         popupMenu.add(mntmCopyCRC);
 
         JMenuItem mntmCopySHA1 = new JMenuItem("Copy SHA1");
         mntmCopySHA1.setEnabled(false);
-        mntmCopySHA1.addActionListener(e -> copySHA1());
+        mntmCopySHA1.addActionListener(_ -> copySHA1());
         popupMenu.add(mntmCopySHA1);
 
         JMenuItem mntmCopyName = new JMenuItem("Copy Name");
         mntmCopyName.setEnabled(false);
-        mntmCopyName.addActionListener(e -> copyName());
+        mntmCopyName.addActionListener(_ -> copyName());
         popupMenu.add(mntmCopyName);
 
         JMenuItem mntmSearchWeb = new JMenuItem("Search on the Web");
         mntmSearchWeb.setEnabled(false);
-        mntmSearchWeb.addActionListener(e -> searchOnTheWeb());
+        mntmSearchWeb.addActionListener(_ -> searchOnTheWeb());
         popupMenu.add(mntmSearchWeb);
 
         tree.addTreeSelectionListener(e -> {

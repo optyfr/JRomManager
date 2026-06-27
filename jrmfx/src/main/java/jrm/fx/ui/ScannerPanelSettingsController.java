@@ -79,50 +79,50 @@ public class ScannerPanelSettingsController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        final Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = param -> new DescriptorCellFactory();
-        needSHA1Chkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.need_sha1_or_md5, newValue));
-        useParallelismChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.use_parallelism, newValue));
-        createMissingSetsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.create_mode, newValue));
-        createOnlyCompleteChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.createfull_mode, newValue));
+        final Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = _ -> new DescriptorCellFactory();
+        needSHA1Chkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.need_sha1_or_md5, newValue));
+        useParallelismChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.use_parallelism, newValue));
+        createMissingSetsChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.create_mode, newValue));
+        createOnlyCompleteChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.createfull_mode, newValue));
         ignoreUnneededContainersChkbx.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unneeded_containers, newValue));
-        ignoreUnneededEntriesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unneeded_entries, newValue));
+                .addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unneeded_containers, newValue));
+        ignoreUnneededEntriesChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unneeded_entries, newValue));
         ignoreUnknownContainersChkbx.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unknown_containers, newValue));
-        useImplicitMergeChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.implicit_merge, newValue));
-        ignoreMergeNameRomsChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_merge_name_roms, newValue));
-        ignoreMergeNameDisksChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_merge_name_disks, newValue));
-        excludeGamesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_games, newValue));
-        excludeMachinesChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_machines, newValue));
-        backupChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.backup, newValue));
-        zeroEntryMattersChkbx.selectedProperty().addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.zero_entry_matters, newValue));
+                .addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_unknown_containers, newValue));
+        useImplicitMergeChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.implicit_merge, newValue));
+        ignoreMergeNameRomsChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_merge_name_roms, newValue));
+        ignoreMergeNameDisksChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.ignore_merge_name_disks, newValue));
+        excludeGamesChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_games, newValue));
+        excludeMachinesChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.exclude_machines, newValue));
+        backupChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.backup, newValue));
+        zeroEntryMattersChkbx.selectedProperty().addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.zero_entry_matters, newValue));
         compressionCbx.setItems(FXCollections.observableArrayList(FormatOptions.values()));
         compressionCbx.setCellFactory(cellFactory);
         compressionCbx.setButtonCell(cellFactory.call(null));
         compressionCbx.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.format, newValue.toString()));
+                .addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.format, newValue.toString()));
         mergeModeCbx.setItems(FXCollections.observableArrayList(MergeOptions.values()));
         mergeModeCbx.setCellFactory(cellFactory);
         mergeModeCbx.setButtonCell(cellFactory.call(null));
         mergeModeCbx.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.merge_mode, newValue.toString()));
+                .addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.merge_mode, newValue.toString()));
         collisionModeCbx.setItems(FXCollections.observableArrayList(HashCollisionOptions.values()));
         collisionModeCbx.setCellFactory(cellFactory);
         collisionModeCbx.setButtonCell(cellFactory.call(null));
         collisionModeCbx.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> settings.setProperty(ProfileSettingsEnum.hash_collision_mode, newValue.toString()));
+                .addListener((_, _, newValue) -> settings.setProperty(ProfileSettingsEnum.hash_collision_mode, newValue.toString()));
         final var pdMameMenuItemMerged = new MenuItem(Messages.getString("MainFrame.mntmPleasuredome.text"));
-        pdMameMenuItemMerged.setOnAction(e -> pdMameMergedPreset());
+        pdMameMenuItemMerged.setOnAction(_ -> pdMameMergedPreset());
         final var pdMameMenuItemNonMerged = new MenuItem(Messages.getString("MainFrame.mntmPdMameNon.text"));
-        pdMameMenuItemNonMerged.setOnAction(e -> pdMameNonMergedPreset());
+        pdMameMenuItemNonMerged.setOnAction(_ -> pdMameNonMergedPreset());
         final var pdMameMenuItemSplit = new MenuItem(Messages.getString("MainFrame.mntmPdMameSplit.text"));
-        pdMameMenuItemSplit.setOnAction(e -> pdMameSplitPreset());
+        pdMameMenuItemSplit.setOnAction(_ -> pdMameSplitPreset());
         catVerMenu = new ContextMenu(new Menu(Messages.getString("MainFrame.mnPresets.text"), null, pdMameMenuItemMerged, pdMameMenuItemNonMerged, pdMameMenuItemSplit));
         settingsPane.setOnContextMenuRequested(event -> {
             catVerMenu.show(settingsPane, event.getScreenX(), event.getScreenY());
             event.consume();
         });
-        settingsPane.setOnMousePressed(e -> catVerMenu.hide());
+        settingsPane.setOnMousePressed(_ -> catVerMenu.hide());
         ImageView addiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png"));
         addiv.setPreserveRatio(true);
         addiv.getStyleClass().add("icon");

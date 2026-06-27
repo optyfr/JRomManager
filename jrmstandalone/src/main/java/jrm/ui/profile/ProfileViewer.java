@@ -224,9 +224,9 @@ public class ProfileViewer extends JDialog {
         txtSearch.setText(""); //$NON-NLS-1$
         txtSearch.setColumns(20);
 
-        tglbtnMissingW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
-        tglbtnPartialW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
-        tglbtnCompleteW.addItemListener(e -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
+        tglbtnMissingW.addItemListener(_ -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
+        tglbtnPartialW.addItemListener(_ -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
+        tglbtnCompleteW.addItemListener(_ -> setFilterW(tglbtnMissingW.isSelected(), tglbtnPartialW.isSelected(), tglbtnCompleteW.isSelected()));
 
         final var scrollPaneW = new JScrollPane();
         panelW.add(scrollPaneW);
@@ -245,11 +245,11 @@ public class ProfileViewer extends JDialog {
         Popup.addPopup(tableW, popupWMenu);
 
         final var mntmCollectKeywords = new JMenuItem(Messages.getString("ProfileViewer.mntmCollectKeywords.text")); //$NON-NLS-1$
-        mntmCollectKeywords.addActionListener(e -> new KW().filter(((AnywareListModel<Anyware>) tableW.getModel()).getList()));
+        mntmCollectKeywords.addActionListener(_ -> new KW().filter(((AnywareListModel<Anyware>) tableW.getModel()).getList()));
         popupWMenu.add(mntmCollectKeywords);
 
         final var mntmSelectNone = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectNone.text")); //$NON-NLS-1$
-        mntmSelectNone.addActionListener(e -> {
+        mntmSelectNone.addActionListener(_ -> {
             final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
             list.getList().getFilteredStream().forEach(ware -> ware.setSelected(false));
             list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -257,7 +257,7 @@ public class ProfileViewer extends JDialog {
         popupWMenu.add(mntmSelectNone);
 
         final var mntmSelectAll = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectAll.text")); //$NON-NLS-1$
-        mntmSelectAll.addActionListener(e -> {
+        mntmSelectAll.addActionListener(_ -> {
             final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
             list.getList().getFilteredStream().forEach(ware -> ware.setSelected(true));
             list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -265,7 +265,7 @@ public class ProfileViewer extends JDialog {
         popupWMenu.add(mntmSelectAll);
 
         final var mntmSelectInvert = new JMenuItem(Messages.getString("ProfileViewer.mntmSelectInvert.text")); //$NON-NLS-1$
-        mntmSelectInvert.addActionListener(e -> {
+        mntmSelectInvert.addActionListener(_ -> {
             final AnywareListModel<Anyware> list = (AnywareListModel<Anyware>) tableW.getModel();
             list.getList().getFilteredStream().forEach(ware -> ware.setSelected(!ware.isSelected()));
             list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
@@ -306,30 +306,30 @@ public class ProfileViewer extends JDialog {
 
         final var mntmFilteredAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
         mnExportAllFiltered.add(mntmFilteredAsLogiqxDat);
-        mntmFilteredAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null));
+        mntmFilteredAsLogiqxDat.addActionListener(_ -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null));
 
         final var mntmFilteredAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
         mnExportAllFiltered.add(mntmFilteredAsMameDat);
-        mntmFilteredAsMameDat.addActionListener(e -> export(session, ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null));
+        mntmFilteredAsMameDat.addActionListener(_ -> export(session, ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null));
 
         final var mntmFilteredAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); // $NON-NLS-1$
         mnExportAllFiltered.add(mntmFilteredAsSoftwareLists);
-        mntmFilteredAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null));
+        mntmFilteredAsSoftwareLists.addActionListener(_ -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null));
 
         final var mntmAllAsLogiqxDat = new JMenuItem(Messages.getString("ProfileViewer.AsLogiqxDat")); //$NON-NLS-1$
         mntmAllAsLogiqxDat.setEnabled(false);
         mnExportAll.add(mntmAllAsLogiqxDat);
-        mntmAllAsLogiqxDat.addActionListener(e -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null));
+        mntmAllAsLogiqxDat.addActionListener(_ -> export(session, ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null));
 
         final var mntmAllAsMameDat = new JMenuItem(Messages.getString("ProfileViewer.AsMameDat")); //$NON-NLS-1$
         mntmAllAsMameDat.setEnabled(false);
         mnExportAll.add(mntmAllAsMameDat);
-        mntmAllAsMameDat.addActionListener(e -> export(session, ExportType.MAME, EnumSet.of(ExportMode.ALL), null));
+        mntmAllAsMameDat.addActionListener(_ -> export(session, ExportType.MAME, EnumSet.of(ExportMode.ALL), null));
 
         final var mntmAllAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); // $NON-NLS-1$
         mntmAllAsSoftwareLists.setEnabled(false);
         mnExportAll.add(mntmAllAsSoftwareLists);
-        mntmAllAsSoftwareLists.addActionListener(e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null));
+        mntmAllAsSoftwareLists.addActionListener(_ -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null));
 
         final var mnExportSelected = new JMenu(Messages.getString("ProfileViewer.ExportSelected")); //$NON-NLS-1$
         popupMenu.add(mnExportSelected);
@@ -340,13 +340,13 @@ public class ProfileViewer extends JDialog {
         final var mntmSelectedFilteredAsSoftwareList = new JMenuItem(Messages.getString("ProfileViewer.AsSWListDat")); //$NON-NLS-1$
         mnExportSelectedFiltered.add(mntmSelectedFilteredAsSoftwareList);
         mntmSelectedFilteredAsSoftwareList.addActionListener(
-                e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+                _ -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
         final var mntmSelectedAsSoftwareLists = new JMenuItem(Messages.getString(PROFILE_VIEWER_AS_SW_LISTS_DAT)); // $NON-NLS-1$
         mntmSelectedAsSoftwareLists.setEnabled(false);
         mnExportSelected.add(mntmSelectedAsSoftwareLists);
         mntmSelectedAsSoftwareLists.addActionListener(
-                e -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
+                _ -> export(session, ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), (SoftwareList) tableWL.getModel().getValueAt(tableWL.getSelectedRow(), 0)));
 
         popupMenu.addPopupMenuListener(new PopupMenuListener() {
             @Override
@@ -397,9 +397,9 @@ public class ProfileViewer extends JDialog {
         tglbtnCompleteWL.setToolTipText(Messages.getString("ProfileViewer.tglbtnCompleteWL.toolTipText")); //$NON-NLS-1$
         toolBarWL.add(tglbtnCompleteWL);
 
-        tglbtnMissingWL.addItemListener(e -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
-        tglbtnPartialWL.addItemListener(e -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
-        tglbtnCompleteWL.addItemListener(e -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
+        tglbtnMissingWL.addItemListener(_ -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
+        tglbtnPartialWL.addItemListener(_ -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
+        tglbtnCompleteWL.addItemListener(_ -> setFilterWL(tglbtnMissingWL.isSelected(), tglbtnPartialWL.isSelected(), tglbtnCompleteWL.isSelected()));
 
         tableWL.getSelectionModel().addListSelectionListener(this::selectItemWL);
         tableW.addMouseListener(new MouseAdapter() {
@@ -430,8 +430,8 @@ public class ProfileViewer extends JDialog {
         tglbtnOK.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
         toolBarEntity.add(tglbtnOK);
 
-        tglbtnBad.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
-        tglbtnOK.addItemListener(e -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
+        tglbtnBad.addItemListener(_ -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
+        tglbtnOK.addItemListener(_ -> setFilterE(tglbtnBad.isSelected(), tglbtnOK.isSelected()));
 
         final var scrollPaneEntity = new JScrollPane();
         panelEntity.add(scrollPaneEntity, BorderLayout.CENTER);
@@ -442,19 +442,19 @@ public class ProfileViewer extends JDialog {
         Popup.addPopup(tableEntity, popupEntMenu);
 
         final var mntmCopyCRC = new JMenuItem("Copy CRC");
-        mntmCopyCRC.addActionListener(e -> copyHash(3));
+        mntmCopyCRC.addActionListener(_ -> copyHash(3));
         popupEntMenu.add(mntmCopyCRC);
 
         final var mntmCopySHA1 = new JMenuItem("Copy SHA1");
-        mntmCopySHA1.addActionListener(e -> copyHash(5));
+        mntmCopySHA1.addActionListener(_ -> copyHash(5));
         popupEntMenu.add(mntmCopySHA1);
 
         final var mntmCopyName = new JMenuItem("Copy Name");
-        mntmCopyName.addActionListener(e -> copyHash(1));
+        mntmCopyName.addActionListener(_ -> copyHash(1));
         popupEntMenu.add(mntmCopyName);
 
         final var mntmSearchWeb = new JMenuItem("Search on the Web");
-        mntmSearchWeb.addActionListener(e -> {
+        mntmSearchWeb.addActionListener(_ -> {
             val index = tableEntity.getSelectedRow();
             if (index >= 0 && Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 try {

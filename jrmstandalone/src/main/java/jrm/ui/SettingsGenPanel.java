@@ -106,7 +106,7 @@ public class SettingsGenPanel extends JPanel {
         gbcCBThreading.gridy = 1;
         gbcCBThreading.gridwidth = 3;
         this.add(cbThreading, gbcCBThreading);
-        cbThreading.addActionListener(arg0 -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, ((ThreadCnt) cbThreading.getSelectedItem()).getCnt())); // $NON-NLS-1$
+        cbThreading.addActionListener(_ -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, ((ThreadCnt) cbThreading.getSelectedItem()).getCnt())); // $NON-NLS-1$
         cbThreading.setSelectedItem(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class)));
 
         final var tfBackupDest = new JFileDropTextField(txt -> session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt)); // $NON-NLS-1$
@@ -116,7 +116,7 @@ public class SettingsGenPanel extends JPanel {
         tfBackupDest.setText(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$
 
         final var btnBackupDest = new JButton(""); //$NON-NLS-1$
-        btnBackupDest.addActionListener(e -> {
+        btnBackupDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getUser().getSettings().getProperty("MainFrame.ChooseBackupGDestination", workdir.getAbsolutePath())), new File(tfBackupDest.getText()), null, //$NON-NLS-1$

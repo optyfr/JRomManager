@@ -161,19 +161,19 @@ public class ProfilePanelController implements Initializable {
         bin.setPreserveRatio(true);
         bin.getStyleClass().add("icon");
         dropCacheMenu.setGraphic(bin);
-        folderMenu.setOnShowing(e -> {
+        folderMenu.setOnShowing(_ -> {
             final var selected = profilesTree.getSelectionModel().getSelectedItem();
             deleteFolderMenu.setDisable(selected == null);
             createFolderMenu.setDisable(selected == null);
         });
-        profileMenu.setOnShowing(e -> {
+        profileMenu.setOnShowing(_ -> {
             final var selected = profilesList.getSelectionModel().getSelectedItem();
             deleteProfileMenu.setDisable(selected == null);
             renameProfileMenu.setDisable(selected == null);
             dropCacheMenu.setDisable(selected == null);
             updateFromMameMenu.setDisable(selected == null || !selected.isJRM());
         });
-        profilesTree.setCellFactory(p -> new TextFieldTreeCell<>(new StringConverter<>() {
+        profilesTree.setCellFactory(_ -> new TextFieldTreeCell<>(new StringConverter<>() {
             private Dir dir;
 
             @Override
@@ -189,10 +189,10 @@ public class ProfilePanelController implements Initializable {
         }));
         profilesTree.setOnEditCommit(this::editCommitProfileDir);
         profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
-        profilesTree.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populate(newValue));
+        profilesTree.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> populate(newValue));
         profilesTree.getSelectionModel().select(0);
         profileCol.setEditable(true);
-        profileCol.setCellFactory(param -> new ProfileCellFactory());
+        profileCol.setCellFactory(_ -> new ProfileCellFactory());
         profileCol.setOnEditCommit(this::editCommitProfile);
         profileCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
@@ -200,14 +200,14 @@ public class ProfilePanelController implements Initializable {
                 return param.getValue();
             }
         });
-        profileVersionCol.setCellFactory(param -> new VersionCellFactory<>());
+        profileVersionCol.setCellFactory(_ -> new VersionCellFactory<>());
         profileVersionCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public String getValue() {
                 return param.getValue().getStats().getVersion();
             }
         });
-        profileHaveSetsCol.setCellFactory(param -> new HaveNTotalCellFactory<>());
+        profileHaveSetsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
         profileHaveSetsCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public HaveNTotal getValue() {
@@ -215,7 +215,7 @@ public class ProfilePanelController implements Initializable {
             }
         });
         profileHaveSetsCol.setComparator(haveNTotalComparator);
-        profileHaveRomsCol.setCellFactory(param -> new HaveNTotalCellFactory<>());
+        profileHaveRomsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
         profileHaveRomsCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public HaveNTotal getValue() {
@@ -223,7 +223,7 @@ public class ProfilePanelController implements Initializable {
             }
         });
         profileHaveRomsCol.setComparator(haveNTotalComparator);
-        profileHaveDisksCol.setCellFactory(param -> new HaveNTotalCellFactory<>());
+        profileHaveDisksCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
         profileHaveDisksCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public HaveNTotal getValue() {
@@ -231,29 +231,29 @@ public class ProfilePanelController implements Initializable {
             }
         });
         profileHaveDisksCol.setComparator(haveNTotalComparator);
-        profileCreatedCol.setCellFactory(param -> new DateCellFactory());
+        profileCreatedCol.setCellFactory(_ -> new DateCellFactory());
         profileCreatedCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public Instant getValue() {
                 return param.getValue().getStats().getCreated();
             }
         });
-        profileLastScanCol.setCellFactory(param -> new DateCellFactory());
+        profileLastScanCol.setCellFactory(_ -> new DateCellFactory());
         profileLastScanCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public Instant getValue() {
                 return param.getValue().getStats().getScanned();
             }
         });
-        profileLastFixCol.setCellFactory(param -> new DateCellFactory());
+        profileLastFixCol.setCellFactory(_ -> new DateCellFactory());
         profileLastFixCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
             public Instant getValue() {
                 return param.getValue().getStats().getFixed();
             }
         });
-        profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> btnLoad.setDisable(newValue == null));
-        profilesList.setRowFactory(tv -> {
+        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> btnLoad.setDisable(newValue == null));
+        profilesList.setRowFactory(_ -> {
             final var row = new TableRow<ProfileNFO>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
@@ -262,7 +262,7 @@ public class ProfilePanelController implements Initializable {
             });
             return row;
         });
-        profilesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> profilesList.refresh());
+        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> profilesList.refresh());
         profilesList.setEditable(false);
         profilesList.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         new DragNDrop(profilesList).addAny(files -> importDat(files, true));
@@ -451,7 +451,7 @@ public class ProfilePanelController implements Initializable {
                 layout.getChildren().add(nameField);
                 final var result = Dialogs.showConfirmation("Choose a name to save JRM file", layout, ButtonType.APPLY);
                 final var fileName = result.filter(t -> t == ButtonType.APPLY)
-                        .map(t -> nameField.getText())
+                        .map(_ -> nameField.getText())
                         .filter(t -> !t.isBlank())
                         .map(t -> t.endsWith(".jrm") ? t : (t + ".jrm"))
                         .orElse(imprt.imprt.getFile().getName());

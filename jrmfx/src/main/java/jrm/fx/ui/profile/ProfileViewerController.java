@@ -232,7 +232,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     private void initTableEStatus() {
-        tableEntityStatus.setCellFactory(p -> new TableCell<EntityBase, EntityBase>() {
+        tableEntityStatus.setCellFactory(_ -> new TableCell<EntityBase, EntityBase>() {
             @Override
             protected void updateItem(EntityBase item, boolean empty) {
                 if (item == null || empty) {
@@ -262,7 +262,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     private void initTableEName() {
-        tableEntityName.setCellFactory(p -> new TableCell<EntityBase, EntityBase>() {
+        tableEntityName.setCellFactory(_ -> new TableCell<EntityBase, EntityBase>() {
             final Image romSmall = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
             final Image drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
             final Image sound = MainFrame.getIcon("/jrm/resicons/icons/sound.png"); //$NON-NLS-1$
@@ -296,7 +296,7 @@ public class ProfileViewerController implements Initializable {
         tableEntitySize.setMinWidth(getWidth(12));
         tableEntitySize.setPrefWidth(tableEntitySize.getMinWidth());
         tableEntitySize.setMaxWidth(tableEntitySize.getMinWidth() * 2);
-        tableEntitySize.setCellFactory(p -> new TableCell<EntityBase, Long>() {
+        tableEntitySize.setCellFactory(_ -> new TableCell<EntityBase, Long>() {
             @Override
             protected void updateItem(Long item, boolean empty) {
                 if (item == null || empty)
@@ -322,7 +322,7 @@ public class ProfileViewerController implements Initializable {
         tableEntityCRC.setMinWidth(getWidth(10, MONOSPACED));
         tableEntityCRC.setPrefWidth(tableEntityCRC.getMinWidth());
         tableEntityCRC.setMaxWidth(tableEntityCRC.getMinWidth() * 2);
-        tableEntityCRC.setCellFactory(p -> new TableCell<EntityBase, String>() {
+        tableEntityCRC.setCellFactory(_ -> new TableCell<EntityBase, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (item == null || empty)
@@ -350,7 +350,7 @@ public class ProfileViewerController implements Initializable {
         tableEntityMD5.setMinWidth(getWidth(34, MONOSPACED));
         tableEntityMD5.setPrefWidth(tableEntityMD5.getMinWidth());
         tableEntityMD5.setMaxWidth(tableEntityMD5.getMinWidth() * 2);
-        tableEntityMD5.setCellFactory(p -> new TableCell<EntityBase, String>() {
+        tableEntityMD5.setCellFactory(_ -> new TableCell<EntityBase, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (item == null || empty)
@@ -378,7 +378,7 @@ public class ProfileViewerController implements Initializable {
         tableEntitySHA1.setMinWidth(getWidth(42, MONOSPACED));
         tableEntitySHA1.setPrefWidth(tableEntitySHA1.getMinWidth());
         tableEntitySHA1.setMaxWidth(tableEntitySHA1.getMinWidth() * 2);
-        tableEntitySHA1.setCellFactory(p -> new TableCell<EntityBase, String>() {
+        tableEntitySHA1.setCellFactory(_ -> new TableCell<EntityBase, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (item == null || empty)
@@ -416,7 +416,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     private void initTableEDumpStatus() {
-        tableEntityDumpStatus.setCellFactory(p -> new TableCell<EntityBase, Entity.Status>() {
+        tableEntityDumpStatus.setCellFactory(_ -> new TableCell<EntityBase, Entity.Status>() {
             private static final Image verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
             private static final Image good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
             private static final Image baddump = MainFrame.getIcon("/jrm/resicons/icons/delete.png"); //$NON-NLS-1$
@@ -471,7 +471,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     private void initTableEMenu() {
-        menuEntity.setOnShowing(e -> {
+        menuEntity.setOnShowing(_ -> {
             final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem() != null;
             mntmCopyCrc.setDisable(!has_selected_entity);
             mntmCopySha1.setDisable(!has_selected_entity);
@@ -586,15 +586,15 @@ public class ProfileViewerController implements Initializable {
         initTableWMSelected();
         initTableWSColumns();
         initToggleButtons();
-        tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadE(newValue));
-        search.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
+        tableW.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> reloadE(newValue));
+        search.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
     }
 
     private void initTableWMStatus() {
         tableWMStatus.setResizable(false);
         tableWMStatus.setSortable(false);
         tableWMStatus.setPrefWidth(24);
-        tableWMStatus.setCellFactory(p -> new TableCell<Anyware, Anyware>() {
+        tableWMStatus.setCellFactory(_ -> new TableCell<Anyware, Anyware>() {
             @Override
             protected void updateItem(Anyware item, boolean empty) {
                 if (item == null || empty)
@@ -621,7 +621,7 @@ public class ProfileViewerController implements Initializable {
         tableWMName.setMinWidth(50);
         tableWMName.setPrefWidth(100);
         tableWMName.setMaxWidth(200);
-        tableWMName.setCellFactory(p -> {
+        tableWMName.setCellFactory(_ -> {
             final var cell = new TableCell<Anyware, Machine>() {
                 private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
                 private static final Image computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
@@ -690,7 +690,7 @@ public class ProfileViewerController implements Initializable {
         tableWMDescription.setMinWidth(100);
         tableWMDescription.setPrefWidth(200);
         tableWMDescription.setMaxWidth(600);
-        tableWMDescription.setCellFactory(p -> new TableCell<Anyware, String>() {
+        tableWMDescription.setCellFactory(_ -> new TableCell<Anyware, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (empty)
@@ -717,7 +717,7 @@ public class ProfileViewerController implements Initializable {
         tableWMHave.setSortable(false);
         tableWMHave.setPrefWidth(45);
         tableWMHave.setMaxWidth(90);
-        tableWMHave.setCellFactory(p -> new TableCell<Anyware, String>() {
+        tableWMHave.setCellFactory(_ -> new TableCell<Anyware, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 if (empty)
@@ -744,7 +744,7 @@ public class ProfileViewerController implements Initializable {
         tableWMCloneOf.setMinWidth(50);
         tableWMCloneOf.setPrefWidth(100);
         tableWMCloneOf.setMaxWidth(200);
-        tableWMCloneOf.setCellFactory(p -> {
+        tableWMCloneOf.setCellFactory(_ -> {
             final var cell = new TableCell<Anyware, Object>() {
                 @Override
                 protected void updateItem(Object item, boolean empty) {
@@ -821,7 +821,7 @@ public class ProfileViewerController implements Initializable {
         tableWMSampleOf.setMinWidth(50);
         tableWMSampleOf.setPrefWidth(100);
         tableWMSampleOf.setMaxWidth(200);
-        tableWMSampleOf.setCellFactory(p -> new TableCell<Anyware, Object>() {
+        tableWMSampleOf.setCellFactory(_ -> new TableCell<Anyware, Object>() {
             @Override
             protected void updateItem(Object item, boolean empty) {
                 updateSampleOfCell(this, item, empty);
@@ -877,7 +877,7 @@ public class ProfileViewerController implements Initializable {
             final var aw = p.getValue();
             final var checkBox = new CheckBox();
             checkBox.selectedProperty().setValue(aw.isSelected());
-            checkBox.selectedProperty().addListener((ov, oldVal, newVal) -> aw.setSelected(newVal));
+            checkBox.selectedProperty().addListener((_, _, newVal) -> aw.setSelected(newVal));
             return new SimpleObjectProperty<>(checkBox);
         });
     }
@@ -970,14 +970,14 @@ public class ProfileViewerController implements Initializable {
      */
     private void initTableWL() {
         tableWL.setFixedCellSize(-1);
-        tableWLName.setCellFactory(p -> new TableCellWLName());
+        tableWLName.setCellFactory(_ -> new TableCellWLName());
         tableWLName.setCellValueFactory(ValueWLName::new);
         tableWLName.setSortable(true);
-        tableWLDesc.setCellFactory(p -> new TableCellWLDesc());
+        tableWLDesc.setCellFactory(_ -> new TableCellWLDesc());
         tableWLDesc.setCellValueFactory(ValueWLDesc::new);
-        tableWLHave.setCellFactory(p -> new TableCellWLHave());
+        tableWLHave.setCellFactory(_ -> new TableCellWLHave());
         tableWLHave.setCellValueFactory(ValueWLHave::new);
-        tableWL.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadW(newValue));
+        tableWL.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> reloadW(newValue));
         ImageView idmgray = new ImageView(diskMultipleGray);
         idmgray.setPreserveRatio(true);
         idmgray.getStyleClass().add("icon");
@@ -994,7 +994,7 @@ public class ProfileViewerController implements Initializable {
         idmgreen.setPreserveRatio(true);
         idmgreen.getStyleClass().add("icon");
         toggleWLComplete.setGraphic(idmgreen);
-        menuWL.setOnShowing(e -> {
+        menuWL.setOnShowing(_ -> {
             final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
             final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
             final boolean has_selected_swlist = tableWL.getSelectionModel().getSelectedItems().size() == 1 && tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList;
@@ -1314,7 +1314,7 @@ public class ProfileViewerController implements Initializable {
 
         @Override
         public String getValue() {
-            return haveCache.computeIfAbsent(p.getValue().getName(), k -> {
+            return haveCache.computeIfAbsent(p.getValue().getName(), _ -> {
                 final long[] ht = { 0, 0 };
                 p.getValue().getFilteredStream().forEach(t -> {
                     if (t.getStatus() == AnywareStatus.COMPLETE)

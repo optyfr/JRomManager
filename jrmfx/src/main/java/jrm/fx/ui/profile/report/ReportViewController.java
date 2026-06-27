@@ -97,7 +97,7 @@ public class ReportViewController implements Initializable {
         closeAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed.png")));
         showok.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_green.png")));
         hidemissing.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_closed_red.png")));
-        menu.setOnShowing(e -> {
+        menu.setOnShowing(_ -> {
             final var item = treeview.getSelectionModel().getSelectedItem();
             final var disabled = !(item != null && item.getValue() instanceof Note);
             detail.setDisable(disabled);
@@ -128,7 +128,7 @@ public class ReportViewController implements Initializable {
             exportAs.setDisable(true);
         }
         treeview.setShowRoot(false);
-        treeview.setCellFactory(p -> new ReportTreeCell());
+        treeview.setCellFactory(_ -> new ReportTreeCell());
         treeview.setRoot(root);
     }
 

@@ -399,7 +399,7 @@ public class Dir2DatPanel extends JPanel {
 
         JButton btnDir2DatSrc = new JButton(""); //$NON-NLS-1$
         btnDir2DatSrc.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
-        btnDir2DatSrc.addActionListener(e -> {
+        btnDir2DatSrc.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_SRC, workdir.getAbsolutePath())), new File(tfDir2DatSrc.getText()), null,
@@ -418,7 +418,7 @@ public class Dir2DatPanel extends JPanel {
         panelDir2DatIO.add(btnDir2DatSrc, gbcBtnDir2DatSrc);
 
         JButton btnDir2DatGenerate = new JButton(Messages.getString("MainFrame.btnGenerate.text")); //$NON-NLS-1$
-        btnDir2DatGenerate.addActionListener(e -> dir2dat(session));
+        btnDir2DatGenerate.addActionListener(_ -> dir2dat(session));
         GridBagConstraints gbcBtnDir2DatGenerate = new GridBagConstraints();
         gbcBtnDir2DatGenerate.fill = GridBagConstraints.BOTH;
         gbcBtnDir2DatGenerate.gridheight = 3;
@@ -450,7 +450,7 @@ public class Dir2DatPanel extends JPanel {
 
         JButton btnDir2DatDst = new JButton(""); //$NON-NLS-1$
         btnDir2DatDst.setIcon(MainFrame.getIcon("/jrm/resicons/icons/disk.png")); //$NON-NLS-1$
-        btnDir2DatDst.addActionListener(e -> {
+        btnDir2DatDst.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.SAVE_DIALOG, JFileChooser.FILES_ONLY,
                     new File(session.getUser().getSettings().getProperty(MAIN_FRAME_CHOOSE_DAT_DST, workdir.getAbsolutePath())), new File(tfDir2DatDst.getText()), null,
@@ -479,7 +479,7 @@ public class Dir2DatPanel extends JPanel {
 
         JRadioButton rdbtnDir2DatMame = new JRadioButton(Messages.getString("MainFrame.rdbtnMame.text")); //$NON-NLS-1$
         rdbtnDir2DatMame.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format)) == ExportType.MAME); // $NON-NLS-1$
-        rdbtnDir2DatMame.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); // $NON-NLS-1$
+        rdbtnDir2DatMame.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString())); // $NON-NLS-1$
         btngrpDir2DatFormat.add(rdbtnDir2DatMame);
         GridBagConstraints gbcRdBtnDir2DatMame = new GridBagConstraints();
         gbcRdBtnDir2DatMame.insets = new Insets(0, 0, 0, 5);
@@ -489,7 +489,7 @@ public class Dir2DatPanel extends JPanel {
 
         JRadioButton rdbtnDir2DatLogiqxDat = new JRadioButton(Messages.getString("MainFrame.rdbtnLogiqxDat.text")); //$NON-NLS-1$
         rdbtnDir2DatLogiqxDat.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format)) == ExportType.DATAFILE); // $NON-NLS-1$
-        rdbtnDir2DatLogiqxDat.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString())); // $NON-NLS-1$
+        rdbtnDir2DatLogiqxDat.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString())); // $NON-NLS-1$
         btngrpDir2DatFormat.add(rdbtnDir2DatLogiqxDat);
         GridBagConstraints gbcRdBtnDir2DatLogiqxDat = new GridBagConstraints();
         gbcRdBtnDir2DatLogiqxDat.insets = new Insets(0, 0, 0, 5);
@@ -499,7 +499,7 @@ public class Dir2DatPanel extends JPanel {
 
         JRadioButton rdbtnDir2DatSwList = new JRadioButton(Messages.getString("MainFrame.rdbtnSwList.text")); //$NON-NLS-1$
         rdbtnDir2DatSwList.setSelected(ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format)) == ExportType.SOFTWARELIST); // $NON-NLS-1$
-        rdbtnDir2DatSwList.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString())); // $NON-NLS-1$
+        rdbtnDir2DatSwList.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString())); // $NON-NLS-1$
         btngrpDir2DatFormat.add(rdbtnDir2DatSwList);
         GridBagConstraints gbcRdBtnDir2DatSwList = new GridBagConstraints();
         gbcRdBtnDir2DatSwList.gridwidth = 2;

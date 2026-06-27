@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nonnull;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -289,7 +290,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         }
     }
 
-    public BatchCompressorPanel(Session session) {
+    public BatchCompressorPanel(@Nonnull Session session) {
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 450, 0, 0, 0, 0, 0 };
         gridBagLayout.rowHeights = new int[] { 300, 0, 0 };
@@ -306,7 +307,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         gbcScrollPane.gridy = 0;
         add(scrollPane, gbcScrollPane);
 
-        table = new BatchCompressorTable(new BatchCompressorTableModel(), files -> {
+        table = new BatchCompressorTable(new BatchCompressorTableModel(), _ -> {
         });
         scrollPane.setViewportView(table);
 
@@ -314,7 +315,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         addPopup(table, popupMenu);
 
         mntmAddArchive = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmAddArchive.text")); //$NON-NLS-1$
-        mntmAddArchive.addActionListener(e -> {
+        mntmAddArchive.addActionListener(_ -> {
             final String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.FILES_AND_DIRECTORIES, null, null, Collections.singletonList(getFileFilter(extensions)),
                     Messages.getString("BatchCompressorPanel.mntmAddArchive.text"), true).showOpen(SwingUtilities.windowForComponent(BatchCompressorPanel.this), chooser -> {
@@ -326,7 +327,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         popupMenu.add(mntmAddArchive);
 
         mntmRemoveSelectedArchives = new JMenuItem(Messages.getString("BatchCompressorPanel.mntmRemoveSelectedArchives.text")); //$NON-NLS-1$
-        mntmRemoveSelectedArchives.addActionListener(e -> table.del(table.getSelectedValuesList()));
+        mntmRemoveSelectedArchives.addActionListener(_ -> table.del(table.getSelectedValuesList()));
         popupMenu.add(mntmRemoveSelectedArchives);
 
         comboBox = new JComboBox<>();
@@ -334,7 +335,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         comboBox.setSelectedIndex(1);
         if (session != null)
             comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
-        comboBox.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString()));
+        comboBox.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString()));
         GridBagConstraints gbcComboBox = new GridBagConstraints();
         gbcComboBox.insets = new Insets(0, 0, 0, 5);
         gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
@@ -343,7 +344,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         add(comboBox, gbcComboBox);
 
         chckbxForce = new JCheckBox(Messages.getString("BatchCompressorPanel.Force")); //$NON-NLS-1$
-        chckbxForce.addActionListener(e -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
+        chckbxForce.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
         if (session != null)
             chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, Boolean.class)); // $NON-NLS-1$
         GridBagConstraints gbcChckbxForce = new GridBagConstraints();
@@ -354,11 +355,11 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 
         JButton btnStart = new JButton(Messages.getString("BatchCompressorPanel.Start")); //$NON-NLS-1$
         btnStart.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_go.png"));
-        btnStart.addActionListener(e -> start(session));
+        btnStart.addActionListener(_ -> start(session));
 
         btnClear = new JButton(Messages.getString("BatchCompressorPanel.btnClear.text")); //$NON-NLS-1$
         btnClear.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bin.png"));
-        btnClear.addActionListener(e -> table.model.setData(new ArrayList<>()));
+        btnClear.addActionListener(_ -> table.model.setData(new ArrayList<>()));
         GridBagConstraints gbcBtnClear = new GridBagConstraints();
         gbcBtnClear.insets = new Insets(0, 0, 0, 5);
         gbcBtnClear.gridx = 3;

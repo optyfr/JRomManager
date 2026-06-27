@@ -45,7 +45,7 @@ public class ReportLite extends JDialog {
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
         JButton okButton = new JButton("OK");
         buttonPane.add(okButton);
-        okButton.addActionListener(e -> ReportLite.this.dispose());
+        okButton.addActionListener(_ -> ReportLite.this.dispose());
         getRootPane().setDefaultButton(okButton);
         new SwingWorker<Report, Void>() {
             @Override

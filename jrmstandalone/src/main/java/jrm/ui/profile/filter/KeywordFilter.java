@@ -79,7 +79,7 @@ public class KeywordFilter extends JDialog {
         panel.setLayout(gblPanel);
 
         JButton btnCancel = new JButton(Messages.getString("KeywordFilter.Cancel")); //$NON-NLS-1$
-        btnCancel.addActionListener(e -> dispose());
+        btnCancel.addActionListener(_ -> dispose());
         btnCancel.setHorizontalAlignment(SwingConstants.LEADING);
         GridBagConstraints gbcBtnCancel = new GridBagConstraints();
         gbcBtnCancel.anchor = GridBagConstraints.WEST;
@@ -90,7 +90,7 @@ public class KeywordFilter extends JDialog {
         panel.add(btnCancel, gbcBtnCancel);
 
         JButton btnFilter = new JButton(Messages.getString("KeywordFilter.Filter")); //$NON-NLS-1$
-        btnFilter.addActionListener(e -> {
+        btnFilter.addActionListener(_ -> {
             callback.call(list, getFilter());
             dispose();
         });

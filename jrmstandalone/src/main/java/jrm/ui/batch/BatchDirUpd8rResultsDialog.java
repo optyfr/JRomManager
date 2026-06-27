@@ -34,7 +34,7 @@ public class BatchDirUpd8rResultsDialog extends JDialog {
         buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
         getContentPane().add(buttonPane, BorderLayout.SOUTH);
         JButton okButton = new JButton("OK");
-        okButton.addActionListener(e -> BatchDirUpd8rResultsDialog.this.dispose());
+        okButton.addActionListener(_ -> BatchDirUpd8rResultsDialog.this.dispose());
         buttonPane.add(okButton);
         getRootPane().setDefaultButton(okButton);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);

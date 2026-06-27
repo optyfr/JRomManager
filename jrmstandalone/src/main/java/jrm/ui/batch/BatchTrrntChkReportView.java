@@ -31,7 +31,7 @@ public class BatchTrrntChkReportView extends JScrollPane {
 
         final JMenuItem mntmOpenAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmOpenAllNodes.text")); //$NON-NLS-1$
         mntmOpenAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_open.png")); //$NON-NLS-1$
-        mntmOpenAllNodes.addActionListener(e -> {
+        mntmOpenAllNodes.addActionListener(_ -> {
             tree.invalidate();
             int j = tree.getRowCount();
             int i = 0;
@@ -46,7 +46,7 @@ public class BatchTrrntChkReportView extends JScrollPane {
 
         final JMenuItem mntmCloseAllNodes = new JMenuItem(Messages.getString("ReportFrame.mntmCloseAllNodes.text")); //$NON-NLS-1$
         mntmCloseAllNodes.setIcon(MainFrame.getIcon("/jrm/resicons/folder_closed.png")); //$NON-NLS-1$
-        mntmCloseAllNodes.addActionListener(e -> {
+        mntmCloseAllNodes.addActionListener(_ -> {
             tree.invalidate();
             int j = tree.getRowCount();
             int i = 0;

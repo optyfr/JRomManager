@@ -65,7 +65,7 @@ public class SettingsDbgPanel extends JPanel {
         gbcCbLogLevel.gridx = 1;
         gbcCbLogLevel.gridy = 1;
         this.add(cbLogLevel, gbcCbLogLevel);
-        cbLogLevel.addActionListener(arg0 -> {
+        cbLogLevel.addActionListener(_ -> {
             session.getUser().getSettings().setProperty(SettingsEnum.debug_level, cbLogLevel.getSelectedItem().toString());
             Log.setLevel(Level.parse(cbLogLevel.getSelectedItem().toString()));
         }); // $NON-NLS-1$
@@ -90,7 +90,7 @@ public class SettingsDbgPanel extends JPanel {
         this.add(lblMemoryUsage, gbcLblMemoryUsage);
 
         JButton btnGc = new JButton(Messages.getString("MainFrame.btnGc.text")); //$NON-NLS-1$
-        btnGc.addActionListener(e -> {
+        btnGc.addActionListener(_ -> {
             System.gc(); // NOSONAR
             updateMemory();
         });

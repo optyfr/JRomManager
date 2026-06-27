@@ -207,17 +207,17 @@ public class ProfilePanel extends JPanel {
         Popup.addPopup(profilesList, popupMenuList);
 
         mntmDeleteProfile = new JMenuItem(Messages.getString("MainFrame.mntmDeleteProfile.text")); //$NON-NLS-1$
-        mntmDeleteProfile.addActionListener(e -> deleteProfile(session, filemodel));
+        mntmDeleteProfile.addActionListener(_ -> deleteProfile(session, filemodel));
         mntmDeleteProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_delete.png")); //$NON-NLS-1$
         popupMenuList.add(mntmDeleteProfile);
 
         mntmRenameProfile = new JMenuItem(Messages.getString("MainFrame.mntmRenameProfile.text")); //$NON-NLS-1$
-        mntmRenameProfile.addActionListener(e -> renameProfile());
+        mntmRenameProfile.addActionListener(_ -> renameProfile());
         mntmRenameProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_edit.png")); //$NON-NLS-1$
         popupMenuList.add(mntmRenameProfile);
 
         mntmDropCache = new JMenuItem(Messages.getString("MainFrame.mntmDropCache.text")); //$NON-NLS-1$
-        mntmDropCache.addActionListener(e -> dropCache(filemodel));
+        mntmDropCache.addActionListener(_ -> dropCache(filemodel));
         mntmDropCache.setIcon(MainFrame.getIcon("/jrm/resicons/icons/bin.png")); //$NON-NLS-1$
         popupMenuList.add(mntmDropCache);
 
@@ -225,7 +225,7 @@ public class ProfilePanel extends JPanel {
         popupMenuList.add(separator);
 
         mntmUpdateFromMame = new JMenuItem(Messages.getString(MAIN_FRAME_MNTM_UPDATE_FROM_MAME_TEXT)); // $NON-NLS-1$
-        mntmUpdateFromMame.addActionListener(e -> updateFromMame(session, filemodel));
+        mntmUpdateFromMame.addActionListener(_ -> updateFromMame(session, filemodel));
         popupMenuList.add(mntmUpdateFromMame);
         profilesTree.setSelectionRow(0);
 
@@ -250,12 +250,12 @@ public class ProfilePanel extends JPanel {
         Popup.addPopup(profilesTree, popupMenuTree);
 
         mntmCreateFolder = new JMenuItem(Messages.getString("MainFrame.mntmCreateFolder.text")); //$NON-NLS-1$
-        mntmCreateFolder.addActionListener(e -> createFolder(profilesTreeModel));
+        mntmCreateFolder.addActionListener(_ -> createFolder(profilesTreeModel));
         mntmCreateFolder.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_add.png")); //$NON-NLS-1$
         popupMenuTree.add(mntmCreateFolder);
 
         mntmDeleteFolder = new JMenuItem(Messages.getString("MainFrame.mntmDeleteFolder.text")); //$NON-NLS-1$
-        mntmDeleteFolder.addActionListener(e -> deleteFolder(profilesTreeModel));
+        mntmDeleteFolder.addActionListener(_ -> deleteFolder(profilesTreeModel));
         mntmDeleteFolder.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")); //$NON-NLS-1$
         popupMenuTree.add(mntmDeleteFolder);
 
@@ -269,16 +269,16 @@ public class ProfilePanel extends JPanel {
         final var btnLoadProfile = new JButton(Messages.getString("MainFrame.btnLoadProfile.text")); //$NON-NLS-1$
         btnLoadProfile.setIcon(MainFrame.getIcon("/jrm/resicons/icons/add.png")); //$NON-NLS-1$
         btnLoadProfile.setEnabled(false);
-        btnLoadProfile.addActionListener(e -> loadProfile(session, (FileTableModel) profilesList.getModel()));
+        btnLoadProfile.addActionListener(_ -> loadProfile(session, (FileTableModel) profilesList.getModel()));
         profilesBtnPanel.add(btnLoadProfile);
 
         final var btnImportDat = new JButton(Messages.getString("MainFrame.btnImportDat.text")); //$NON-NLS-1$
         btnImportDat.setIcon(MainFrame.getIcon("/jrm/resicons/icons/script_go.png")); //$NON-NLS-1$
-        btnImportDat.addActionListener(e -> importDat(session, false));
+        btnImportDat.addActionListener(_ -> importDat(session, false));
         profilesBtnPanel.add(btnImportDat);
 
         final var btnImportSL = new JButton(Messages.getString("MainFrame.btnImportSL.text")); //$NON-NLS-1$
-        btnImportSL.addActionListener(e -> importDat(session, true));
+        btnImportSL.addActionListener(_ -> importDat(session, true));
         btnImportSL.setIcon(MainFrame.getIcon("/jrm/resicons/icons/application_go.png")); //$NON-NLS-1$
         profilesBtnPanel.add(btnImportSL);
 

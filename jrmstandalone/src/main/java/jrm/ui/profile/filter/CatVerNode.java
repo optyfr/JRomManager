@@ -23,7 +23,7 @@ public class CatVerNode extends AbstractNGTreeNode {
     }
 
     public CategoryNode getNode(Category cat) {
-        return categoryNodeCache.computeIfAbsent(cat.getPropertyName(), pptname -> new CategoryNode(cat));
+        return categoryNodeCache.computeIfAbsent(cat.getPropertyName(), _ -> new CategoryNode(cat));
     }
 
     @Override
@@ -98,7 +98,7 @@ public class CatVerNode extends AbstractNGTreeNode {
         }
 
         public SubCategoryNode getNode(SubCategory subcat) {
-            return subcategoryNodeCache.computeIfAbsent(subcat.getPropertyName(), pptname -> new SubCategoryNode(subcat));
+            return subcategoryNodeCache.computeIfAbsent(subcat.getPropertyName(), _ -> new SubCategoryNode(subcat));
         }
 
         @Override

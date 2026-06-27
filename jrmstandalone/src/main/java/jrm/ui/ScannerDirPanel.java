@@ -139,12 +139,12 @@ public class ScannerDirPanel extends JPanel {
         Popup.addPopup(listSrcDir, popupMenu);
 
         mntmDeleteSelected = new JMenuItem(Messages.getString("MainFrame.mntmDeleteSelected.text")); //$NON-NLS-1$
-        mntmDeleteSelected.addActionListener(e -> listSrcDir.del(listSrcDir.getSelectedValuesList()));
+        mntmDeleteSelected.addActionListener(_ -> listSrcDir.del(listSrcDir.getSelectedValuesList()));
         mntmDeleteSelected.setIcon(MainFrame.getIcon("/jrm/resicons/icons/folder_delete.png")); //$NON-NLS-1$
         popupMenu.add(mntmDeleteSelected);
 
         JMenuItem mntmAddDirectory = new JMenuItem(Messages.getString("MainFrame.mntmAddDirectory.text")); //$NON-NLS-1$
-        mntmAddDirectory.addActionListener(e -> {
+        mntmAddDirectory.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty("MainFrame.ChooseRomsSource", workdir.getAbsolutePath())), null, null, null, true) //$NON-NLS-1$
@@ -197,7 +197,7 @@ public class ScannerDirPanel extends JPanel {
      */
     private void buildSWDisksDestDir(final Session session) throws HeadlessException {
         final var btnSWDisksDest = new JButton(""); //$NON-NLS-1$
-        btnSWDisksDest.addActionListener(e -> {
+        btnSWDisksDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SW_DISKS_DESTINATION, workdir.getAbsolutePath())), new File(tfSWDisksDest.getText()), null,
@@ -250,7 +250,7 @@ public class ScannerDirPanel extends JPanel {
      */
     private void buildSWDestDir(final Session session) throws HeadlessException {
         final var btnSWDest = new JButton(""); //$NON-NLS-1$
-        btnSWDest.addActionListener(e -> {
+        btnSWDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SW_ROMS_DESTINATION, workdir.getAbsolutePath())), new File(tfSWDest.getText()), null,
@@ -307,7 +307,7 @@ public class ScannerDirPanel extends JPanel {
         final var btnDisksDest = new JButton(""); //$NON-NLS-1$
         btnDisksDest.setEnabled(false);
         btnDisksDest.setIcon(MainFrame.getIcon(ICONS_DISK)); // $NON-NLS-1$
-        btnDisksDest.addActionListener(e -> {
+        btnDisksDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_DISKS_DESTINATION, workdir.getAbsolutePath())), new File(tfDisksDest.getText()), null,
@@ -381,7 +381,7 @@ public class ScannerDirPanel extends JPanel {
 
         btnRomsDest = new JButton(""); //$NON-NLS-1$
         btnRomsDest.setIcon(MainFrame.getIcon(ICONS_DISK)); // $NON-NLS-1$
-        btnRomsDest.addActionListener(e -> {
+        btnRomsDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Void>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_ROMS_DESTINATION, workdir.getAbsolutePath())), new File(txtRomsDest.getText()), null,
@@ -408,7 +408,7 @@ public class ScannerDirPanel extends JPanel {
      */
     private void buildSamplesDestDir(final Session session) throws HeadlessException {
         final var btnSamplesDest = new JButton(""); //$NON-NLS-1$
-        btnSamplesDest.addActionListener(e -> {
+        btnSamplesDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_SAMPLES_DESTINATION, workdir.getAbsolutePath())), new File(tfSamplesDest.getText()), null,
@@ -463,7 +463,7 @@ public class ScannerDirPanel extends JPanel {
      */
     private void buildBackupDestDir(final Session session) throws HeadlessException {
         final var btnBackupDest = new JButton(""); //$NON-NLS-1$
-        btnBackupDest.addActionListener(e -> {
+        btnBackupDest.addActionListener(_ -> {
             final File workdir = session.getUser().getSettings().getWorkPath().toFile(); // $NON-NLS-1$
             new JRMFileChooser<Boolean>(JFileChooser.OPEN_DIALOG, JFileChooser.DIRECTORIES_ONLY,
                     new File(session.getCurrProfile().getProperty(MAIN_FRAME_CHOOSE_BACKUP_DESTINATION, workdir.getAbsolutePath())), new File(tfBackupDest.getText()), null,

@@ -17,7 +17,7 @@ public final class ButtonCellFactory<S, T> extends TableCell<S, T> {
         btn.setMinHeight(15);
         btn.setPadding(new Insets(0));
         btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setOnAction(e -> action.doAction(this));
+        btn.setOnAction(_ -> action.doAction(this));
         setMinHeight(15);
     }
 
