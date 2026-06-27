@@ -1,5 +1,7 @@
 package jrm.fx.ui;
 
+import java.net.URL;
+
 import javafx.beans.NamedArg;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -95,8 +97,12 @@ public class JRMScene extends Scene {
 
     public static void applySheet(Scene scene) {
         if (sheet.fileName != null) {
-            final var url = Scene.class.getResource("/jrm/fx/ui/css/%s".formatted(sheet.fileName)).toExternalForm();
-            scene.getStylesheets().add(url);
+            String css = "/jrm/fx/ui/css/%s".formatted(sheet.fileName);
+            URL resource = JRMScene.class.getResource(css);
+            if (resource != null) {
+                final var url = resource.toExternalForm();
+                scene.getStylesheets().add(url);
+            }
         }
     }
 }

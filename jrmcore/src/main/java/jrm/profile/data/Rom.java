@@ -8,7 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,7 +29,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class Rom extends Entity implements Serializable {
+public class Rom extends Entity {
     /**
      * XML attribute name for memory offset.
      */
@@ -117,7 +116,7 @@ public class Rom extends Entity implements Serializable {
      * 
      * @since 1.0
      */
-    public enum LoadFlag implements Serializable {
+    public enum LoadFlag {
         /**
          * Load 16-bit byte.
          */

@@ -38,7 +38,7 @@ import lombok.Setter;
  *
  * @author optyfr
  */
-public class Machine extends Anyware implements Serializable {
+public class Machine extends Anyware {
     /**
      * Serial version UID.
      */

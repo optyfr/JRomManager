@@ -35,7 +35,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class Software extends Anyware implements Serializable {
+public class Software extends Anyware {
     /**
      * Constructor for Software.
      * 
@@ -93,7 +93,7 @@ public class Software extends Anyware implements Serializable {
      * 
      * @since 1.0
      */
-    public enum Supported implements Serializable {
+    public enum Supported {
         /** Not supported. */
         no, // NOSONAR
         /** Partially supported. */
@@ -134,7 +134,7 @@ public class Software extends Anyware implements Serializable {
              * 
              * @since 1.0
              */
-            public enum Endianness implements Serializable {
+            public enum Endianness {
                 /** Big endian ordering. */
                 big, // NOSONAR
                 /** Little endian ordering. */

@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,7 +34,7 @@ import lombok.Getter;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class MachineListList extends AnywareListList<MachineList> implements Serializable {
+public final class MachineListList extends AnywareListList<MachineList> {
     /**
      * Encoding name constant.
      */

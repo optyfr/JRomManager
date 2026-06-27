@@ -8,14 +8,12 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * The scan status of {@link Anyware}
  * 
  * @author optyfr
  */
-public enum AnywareStatus implements Serializable {
+public enum AnywareStatus {
     /**
      * Not yet scanned
      */

@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -19,7 +18,7 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class Directory extends Container implements Serializable {
+public class Directory extends Container {
     /**
      * Constructs a directory where the related database set is known.
      *

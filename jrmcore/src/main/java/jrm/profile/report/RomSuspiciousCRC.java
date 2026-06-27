@@ -1,6 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -17,7 +16,7 @@ import jrm.profile.data.AnywareBase;
  * 
  * @since 1.0
  */
-public class RomSuspiciousCRC extends Subject implements Serializable {
+public class RomSuspiciousCRC extends Subject {
     private static final long serialVersionUID = 2L;
 
     /**

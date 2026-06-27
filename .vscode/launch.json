@@ -1,0 +1,63 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "JRomManagerCLI",
+            "request": "launch",
+            "mainClass": "jrm.cli.JRomManagerCLI",
+            "projectName": "jrmcli"
+        },
+        {
+            "type": "java",
+            "name": "JRomManager",
+            "request": "launch",
+            "mainClass": "jrm.fx.JRomManager",
+            "projectName": "jrmfx"
+        },
+        {
+            "type": "java",
+            "name": "JRomManagerMulti",
+            "request": "launch",
+            "mainClass": "jrm.fx.JRomManagerMulti",
+            "projectName": "jrmfx"
+        },
+        {
+            "type": "java",
+            "name": "FullServer",
+            "request": "launch",
+            "mainClass": "jrm.fullserver.FullServer",
+            "projectName": "jrmserver"
+        },
+        {
+            "type": "java",
+            "name": "Server",
+            "request": "launch",
+            "mainClass": "jrm.server.Server",
+            "projectName": "jrmserver"
+        },
+        {
+            "type": "java",
+            "name": "JRomManager(1)",
+            "request": "launch",
+            "mainClass": "jrm.JRomManager",
+            "projectName": "jrmstandalone"
+        },
+        {
+            "type": "java",
+            "name": "JRomManagerMulti(1)",
+            "request": "launch",
+            "mainClass": "jrm.JRomManagerMulti",
+            "projectName": "jrmstandalone"
+        }
+    ]
+}

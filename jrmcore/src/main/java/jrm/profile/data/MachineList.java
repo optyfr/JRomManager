@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +35,7 @@ import jrm.xml.EnhancedXMLStreamWriter;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public final class MachineList extends AnywareList<Machine> implements Serializable {
+public final class MachineList extends AnywareList<Machine> {
     /**
      * The {@link ArrayList} of {@link Machine}
      */

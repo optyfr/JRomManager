@@ -1,6 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -17,7 +16,7 @@ import jrm.profile.data.Container;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class ContainerUnknown extends ContainerSubject implements Serializable {
+public class ContainerUnknown extends ContainerSubject {
     /**
      * Constructs a new ContainerUnknown subject for the specified physical container.
      *

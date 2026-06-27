@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ import one.util.streamex.StreamEx;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public abstract class Anyware extends AnywareBase implements Serializable, Systm {
+public abstract class Anyware extends AnywareBase implements Systm {
 
     /**
      * The active execution profile configuration containing settings and filter rules.

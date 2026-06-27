@@ -10,8 +10,6 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.ObjectStreamField;
-import java.io.Serializable;
-
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;
 import lombok.Getter;
@@ -23,7 +21,7 @@ import lombok.Setter;
  *
  * @author optyfr
  */
-public abstract class Entity extends EntityBase implements Serializable {
+public abstract class Entity extends EntityBase {
     /**
      * Serialization field name for dump status.
      */
@@ -114,7 +112,7 @@ public abstract class Entity extends EntityBase implements Serializable {
     /**
      * Enumeration defining the dump status of a game rom or disk.
      */
-    public enum Status implements Serializable {
+    public enum Status {
         /**
          * Bad dump (faulty, incomplete, or corrupted dump).
          */

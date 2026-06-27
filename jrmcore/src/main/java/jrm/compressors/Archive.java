@@ -18,7 +18,7 @@ import java.io.InputStream;
  * 
  * @author optyfr
  */
-public interface Archive extends Closeable, AutoCloseable {
+public interface Archive extends Closeable {
     /**
      * get a suitable Temporary directory
      * 

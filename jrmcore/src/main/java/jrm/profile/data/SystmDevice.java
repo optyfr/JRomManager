@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * Device system. Represents system options mapped under the Type.DEVICE classification.
  * 
@@ -18,7 +16,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SystmDevice implements Systm, Serializable { // NOSONAR
+public class SystmDevice implements Systm { // NOSONAR
     /**
      * The static DEVICE instance.
      */

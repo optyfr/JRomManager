@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * A Sample entity defined in system machine audio sets. Represents an audio wave file required by certain arcade games for sound
  * emulation.
@@ -19,7 +17,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class Sample extends EntityBase implements Serializable {
+public final class Sample extends EntityBase {
     /**
      * The Sample constructor.
      * 

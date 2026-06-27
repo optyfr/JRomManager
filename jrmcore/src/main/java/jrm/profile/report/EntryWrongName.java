@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
@@ -16,7 +14,7 @@ import jrm.profile.data.Entry;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryWrongName extends EntryExtNote implements Serializable {
+public class EntryWrongName extends EntryExtNote {
     /**
      * Constructs a new EntryWrongName note mapping an expected entity to a wrongly-named physical entry.
      *

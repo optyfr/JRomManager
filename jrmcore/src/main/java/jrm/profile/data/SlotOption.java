@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +20,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SlotOption extends NameBase implements Serializable {
+public class SlotOption extends NameBase {
     /**
      * Name of the used device.
      * 

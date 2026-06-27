@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +39,7 @@ import jrm.xml.EnhancedXMLStreamWriter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class SoftwareListList extends AnywareListList<SoftwareList> implements Serializable, ByName<SoftwareList> {
+public final class SoftwareListList extends AnywareListList<SoftwareList> implements ByName<SoftwareList> {
     /**
      * Progress string formatter template representing progress state like "A/B".
      */

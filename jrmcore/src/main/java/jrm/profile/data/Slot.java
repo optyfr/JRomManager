@@ -8,7 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import lombok.Getter;
@@ -23,7 +22,7 @@ import lombok.Setter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class Slot extends ArrayList<SlotOption> implements Serializable {
+public class Slot extends ArrayList<SlotOption> {
     /**
      * The name of the Slot.
      * 

@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.EntityBase;
 
@@ -13,7 +11,7 @@ import jrm.profile.data.EntityBase;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryOK extends EntryNote implements Serializable {
+public class EntryOK extends EntryNote {
     /**
      * Constructs a new EntryOK note for the specified metadata entity.
      *

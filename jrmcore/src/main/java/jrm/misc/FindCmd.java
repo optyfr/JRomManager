@@ -8,10 +8,9 @@
  */
 package jrm.misc;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
-import org.apache.commons.io.IOUtils;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.regex.Pattern;
 
 import lombok.experimental.UtilityClass;
 
@@ -26,33 +25,70 @@ import lombok.experimental.UtilityClass;
  */
 public @UtilityClass class FindCmd {
     /**
-     * Searches the system path for the specified command. If the command is not found or if any error occurs, the specified default
-     * value is returned.
+     * Searches the system path for the specified command, considering only fixed, unwriteable
+     * directories to prevent executable planting attacks. If the command is not found, the
+     * specified default value is returned.
      *
      * @param cmd the command name to locate (without path or extension)
      * @param def the default fallback value to return if the command cannot be located
-     * 
-     * @return the full absolute path to the command if successful, or {@code def} if not found or on failure
+     *
+     * @return the full absolute path to the command if successful, or {@code def} if not found
      */
     public static String findCmd(final String cmd, final String def) {
-        ProcessBuilder pb;
-        if (OSValidator.isWindows())
-            pb = new ProcessBuilder("where.exe", cmd); //$NON-NLS-1$
-        else
-            pb = new ProcessBuilder("which", cmd); //$NON-NLS-1$
-        try {
-            pb.redirectError();
-            final var process = pb.start();
-            final String output = IOUtils.toString(process.getInputStream(), (Charset) null).trim();
-            if (process.waitFor() == 0)
-                return output;
-        } catch (IOException exp) {
-            Log.err(exp.getMessage(), exp);
-        } catch (InterruptedException exp) {
-            Log.err(exp.getMessage(), exp);
-            Thread.currentThread().interrupt();
+        final var path = System.getenv("PATH"); //$NON-NLS-1$
+        if (path == null || path.isEmpty())
+            return def;
+
+        final var isWindows = OSValidator.isWindows();
+        final var separator = isWindows ? ";" : ":"; //$NON-NLS-1$ //$NON-NLS-2$
+
+        final String[] exts = getExts(isWindows, separator);
+
+        for (final var dir : path.split(Pattern.quote(separator))) {
+            if (dir.isEmpty())
+                continue; // skip empty entries (would mean current dir on Unix)
+            final var result = searchInDir(Path.of(dir), cmd, exts);
+            if (result != null)
+                return result;
         }
         return def;
+    }
+
+    /**
+     * Searches for the specified command within a single directory, considering only fixed,
+     * unwriteable directories to prevent executable planting attacks.
+     *
+     * @param dirPath the directory to search in
+     * @param cmd the command name to locate
+     * @param exts the file extensions to probe
+     *
+     * @return the full absolute path to the command if found, or {@code null} otherwise
+     */
+    private static String searchInDir(final Path dirPath, final String cmd, final String[] exts) {
+        // Only search fixed, unwriteable directories — skip writable ones
+        // to prevent executable planting attacks
+        if (Files.isDirectory(dirPath) && !Files.isWritable(dirPath)) {
+            for (final var ext : exts) {
+                final var cmdFile = dirPath.resolve(cmd + ext).toFile();
+                if (cmdFile.isFile() && cmdFile.canExecute())
+                    return cmdFile.getAbsolutePath();
+            }
+        }
+        return null;
+    }
+
+    private static String[] getExts(final boolean isWindows, final String separator) {
+        // Determine which file extensions to probe
+        final String[] exts;
+        if (isWindows) {
+            final var pathext = System.getenv("PATHEXT"); //$NON-NLS-1$
+            exts = pathext != null && !pathext.isEmpty()
+                ? pathext.split(Pattern.quote(separator))
+                : new String[] {".EXE", ".BAT", ".CMD", ".COM"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        } else {
+            exts = new String[] {""}; //$NON-NLS-1$
+        }
+        return exts;
     }
 
     /**

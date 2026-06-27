@@ -10,7 +10,6 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.ObjectStreamField;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -22,7 +21,7 @@ import jrm.misc.Log;
  *
  * @author optyfr
  */
-public abstract class EntityBase extends NameBase implements Serializable {
+public abstract class EntityBase extends NameBase {
     /** The field name for ownStatus used in custom serialization. */
     private static final String OWN_STATUS = "own_status";
     /** The serial version UID for serialization compatibility. */

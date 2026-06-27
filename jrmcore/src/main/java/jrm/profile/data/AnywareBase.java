@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 import jrm.profile.Profile;
 
 /**
@@ -18,7 +16,7 @@ import jrm.profile.Profile;
  * 
  * @author optyfr
  */
-public abstract class AnywareBase extends NameBase implements Serializable {
+public abstract class AnywareBase extends NameBase {
     private static final long serialVersionUID = 1L;
 
     /**

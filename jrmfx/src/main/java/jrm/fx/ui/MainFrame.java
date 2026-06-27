@@ -71,7 +71,7 @@ public class MainFrame extends Application {
                 setReportFrame(new ReportFrame(primaryStage));
                 Settings.fromJson(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
                 primaryStage.show();
-            } catch (URISyntaxException | IOException e) {
+            } catch (final URISyntaxException | IOException e) /* NOSONAR */ {
                 Log.err("Error occurred while starting the application", e);
             }
             loading.hide();

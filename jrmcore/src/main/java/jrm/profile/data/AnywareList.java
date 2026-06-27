@@ -9,7 +9,6 @@
 package jrm.profile.data;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +25,7 @@ import jrm.profile.Profile;
  * @param <T> extends {@link Anyware} (generally a {@link Machine} or a {@link Software})
  */
 @SuppressWarnings("serial")
-public abstract class AnywareList<T extends Anyware> extends NameBase implements Serializable, AWList<T>, ByName<T> {
+public abstract class AnywareList<T extends Anyware> extends NameBase implements AWList<T>, ByName<T> {
     /**
      * The profile associated with this list. Used to retrieve filter and configuration options.
      */

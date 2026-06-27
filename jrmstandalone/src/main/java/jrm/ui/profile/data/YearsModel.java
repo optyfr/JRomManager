@@ -1,6 +1,5 @@
 package jrm.ui.profile.data;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -8,18 +7,18 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
 @SuppressWarnings("serial")
-public final class YearsModel extends AbstractListModel<String> implements ComboBoxModel<String>, Serializable {
+public final class YearsModel extends AbstractListModel<String> implements ComboBoxModel<String> {
 
-    transient Object selectedObject = null;
+     /**
+     * The currently selected object
+     */
+   transient Object selectedObject = null;
 
     /**
      * The internal list of years
      */
     final ArrayList<String> years;
 
-    /**
-     * The currently selected object
-     */
 
     /**
      * Constructor, will build a sorted list of years

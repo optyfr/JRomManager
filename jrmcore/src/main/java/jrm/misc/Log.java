@@ -11,7 +11,9 @@ package jrm.misc;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.logging.ConsoleHandler;
@@ -45,6 +47,11 @@ public class Log {
             /* default constructor */ }
 
         /**
+         * Formatter for log timestamps using the modern java.time API. Outputs in ISO-like format: "yyyy-MM-dd HH:mm:ss".
+         */
+        private static final DateTimeFormatter TIMESTAMP_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
+        /**
          * Formats the given log record into a single-line string with a trailing newline. Supports formatting embedded exception
          * stack traces.
          * 
@@ -54,8 +61,7 @@ public class Log {
          */
         @Override
         public String format(LogRecord theRecord) {
-            final var currDate = new Date();
-            currDate.setTime(theRecord.getMillis());
+            final var timestamp = TIMESTAMP_FMT.format(Instant.ofEpochMilli(theRecord.getMillis()));
             String message = formatMessage(theRecord);
             var throwableMsg = "";
             if (theRecord.getThrown() != null) {
@@ -66,7 +72,7 @@ public class Log {
                 pw.close();
                 throwableMsg = sw.toString();
             }
-            return String.format("[%1$tF %1$tT] [%2$s] %3$s%4$s%n", currDate, theRecord.getLevel().getName(), message, throwableMsg);
+            return String.format("[%s] [%s] %s%s%n", timestamp, theRecord.getLevel().getName(), message, throwableMsg);
         }
     }
 

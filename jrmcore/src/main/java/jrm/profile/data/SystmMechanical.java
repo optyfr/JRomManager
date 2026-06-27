@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * Mechanical system. Represents system options mapped under the Type.MECHANICAL classification.
  * 
@@ -18,7 +16,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SystmMechanical implements Systm, Serializable { // NOSONAR
+public class SystmMechanical implements Systm { // NOSONAR
     /**
      * The static MECHANICAL instance.
      */

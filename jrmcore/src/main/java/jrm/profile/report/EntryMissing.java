@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
@@ -16,7 +14,7 @@ import jrm.profile.data.EntityBase;
  * 
  * @since 1.0
  */
-public class EntryMissing extends EntryNote implements Serializable {
+public class EntryMissing extends EntryNote {
     /**
      * Resource bundle key for missing entries localization messages.
      */

@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entry;
 
@@ -16,7 +14,7 @@ import jrm.profile.data.Entry;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryUnneeded extends EntryExtNote implements Serializable {
+public class EntryUnneeded extends EntryExtNote {
     /**
      * Constructs a new EntryUnneeded note for the specified physical entry.
      *

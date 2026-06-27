@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * Interface defining supported System types inside a profile workspace. Linked selectable systems expose a unique property mapping
  * to properties stores.
@@ -18,7 +16,7 @@ import java.io.Serializable;
  * 
  * @since 1.0
  */
-public interface Systm extends Serializable, PropertyStub {
+public interface Systm extends PropertyStub {
     /**
      * System classification types.
      * 

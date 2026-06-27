@@ -8,8 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
-
 /**
  * Standard system. Represents system options mapped under the Type.STANDARD classification.
  * 
@@ -18,7 +16,7 @@ import java.io.Serializable;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SystmStandard implements Systm, Serializable {
+public class SystmStandard implements Systm {
     /**
      * The static STANDARD instance.
      */

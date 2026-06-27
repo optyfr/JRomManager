@@ -406,7 +406,7 @@ project(':jrmfx') {
 		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 	}
 	apply plugin: 'application'
-	application.mainClass='jrm.fx.JRomManager'
+	application.mainClass='jrm.fx.JRomManagerMulti'
 	jar {
 		manifest {
 			attributes(

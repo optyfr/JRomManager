@@ -234,7 +234,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
                         dtde.getDropTargetContext().dropComplete(false);
                 } else
                     dtde.rejectDrop();
-            } catch (final UnsupportedFlavorException e) {
+            } catch (final UnsupportedFlavorException _) {
                 dtde.rejectDrop();
             } catch (final Exception e) {
                 Log.err(e.getMessage(), e);

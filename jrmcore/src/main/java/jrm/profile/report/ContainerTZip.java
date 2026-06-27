@@ -1,6 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -16,7 +15,7 @@ import jrm.profile.data.Container;
  * 
  * @since 1.0
  */
-public class ContainerTZip extends ContainerSubject implements Serializable {
+public class ContainerTZip extends ContainerSubject {
     private static final long serialVersionUID = 2L;
 
     /**

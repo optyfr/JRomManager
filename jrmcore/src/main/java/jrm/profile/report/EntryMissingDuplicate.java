@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
@@ -17,7 +15,7 @@ import jrm.profile.data.Entry;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryMissingDuplicate extends EntryExtNote implements Serializable {
+public class EntryMissingDuplicate extends EntryExtNote {
     /**
      * Constructs a new EntryMissingDuplicate note mapping a missing entity to an existing candidate file entry.
      *

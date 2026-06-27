@@ -8,7 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,7 +22,7 @@ import lombok.Getter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class SamplesList implements Serializable, ByName<Samples>, Iterable<Samples> {
+public class SamplesList implements ByName<Samples>, Iterable<Samples> {
     /**
      * {@link HashMap} of {@link Samples} set with {@link Samples#name} as key.
      * 

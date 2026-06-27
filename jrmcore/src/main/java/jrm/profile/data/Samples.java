@@ -8,7 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +23,7 @@ import lombok.Getter;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public final class Samples extends AnywareBase implements Serializable, Iterable<Sample> {
+public final class Samples extends AnywareBase implements Iterable<Sample> {
     /**
      * The internal map of {@link Sample} instances with {@link NameBase#name} as key.
      * 

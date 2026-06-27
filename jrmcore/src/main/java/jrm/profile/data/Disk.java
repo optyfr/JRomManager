@@ -8,7 +8,6 @@
  */
 package jrm.profile.data;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,7 +28,7 @@ import lombok.Setter;
  * @author optyfr
  */
 @SuppressWarnings("serial")
-public class Disk extends Entity implements Serializable {
+public class Disk extends Entity {
     private static final String MERGE_STR = "merge";
     private static final String WRITEABLE_STR = "writeable";
     private static final String STATUS_STR = "status";

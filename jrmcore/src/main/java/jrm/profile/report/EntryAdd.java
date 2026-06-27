@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.Entry;
@@ -17,7 +15,7 @@ import jrm.profile.data.Entry;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryAdd extends EntryExtNote implements Serializable {
+public class EntryAdd extends EntryExtNote {
     /**
      * Constructs a new EntryAdd note mapping an expected entity to an actual available entry.
      *

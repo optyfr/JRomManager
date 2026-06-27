@@ -1,7 +1,5 @@
 package jrm.profile.report;
 
-import java.io.Serializable;
-
 import jrm.locale.Messages;
 import jrm.profile.data.Entity;
 import jrm.profile.data.Entry;
@@ -15,7 +13,7 @@ import jrm.profile.data.Entry;
  * @since 1.0
  */
 @SuppressWarnings("serial")
-public class EntryWrongHash extends EntryExtNote implements Serializable {
+public class EntryWrongHash extends EntryExtNote {
     /**
      * Resource bundle key for wrong hash entries localization messages.
      */

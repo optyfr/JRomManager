@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ import jrm.profile.data.AnywareBase;
  * 
  * @since 1.0
  */
-public class SubjectSet extends Subject implements Serializable {
+public class SubjectSet extends Subject {
     /**
      * Field serialization key for the validation status.
      */
