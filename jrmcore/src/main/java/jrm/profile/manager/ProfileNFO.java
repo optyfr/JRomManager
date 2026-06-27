@@ -20,10 +20,11 @@ import java.io.ObjectStreamField;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -96,9 +97,9 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
     private static final String JROMMANAGER_STR = "JRomManager";
 
     /**
-     * Standard date-time format template.
+     * Standard date-time formatter for displaying timestamps in the user's local timezone.
      */
-    private static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     /**
      * Unknown date-time formatted placeholder.
@@ -203,7 +204,7 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
     private ProfileNFO(final File file) {
         this.file = file;
         name = file.getName();
-        stats.setCreated(new Date());
+        stats.setCreated(Instant.now());
         if (isJRM())
             loadJrm(file);
     }
@@ -487,8 +488,7 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
      * @return the HTML formatted creation timestamp string
      */
     public String getHTMLCreated() {
-        return toDocument(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getCreated())); // $NON-NLS-1$
-                                                                                                                                                     // //$NON-NLS-2$
+        return toDocument(stats.getCreated() == null ? toGray(UNKNOWN_DATE) : DATE_FORMAT.format(stats.getCreated())); // $NON-NLS-1$
     }
 
     /**
@@ -497,8 +497,7 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
      * @return the HTML formatted scanned timestamp string
      */
     public String getHTMLScanned() {
-        return toDocument(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getScanned())); // $NON-NLS-1$
-                                                                                                                                                     // //$NON-NLS-2$
+        return toDocument(stats.getScanned() == null ? toGray(UNKNOWN_DATE) : DATE_FORMAT.format(stats.getScanned())); // $NON-NLS-1$
     }
 
     /**
@@ -507,10 +506,8 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
      * @return the HTML formatted repaired timestamp string
      */
     public String getHTMLFixed() {
-        return toDocument(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : new SimpleDateFormat(YYYY_MM_DD_HH_MM_SS).format(stats.getFixed())); // $NON-NLS-1$
-                                                                                                                                                 // //$NON-NLS-2$
+        return toDocument(stats.getFixed() == null ? toGray(UNKNOWN_DATE) : DATE_FORMAT.format(stats.getFixed())); // $NON-NLS-1$
     }
-
     /**
      * Scans the provided directory on disk and loads the metadata profile information of any matching catalog files found inside.
      * 

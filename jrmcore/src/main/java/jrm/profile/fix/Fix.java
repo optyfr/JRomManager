@@ -10,7 +10,7 @@ package jrm.profile.fix;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -97,7 +97,7 @@ public class Fix {
         // reset progression to normal before leaving
         progress.setInfos(1, false);
         // set stats last fixed date to 'now'
-        currProfile.getNfo().getStats().setFixed(new Date());
+        currProfile.getNfo().getStats().setFixed(Instant.now());
 
         // output to console timing information
         Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$

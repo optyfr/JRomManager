@@ -1,0 +1,23 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "gradle",
+			"id": "d:\\GIT\\JRomManagerbuildJRomManager",
+			"script": "build",
+			"description": "Assembles and tests this project.",
+			"group": "build",
+			"project": "JRomManager",
+			"buildFile": "D:\\GIT\\JRomManager\\build.gradle",
+			"rootProject": "JRomManager",
+			"projectFolder": "d:\\GIT\\JRomManager",
+			"workspaceFolder": "d:\\GIT\\JRomManager",
+			"args": "",
+			"javaDebug": true,
+			"problemMatcher": [
+				"$gradle"
+			],
+			"label": "gradle: build"
+		}
+	]
+}

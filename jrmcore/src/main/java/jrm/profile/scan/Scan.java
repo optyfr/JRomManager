@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -312,7 +312,7 @@ public class Scan extends PathAbstractor {
                 report.write(profile.getSession());
             report.flush();
             final var nfo = profile.getNfo();
-            nfo.getStats().setScanned(new Date());
+            nfo.getStats().setScanned(Instant.now());
             nfo.getStats().setHaveSets(
                     Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream()).mapToLong(AnywareList::countHave).sum());
             nfo.getStats().setHaveRoms(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream())

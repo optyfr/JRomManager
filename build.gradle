@@ -161,6 +161,8 @@ subprojects {
 			}
 		}
 		finalizedBy jacocoTestReport
+		minHeapSize = "128m" // initial heap size
+		maxHeapSize = "2G" // maximum heap size
 	}
 	
 	sonar {
@@ -177,6 +179,9 @@ subprojects {
 		}
 	}
 
+	dependencies {
+		compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+	}
 	jar {
 		manifest {
 			attributes(
@@ -254,18 +259,6 @@ project(':jrmcli') {
 	
 	apply plugin: "eclipse"
 
-	sourceSets {
-		main {
-			java {
-				srcDirs = ["src/main/java"]
-			}
-		}
-		main {
-			resources {
-				srcDirs = ["src/main/java"]
-			}
-		}
-	}
 	dependencies {
 		implementation project(':jrmcore')
 		implementation 'com.beust:jcommander:1.+'
@@ -401,26 +394,6 @@ project(':jrmfx') {
 	}
 
 	apply plugin: "eclipse"
-
-	eclipse {
-		classpath {
-			downloadSources = true
-			downloadJavadoc = true
-		}
-	}
-
-	sourceSets {
-		main {
-			java {
-				srcDirs = ["src/main/java"]
-			}
-		}
-		main {
-			resources {
-				srcDirs = ["src/main/java"]
-			}
-		}
-	}
 
 	dependencies {
 		implementation project(':jrmcore')

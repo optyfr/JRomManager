@@ -9,10 +9,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -96,11 +96,11 @@ public class ProfilePanelController implements Initializable {
     @FXML
     TableColumn<ProfileNFO, HaveNTotal> profileHaveDisksCol;
     @FXML
-    TableColumn<ProfileNFO, Date> profileCreatedCol;
+    TableColumn<ProfileNFO, Instant> profileCreatedCol;
     @FXML
-    TableColumn<ProfileNFO, Date> profileLastScanCol;
+    TableColumn<ProfileNFO, Instant> profileLastScanCol;
     @FXML
-    TableColumn<ProfileNFO, Date> profileLastFixCol;
+    TableColumn<ProfileNFO, Instant> profileLastFixCol;
     @FXML
     MenuItem createFolderMenu;
     @FXML
@@ -234,21 +234,21 @@ public class ProfilePanelController implements Initializable {
         profileCreatedCol.setCellFactory(param -> new DateCellFactory());
         profileCreatedCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
-            public Date getValue() {
+            public Instant getValue() {
                 return param.getValue().getStats().getCreated();
             }
         });
         profileLastScanCol.setCellFactory(param -> new DateCellFactory());
         profileLastScanCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
-            public Date getValue() {
+            public Instant getValue() {
                 return param.getValue().getStats().getScanned();
             }
         });
         profileLastFixCol.setCellFactory(param -> new DateCellFactory());
         profileLastFixCol.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
-            public Date getValue() {
+            public Instant getValue() {
                 return param.getValue().getStats().getFixed();
             }
         });
@@ -277,8 +277,8 @@ public class ProfilePanelController implements Initializable {
                     final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
                     columnToFitMethod.setAccessible(true); // NOSONAR
                     columnToFitMethod.invoke(th, -1);
-                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+                } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    Log.err("Failed to resize column " + columns.get(i).getText(), e);
                 }
 
             }

@@ -189,7 +189,7 @@ public class Dir2DatController extends BaseController {
             protected Void call() throws Exception {
                 final String src = srcDir.getText();
                 final String dst = dstDat.getText();
-                if (src != null && src.length() > 0 && dst != null && dst.length() > 0) {
+                if (src != null && !src.isEmpty() && dst != null && !dst.isEmpty()) {
                     final File srcdir = new File(src);
                     if (srcdir.isDirectory()) {
                         final File dstdat = new File(dst);

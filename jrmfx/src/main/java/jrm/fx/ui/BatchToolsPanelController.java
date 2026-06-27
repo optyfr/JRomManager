@@ -76,6 +76,7 @@ import jrm.security.PathAbstractor;
 
 public class BatchToolsPanelController extends BaseController {
     private static final String ICON_BULLET_GO = "/jrm/resicons/icons/bullet_go.png";
+    private static final String CANCELLED = "Cancelled";
 
     @FXML
     private Tab panelBatchToolsDat2Dir;
@@ -225,7 +226,7 @@ public class BatchToolsPanelController extends BaseController {
                 thread.setDaemon(true);
                 thread.start();
             } catch (IOException | URISyntaxException e1) {
-                e1.printStackTrace();
+                Log.err(e1.getMessage(), e1);
             }
         });
     }
@@ -268,7 +269,7 @@ public class BatchToolsPanelController extends BaseController {
             protected void failed() {
                 close();
                 if (getException() instanceof BreakException || isCancelled())
-                    Dialogs.showAlert("Cancelled");
+                    Dialogs.showAlert(CANCELLED);
                 else {
                     Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
                         Log.err(cause.getMessage(), cause);
@@ -382,7 +383,7 @@ public class BatchToolsPanelController extends BaseController {
                 return f.isDirectory()
                         ? Files.find(f.toPath(), Integer.MAX_VALUE, (p, attr) -> attr.isRegularFile() && FilenameUtils.isExtension(p.getFileName().toString(), extensions))
                         : Stream.of(f.toPath());
-            } catch (IOException e) {
+            } catch (IOException _) {
                 return null;
             }
         }).map(FileResult::new).toList();
@@ -465,7 +466,7 @@ public class BatchToolsPanelController extends BaseController {
             try {
                 new BatchTorrentResults((Stage) tvBatchToolsTorrent.getScene().getWindow(), results);
             } catch (URISyntaxException | IOException e1) {
-                e1.printStackTrace();
+                Log.err(e1.getMessage(), e1);
             }
         }));
         popupMenuTorrent.setOnShowing(e -> mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty()));
@@ -492,6 +493,21 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
+     * Checks if a file is a valid DAT/XML file or directory containing DAT/XML files.
+     */
+    private boolean isValidDatFile(File file) {
+        if (Files.isRegularFile(file.toPath()))
+            return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
+        if (file.isDirectory())
+            try (var stream = Files.list(file.toPath())) {
+                return stream.map(Path::toFile).anyMatch(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".dat"));
+            } catch (IOException _) {
+                // do nothing
+            }
+        return false;
+    }
+
+    /**
      * 
      */
     private void initDat2DirDst() {
@@ -501,17 +517,7 @@ public class BatchToolsPanelController extends BaseController {
             for (int i = 0; i < files.size(); i++)
                 sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
             saveDat2DirDst();
-        }, file -> {
-            if (Files.isRegularFile(file.toPath()))
-                return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
-            if (file.isDirectory())
-                try {
-                    return Files.list(file.toPath()).map(Path::toFile).anyMatch(f -> f.getName().endsWith(".xml") || f.getName().endsWith(".dat"));
-                } catch (IOException e1) {
-                    // do nothing
-                }
-            return false;
-        }));
+        }, this::isValidDatFile));
         tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> param.getValue().srcProperty());
         tvBatchToolsDat2DirDstDirsCol.setCellFactory(param -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
             for (int i = 0; i < files.size(); i++)
@@ -558,7 +564,7 @@ public class BatchToolsPanelController extends BaseController {
             try {
                 new BatchDirUpd8rResults((Stage) tvBatchToolsDat2DirDst.getScene().getWindow(), results);
             } catch (URISyntaxException | IOException e1) {
-                e1.printStackTrace();
+                Log.err(e1.getMessage(), e1);
             }
         });
     }
@@ -627,7 +633,7 @@ public class BatchToolsPanelController extends BaseController {
                     thread.setDaemon(true);
                     thread.start();
                 } catch (URISyntaxException | IOException ex) {
-                    ex.printStackTrace();
+                    Log.err(ex.getMessage(), ex);
                 }
             }
         } else
@@ -711,7 +717,7 @@ public class BatchToolsPanelController extends BaseController {
             protected void failed() {
                 close();
                 if (getException() instanceof BreakException || isCancelled())
-                    Dialogs.showAlert("Cancelled");
+                    Dialogs.showAlert(CANCELLED);
                 else {
                     Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
                         Log.err(cause.getMessage(), cause);
@@ -752,7 +758,7 @@ public class BatchToolsPanelController extends BaseController {
             protected void failed() {
                 close();
                 if (getException() instanceof BreakException || isCancelled())
-                    Dialogs.showAlert("Cancelled");
+                    Dialogs.showAlert(CANCELLED);
                 else {
                     Optional.ofNullable(getException().getCause()).ifPresentOrElse(cause -> {
                         Log.err(cause.getMessage(), cause);
@@ -785,7 +791,7 @@ public class BatchToolsPanelController extends BaseController {
             if (!tvBatchToolsDat2DirDst.getSelectionModel().isEmpty())
                 new CustomPresets((Stage) tvBatchToolsDat2DirDst.getScene().getWindow());
         } catch (IOException | URISyntaxException e1) {
-            e1.printStackTrace();
+            Log.err(e1.getMessage(), e1);
         }
     }
 

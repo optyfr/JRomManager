@@ -53,7 +53,7 @@ public class MainFrame extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        System.out.println("Starting...");
+        Log.info("Starting...");
         setApplication(this);
 
         JRMScene.setSheet(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
@@ -72,7 +72,7 @@ public class MainFrame extends Application {
                 Settings.fromJson(session.getUser().getSettings().getProperty("MainFrame.Bounds", null), primaryStage);
                 primaryStage.show();
             } catch (URISyntaxException | IOException e) {
-                e.printStackTrace();
+                Log.err("Error occurred while starting the application", e);
             }
             loading.hide();
         });
@@ -80,7 +80,7 @@ public class MainFrame extends Application {
             if (Sessions.getSingleSession().getCurrProfile() != null)
                 Sessions.getSingleSession().getCurrProfile().saveSettings();
             Sessions.getSingleSession().getUser().getSettings().saveSettings();
-            System.out.println("Shutdown");
+            Log.info("Shutdown");
         }));
     }
 

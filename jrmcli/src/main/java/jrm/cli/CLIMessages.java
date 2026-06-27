@@ -14,7 +14,7 @@ public class CLIMessages {
     public static String getString(String key) {
         try {
             return RESOURCE_BUNDLE.getString(key);
-        } catch (MissingResourceException e) {
+        } catch (MissingResourceException _) {
             return '!' + key + '!';
         }
     }

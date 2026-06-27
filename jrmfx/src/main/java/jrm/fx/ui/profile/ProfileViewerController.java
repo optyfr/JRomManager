@@ -80,6 +80,10 @@ import jrm.security.Sessions;
 import lombok.val;
 
 public class ProfileViewerController implements Initializable {
+    private static final String FX_FONT_FAMILY_MONOSPACED = "-fx-font-family: monospaced;";
+
+    private static final String MONOSPACED = "monospaced";
+
     private static final String D_OF_D_FMT = "%d/%d";
 
     @FXML
@@ -215,6 +219,19 @@ public class ProfileViewerController implements Initializable {
      * 
      */
     private void initTableE() {
+        initTableEStatus();
+        initTableEName();
+        initTableESize();
+        initTableECRC();
+        initTableEMD5();
+        initTableESHA1();
+        initTableEMergeName();
+        initTableEDumpStatus();
+        initTableEToggles();
+        initTableEMenu();
+    }
+
+    private void initTableEStatus() {
         tableEntityStatus.setCellFactory(p -> new TableCell<EntityBase, EntityBase>() {
             @Override
             protected void updateItem(EntityBase item, boolean empty) {
@@ -242,6 +259,9 @@ public class ProfileViewerController implements Initializable {
                 return p.getValue();
             }
         });
+    }
+
+    private void initTableEName() {
         tableEntityName.setCellFactory(p -> new TableCell<EntityBase, EntityBase>() {
             final Image romSmall = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
             final Image drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
@@ -255,9 +275,9 @@ public class ProfileViewerController implements Initializable {
                 } else {
                     setText(item.getBaseName());
                     final var i = switch (item) {
-                        case Rom r -> new ImageView(romSmall);
-                        case Disk d -> new ImageView(drive);
-                        case Sample s -> new ImageView(sound);
+                        case Rom _ -> new ImageView(romSmall);
+                        case Disk _ -> new ImageView(drive);
+                        case Sample _ -> new ImageView(sound);
                         default -> null;
                     };
                     if (i != null) {
@@ -270,6 +290,9 @@ public class ProfileViewerController implements Initializable {
             }
         });
         tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
+    }
+
+    private void initTableESize() {
         tableEntitySize.setMinWidth(getWidth(12));
         tableEntitySize.setPrefWidth(tableEntitySize.getMinWidth());
         tableEntitySize.setMaxWidth(tableEntitySize.getMinWidth() * 2);
@@ -293,7 +316,10 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
-        tableEntityCRC.setMinWidth(getWidth(10, "monospaced"));
+    }
+
+    private void initTableECRC() {
+        tableEntityCRC.setMinWidth(getWidth(10, MONOSPACED));
         tableEntityCRC.setPrefWidth(tableEntityCRC.getMinWidth());
         tableEntityCRC.setMaxWidth(tableEntityCRC.getMinWidth() * 2);
         tableEntityCRC.setCellFactory(p -> new TableCell<EntityBase, String>() {
@@ -303,7 +329,7 @@ public class ProfileViewerController implements Initializable {
                     setText("");
                 else
                     setText(item);
-                styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
+                styleProperty().bind(new SimpleStringProperty(FX_FONT_FAMILY_MONOSPACED));
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
@@ -318,7 +344,10 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
-        tableEntityMD5.setMinWidth(getWidth(34, "monospaced"));
+    }
+
+    private void initTableEMD5() {
+        tableEntityMD5.setMinWidth(getWidth(34, MONOSPACED));
         tableEntityMD5.setPrefWidth(tableEntityMD5.getMinWidth());
         tableEntityMD5.setMaxWidth(tableEntityMD5.getMinWidth() * 2);
         tableEntityMD5.setCellFactory(p -> new TableCell<EntityBase, String>() {
@@ -328,7 +357,7 @@ public class ProfileViewerController implements Initializable {
                     setText("");
                 else
                     setText(item);
-                styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
+                styleProperty().bind(new SimpleStringProperty(FX_FONT_FAMILY_MONOSPACED));
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
@@ -343,7 +372,10 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
-        tableEntitySHA1.setMinWidth(getWidth(42, "monospaced"));
+    }
+
+    private void initTableESHA1() {
+        tableEntitySHA1.setMinWidth(getWidth(42, MONOSPACED));
         tableEntitySHA1.setPrefWidth(tableEntitySHA1.getMinWidth());
         tableEntitySHA1.setMaxWidth(tableEntitySHA1.getMinWidth() * 2);
         tableEntitySHA1.setCellFactory(p -> new TableCell<EntityBase, String>() {
@@ -353,7 +385,7 @@ public class ProfileViewerController implements Initializable {
                     setText("");
                 else
                     setText(item);
-                styleProperty().bind(new SimpleStringProperty("-fx-font-family: monospaced;"));
+                styleProperty().bind(new SimpleStringProperty(FX_FONT_FAMILY_MONOSPACED));
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
@@ -368,6 +400,9 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void initTableEMergeName() {
         tableEntityMergeName.setCellValueFactory(p -> new ObservableValueBase<String>() {
             @Override
             public String getValue() {
@@ -378,6 +413,9 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void initTableEDumpStatus() {
         tableEntityDumpStatus.setCellFactory(p -> new TableCell<EntityBase, Entity.Status>() {
             private static final Image verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
             private static final Image good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
@@ -415,6 +453,9 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void initTableEToggles() {
         ImageView ibb = new ImageView(bulletBlack);
         ibb.setPreserveRatio(true);
         ibb.getStyleClass().add("icon");
@@ -427,6 +468,9 @@ public class ProfileViewerController implements Initializable {
         ibg.setPreserveRatio(true);
         ibg.getStyleClass().add("icon");
         toggleEntityOK.setGraphic(ibg);
+    }
+
+    private void initTableEMenu() {
         menuEntity.setOnShowing(e -> {
             final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem() != null;
             mntmCopyCrc.setDisable(!has_selected_entity);
@@ -483,7 +527,7 @@ public class ProfileViewerController implements Initializable {
             final var device = new StringBuilder(); // $NON-NLS-1$
             for (final var dev : m.getDevices()) {
                 if (Objects.equals(((Software) ware).getParts().get(0).getIntrface(), dev.getIntrface()) && dev.getInstance() != null) {
-                    device.append("-" + dev.getInstance().getName()); //$NON-NLS-1$
+                    device.append("-").append(dev.getInstance().getName()); //$NON-NLS-1$
                     break;
                 }
             }
@@ -532,6 +576,21 @@ public class ProfileViewerController implements Initializable {
      */
     private void initTableW() {
         tableW.setFixedCellSize(-1);
+        initTableWMStatus();
+        initTableWMName();
+        initTableWMDescription();
+        initTableWMHave();
+        initTableWMCloneOf();
+        initTableWMRomOf();
+        initTableWMSampleOf();
+        initTableWMSelected();
+        initTableWSColumns();
+        initToggleButtons();
+        tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadE(newValue));
+        search.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
+    }
+
+    private void initTableWMStatus() {
         tableWMStatus.setResizable(false);
         tableWMStatus.setSortable(false);
         tableWMStatus.setPrefWidth(24);
@@ -556,6 +615,9 @@ public class ProfileViewerController implements Initializable {
                 return p.getValue();
             }
         });
+    }
+
+    private void initTableWMName() {
         tableWMName.setMinWidth(50);
         tableWMName.setPrefWidth(100);
         tableWMName.setMaxWidth(200);
@@ -591,24 +653,7 @@ public class ProfileViewerController implements Initializable {
                     setAlignment(Pos.CENTER_LEFT);
                 }
             };
-            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-                if (event.getClickCount() > 1 && (event.getSource() instanceof TableCell<?, ?> c
-                        && (c.getUserData() instanceof Machine ware))) {
-                    if (ware.getStatus() == AnywareStatus.COMPLETE) {
-                        if (session.getCurrProfile() != null) {
-                            final var profile = session.getCurrProfile();
-                            if (profile.getNfo().getMame().getStatus() == MameStatus.UPTODATE)
-                                launchMame(ware, profile);
-                            else
-                                Dialogs.showAlert(
-                                        String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"),
-                                                profile.getNfo().getMame().getStatus()));
-                        } else
-                            Dialogs.showAlert(Messages.getString("ProfileViewer.NoProfile"));
-                    } else
-                        Dialogs.showAlert(String.format(Messages.getString("ProfileViewer.CantLaunchIncompleteSet"), ware.getStatus()));
-                }
-            });
+            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMachineDoubleClick);
             return cell;
         });
         tableWMName.setCellValueFactory(p -> new ObservableValueBase<Machine>() {
@@ -620,6 +665,28 @@ public class ProfileViewerController implements Initializable {
             }
         });
         tableWMName.setSortable(true);
+    }
+
+    private void handleMachineDoubleClick(MouseEvent event) {
+        if (event.getClickCount() > 1 && (event.getSource() instanceof TableCell<?, ?> c
+                && (c.getUserData() instanceof Machine ware))) {
+            if (ware.getStatus() == AnywareStatus.COMPLETE) {
+                if (session.getCurrProfile() != null) {
+                    final var profile = session.getCurrProfile();
+                    if (profile.getNfo().getMame().getStatus() == MameStatus.UPTODATE)
+                        launchMame(ware, profile);
+                    else
+                        Dialogs.showAlert(
+                                String.format(Messages.getString("ProfileViewer.MameNotAvailableOrObsolete"),
+                                        profile.getNfo().getMame().getStatus()));
+                } else
+                    Dialogs.showAlert(Messages.getString("ProfileViewer.NoProfile"));
+            } else
+                Dialogs.showAlert(String.format(Messages.getString("ProfileViewer.CantLaunchIncompleteSet"), ware.getStatus()));
+        }
+    }
+
+    private void initTableWMDescription() {
         tableWMDescription.setMinWidth(100);
         tableWMDescription.setPrefWidth(200);
         tableWMDescription.setMaxWidth(600);
@@ -643,6 +710,9 @@ public class ProfileViewerController implements Initializable {
             }
         });
         tableWMDescription.setSortable(true);
+    }
+
+    private void initTableWMHave() {
         tableWMHave.setResizable(true);
         tableWMHave.setSortable(false);
         tableWMHave.setPrefWidth(45);
@@ -667,6 +737,9 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void initTableWMCloneOf() {
         tableWMCloneOf.setSortable(false);
         tableWMCloneOf.setMinWidth(50);
         tableWMCloneOf.setPrefWidth(100);
@@ -675,45 +748,56 @@ public class ProfileViewerController implements Initializable {
             final var cell = new TableCell<Anyware, Object>() {
                 @Override
                 protected void updateItem(Object item, boolean empty) {
-                    if (item == null || empty) {
-                        setText("");
-                        setGraphic(null);
-                    } else {
-                        if (item instanceof Anyware aw) {
-                            ImageView i = new ImageView(getStatusIcon(aw.getStatus()));
-                            i.setPreserveRatio(true);
-                            i.getStyleClass().add("icon");
-                            setGraphic(i);
-                            setUserData(aw);
-                            setText(aw.getBaseName());
-                        } else {
-                            ImageView i = new ImageView(folderClosedGray);
-                            i.setPreserveRatio(true);
-                            i.getStyleClass().add("icon");
-                            setGraphic(i);
-                            setText(item.toString());
-                        }
-                    }
-                    setAlignment(Pos.CENTER_LEFT);
+                    updateCloneOfCell(this, item, empty);
                 }
             };
-            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-                if (event.getClickCount() > 1 && event.getSource() instanceof TableCell<?, ?> c && (c.getUserData() instanceof Anyware ware)) {
-                    final var sm = tableW.getSelectionModel();
-                    sm.clearSelection();
-                    sm.select(ware);
-                    tableW.scrollTo(ware);
-                }
-            });
+            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleCloneOfDoubleClick);
             return cell;
         });
         tableWMCloneOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
             @Override
             public Object getValue() {
-                final AnywareList<? extends Anyware> machineList = tableWL.getSelectionModel().getSelectedItem();
-                return Optional.ofNullable(p.getValue().getCloneof()).map(cloneof -> machineList.containsName(cloneof) ? machineList.getByName(cloneof) : cloneof).orElse(null);
+                return getCloneOfValue(p);
             }
         });
+    }
+
+    private void updateCloneOfCell(TableCell<Anyware, Object> cell, Object item, boolean empty) {
+        if (item == null || empty) {
+            cell.setText("");
+            cell.setGraphic(null);
+        } else if (item instanceof Anyware aw) {
+            ImageView i = new ImageView(getStatusIcon(aw.getStatus()));
+            i.setPreserveRatio(true);
+            i.getStyleClass().add("icon");
+            cell.setGraphic(i);
+            cell.setUserData(aw);
+            cell.setText(aw.getBaseName());
+        } else {
+            ImageView i = new ImageView(folderClosedGray);
+            i.setPreserveRatio(true);
+            i.getStyleClass().add("icon");
+            cell.setGraphic(i);
+            cell.setText(item.toString());
+        }
+        cell.setAlignment(Pos.CENTER_LEFT);
+    }
+
+    private void handleCloneOfDoubleClick(MouseEvent event) {
+        if (event.getClickCount() > 1 && event.getSource() instanceof TableCell<?, ?> c && (c.getUserData() instanceof Anyware ware)) {
+            final var sm = tableW.getSelectionModel();
+            sm.clearSelection();
+            sm.select(ware);
+            tableW.scrollTo(ware);
+        }
+    }
+
+    private Object getCloneOfValue(CellDataFeatures<Anyware, Object> p) {
+        final AnywareList<? extends Anyware> machineList = tableWL.getSelectionModel().getSelectedItem();
+        return Optional.ofNullable(p.getValue().getCloneof()).map(cloneof -> machineList.containsName(cloneof) ? machineList.getByName(cloneof) : cloneof).orElse(null);
+    }
+
+    private void initTableWMRomOf() {
         tableWMRomOf.setSortable(false);
         tableWMRomOf.setMinWidth(50);
         tableWMRomOf.setPrefWidth(100);
@@ -730,6 +814,9 @@ public class ProfileViewerController implements Initializable {
                 return null;
             }
         });
+    }
+
+    private void initTableWMSampleOf() {
         tableWMSampleOf.setSortable(false);
         tableWMSampleOf.setMinWidth(50);
         tableWMSampleOf.setPrefWidth(100);
@@ -737,39 +824,51 @@ public class ProfileViewerController implements Initializable {
         tableWMSampleOf.setCellFactory(p -> new TableCell<Anyware, Object>() {
             @Override
             protected void updateItem(Object item, boolean empty) {
-                if (item == null || empty) {
-                    setText("");
-                    setGraphic(null);
-                } else {
-                    if (item instanceof Samples s) {
-                        ImageView i = new ImageView(getStatusIcon(s.getStatus()));
-                        i.setPreserveRatio(true);
-                        i.getStyleClass().add("icon");
-                        setGraphic(i);
-                        setText(s.getBaseName());
-                    } else {
-                        ImageView i = new ImageView(folderClosedGray);
-                        i.setPreserveRatio(true);
-                        i.getStyleClass().add("icon");
-                        setGraphic(i);
-                        setText(item.toString());
-                    }
-                }
-                setAlignment(Pos.CENTER_LEFT);
+                updateSampleOfCell(this, item, empty);
             }
         });
         tableWMSampleOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
             @Override
             public Object getValue() {
-                if (p.getValue() instanceof Machine m) {
-                    final AnywareList<? extends Anyware> awList = tableWL.getSelectionModel().getSelectedItem();
-                    if (awList instanceof MachineList machineList)
-                        return Optional.ofNullable(m.getSampleof())
-                                .map(sampleof -> machineList.samplesets.containsName(sampleof) ? machineList.samplesets.getByName(sampleof) : sampleof).orElse(null);
-                }
-                return null;
+                return getSampleOfValue(p.getValue());
             }
         });
+    }
+
+    private void updateSampleOfCell(TableCell<Anyware, Object> cell, Object item, boolean empty) {
+        if (item == null || empty) {
+            cell.setText("");
+            cell.setGraphic(null);
+        } else if (item instanceof Samples s) {
+            ImageView i = new ImageView(getStatusIcon(s.getStatus()));
+            i.setPreserveRatio(true);
+            i.getStyleClass().add("icon");
+            cell.setGraphic(i);
+            cell.setText(s.getBaseName());
+        } else {
+            ImageView i = new ImageView(folderClosedGray);
+            i.setPreserveRatio(true);
+            i.getStyleClass().add("icon");
+            cell.setGraphic(i);
+            cell.setText(item.toString());
+        }
+        cell.setAlignment(Pos.CENTER_LEFT);
+    }
+
+    private Object getSampleOfValue(Object value) {
+        if (!(value instanceof Machine m)) {
+            return null;
+        }
+        final AnywareList<? extends Anyware> awList = tableWL.getSelectionModel().getSelectedItem();
+        if (!(awList instanceof MachineList machineList)) {
+            return null;
+        }
+        return Optional.ofNullable(m.getSampleof())
+                .map(sampleof -> machineList.samplesets.containsName(sampleof) ? machineList.samplesets.getByName(sampleof) : sampleof)
+                .orElse(null);
+    }
+
+    private void initTableWMSelected() {
         tableWMSelected.setResizable(true);
         tableWMSelected.setSortable(false);
         tableWMSelected.setPrefWidth(30);
@@ -781,6 +880,9 @@ public class ProfileViewerController implements Initializable {
             checkBox.selectedProperty().addListener((ov, oldVal, newVal) -> aw.setSelected(newVal));
             return new SimpleObjectProperty<>(checkBox);
         });
+    }
+
+    private void initTableWSColumns() {
         tableWSStatus.setResizable(false);
         tableWSStatus.setSortable(false);
         tableWSStatus.setPrefWidth(20);
@@ -828,7 +930,9 @@ public class ProfileViewerController implements Initializable {
         tableWSSelected.setSortable(false);
         tableWSSelected.setPrefWidth(30);
         tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
-        tableW.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> reloadE(newValue));
+    }
+
+    private void initToggleButtons() {
         ImageView ifcgray = new ImageView(folderClosedGray);
         ifcgray.setPreserveRatio(true);
         ifcgray.getStyleClass().add("icon");
@@ -845,8 +949,6 @@ public class ProfileViewerController implements Initializable {
         ifcgreen.setPreserveRatio(true);
         ifcgreen.getStyleClass().add("icon");
         toggleWComplete.setGraphic(ifcgreen);
-
-        search.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
     }
 
     /**
@@ -1073,7 +1175,6 @@ public class ProfileViewerController implements Initializable {
         } else
             tableWL.getSelectionModel().select(0);
         tableWL.refresh();
-        // reloadW(tableWL.getSelectionModel().getSelectedItem());
     }
 
     private class KW extends jrm.profile.filter.Keywords {
@@ -1083,7 +1184,7 @@ public class ProfileViewerController implements Initializable {
             try {
                 new Keywords((ProfileViewer) tableWL.getScene().getWindow(), keywords, tableWL.getSelectionModel().getSelectedItem(), callback);
             } catch (URISyntaxException | IOException e1) {
-                e1.printStackTrace();
+                Log.err(e1.getMessage(), e1);
             }
         }
 

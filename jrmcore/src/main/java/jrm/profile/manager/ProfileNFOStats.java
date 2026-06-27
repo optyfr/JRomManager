@@ -13,7 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
 import lombok.Data;
 
@@ -78,7 +78,7 @@ public final @Data class ProfileNFOStats implements Serializable {
     /**
      * Serial version UID for maintaining serialization compatibility across releases.
      */
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * The MAME or metadata catalog database version string.
@@ -146,29 +146,29 @@ public final @Data class ProfileNFOStats implements Serializable {
     /**
      * The timestamp of when this profile NFO metadata was originally created.
      * 
-     * @param created the creation date to set
+     * @param created the creation instant to set
      * 
-     * @return the creation date
+     * @return the creation instant
      */
-    private Date created = null;
+    private Instant created = null;
 
     /**
      * The timestamp of the last complete directory or filesystem scan.
      * 
-     * @param scanned the last scan date to set
+     * @param scanned the last scan instant to set
      * 
-     * @return the last scan date
+     * @return the last scan instant
      */
-    private Date scanned = null;
+    private Instant scanned = null;
 
     /**
      * The timestamp of when the last repair or repair-fix operation occurred.
      * 
-     * @param fixed the last fix date to set
+     * @param fixed the last fix instant to set
      * 
-     * @return the last fix date
+     * @return the last fix instant
      */
-    private Date fixed = null;
+    private Instant fixed = null;
 
     /**
      * Declares persistent serialization fields for compliant and predictable manual object serialization.
@@ -180,9 +180,9 @@ public final @Data class ProfileNFOStats implements Serializable {
      * @serialField totalRoms Long total count of defined ROM files
      * @serialField haveDisks Long count of owned disks
      * @serialField totalDisks Long total count of defined disks
-     * @serialField created Date creation date of this metadata
-     * @serialField scanned Date last filesystem scan date
-     * @serialField fixed Date last fix/repair operation date
+     * @serialField created Instant creation instant of this metadata
+     * @serialField scanned Instant last filesystem scan instant
+     * @serialField fixed Instant last fix/repair operation instant
      */
     private static final ObjectStreamField[] serialPersistentFields = { // NOSONAR
             new ObjectStreamField(VERSION_STR, String.class), // $NON-NLS-1$
@@ -192,9 +192,9 @@ public final @Data class ProfileNFOStats implements Serializable {
             new ObjectStreamField(TOTAL_ROMS_STR, Long.class), // $NON-NLS-1$
             new ObjectStreamField(HAVE_DISKS_STR, Long.class), // $NON-NLS-1$
             new ObjectStreamField(TOTAL_DISKS_STR, Long.class), // $NON-NLS-1$
-            new ObjectStreamField(CREATED_STR, Date.class), // $NON-NLS-1$
-            new ObjectStreamField(SCANNED_STR, Date.class), // $NON-NLS-1$
-            new ObjectStreamField(FIXED_STR, Date.class), // $NON-NLS-1$
+            new ObjectStreamField(CREATED_STR, Instant.class), // $NON-NLS-1$
+            new ObjectStreamField(SCANNED_STR, Instant.class), // $NON-NLS-1$
+            new ObjectStreamField(FIXED_STR, Instant.class), // $NON-NLS-1$
     };
 
     /**
@@ -243,14 +243,14 @@ public final @Data class ProfileNFOStats implements Serializable {
         totalRoms = (Long) fields.get(TOTAL_ROMS_STR, null); // $NON-NLS-1$
         haveDisks = (Long) fields.get(HAVE_DISKS_STR, null); // $NON-NLS-1$
         totalDisks = (Long) fields.get(TOTAL_DISKS_STR, null); // $NON-NLS-1$
-        created = (Date) fields.get(CREATED_STR, null); // $NON-NLS-1$
-        scanned = (Date) fields.get(SCANNED_STR, null); // $NON-NLS-1$
-        fixed = (Date) fields.get(FIXED_STR, null); // $NON-NLS-1$
+        created = (Instant) fields.get(CREATED_STR, null); // $NON-NLS-1$
+        scanned = (Instant) fields.get(SCANNED_STR, null); // $NON-NLS-1$
+        fixed = (Instant) fields.get(FIXED_STR, null); // $NON-NLS-1$
     }
 
     /**
      * Resets all statistics values, clearing counts and timestamps and setting the profile creation timestamp to the current system
-     * date.
+     * time.
      */
     public void reset() {
         version = null;
@@ -260,7 +260,7 @@ public final @Data class ProfileNFOStats implements Serializable {
         totalRoms = null;
         haveDisks = null;
         totalDisks = null;
-        created = new Date();
+        created = Instant.now();
         scanned = null;
         fixed = null;
     }
