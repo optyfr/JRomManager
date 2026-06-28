@@ -142,7 +142,7 @@ public class PathAbstractor {
                 }
             }
         } catch (Exception e) {
-            Log.err(e.getMessage(), e);
+            Log.warn(e.getMessage());
         }
         return path;
     }
