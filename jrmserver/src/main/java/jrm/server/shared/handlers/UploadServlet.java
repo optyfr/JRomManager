@@ -67,6 +67,14 @@ public class UploadServlet extends HttpServlet {
     private static final String UTF_8 = "UTF-8";
 
     /**
+     * Error message for invalid or malicious paths.
+     * <p>
+     * Used when path validation fails due to traversal attempts, forgery, or malformed input.
+     * </p>
+     */
+    private static final String INVALID_PATH = "Invalid path";
+
+    /**
      * Data structure representing the result of an upload operation.
      * <p>
      * This package-private class encapsulates the status code and extended status message that are serialized to JSON via
@@ -207,20 +215,20 @@ public class UploadServlet extends HttpServlet {
         try {
             result.status = 0;
             result.extstatus = "continue...";
-            final String filename = URLDecoder.decode(req.getHeader("x-file-name"), UTF_8);
-            final String fileparent = URLDecoder.decode(req.getHeader("x-file-parent"), UTF_8);
+            final String filename = sanitizeHeader(req.getHeader("x-file-name"));
+            final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
             if (pathAbstractor.isWriteable(fileparent)) {
                 final var filesize = getXFileSize(req);
                 final var dest = pathAbstractor.getAbsolutePath(fileparent);
                 if (!(Files.exists(dest) && Files.isDirectory(dest))) {
                     result.status = 6;
-                    result.extstatus = "Error: destination " + dest + " must be an existing directory";
+                    result.extstatus = "Error: destination must be an existing directory";
                 } else {
                     final var fs = Files.getFileStore(dest);
                     final var free = fs.getUsableSpace();
                     if (free < filesize) {
                         result.status = 7;
-                        result.extstatus = "Error: not enough free space, need " + filesize + " but only " + free + " is available";
+                        result.extstatus = "Error: not enough free space";
                     } else {
                         final var filepath = dest.resolve(filename);
                         Files.getLastModifiedTime(filepath);
@@ -231,9 +239,9 @@ public class UploadServlet extends HttpServlet {
                 result.extstatus = "Is read only";
             }
         } catch (NoSuchFileException _) { // File does not exist yet, which is acceptable for new uploads
-        } catch (InvalidPathException e) { // Invalid path syntax detected during path resolution
+        } catch (InvalidPathException | SecurityException _) { // Invalid path syntax or traversal attempt detected
             result.status = 8;
-            result.extstatus = e.getMessage();
+            result.extstatus = INVALID_PATH;
         } catch (IOException e) { // I/O error occurred while accessing file metadata
             result.status = 9;
             result.extstatus = e.getMessage();
@@ -257,6 +265,30 @@ public class UploadServlet extends HttpServlet {
         } catch (NumberFormatException _) {
             return -1;
         }
+    }
+
+    /**
+     * Sanitizes and decodes an HTTP header value to prevent path traversal attacks.
+     * <p>
+     * This method URL-decodes the header value and removes potentially dangerous characters:
+     * <ul>
+     * <li>Path traversal sequences (..)</li>
+     * <li>Null bytes</li>
+     * <li>Control characters</li>
+     * </ul>
+     * 
+     * @param header the raw HTTP header value to sanitize
+     * 
+     * @return the sanitized and decoded header value
+     * 
+     * @throws IOException if URL decoding fails
+     */
+    private String sanitizeHeader(String header) throws IOException {
+        final String decoded = URLDecoder.decode(header, UTF_8);
+        // Remove path traversal attempts and dangerous characters
+        return decoded.replace("..", "")
+                      .replace("\0", "")
+                      .replaceAll("[\\p{Cntrl}]", "");
     }
 
     /**
@@ -286,8 +318,8 @@ public class UploadServlet extends HttpServlet {
                 val ws = (WebSession) req.getSession().getAttribute("session");
                 val pathAbstractor = new PathAbstractor(ws);
                 final var result = new Result();
-                final String filename = URLDecoder.decode(req.getHeader("x-file-name"), UTF_8);
-                final String fileparent = URLDecoder.decode(req.getHeader("x-file-parent"), UTF_8);
+                final String filename = sanitizeHeader(req.getHeader("x-file-name"));
+                final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
                 if (pathAbstractor.isWriteable(fileparent)) {
                     final var dest = pathAbstractor.getAbsolutePath(fileparent);
                     final var filepath = dest.resolve(filename);
@@ -302,6 +334,15 @@ public class UploadServlet extends HttpServlet {
                     result.extstatus = "Is read only";
                 }
                 resp.getWriter().write(new Gson().toJson(result));
+            } catch (SecurityException _) { // Path traversal or forgery attempt detected by PathAbstractor
+                final var errResult = new Result();
+                errResult.status = 8;
+                errResult.extstatus = INVALID_PATH;
+                try {
+                    resp.getWriter().write(new Gson().toJson(errResult));
+                } catch (IOException ioe) {
+                    internalError(resp, ioe);
+                }
             } catch (IOException e) {
                 internalError(resp, e);
             }
