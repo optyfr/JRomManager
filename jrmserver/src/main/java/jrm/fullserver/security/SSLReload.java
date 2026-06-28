@@ -1,44 +1,50 @@
 package jrm.fullserver.security;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.time.ZonedDateTime;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import jrm.misc.Log;
 
 /**
- * Class to reload SSL certificate periodically
+ * Class to reload SSL certificate periodically.
  * <p>
  * This class is responsible for periodically reloading the SSL certificate used by the server.<br>
- * It extends TimerTask and uses a Timer to schedule the reload operation to run at midnight every day.<br>
+ * It uses a {@link ScheduledExecutorService} to schedule the reload operation to run at midnight every day.<br>
  * The reload method of the SslContextFactory is called to refresh the SSL context with the new certificate, and any exceptions
  * during the reload process are logged.
  */
-public class SSLReload extends TimerTask {
+public class SSLReload {
     /**
-     * The Timer object used to schedule the SSL reload task.
+     * The ScheduledExecutorService used to schedule the SSL reload task.
      * <p>
-     * The Timer is initialized as a daemon thread (true) to ensure that it does not prevent the JVM from shutting down if the main
+     * The executor is initialized as a daemon thread to ensure that it does not prevent the JVM from shutting down if the main
      * thread finishes execution. It is used to schedule the SSL reload task to run at specific intervals, in this case, at midnight
      * every day.
-     * 
-     * @see Timer
+     *
+     * @see ScheduledExecutorService
      */
-    private Timer timer = new Timer(true);
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        final Thread t = new Thread(r, "SSLReload");
+        t.setDaemon(true);
+        return t;
+    });
     /**
      * The SslContextFactory used to reload the SSL certificate.
      * <p>
      * The SslContextFactory is responsible for managing the SSL context and providing the functionality to reload the SSL
      * certificate when needed. It is passed to the SSLReload class through the constructor and stored as a private field for use in
      * the run method when reloading the certificate.
-     * 
+     *
      * @see SslContextFactory
      */
-    private SslContextFactory sslcontext;
+    private final SslContextFactory sslcontext;
 
     /**
      * Constructs a new SSLReload instance with the specified SslContextFactory.
@@ -77,21 +83,20 @@ public class SSLReload extends TimerTask {
      * <p>
      * This method is responsible for reloading the SSL certificate using the SslContextFactory's reload method. It logs a message
      * if the reload is successful, and logs an error if any exceptions occur during the reload process. After attempting to reload
-     * the SSL certificate, it cancels the current task and schedules the next execution of the task to run at midnight the next day
-     * using the schedule method. This ensures that the SSL certificate is reloaded periodically every day at midnight.
+     * the SSL certificate, it schedules the next execution of the task to run at midnight the next day using the schedule method.
+     * This ensures that the SSL certificate is reloaded periodically every day at midnight.
      * <p>
      * The method uses a try-catch block to handle any exceptions that may occur during the reload process, ensuring that any errors
-     * are properly logged without crashing the application. The use of the cancel and schedule methods allows for continuous
-     * scheduling of the SSL reload task at the desired intervals.
+     * are properly logged without crashing the application. The use of the schedule method allows for continuous scheduling of the
+     * SSL reload task at the desired intervals.
      * <p>
      * Note: The actual implementation of the reload method in the SslContextFactory may vary depending on the specific requirements
      * of the application and how the SSL certificate is managed. It is important to ensure that the reload method properly
      * refreshes the SSL context with the new certificate to maintain secure communication for the server.
-     * 
+     *
      * @see SslContextFactory#reload(java.util.function.Consumer)
      */
-    @Override
-    public void run() {
+    private void run() {
         try {
             /*
              * This tells the SSLContextFactory to reload its certificate
@@ -100,45 +105,45 @@ public class SSLReload extends TimerTask {
         } catch (Exception e) {
             Log.err("Error while reloading SSL certificate", e);
         }
-        cancel();
         schedule();
     }
 
     /**
-     * Helper method to calculate the Date object representing midnight of the next day. This is used to schedule the SSL reload
-     * task to run at midnight every day. It uses the LocalDate and ZoneId classes to determine the correct time for the next
-     * midnight based on the system's default time zone.
+     * Helper method to calculate the delay in milliseconds until midnight of the next day.
      * <p>
-     * The method first gets the current date using LocalDate.now(), then adds one day to it using plusDays(1) to get the date for
-     * tomorrow. It then converts this LocalDate to a Date object representing midnight of the next day by using the atStartOfDay
-     * method to get the start of the day and the system's default time zone to convert it to an Instant, which is then converted to
-     * a Date object. This Date object is returned and used to schedule the SSL reload task to run at the correct time each day.
+     * This method computes the duration from now until the start of the next day (midnight) in the system's default time zone.
+     * It uses the {@link java.time} API to ensure accurate calculations that account for time zone differences and daylight
+     * saving time transitions.
      * <p>
-     * Note: The use of LocalDate and ZoneId ensures that the calculation of the next midnight is accurate and takes into account
-     * any time zone differences, making it suitable for use in applications that may be deployed in different regions or time
-     * zones.
-     * 
-     * @return a Date object representing midnight of the next day.
+     * The method first determines the current time using {@link ZonedDateTime#now(ZoneId)}, then calculates the start of the next
+     * day using {@link LocalDate#now(ZoneId)} with {@link java.time.LocalDate#plusDays(long)} and
+     * {@link java.time.LocalDate#atStartOfDay(ZoneId)}. The duration between these two instants is returned in milliseconds.
+     *
+     * @return the delay in milliseconds until midnight of the next day.
      */
-    private Date getTomorrowMidNight() {
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        return Date.from(tomorrow.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    private long getDelayUntilTomorrowMidNight() {
+        ZoneId zone = ZoneId.systemDefault();
+        ZonedDateTime now = ZonedDateTime.now(zone);
+        ZonedDateTime tomorrowMidnight = LocalDate.now(zone).plusDays(1).atStartOfDay(zone);
+        return Duration.between(now, tomorrowMidnight).toMillis();
     }
 
     /**
-     * Helper method to schedule the SSL reload task to run at midnight the next day. It uses the Timer's schedule method to
-     * schedule the task to execute at the time calculated by the getTomorrowMidNight method.
+     * Helper method to schedule the SSL reload task to run at midnight the next day.
+     * <p>
+     * It uses the {@link ScheduledExecutorService}'s schedule method to schedule the task to execute after the delay calculated by
+     * the {@link #getDelayUntilTomorrowMidNight()} method.
      * <p>
      * This method is called after the SSL reload task is executed to ensure that the next execution of the task is scheduled
      * correctly for the following day. By calling this method after each execution of the run method, it ensures that the SSL
      * reload task continues to run at the desired intervals without requiring manual intervention to reschedule the task each time.
      * This allows for a continuous and automated process of reloading the SSL certificate at midnight every day, ensuring that the
      * server always has the most up-to-date SSL certificate for secure communication.
-     * 
-     * @see Timer#schedule(java.util.TimerTask, java.util.Date)
+     *
+     * @see ScheduledExecutorService#schedule(Runnable, long, TimeUnit)
      */
     private void schedule() {
-        timer.schedule(this, getTomorrowMidNight());
+        scheduler.schedule(this::run, getDelayUntilTomorrowMidNight(), TimeUnit.MILLISECONDS);
     }
 
     /**
