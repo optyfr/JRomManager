@@ -6,5 +6,8 @@
         "projectKey": "optyfr_JRomManager"
     },
     "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m -Xlog:disable",
-    "aether.mcpBridge.http.enabled": false
+    "aether.mcpBridge.http.enabled": false,
+    "chat.tools.terminal.autoApprove": {
+        "New-Item": true
+    }
 }

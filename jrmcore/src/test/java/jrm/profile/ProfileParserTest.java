@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +28,6 @@ import jrm.profile.data.Machine;
 import jrm.profile.data.Rom;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.Session;
-import jrm.security.User;
 
 /**
  * Comprehensive tests for Profile XML parsing logic using real MAME DAT fixtures.
@@ -176,7 +176,8 @@ class ProfileParserTest {
             
             // Find a clone machine (3do_fz1e has cloneof="3do_fz1")
             // Verify machines were parsed successfully
-            assertThat(profile.getMachineListList().get(0).size()).isGreaterThan(5);
+            final List<Machine> actual = profile.getMachineListList().get(0);
+            assertThat(actual).hasSizeGreaterThan(5);
         }
 
         @Test
@@ -281,7 +282,8 @@ class ProfileParserTest {
             
             // 32x.xml uses machine elements, not software elements
             assertThat(profile.getMachineListList()).isNotNull();
-            assertThat(profile.getMachineListList().get(0).size()).isGreaterThan(0);
+            final List<Machine> machineList = profile.getMachineListList().get(0);
+            assertThat(machineList).hasSizeGreaterThan(0);
         }
 
         @Test
