@@ -1,2 +1,4 @@
 *.torrent filter=lfs diff=lfs merge=lfs -text
 *.xml filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs
+*.chd filter=lfs diff=lfs merge=lfs
