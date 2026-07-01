@@ -34,14 +34,27 @@ import jrm.security.Session;
  * 
  * <p>These tests validate the SAX-based XML parser that constructs the object graph from DAT files,
  * including machines, ROMs, disks, software lists, and their relationships.</p>
+ *
+ * @author optyfr
+ * @see Profile
+ * @see ProfileParserSyntheticTest
  */
 @DisplayName("Profile Parser Tests")
 class ProfileParserTest {
 
+    /** Mocked session object providing user context and message bundles. */
     private Session session;
+    /** Mocked progress handler that never cancels and passes through input streams. */
     private ProgressHandler handler;
+    /** Root directory containing real MAME DAT fixture files. */
     private Path datFilesRoot;
 
+    /**
+     * Initializes mocked dependencies and sets the DAT files root directory before each test.
+     *
+     * <p>The session mock returns null for user (no authentication required in tests).
+     * The progress handler mock never cancels and passes input streams through unchanged.</p>
+     */
     @BeforeEach
     void setUp() {
         session = mock(Session.class);
@@ -55,10 +68,17 @@ class ProfileParserTest {
         datFilesRoot = Path.of("src/test/resources/dats");
     }
 
+    /**
+     * Tests verifying that real MAME DAT files (ROMs and Software Lists) can be loaded
+     * successfully and produce non-empty machine and ROM counts.
+     */
     @Nested
     @DisplayName("DAT File Loading")
     class DatFileLoadingTests {
 
+        /**
+         * Verifies that the MAME 0.288 ROMs DAT file is parsed successfully with positive counts.
+         */
         @Test
         @DisplayName("Should parse MAME 0.288 ROMs DAT file successfully")
         void shouldParseMame0288RomsDatFile() {
@@ -73,6 +93,9 @@ class ProfileParserTest {
             assertThat(profile.getRomsCnt()).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that the 32x software list DAT file is parsed successfully with positive counts.
+         */
         @Test
         @DisplayName("Should parse 32x software list DAT file successfully")
         void shouldParse32xSoftwareListDatFile() {
@@ -89,10 +112,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of machine elements including ROMs, checksums, device flags,
+     * BIOS flags, clone relationships, and source file attributes.
+     */
     @Nested
     @DisplayName("Machine Parsing")
     class MachineParsingTests {
 
+        /**
+         * Verifies that a machine with ROMs is parsed correctly and all checksums are valid.
+         */
         @Test
         @DisplayName("Should parse machine with ROMs and validate checksums")
         void shouldParseMachineWithRomsAndValidateChecksums() {
@@ -121,6 +151,9 @@ class ProfileParserTest {
                 });
         }
 
+        /**
+         * Verifies that the ismechanical flag is parsed correctly from a machine element.
+         */
         @Test
         @DisplayName("Should parse machine with ismechanical flag")
         void shouldParseMachineWithIsmechanicalFlag() {
@@ -136,6 +169,9 @@ class ProfileParserTest {
             assertThat(machine.isIsmechanical()).isTrue();
         }
 
+        /**
+         * Verifies that a device machine is parsed correctly with the isdevice flag set.
+         */
         @Test
         @DisplayName("Should parse device machine")
         void shouldParseDeviceMachine() {
@@ -151,6 +187,9 @@ class ProfileParserTest {
             assertThat(machine.isIsdevice()).isTrue();
         }
 
+        /**
+         * Verifies that a BIOS machine is parsed correctly with the bios flag set.
+         */
         @Test
         @DisplayName("Should parse BIOS machine")
         void shouldParseBiosMachine() {
@@ -166,6 +205,9 @@ class ProfileParserTest {
             assertThat(machine.isBios()).isTrue();
         }
 
+        /**
+         * Verifies that machines with cloneof relationships are parsed successfully.
+         */
         @Test
         @DisplayName("Should parse machine with cloneof relationship")
         void shouldParseMachineWithCloneofRelationship() {
@@ -180,6 +222,9 @@ class ProfileParserTest {
             assertThat(actual).hasSizeGreaterThan(5);
         }
 
+        /**
+         * Verifies that machines with romof attributes are parsed without errors.
+         */
         @Test
         @DisplayName("Should parse machine with romof attribute")
         void shouldParseMachineWithRomofAttribute() {
@@ -193,6 +238,9 @@ class ProfileParserTest {
             assertThat(profile.getMachinesCnt()).isGreaterThan(10);
         }
 
+        /**
+         * Verifies that the sourcefile attribute is parsed correctly from a machine element.
+         */
         @Test
         @DisplayName("Should parse machine with sourcefile attribute")
         void shouldParseMachineWithSourcefileAttribute() {
@@ -208,10 +256,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of ROM elements including CRC checksums, SHA1 detection,
+     * ROM counting, and merge attributes.
+     */
     @Nested
     @DisplayName("ROM Parsing")
     class RomParsingTests {
 
+        /**
+         * Verifies that a ROM element with CRC and SHA1 checksums is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with CRC checksum")
         void shouldParseRomWithCrcChecksum() {
@@ -234,6 +289,9 @@ class ProfileParserTest {
             assertThat(rom.getSha1()).isEqualTo("ad2fe6011551935907568cc3b4028f481034537c");
         }
 
+        /**
+         * Verifies that SHA1 presence is detected across all parsed ROMs.
+         */
         @Test
         @DisplayName("Should detect SHA1 presence in ROMs")
         void shouldDetectSha1PresenceInRoms() {
@@ -244,6 +302,9 @@ class ProfileParserTest {
             assertThat(profile.isSha1Roms()).isTrue();
         }
 
+        /**
+         * Verifies that the total ROM count is tracked correctly after parsing.
+         */
         @Test
         @DisplayName("Should count ROMs correctly")
         void shouldCountRomsCorrectly() {
@@ -254,6 +315,9 @@ class ProfileParserTest {
             assertThat(profile.getRomsCnt()).isGreaterThan(100);
         }
 
+        /**
+         * Verifies that ROMs with merge attributes are parsed successfully.
+         */
         @Test
         @DisplayName("Should parse ROM with merge attribute")
         void shouldParseRomWithMergeAttribute() {
@@ -268,10 +332,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of software list DAT files, including machine and ROM
+     * extraction from software list XML structures.
+     */
     @Nested
     @DisplayName("Software List Parsing")
     class SoftwareListParsingTests {
 
+        /**
+         * Verifies that software list DAT files are parsed as machines correctly.
+         */
         @Test
         @DisplayName("Should parse software list DAT as machines")
         void shouldParseSoftwareListAsMachines() {
@@ -286,6 +357,9 @@ class ProfileParserTest {
             assertThat(machineList).hasSizeGreaterThan(0);
         }
 
+        /**
+         * Verifies that machines are extracted from software list DAT files.
+         */
         @Test
         @DisplayName("Should parse machines from software list DAT")
         void shouldParseMachinesFromSoftwareListDat() {
@@ -296,6 +370,9 @@ class ProfileParserTest {
             assertThat(profile.getMachinesCnt()).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that ROMs are extracted from software list DAT files.
+         */
         @Test
         @DisplayName("Should parse ROMs from software list DAT")
         void shouldParseRomsFromSoftwareListDat() {
@@ -306,6 +383,9 @@ class ProfileParserTest {
             assertThat(profile.getRomsCnt()).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that machines with year attributes are parsed from software list DAT files.
+         */
         @Test
         @DisplayName("Should parse machines with year from software list DAT")
         void shouldParseMachinesWithYearFromSoftwareListDat() {
@@ -324,10 +404,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of DAT file header elements including name, description,
+     * version, and build attributes.
+     */
     @Nested
     @DisplayName("Header Parsing")
     class HeaderParsingTests {
 
+        /**
+         * Verifies that DAT file header elements (name, description, version) are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse DAT file header elements")
         void shouldParseDatFileHeaderElements() {
@@ -341,6 +428,9 @@ class ProfileParserTest {
             assertThat(profile.getHeader()).containsKey("version");
         }
 
+        /**
+         * Verifies that the build attribute is parsed correctly from the datafile element.
+         */
         @Test
         @DisplayName("Should parse build attribute from datafile element")
         void shouldParseBuildAttributeFromDatafileElement() {
@@ -352,10 +442,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying that machine, disk, ROM, and software list counters are tracked
+     * correctly during DAT file parsing.
+     */
     @Nested
     @DisplayName("Counter Tracking")
     class CounterTrackingTests {
 
+        /**
+         * Verifies that machine count is tracked correctly during parsing.
+         */
         @Test
         @DisplayName("Should track machine count correctly")
         void shouldTrackMachineCountCorrectly() {
@@ -366,6 +463,9 @@ class ProfileParserTest {
             assertThat(profile.getMachinesCnt()).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that disk count is tracked during parsing.
+         */
         @Test
         @DisplayName("Should track disk count")
         void shouldTrackDiskCount() {
@@ -377,6 +477,9 @@ class ProfileParserTest {
             assertThat(profile.getDisksCnt()).isGreaterThanOrEqualTo(0);
         }
 
+        /**
+         * Verifies that machine count is tracked correctly from software list DAT files.
+         */
         @Test
         @DisplayName("Should track machine count from software list DAT")
         void shouldTrackMachineCountFromSoftwareListDat() {
@@ -387,6 +490,9 @@ class ProfileParserTest {
             assertThat(profile.getMachinesCnt()).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that ROM count is tracked correctly from software list DAT files.
+         */
         @Test
         @DisplayName("Should track ROM count from software list DAT")
         void shouldTrackRomCountFromSoftwareListDat() {
@@ -398,10 +504,17 @@ class ProfileParserTest {
         }
     }
 
+    /**
+     * Tests verifying parser behavior with edge cases including empty files, large files,
+     * and suspicious CRC detection.
+     */
     @Nested
     @DisplayName("Edge Cases")
     class EdgeCaseTests {
 
+        /**
+         * Verifies that empty or minimal DAT files are handled gracefully without exceptions.
+         */
         @Test
         @DisplayName("Should handle empty or minimal DAT file gracefully")
         void shouldHandleEmptyOrMinimalDatFileGracefully() {
@@ -413,6 +526,9 @@ class ProfileParserTest {
                 .doesNotThrowAnyException();
         }
 
+        /**
+         * Verifies that large DAT files are parsed efficiently within a reasonable time limit.
+         */
         @Test
         @DisplayName("Should handle large DAT files efficiently")
         void shouldHandleLargeDatFilesEfficiently() {
@@ -427,6 +543,9 @@ class ProfileParserTest {
             assertThat(endTime - startTime).isLessThan(30000);
         }
 
+        /**
+         * Verifies that suspicious CRC values are detected and tracked.
+         */
         @Test
         @DisplayName("Should detect suspicious CRC values")
         void shouldDetectSuspiciousCrcValues() {
@@ -440,9 +559,12 @@ class ProfileParserTest {
     }
 
     /**
-     * Helper method to load a Profile from a DAT file with mocked dependencies.
-     * Uses reflection to call internalLoad directly, bypassing cache and post-processing.
-     * 
+     * Loads a Profile from a DAT file using mocked dependencies and reflection.
+     *
+     * <p>This helper method creates a Profile instance via its private constructor,
+     * injects mocked session and ProfileNFO objects using reflection, and invokes
+     * the {@code internalLoad} method directly to bypass caching and post-processing.</p>
+     *
      * @param datFile the DAT file to parse
      * @return the loaded Profile, or null if loading failed
      */

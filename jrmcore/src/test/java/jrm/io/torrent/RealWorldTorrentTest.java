@@ -15,20 +15,26 @@ import org.junit.jupiter.api.Test;
  * These tests validate parsing of actual production torrent files with diverse
  * configurations (different piece sizes, creators, trackers, and file sizes).
  *
- * Tested torrents:
- * - Ubuntu 24.04.3 Desktop ISO (Ubuntu official, 256KB pieces, mktorrent)
- * - Ubuntu 24.04.3 Live Server ISO (Ubuntu official, 256KB pieces, mktorrent)
- * - Debian 12.12.0 Live Standard ISO (Debian official, 256KB pieces, mktorrent)
- * - Kubuntu 24.04.3 Desktop ISO (Ubuntu flavor, 256KB pieces, mktorrent)
- * - Lubuntu 24.04.3 Desktop ISO (Ubuntu flavor, 256KB pieces, mktorrent)
- * - openSUSE Leap 15.6 DVD ISO (openSUSE official, 4MB pieces, MirrorCache)
- * - Arch Linux 2026.04/05/06 (Arch Linux official, 512KB pieces, mktorrent, no announce)
- * - Linux Mint 22/22.1/22.2/22.3 Cinnamon (Linux Mint official, 2MB pieces, Transmission)
- * - Raspberry Pi OS arm64 (Raspberry Pi official, 1MB pieces, Transmission)
- * - Large multi-file test torrent (1,000,000 files, 11GB total, synthetic stress test)
+ * <p>Tested torrents:</p>
+ * <ul>
+ *   <li>Ubuntu 24.04.3 Desktop ISO (Ubuntu official, 256KB pieces, mktorrent)</li>
+ *   <li>Ubuntu 24.04.3 Live Server ISO (Ubuntu official, 256KB pieces, mktorrent)</li>
+ *   <li>Debian 12.12.0 Live Standard ISO (Debian official, 256KB pieces, mktorrent)</li>
+ *   <li>Kubuntu 24.04.3 Desktop ISO (Ubuntu flavor, 256KB pieces, mktorrent)</li>
+ *   <li>Lubuntu 24.04.3 Desktop ISO (Ubuntu flavor, 256KB pieces, mktorrent)</li>
+ *   <li>openSUSE Leap 15.6 DVD ISO (openSUSE official, 4MB pieces, MirrorCache)</li>
+ *   <li>Arch Linux 2026.04/05/06 (Arch Linux official, 512KB pieces, mktorrent, no announce)</li>
+ *   <li>Linux Mint 22/22.1/22.2/22.3 Cinnamon (Linux Mint official, 2MB pieces, Transmission)</li>
+ *   <li>Raspberry Pi OS arm64 (Raspberry Pi official, 1MB pieces, Transmission)</li>
+ * </ul>
+ *
+ * @author optyfr
+ * @see TorrentParser
+ * @see TorrentParserTest
  */
 class RealWorldTorrentTest {
 
+    /** Base path to the directory containing real-world torrent fixture files. */
     private static final String TORRENTS_DIR = "src/test/resources/torrents/";
 
     /** All available torrent filenames for parametrized-style tests. */
@@ -49,6 +55,10 @@ class RealWorldTorrentTest {
         "raspios-arm64-latest.torrent"
     };
 
+    /**
+     * Verifies that all required torrent fixture files exist before running tests.
+     * This ensures that test failures are due to parsing issues, not missing files.
+     */
     @BeforeAll
     static void verifyTorrentFilesExist() {
         for (String filename : ALL_TORRENTS) {
@@ -59,6 +69,14 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Loads and parses a torrent file from the fixtures directory.
+     *
+     * @param filename the torrent filename (relative to {@link #TORRENTS_DIR})
+     * @return the parsed {@link Torrent} object
+     * @throws TorrentException if torrent parsing fails
+     * @throws IOException      if the file cannot be read
+     */
     private Torrent loadTorrent(String filename) throws TorrentException, IOException {
         File file = new File(TORRENTS_DIR + filename);
         return TorrentParser.parseTorrent(file);
@@ -68,10 +86,21 @@ class RealWorldTorrentTest {
     // Individual torrent tests
     // ========================================================================
 
+    /**
+     * Tests for Ubuntu 24.04.3 Desktop ISO torrent, verifying all metadata fields
+     * including announce URLs, announce-list with IPv6 tracker, piece count, and info hash.
+     */
     @Nested
     @DisplayName("Ubuntu Desktop 24.04.3")
     class UbuntuDesktopTests {
 
+        /**
+         * Verifies that Ubuntu Desktop 24.04.3 torrent metadata is parsed correctly, including
+         * announce URLs, announce-list with IPv6 tracker, piece count, and info hash.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -98,10 +127,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Ubuntu 24.04.3 Live Server ISO torrent, verifying server-specific
+     * metadata and smaller file size compared to Desktop ISO.
+     */
     @Nested
     @DisplayName("Ubuntu Server 24.04.3")
     class UbuntuServerTests {
 
+        /**
+         * Verifies that Ubuntu Server 24.04.3 torrent metadata is parsed correctly, including
+         * server-specific metadata and smaller file size compared to Desktop ISO.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -128,10 +168,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Debian 12.12.0 Live Standard ISO torrent, verifying Debian-specific
+     * tracker configuration and absence of announce-list.
+     */
     @Nested
     @DisplayName("Debian 12.12.0 Live Standard")
     class DebianStandardTests {
 
+        /**
+         * Verifies that Debian 12.12.0 Live Standard torrent metadata is parsed correctly, including
+         * Debian-specific tracker configuration and absence of announce-list.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -155,10 +206,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Kubuntu 24.04.3 Desktop ISO torrent, verifying Ubuntu flavor-specific
+     * metadata and absence of announce-list (unlike main Ubuntu).
+     */
     @Nested
     @DisplayName("Kubuntu 24.04.3 Desktop")
     class KubuntuTests {
 
+        /**
+         * Verifies that Kubuntu 24.04.3 torrent metadata is parsed correctly, including
+         * Ubuntu flavor-specific metadata and absence of announce-list.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -182,10 +244,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Lubuntu 24.04.3 Desktop ISO torrent, verifying another Ubuntu flavor
+     * with lightweight desktop environment.
+     */
     @Nested
     @DisplayName("Lubuntu 24.04.3 Desktop")
     class LubuntuTests {
 
+        /**
+         * Verifies that Lubuntu 24.04.3 torrent metadata is parsed correctly, including
+         * another Ubuntu flavor with lightweight desktop environment.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -209,10 +282,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for openSUSE Leap 15.6 DVD ISO torrent, verifying use of large 4MB pieces
+     * (unlike most distros using 256KB-2MB) and MirrorCache creator.
+     */
     @Nested
     @DisplayName("openSUSE Leap 15.6 DVD")
     class OpenSUSETests {
 
+        /**
+         * Verifies that openSUSE Leap 15.6 torrent metadata is parsed correctly, including
+         * large 4MB pieces and MirrorCache creator.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -236,6 +320,12 @@ class RealWorldTorrentTest {
             assertThat(torrent.getAnnounceList()).containsExactly("http://tracker.opensuse.org:6969/announce");
         }
 
+        /**
+         * Verifies that openSUSE Leap 15.6 uses 4MB piece size, which is larger than most other distributions.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should use 4MB piece size (different from other distros)")
         void usesLargePieceSize() throws TorrentException, IOException {
@@ -244,6 +334,12 @@ class RealWorldTorrentTest {
             assertThat(torrent.getPieceLength()).isGreaterThan(1048576L); // larger than 1 MB
         }
 
+        /**
+         * Verifies that openSUSE Leap 15.6 has a comment equal to the filename.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should have comment equal to the filename")
         void commentMatchesName() throws TorrentException, IOException {
@@ -252,10 +348,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Arch Linux 2026.06 ISO torrent, verifying Arch-specific characteristics
+     * including null announce URL (webseed-only distribution) and 512KB pieces.
+     */
     @Nested
     @DisplayName("Arch Linux 2026.06")
     class ArchLinux202606Tests {
 
+        /**
+         * Verifies that Arch Linux 2026.06 torrent metadata is parsed correctly, including
+         * null announce URL (webseed-only) and 512KB pieces.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -278,10 +385,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Arch Linux 2026.05 ISO torrent, verifying monthly release metadata
+     * and consistency with other Arch releases.
+     */
     @Nested
     @DisplayName("Arch Linux 2026.05")
     class ArchLinux202605Tests {
 
+        /**
+         * Verifies that Arch Linux 2026.05 torrent metadata is parsed correctly, including
+         * monthly release metadata and consistency with other Arch releases.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -304,10 +422,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Arch Linux 2026.04 ISO torrent, verifying earlier monthly release
+     * metadata and piece count differences.
+     */
     @Nested
     @DisplayName("Arch Linux 2026.04")
     class ArchLinux202604Tests {
 
+        /**
+         * Verifies that Arch Linux 2026.04 torrent metadata is parsed correctly, including
+         * earlier monthly release metadata and piece count differences.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -330,10 +459,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Linux Mint 22.3 Cinnamon ISO torrent, verifying Transmission-created
+     * torrents with 2MB pieces and opentrackr tracker.
+     */
     @Nested
     @DisplayName("Linux Mint 22.3 Cinnamon")
     class LinuxMint223Tests {
 
+        /**
+         * Verifies that Linux Mint 22.3 Cinnamon torrent metadata is parsed correctly, including
+         * Transmission-created format with 2MB pieces and opentrackr tracker.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -356,10 +496,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Linux Mint 22.2 Cinnamon ISO torrent, verifying point release
+     * metadata and file size progression.
+     */
     @Nested
     @DisplayName("Linux Mint 22.2 Cinnamon")
     class LinuxMint222Tests {
 
+        /**
+         * Verifies that Linux Mint 22.2 Cinnamon torrent metadata is parsed correctly, including
+         * point release metadata and file size progression.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -382,10 +533,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Linux Mint 22.1 Cinnamon ISO torrent, verifying earlier point release
+     * metadata and smaller file size.
+     */
     @Nested
     @DisplayName("Linux Mint 22.1 Cinnamon")
     class LinuxMint221Tests {
 
+        /**
+         * Verifies that Linux Mint 22.1 Cinnamon torrent metadata is parsed correctly, including
+         * earlier point release metadata and smaller file size.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -408,10 +570,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Linux Mint 22 Cinnamon ISO torrent (initial major release),
+     * verifying base release metadata and smallest file size in the 22.x series.
+     */
     @Nested
     @DisplayName("Linux Mint 22 Cinnamon")
     class LinuxMint22Tests {
 
+        /**
+         * Verifies that Linux Mint 22 Cinnamon torrent metadata is parsed correctly, including
+         * base release metadata and smallest file size in the 22.x series.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -434,10 +607,21 @@ class RealWorldTorrentTest {
         }
     }
 
+    /**
+     * Tests for Raspberry Pi OS arm64 torrent, verifying unique characteristics including
+     * compressed .img.xz file format (not ISO), 1MB pieces, null comment, and Transmission creator.
+     */
     @Nested
     @DisplayName("Raspberry Pi OS arm64")
     class RaspberryPiOSTests {
 
+        /**
+         * Verifies that Raspberry Pi OS arm64 torrent metadata is parsed correctly, including
+         * compressed .img.xz file format, 1MB pieces, null comment, and Transmission creator.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should parse all metadata correctly")
         void parseAllMetadata() throws TorrentException, IOException {
@@ -460,6 +644,12 @@ class RealWorldTorrentTest {
             assertThat(torrent.getAnnounceList()).isEmpty();
         }
 
+        /**
+         * Verifies that Raspberry Pi OS torrent has null comment, unlike most other distros.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should have null comment (unlike other distros)")
         void hasNoComment() throws TorrentException, IOException {
@@ -467,6 +657,12 @@ class RealWorldTorrentTest {
             assertThat(torrent.getComment()).isNull();
         }
 
+        /**
+         * Verifies that Raspberry Pi OS torrent was created by Transmission, not mktorrent.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should be created by Transmission (different from mktorrent)")
         void createdByTransmission() throws TorrentException, IOException {
@@ -474,6 +670,12 @@ class RealWorldTorrentTest {
             assertThat(torrent.getCreatedBy()).startsWith("Transmission/");
         }
 
+        /**
+         * Verifies that Raspberry Pi OS torrent contains a compressed .img.xz file rather than an ISO.
+         *
+         * @throws TorrentException if torrent parsing fails
+         * @throws IOException      if the file cannot be read
+         */
         @Test
         @DisplayName("Should have a compressed image file (not an ISO)")
         void compressedImageFile() throws TorrentException, IOException {
@@ -486,10 +688,20 @@ class RealWorldTorrentTest {
     // Cross-torrent validation tests
     // ========================================================================
 
+    /**
+     * Cross-validation tests that verify consistency and correctness across all torrent
+     * fixtures, ensuring info hashes, piece counts, sizes, and metadata are valid for all files.
+     */
     @Nested
     @DisplayName("Cross-torrent validation")
     class CrossTorrentTests {
 
+        /**
+         * Verifies that all torrent fixtures have valid info hashes (40-character lowercase hex strings).
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have valid 40-char hex info hashes")
         void allTorrentsHaveValidInfoHashes() throws TorrentException, IOException {
@@ -503,6 +715,13 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrents have piece counts consistent with the formula
+         * {@code ceil(totalSize / pieceLength)}, and that all piece hashes are 40 hex characters.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have consistent piece counts matching totalSize/pieceLength")
         void allTorrentsHaveConsistentPieceCounts() throws TorrentException, IOException {
@@ -521,6 +740,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have non-null, non-empty name fields.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have non-null names")
         void allTorrentsHaveNames() throws TorrentException, IOException {
@@ -533,6 +758,13 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrents with trackers have non-null, non-empty announce URLs.
+         * Torrents without trackers (e.g., Arch Linux with webseeds only) may have null announce.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents with a tracker should have non-null announce URLs")
         void allTorrentsHaveAnnounce() throws TorrentException, IOException {
@@ -546,6 +778,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have non-null creation date fields.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have non-null creation dates")
         void allTorrentsHaveCreationDates() throws TorrentException, IOException {
@@ -557,6 +795,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have positive total size values.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have positive total sizes")
         void allTorrentsHavePositiveSizes() throws TorrentException, IOException {
@@ -568,6 +812,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have positive piece length values.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have positive piece lengths")
         void allTorrentsHavePositivePieceLengths() throws TorrentException, IOException {
@@ -579,6 +829,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have non-null, non-empty piece hash lists.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have non-null piece hash lists")
         void allTorrentsHavePieceLists() throws TorrentException, IOException {
@@ -591,6 +847,13 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all torrent fixtures have non-null announce lists (which may be empty
+         * for torrents without announce-list fields).
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All torrents should have non-null announce list (possibly empty)")
         void allTorrentsHaveAnnounceList() throws TorrentException, IOException {
@@ -602,6 +865,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all ISO distribution torrents are correctly identified as single-file torrents.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All real-world ISO torrents should be single-file torrents")
         void allIsoTorrentsAreSingleFile() throws TorrentException, IOException {
@@ -622,6 +891,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that all piece hashes across all torrents are exactly 40 hex characters (SHA-1).
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("All piece hashes should be exactly 40 hex characters")
         void allPieceHashesAreValidFormat() throws TorrentException, IOException {
@@ -629,6 +904,7 @@ class RealWorldTorrentTest {
                 Torrent torrent = loadTorrent(filename);
                 assertThat(torrent.getPieces())
                     .as("Piece hashes format for " + filename)
+                    .isNotEmpty()
                     .allSatisfy(hash -> {
                         assertThat(hash).hasSize(40);
                         assertThat(hash).matches("[0-9a-fA-F]+");
@@ -636,6 +912,12 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that info hashes are unique across all torrent fixtures, ensuring no duplicates.
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("Info hashes should be unique across all torrents")
         void infoHashesAreUnique() throws TorrentException, IOException {
@@ -648,14 +930,21 @@ class RealWorldTorrentTest {
             }
         }
 
+        /**
+         * Verifies that the raw pieces blob size matches the expected size
+         * ({@code piecesList.size() * 20} bytes, since each SHA-1 hash is 20 bytes).
+         *
+         * @throws TorrentException if any torrent parsing fails
+         * @throws IOException      if any file cannot be read
+         */
         @Test
         @DisplayName("Pieces blob size should match pieces list count * 20")
         void piecesBlobMatchesPiecesList() throws TorrentException, IOException {
             for (String filename : ALL_TORRENTS) {
                 Torrent torrent = loadTorrent(filename);
-                assertThat(torrent.getPiecesBlob().length)
+                assertThat(torrent.getPiecesBlob())
                     .as("Pieces blob size for " + filename)
-                    .isEqualTo(torrent.getPieces().size() * 20);
+                    .hasSize(torrent.getPieces().size() * 20);
             }
         }
     }
@@ -755,7 +1044,7 @@ class RealWorldTorrentTest {
                 long pieceLength = torrent.getPieceLength();
                 assertThat(pieceLength & (pieceLength - 1))
                     .as("Piece length should be power of 2 for " + filename)
-                    .isEqualTo(0);
+                    .isZero();
             }
         }
     }
@@ -808,6 +1097,7 @@ class RealWorldTorrentTest {
                 Torrent torrent = loadTorrent(filename);
                 assertThat(torrent.getAnnounceList())
                     .as("Announce list entries for " + filename)
+                    .isNotEmpty()
                     .allMatch(url -> url.matches("https?://.*"));
             }
         }
@@ -950,8 +1240,7 @@ class RealWorldTorrentTest {
                 .sorted()
                 .toArray();
 
-            assertThat(fileSizes).hasSize(3);
-            assertThat(fileSizes).containsExactly(512L, 10240L, 1048576L);
+            assertThat(fileSizes).hasSize(3).containsExactly(512L, 10240L, 1048576L);
         }
 
         @Test
@@ -973,8 +1262,7 @@ class RealWorldTorrentTest {
                 .distinct()
                 .toList();
 
-            assertThat(extensions).hasSize(8);
-            assertThat(extensions).contains(".txt", ".dat", ".bin", ".log", ".csv", ".json", ".xml", ".html");
+            assertThat(extensions).hasSize(8).contains(".txt", ".dat", ".bin", ".log", ".csv", ".json", ".xml", ".html");
         }
 
         @Test
@@ -985,8 +1273,7 @@ class RealWorldTorrentTest {
                 .distinct()
                 .toList();
 
-            assertThat(categories).hasSize(8);
-            assertThat(categories).contains("documents", "images", "videos", "audio", "archives", "source", "data", "config");
+            assertThat(categories).hasSize(8).contains("documents", "images", "videos", "audio", "archives", "source", "data", "config");
         }
 
         @Test

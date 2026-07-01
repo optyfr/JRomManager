@@ -18,11 +18,30 @@ import jrm.io.torrent.bencoding.types.BDictionary;
 import jrm.io.torrent.bencoding.types.BInt;
 import jrm.io.torrent.bencoding.types.BList;
 
+/**
+ * Unit tests for {@link TorrentParser} covering bencoded data parsing, single-file and
+ * multi-file torrent handling, optional field extraction, and file-based loading.
+ *
+ * <p>Tests construct synthetic bencoded dictionaries programmatically using the
+ * {@link BDictionary}, {@link BByteString}, {@link BInt}, and {@link BList} types,
+ * then verify that the parser correctly extracts all torrent metadata including
+ * name, piece length, total size, announce URLs, info hash, and piece hashes.</p>
+ *
+ * @author optyfr
+ * @see TorrentParser
+ * @see Torrent
+ * @see RealWorldTorrentTest
+ */
 class TorrentParserTest {
 
+    /** Temporary directory for test torrent files created during tests. */
     @TempDir
     Path tempDir;
 
+    /**
+     * Verifies that {@link TorrentParser#parseTorrent(byte[])} throws a {@link TorrentException}
+     * when given data that is not valid bencoded content.
+     */
     @Test
     @DisplayName("Should throw TorrentException when bencoded data is invalid")
     void parseTorrent_InvalidBencoding_ThrowsException() {
@@ -32,6 +51,10 @@ class TorrentParserTest {
             .isInstanceOf(TorrentException.class);
     }
 
+    /**
+     * Verifies that {@link TorrentParser#parseTorrent(byte[])} throws a {@link TorrentException}
+     * with an appropriate message when the bencoded dictionary lacks the required {@code info} key.
+     */
     @Test
     @DisplayName("Should throw TorrentException when info dictionary is missing")
     void parseTorrent_MissingInfoKey_ThrowsException() {
@@ -47,6 +70,12 @@ class TorrentParserTest {
             .hasMessageContaining("Torrent has no info dictionary");
     }
 
+    /**
+     * Verifies that a valid single-file torrent is parsed correctly, including name,
+     * piece length, total size, announce URL, single-file flag, and info hash.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse a valid single file torrent successfully")
     void parseTorrent_ValidSingleFile_ParsesCorrectly() throws TorrentException {
@@ -72,6 +101,12 @@ class TorrentParserTest {
         assertThat(result.getInfoHash()).isNotNull();
     }
 
+    /**
+     * Verifies that a valid multi-file torrent is parsed correctly, including the
+     * multi-file flag and aggregate total size across all files.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse a valid multi-file torrent successfully")
     void parseTorrent_ValidMultiFile_ParsesCorrectly() throws TorrentException {
@@ -108,6 +143,13 @@ class TorrentParserTest {
         assertThat(result.getTotalSize()).isEqualTo(1200);
     }
 
+    /**
+     * Verifies that optional torrent fields ({@code comment} and {@code created by})
+     * are correctly extracted when present in the bencoded data.
+     *
+     * @param fieldName the optional field name to test (either "comment" or "created by")
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @ParameterizedTest
     @ValueSource(strings = {"comment", "created by"})
     @DisplayName("Should parse optional fields when present")
@@ -132,6 +174,13 @@ class TorrentParserTest {
         }
     }
 
+    /**
+     * Verifies that {@link TorrentParser#parseTorrent(String)} correctly loads and parses
+     * a torrent file given its filesystem path as a string.
+     *
+     * @throws IOException      if the temporary file cannot be written
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse torrent from file path")
     void parseTorrent_FromFilePath_ParsesCorrectly() throws IOException, TorrentException {
@@ -151,6 +200,13 @@ class TorrentParserTest {
         assertThat(result.getName()).isEqualTo("file-test");
     }
 
+    /**
+     * Verifies that {@link TorrentParser#parseTorrent(File)} correctly loads and parses
+     * a torrent file given a {@link File} object, including piece count validation.
+     *
+     * @throws IOException      if the temporary file cannot be written
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse torrent from File object")
     void parseTorrent_FromFileObject_ParsesCorrectly() throws IOException, TorrentException {
@@ -172,6 +228,12 @@ class TorrentParserTest {
         assertThat(result.getPieces()).hasSize(2);
     }
 
+    /**
+     * Verifies that a torrent with multiple pieces correctly parses all piece hashes,
+     * ensuring each hash is 40 hex characters (SHA-1).
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse multiple pieces correctly")
     void parseTorrent_MultiplePieces_ParsesCorrectly() throws TorrentException {
@@ -196,6 +258,12 @@ class TorrentParserTest {
         assertThat(result.getPieces()).allMatch(hash -> hash.length() == 40); // Each hash is 40 hex chars
     }
 
+    /**
+     * Verifies that the {@code creation date} field is correctly parsed and converted
+     * to a {@link java.util.Date} with the proper Unix timestamp (seconds to milliseconds).
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse creation date correctly")
     void parseTorrent_CreationDate_ParsesCorrectly() throws TorrentException {
@@ -216,6 +284,12 @@ class TorrentParserTest {
         assertThat(result.getCreationDate().getTime()).isEqualTo(creationTimestamp * 1000);
     }
 
+    /**
+     * Verifies that the {@code announce-list} field with multiple tiers is correctly
+     * flattened into a single list of tracker URLs.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse announce list correctly")
     void parseTorrent_AnnounceList_ParsesCorrectly() throws TorrentException {
@@ -252,6 +326,12 @@ class TorrentParserTest {
         );
     }
 
+    /**
+     * Verifies that an empty {@code announce-list} is parsed without errors and returns
+     * an empty list.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should handle empty announce list")
     void parseTorrent_EmptyAnnounceList_ReturnsEmptyList() throws TorrentException {
@@ -271,6 +351,12 @@ class TorrentParserTest {
         assertThat(result.getAnnounceList()).isEmpty();
     }
 
+    /**
+     * Verifies that multi-file torrents with nested directory paths (e.g., {@code subfolder/file1.txt}
+     * and {@code a/b/c/file2.txt}) are correctly parsed, preserving the full path hierarchy.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse multi-file torrent with nested paths")
     void parseTorrent_MultiFileWithNestedPaths_ParsesCorrectly() throws TorrentException {
@@ -317,6 +403,12 @@ class TorrentParserTest {
         assertThat(result.getFileList().get(1).getFileDirs()).containsExactly("a", "b", "c", "file2.txt");
     }
 
+    /**
+     * Verifies that the info hash is correctly computed as a SHA-1 digest of the
+     * bencoded {@code info} dictionary, producing a 40-character lowercase hex string.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should calculate correct info hash")
     void parseTorrent_InfoHash_CalculatesCorrectly() throws TorrentException {
@@ -335,6 +427,12 @@ class TorrentParserTest {
         assertThat(result.getInfoHash()).matches("[0-9a-f]+"); // Should be lowercase hex
     }
 
+    /**
+     * Verifies that very large file sizes (10 GB) and large piece lengths (4 MB)
+     * are correctly parsed without integer overflow or truncation.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse large file sizes correctly")
     void parseTorrent_LargeFileSizes_ParsesCorrectly() throws TorrentException {
@@ -356,6 +454,12 @@ class TorrentParserTest {
         assertThat(result.getPieceLength()).isEqualTo(pieceLength);
     }
 
+    /**
+     * Verifies that a multi-file torrent with 10 files of varying sizes is correctly
+     * parsed, including file list size and aggregate total size.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse multi-file torrent with many files")
     void parseTorrent_ManyFiles_ParsesCorrectly() throws TorrentException {
@@ -390,6 +494,12 @@ class TorrentParserTest {
         assertThat(result.isSingleFileTorrent()).isFalse();
     }
 
+    /**
+     * Verifies that a torrent containing all optional fields ({@code announce}, {@code comment},
+     * {@code created by}, {@code creation date}) is fully parsed with no missing values.
+     *
+     * @throws TorrentException if torrent parsing fails unexpectedly
+     */
     @Test
     @DisplayName("Should parse torrent with all optional fields")
     void parseTorrent_AllOptionalFields_ParsesCorrectly() throws TorrentException {

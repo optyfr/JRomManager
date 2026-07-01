@@ -38,15 +38,28 @@ import jrm.security.Session;
  * 
  * <p>These tests validate parser paths not covered by real MAME DAT fixtures, including
  * disk elements, slot configurations, sample definitions, and various ROM attributes.</p>
+ *
+ * @author optyfr
+ * @see Profile
+ * @see ProfileParserTest
  */
 @DisplayName("Profile Parser Synthetic Tests")
 class ProfileParserSyntheticTest {
 
+    /** Mocked session object providing user context and message bundles. */
     private Session session;
+    /** Mocked progress handler that never cancels and passes through input streams. */
     private ProgressHandler handler;
+    /** Temporary directory for synthetic XML test files, automatically cleaned up after each test. */
     @TempDir
     Path tempDir;
 
+    /**
+     * Initializes mocked dependencies before each test.
+     *
+     * <p>The session mock returns null for user (no authentication required in tests).
+     * The progress handler mock never cancels and passes input streams through unchanged.</p>
+     */
     @BeforeEach
     void setUp() {
         session = mock(Session.class);
@@ -58,10 +71,17 @@ class ProfileParserSyntheticTest {
             .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
+    /**
+     * Tests verifying parsing of disk elements including SHA1 and MD5 checksums,
+     * optional and writeable flags, merge attributes, index attributes, and filename preservation.
+     */
     @Nested
     @DisplayName("Disk Parsing")
     class DiskParsingTests {
 
+        /**
+         * Verifies that a disk element with a SHA1 checksum is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with SHA1 checksum")
         void shouldParseDiskWithSha1Checksum() throws IOException {
@@ -98,6 +118,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.getSha1()).isEqualTo("0123456789abcdef0123456789abcdef01234567");
         }
 
+        /**
+         * Verifies that a disk element with an MD5 checksum is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with MD5 checksum")
         void shouldParseDiskWithMd5Checksum() throws IOException {
@@ -126,6 +149,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.getMd5()).isEqualTo("0123456789abcdef0123456789abcdef");
         }
 
+        /**
+         * Verifies that a disk element with the optional flag set is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with optional flag")
         void shouldParseDiskWithOptionalFlag() throws IOException {
@@ -150,6 +176,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.isOptional()).isTrue();
         }
 
+        /**
+         * Verifies that a disk element with the writeable flag set is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with writeable flag")
         void shouldParseDiskWithWriteableFlag() throws IOException {
@@ -174,6 +203,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.isWriteable()).isTrue();
         }
 
+        /**
+         * Verifies that a disk element with a merge attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with merge attribute")
         void shouldParseDiskWithMergeAttribute() throws IOException {
@@ -198,6 +230,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.getMerge()).isEqualTo("parent_disk");
         }
 
+        /**
+         * Verifies that a disk element with an index attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse disk with index attribute")
         void shouldParseDiskWithIndexAttribute() throws IOException {
@@ -222,6 +257,9 @@ class ProfileParserSyntheticTest {
             assertThat(disk.getIndex()).isEqualTo(1);
         }
 
+        /**
+         * Verifies that the .chd extension is preserved in the disk name attribute.
+         */
         @Test
         @DisplayName("Should preserve .chd extension in disk name")
         void shouldPreserveChdExtensionInDiskName() throws IOException {
@@ -248,10 +286,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of extended ROM attributes including optional flag, merge attribute,
+     * MD5 checksum, bios attribute, region attribute, date attribute, and dump status.
+     */
     @Nested
     @DisplayName("ROM Extended Attributes")
     class RomExtendedAttributesTests {
 
+        /**
+         * Verifies that a ROM element with the optional flag set is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with optional flag")
         void shouldParseRomWithOptionalFlag() throws IOException {
@@ -276,6 +321,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.isOptional()).isTrue();
         }
 
+        /**
+         * Verifies that a ROM element with a merge attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with merge attribute")
         void shouldParseRomWithMergeAttribute() throws IOException {
@@ -300,6 +348,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.getMerge()).isEqualTo("parent_rom");
         }
 
+        /**
+         * Verifies that a ROM element with an MD5 checksum is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with MD5 checksum")
         void shouldParseRomWithMd5Checksum() throws IOException {
@@ -326,6 +377,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.getMd5()).isEqualTo("0123456789abcdef0123456789abcdef");
         }
 
+        /**
+         * Verifies that a ROM element with a bios attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with bios attribute")
         void shouldParseRomWithBiosAttribute() throws IOException {
@@ -350,6 +404,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.getBios()).isEqualTo("default");
         }
 
+        /**
+         * Verifies that a ROM element with a region attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with region attribute")
         void shouldParseRomWithRegionAttribute() throws IOException {
@@ -374,6 +431,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.getRegion()).isEqualTo("maincpu");
         }
 
+        /**
+         * Verifies that a ROM element with a date attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with date attribute")
         void shouldParseRomWithDateAttribute() throws IOException {
@@ -398,6 +458,9 @@ class ProfileParserSyntheticTest {
             assertThat(rom.getDate()).isEqualTo("20240101");
         }
 
+        /**
+         * Verifies that a ROM element with a status attribute is parsed correctly.
+         */
         @Test
         @DisplayName("Should parse ROM with status attribute")
         void shouldParseRomWithStatusAttribute() throws IOException {
@@ -423,10 +486,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of slot elements and slot options including default flags,
+     * device names, and multiple slots per machine.
+     */
     @Nested
     @DisplayName("Slot Parsing")
     class SlotParsingTests {
 
+        /**
+         * Verifies that slot elements with multiple slot options are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse slot with slot options")
         void shouldParseSlotWithSlotOptions() throws IOException {
@@ -467,6 +537,9 @@ class ProfileParserSyntheticTest {
             assertThat(option2.isDef()).isFalse();
         }
 
+        /**
+         * Verifies that machines with multiple slot elements are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse multiple slots")
         void shouldParseMultipleSlots() throws IOException {
@@ -497,10 +570,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of clone relationships including cloneof, romof, and sampleof
+     * attributes, as well as suspicious CRC detection when SHA1 values differ.
+     */
     @Nested
     @DisplayName("Clone and Rom Relationships")
     class CloneAndRomRelationshipsTests {
 
+        /**
+         * Verifies that clone relationships via the cloneof attribute are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse machine with cloneof attribute")
         void shouldParseMachineWithCloneofAttribute() throws IOException {
@@ -532,6 +612,9 @@ class ProfileParserSyntheticTest {
             assertThat(clone.getCloneof()).isEqualTo("parent_machine");
         }
 
+        /**
+         * Verifies that ROM parent references via the romof attribute are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse machine with romof attribute")
         void shouldParseMachineWithRomofAttribute() throws IOException {
@@ -559,6 +642,9 @@ class ProfileParserSyntheticTest {
             assertThat(clone.getRomof()).isEqualTo("parent_machine");
         }
 
+        /**
+         * Verifies that sample set references via the sampleof attribute are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse machine with sampleof attribute")
         void shouldParseMachineWithSampleofAttribute() throws IOException {
@@ -584,6 +670,9 @@ class ProfileParserSyntheticTest {
             assertThat(profile.getSamplesCnt()).isEqualTo(1);
         }
 
+        /**
+         * Verifies that suspicious CRC detection flags ROMs with matching CRC but different SHA1.
+         */
         @Test
         @DisplayName("Should detect suspicious CRC with different SHA1 values")
         void shouldDetectSuspiciousCrcWithDifferentSha1Values() throws IOException {
@@ -611,10 +700,16 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of device_ref elements that reference external device definitions.
+     */
     @Nested
     @DisplayName("Device References")
     class DeviceReferencesTests {
 
+        /**
+         * Verifies that device_ref elements are parsed and stored correctly.
+         */
         @Test
         @DisplayName("Should parse device_ref elements")
         void shouldParseDeviceRefElements() throws IOException {
@@ -641,10 +736,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of input configuration elements including player count,
+     * coin count, service mode, and tilt switch attributes.
+     */
     @Nested
     @DisplayName("Input Configuration")
     class InputConfigurationTests {
 
+        /**
+         * Verifies that input configuration elements with players, coins, service, and tilt are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse input element with players and coins")
         void shouldParseInputElementWithPlayersAndCoins() throws IOException {
@@ -674,10 +776,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of driver configuration elements including status, emulation,
+     * cocktail, and savestate attributes.
+     */
     @Nested
     @DisplayName("Driver Configuration")
     class DriverConfigurationTests {
 
+        /**
+         * Verifies that driver configuration elements with status, emulation, cocktail, and savestate are parsed correctly.
+         */
         @Test
         @DisplayName("Should parse driver element with status and emulation")
         void shouldParseDriverElementWithStatusAndEmulation() throws IOException {
@@ -707,10 +816,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of display configuration elements including rotation attributes
+     * and derived orientation (horizontal vs. vertical).
+     */
     @Nested
     @DisplayName("Display Configuration")
     class DisplayConfigurationTests {
 
+        /**
+         * Verifies that display elements with rotation attributes are parsed and orientation is derived correctly.
+         */
         @Test
         @DisplayName("Should parse display element with rotate attribute")
         void shouldParseDisplayElementWithRotateAttribute() throws IOException {
@@ -744,10 +860,17 @@ class ProfileParserSyntheticTest {
         }
     }
 
+    /**
+     * Tests verifying parsing of cabinet type from dipswitch configurations, including
+     * detection of "any" cabinet (upright + cocktail) vs. "cocktail" only.
+     */
     @Nested
     @DisplayName("Cabinet Type")
     class CabinetTypeTests {
 
+        /**
+         * Verifies that cabinet types are derived from dipswitch configurations with upright and cocktail values.
+         */
         @Test
         @DisplayName("Should parse cabinet dipswitch with upright and cocktail")
         void shouldParseCabinetDipswitchWithUprightAndCocktail() throws IOException {
@@ -787,11 +910,11 @@ class ProfileParserSyntheticTest {
     }
 
     /**
-     * Helper method to create a temporary DAT file with the given XML content.
-     * 
-     * @param xml the XML content to write
-     * @return the created File
-     * @throws IOException if an I/O error occurs
+     * Creates a temporary DAT file with the specified XML content.
+     *
+     * @param xml the XML content to write to the file
+     * @return the created temporary File
+     * @throws IOException if the file cannot be written
      */
     private File createTempDatFile(String xml) throws IOException {
         Path datPath = tempDir.resolve("test_dat.xml");
@@ -800,11 +923,15 @@ class ProfileParserSyntheticTest {
     }
 
     /**
-     * Helper method to get an int field from Input class using reflection.
-     * 
-     * @param input the Input object
-     * @param fieldName the field name
-     * @return the field value
+     * Retrieves an integer field value from an Input object using reflection.
+     *
+     * <p>The Input class has protected fields with no public getters, so reflection
+     * is used to access field values for testing.</p>
+     *
+     * @param input     the Input object to inspect
+     * @param fieldName the name of the field to retrieve
+     * @return the integer value of the field
+     * @throws RuntimeException if the field cannot be accessed
      */
     private int getInputField(jrm.profile.data.Input input, String fieldName) {
         try {
@@ -817,11 +944,15 @@ class ProfileParserSyntheticTest {
     }
 
     /**
-     * Helper method to get a boolean field from Input class using reflection.
-     * 
-     * @param input the Input object
-     * @param fieldName the field name
-     * @return the field value
+     * Retrieves a boolean field value from an Input object using reflection.
+     *
+     * <p>The Input class has protected fields with no public getters, so reflection
+     * is used to access field values for testing.</p>
+     *
+     * @param input     the Input object to inspect
+     * @param fieldName the name of the field to retrieve
+     * @return the boolean value of the field
+     * @throws RuntimeException if the field cannot be accessed
      */
     private boolean getInputBooleanField(jrm.profile.data.Input input, String fieldName) {
         try {
@@ -834,11 +965,15 @@ class ProfileParserSyntheticTest {
     }
 
     /**
-     * Helper method to load a Profile from a DAT file with mocked dependencies.
-     * Uses reflection to call internalLoad directly, bypassing cache and post-processing.
-     * 
+     * Loads a Profile from a DAT file using mocked dependencies and reflection.
+     *
+     * <p>This helper method creates a Profile instance via its private constructor,
+     * injects mocked session and ProfileNFO objects using reflection, and invokes
+     * the {@code internalLoad} method directly to bypass caching and post-processing.</p>
+     *
      * @param datFile the DAT file to parse
-     * @return the loaded Profile, or null if loading failed
+     * @return the loaded Profile, or null if the internal load returned false
+     * @throws RuntimeException if reflective access fails
      */
     private Profile loadProfile(File datFile) {
         try {
