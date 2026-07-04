@@ -9,5 +9,22 @@
     "aether.mcpBridge.http.enabled": false,
     "chat.tools.terminal.autoApprove": {
         "New-Item": true
-    }
+    },
+    "cSpell.words": [
+        "Anyware",
+        "baddump",
+        "CBBX",
+        "CHCKBX",
+        "cloneof",
+        "dumpstatus",
+        "FULLMERGE",
+        "MAME",
+        "mntm",
+        "nodump",
+        "Pleasuredome",
+        "romof",
+        "sampleof",
+        "tglbtn",
+        "TZIP"
+    ]
 }
