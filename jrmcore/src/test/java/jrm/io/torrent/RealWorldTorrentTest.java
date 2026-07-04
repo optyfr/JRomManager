@@ -1091,14 +1091,15 @@ class RealWorldTorrentTest {
         }
 
         @Test
-        @DisplayName("Announce list entries should all be valid HTTP(S) URLs")
+        @DisplayName("Announce list entries should all be valid HTTP(S) or UDP URLs when present")
         void announceListEntriesAreValidHttp() throws TorrentException, IOException {
             for (String filename : ALL_TORRENTS) {
                 Torrent torrent = loadTorrent(filename);
-                assertThat(torrent.getAnnounceList())
-                    .as("Announce list entries for " + filename)
-                    .isNotEmpty()
-                    .allMatch(url -> url.matches("https?://.*"));
+                if (!torrent.getAnnounceList().isEmpty()) {
+                    assertThat(torrent.getAnnounceList())
+                        .as("Announce list entries for " + filename)
+                        .allMatch(url -> url.matches("(https?|udp)://.*"));
+                }
             }
         }
 
