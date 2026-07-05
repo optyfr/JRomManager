@@ -183,23 +183,19 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     private PData lastPData = null;
 
     private synchronized void sendSetProgress(final int pb, final boolean force) {
-        boolean doit = false;
         if (pb == 1)
             cleanup();
-        if (force)
-            doit = true;
-        else if (pb == 1 && data.pb1.visibility && !data.pb1.indeterminate && data.pb1.val > 0 && data.pb1.max == data.pb1.val)
-            doit = true;
-        else if (pb == 2 && data.pb2.visibility && !data.pb2.indeterminate && data.pb2.val > 0 && data.pb2.max == data.pb2.val)
-            doit = true;
-        else if (pb == 3 && data.pb3.visibility && !data.pb3.indeterminate && data.pb3.val > 0 && data.pb3.max == data.pb3.val)
-            doit = true;
-        else if (lastPData == null || (lastPData.infos.length == 1 && lastPData.infos[0] != null && !lastPData.infos[0].equals(this.data.infos[0])))
-            doit = true;
-        else if (System.currentTimeMillis() - lastEvent > 100)
-            doit = true;
-        else if (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility && !options.contains(Option.LAZY))
-            doit = true;
+        final PData.PB pbObj = switch (pb) {
+            case 1 -> data.pb1;
+            case 2 -> data.pb2;
+            case 3 -> data.pb3;
+            default -> null;
+        };
+        final boolean doit = force
+            || (pbObj != null && pbObj.visibility && !pbObj.indeterminate && pbObj.val > 0 && pbObj.max == pbObj.val)
+            || (lastPData == null || (lastPData.infos.length == 1 && lastPData.infos[0] != null && !lastPData.infos[0].equals(this.data.infos[0])))
+            || (System.currentTimeMillis() - lastEvent > 100)
+            || (!data.pb1.visibility && !data.pb2.visibility && !data.pb3.visibility && !options.contains(Option.LAZY));
         if (doit) {
             lastPData = new PData(this.data);
             Platform.runLater(() -> progress.getController().setFullProgress(lastPData));

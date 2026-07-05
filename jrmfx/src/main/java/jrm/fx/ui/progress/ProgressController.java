@@ -173,72 +173,41 @@ public class ProgressController implements Initializable {
             lblInfo[i].getChildren().setAll(NeutralToNodeFormatter.toNodes(i < pd.getInfos().length ? pd.getInfos()[i] : ""));
         for (int i = 0; i < lblSubInfo.length; i++)
             lblSubInfo[i].getChildren().setAll(NeutralToNodeFormatter.toNodes(i < pd.getSubinfos().length ? pd.getSubinfos()[i] : ""));
-        if (progressBar.isVisible() != pd.getPb1().isVisibility()) {
-            progressBar.setVisible(pd.getPb1().isVisibility());
-            progressBarLbl.setVisible(pd.getPb1().isVisibility());
-            lblTimeleft.setVisible(pd.getPb1().isVisibility());
-            ((GridPane) lblTimeleft.getParent()).getRowConstraints().get(1).setPrefHeight(pd.getPb1().isVisibility() ? Region.USE_COMPUTED_SIZE : 0);
+        updateProgressBar(progressBar, progressBarLbl, lblTimeleft, 1, new ProgressData(pd.getPb1().isVisibility(), pd.getPb1().isIndeterminate(), pd.getPb1().getVal() > 0, pd.getPb1().getPerc(), pd.getPb1().isStringPainted(), pd.getPb1().getMsg(), pd.getPb1().getTimeleft()));
+        updateProgressBar(progressBar2, progressBarLbl2, lblTimeleft2, 2, new ProgressData(pd.getPb2().isVisibility(), pd.getPb2().isIndeterminate(), pd.getPb2().getPerc() >= 0, pd.getPb2().getPerc(), pd.getPb2().isStringPainted(), pd.getPb2().getMsg(), pd.getPb2().getTimeleft()));
+        updateProgressBar(progressBar3, progressBarLbl3, lblTimeleft3, 3, new ProgressData(pd.getPb3().isVisibility(), pd.getPb3().isIndeterminate(), pd.getPb3().getPerc() >= 0, pd.getPb3().getPerc(), pd.getPb3().isStringPainted(), pd.getPb3().getMsg(), pd.getPb3().getTimeleft()));
+    }
+
+    private record ProgressData(boolean visible, boolean indeterminate, boolean hasProgress, double perc, boolean stringPainted, String msg, String timeleftStr) {
+    }
+
+    private void updateProgressBar(ProgressBar bar, Label barLbl, Label timeleft, int rowIndex, ProgressData data) {
+        final var visible = data.visible();
+        if (bar.isVisible() != visible) {
+            bar.setVisible(visible);
+            barLbl.setVisible(visible);
+            timeleft.setVisible(visible);
+            ((GridPane) timeleft.getParent()).getRowConstraints().get(rowIndex).setPrefHeight(visible ? Region.USE_COMPUTED_SIZE : 0);
         }
-        if (pd.getPb1().isVisibility()) {
-            if (pd.getPb1().isIndeterminate()) {
-                progressBar.setProgress(-1);
-                progressBarLbl.setVisible(false);
-            } else if (pd.getPb1().getVal() > 0) {
-                if ((int) (progressBar.getProgress() * 100) != (int) pd.getPb1().getPerc())
-                    progressBar.setProgress(pd.getPb1().getPerc() / 100);
-                if (pd.getPb1().isStringPainted()) {
-                    progressBarLbl.setVisible(true);
-                    progressBarLbl.setText(Optional.ofNullable(pd.getPb1().getMsg()).orElse(""));
-                } else
-                    progressBarLbl.setVisible(false);
-                lblTimeleft.setText(pd.getPb1().getTimeleft());
-            } else
-                lblTimeleft.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
+        if (!visible)
+            return;
+        if (data.indeterminate()) {
+            bar.setProgress(-1);
+            barLbl.setVisible(false);
+            return;
         }
-        if (progressBar2.isVisible() != pd.getPb2().isVisibility()) {
-            progressBar2.setVisible(pd.getPb2().isVisibility());
-            progressBarLbl2.setVisible(pd.getPb2().isVisibility());
-            lblTimeleft2.setVisible(pd.getPb2().isVisibility());
-            ((GridPane) lblTimeleft2.getParent()).getRowConstraints().get(2).setPrefHeight(pd.getPb2().isVisibility() ? Region.USE_COMPUTED_SIZE : 0);
+        if (!data.hasProgress()) {
+            timeleft.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
+            return;
         }
-        if (pd.getPb2().isVisibility()) {
-            if (pd.getPb2().isIndeterminate()) {
-                progressBar2.setProgress(-1);
-                progressBarLbl2.setVisible(false);
-            } else if (pd.getPb2().getPerc() >= 0) {
-                if ((int) (progressBar2.getProgress() * 100) != (int) pd.getPb2().getPerc())
-                    progressBar2.setProgress(pd.getPb2().getPerc() / 100);
-                if (pd.getPb2().isStringPainted()) {
-                    progressBarLbl2.setVisible(true);
-                    progressBarLbl2.setText(Optional.ofNullable(pd.getPb2().getMsg()).orElse(""));
-                } else
-                    progressBarLbl2.setVisible(false);
-                lblTimeleft2.setText(pd.getPb2().getTimeleft());
-            } else
-                lblTimeleft2.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
-        }
-        if (progressBar3.isVisible() != pd.getPb3().isVisibility()) {
-            progressBar3.setVisible(pd.getPb3().isVisibility());
-            progressBarLbl3.setVisible(pd.getPb3().isVisibility());
-            lblTimeleft3.setVisible(pd.getPb3().isVisibility());
-            ((GridPane) lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(pd.getPb3().isVisibility() ? Region.USE_COMPUTED_SIZE : 0);
-        }
-        if (pd.getPb3().isVisibility()) {
-            if (pd.getPb3().isIndeterminate()) {
-                progressBar3.setProgress(-1);
-                progressBarLbl3.setVisible(false);
-            } else if (pd.getPb3().getPerc() >= 0) {
-                if ((int) (progressBar3.getProgress() * 100) != (int) pd.getPb3().getPerc())
-                    progressBar3.setProgress(pd.getPb3().getPerc() / 100);
-                if (pd.getPb3().isStringPainted()) {
-                    progressBarLbl3.setVisible(true);
-                    progressBarLbl3.setText(Optional.ofNullable(pd.getPb3().getMsg()).orElse(""));
-                } else
-                    progressBarLbl3.setVisible(false);
-                lblTimeleft3.setText(pd.getPb3().getTimeleft());
-            } else
-                lblTimeleft3.setText(HH_MM_SS_OF_HH_MM_SS_NONE);
-        }
+        if ((int) (bar.getProgress() * 100) != (int) data.perc())
+            bar.setProgress(data.perc() / 100);
+        if (data.stringPainted()) {
+            barLbl.setVisible(true);
+            barLbl.setText(Optional.ofNullable(data.msg()).orElse(""));
+        } else
+            barLbl.setVisible(false);
+        timeleft.setText(data.timeleftStr());
     }
 
     void close() {

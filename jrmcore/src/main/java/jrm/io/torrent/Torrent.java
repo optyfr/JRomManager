@@ -8,7 +8,7 @@
  */
 package jrm.io.torrent;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -72,7 +72,7 @@ public class Torrent {
     /**
      * An optional date when the torrent metainfo was created.
      */
-    private Date creationDate;
+    private Instant creationDate;
 
     /**
      * Optional secondary tier list of tracker announce URLs (announce-list).
@@ -277,18 +277,18 @@ public class Torrent {
     /**
      * Gets the optional creation date of the torrent.
      * 
-     * @return the creation {@link Date}, or null
+     * @return the creation {@link Instant}, or null
      */
-    public Date getCreationDate() {
+    public Instant getCreationDate() {
         return creationDate;
     }
 
     /**
      * Sets the optional creation date of the torrent.
      * 
-     * @param creationDate the creation {@link Date} to set
+     * @param creationDate the creation {@link Instant} to set
      */
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(Instant creationDate) {
         this.creationDate = creationDate;
     }
 

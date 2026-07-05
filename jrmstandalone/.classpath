@@ -25,12 +25,5 @@
 			<attribute name="gradle.buildServer" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/GIT/JRomManager/jrmcore/build/libs/jrm-jrmcore-3.0.5.jar"/>
-	<classpathentry kind="lib" path="D:/GIT/JRomManager/res-icons/build/libs/jrm-res-icons-3.0.5.jar"/>
-	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.1.1/c64e3277b914d55b94fd9783e32cd711031838fc/junit-platform-launcher-6.1.1.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-launcher/6.1.1/e649a7851e2dda0984c4c87b7cd62484fe9b8ead/junit-platform-launcher-6.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.1.1/677fe853ccc2e730dad6599d64d3b130df4c23a8/junit-platform-engine-6.1.1.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-engine/6.1.1/9cd905a8733a6b1b5e74eb3fe2d9426e4b754a81/junit-platform-engine-6.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.1.1/b277c8deff86c8288674c6dac27810a30324e623/junit-platform-commons-6.1.1.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.platform/junit-platform-commons/6.1.1/a9c293559d0f72ed2ef24535a053c465bbbd2a39/junit-platform-commons-6.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.1.1/86f53abe440c412db16735d33e288bfe9155aab6/junit-jupiter-engine-6.1.1.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-engine/6.1.1/777a5b77c466c14b2b768f6b5b71ab02ee847cd5/junit-jupiter-engine-6.1.1-sources.jar"/>
-	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.1.1/e9c600175db506055ab0ff6a5512bd86da9c4f0f/junit-jupiter-api-6.1.1.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.junit.jupiter/junit-jupiter-api/6.1.1/db3f240d36fa286d4af9add7d04815c2516cd4d3/junit-jupiter-api-6.1.1-sources.jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

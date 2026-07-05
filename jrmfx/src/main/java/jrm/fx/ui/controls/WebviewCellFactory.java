@@ -27,14 +27,6 @@ public class WebviewCellFactory<S, T> implements Callback<TableColumn<S, T>, Tab
                     setGraphic(webview);
                     engine.loadContent(
                             "<body topmargin=0 leftmargin=0 style=\"background-color: transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis\">" + item + "</body>");
-                    /*
-                     * engine.documentProperty().addListener((obj, prev, newv) -> { String heightText = engine.executeScript( // <-
-                     * Some modification, which gives moreless the same // result than the original "var body = document.body," +
-                     * "html = document.documentElement;" + "Math.max( body.scrollHeight , body.offsetHeight, " +
-                     * "html.clientHeight, html.scrollHeight , html.offsetHeight );").toString(); Double height =
-                     * Double.parseDouble(heightText.replace("px", "")) + 10; // <- Why are this 15.0 // required??
-                     * webview.setPrefHeight(height); this.setPrefHeight(height); });
-                     */
                 }
             }
         };

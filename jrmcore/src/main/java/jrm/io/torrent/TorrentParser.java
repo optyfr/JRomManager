@@ -11,8 +11,8 @@ package jrm.io.torrent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +100,7 @@ public class TorrentParser {
             t.setCreatedBy(torrent.find(createdByKey).toString());
         if (null != torrent.find(creationDateKey)) {
             BInt creationTimeSeconds = (BInt) torrent.find(creationDateKey);
-            t.setCreationDate(new Date(creationTimeSeconds.getValue() * 1000));
+            t.setCreationDate(Instant.ofEpochSecond(creationTimeSeconds.getValue()));
         }
         if (null != torrent.find(announceKey))
             t.setAnnounce(torrent.find(announceKey).toString());

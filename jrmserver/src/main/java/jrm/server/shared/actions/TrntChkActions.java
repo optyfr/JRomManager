@@ -1,7 +1,7 @@
 package jrm.server.shared.actions;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 
 import com.eclipsesource.json.JsonObject;
@@ -157,7 +157,7 @@ public class TrntChkActions {
                 TrntChkActions.this.end();
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }

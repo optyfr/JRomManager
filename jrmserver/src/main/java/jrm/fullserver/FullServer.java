@@ -28,8 +28,8 @@ import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http2.HTTP2Cipher;
 import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.AcceptRateLimit;
-import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
+import org.eclipse.jetty.server.NetworkConnectionLimit;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -723,8 +723,7 @@ public class FullServer extends AbstractServer {
 
         addConnectors(jettyserver, config);
 
-        @SuppressWarnings("removal")
-        final var connectionLimit = new ConnectionLimit(connLimit, jettyserver);
+        final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyserver);
         jettyserver.addBean(connectionLimit);
         jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver));
 
@@ -739,13 +738,23 @@ public class FullServer extends AbstractServer {
 
     /**
      * Creates the thread pool with safe defaults for max and min thread counts.
+     * <p>
+     * The pool uses platform threads for accepting connections and dispatching, but offloads request handling to virtual threads
+     * via {@link QueuedThreadPool#setVirtualThreadsExecutor(java.util.concurrent.Executor)}. Virtual threads are ideal for the
+     * I/O-bound servlet work (file uploads/downloads, profile scans, database queries) handled by this server. The
+     * {@code synchronized} blocks that could pin virtual threads have been audited and migrated to {@link java.util.concurrent.locks.ReentrantLock}
+     * where they occur in the request path (see {@link jrm.fullserver.security.Login#login}).
      *
      * @return a configured {@link QueuedThreadPool}
      */
     private static QueuedThreadPool createThreadPool() {
         final int max = maxThreads > 0 ? maxThreads : (connLimit * 4);
         final int min = minThreads > 0 ? minThreads : (connLimit / 4);
-        return new QueuedThreadPool(max, min);
+        final var pool = new QueuedThreadPool(max, min);
+        pool.setVirtualThreadsExecutor(
+            java.util.concurrent.Executors.newThreadPerTaskExecutor(
+                Thread.ofVirtual().name("jetty-vt-", 0).factory()));
+        return pool;
     }
 
     /**

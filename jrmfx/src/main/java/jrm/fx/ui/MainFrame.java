@@ -154,7 +154,7 @@ public class MainFrame extends Application {
         final var chosen = chooser.showSaveDialog(owner);
         if (chosen != null) {
             try {
-                final var thread = new Thread(new ProgressTask<Void>((Stage) owner) {
+                Thread.startVirtualThread(new ProgressTask<Void>((Stage) owner) {
                     @Override
                     protected Void call() throws Exception {
                         Export.export(session.getCurrProfile(), chosen, type, modes, selection, this);
@@ -182,8 +182,6 @@ public class MainFrame extends Application {
                         }
                     }
                 });
-                thread.setDaemon(true);
-                thread.start();
             } catch (IOException | URISyntaxException e) {
                 Log.err(e.getMessage(), e);
                 Dialogs.showError(e);

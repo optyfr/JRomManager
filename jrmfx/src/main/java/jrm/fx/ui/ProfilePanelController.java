@@ -631,9 +631,7 @@ public class ProfilePanelController implements Initializable {
         try {
             if (files == null)
                 return;
-            final var thread = new Thread(new ImportDatTask((Stage) profilesList.getScene().getWindow(), files, sl));
-            thread.setDaemon(true);
-            thread.start();
+            Thread.startVirtualThread(new ImportDatTask((Stage) profilesList.getScene().getWindow(), files, sl));
         } catch (IOException | URISyntaxException e) {
             Log.err(e.getMessage(), e);
             Dialogs.showError(e);
@@ -732,9 +730,7 @@ public class ProfilePanelController implements Initializable {
                 chooser.setInitialFileName(nfo.getFile().getName());
                 if (nfo.getMame().getStatus() == MameStatus.NEEDUPDATE || (EnumSet.of(MameStatus.NOTFOUND, MameStatus.UNKNOWN).contains(nfo.getMame().getStatus())
                         && updateFromMameRelocate(nfo, chooser.showOpenDialog(profilesList.getScene().getWindow())) == MameStatus.NEEDUPDATE)) {
-                    final var thread = new Thread(new UpdateFromMameTask((Stage) profilesList.getScene().getWindow(), nfo));
-                    thread.setDaemon(true);
-                    thread.start();
+                    Thread.startVirtualThread(new UpdateFromMameTask((Stage) profilesList.getScene().getWindow(), nfo));
                 }
             } catch (IOException | URISyntaxException ex) {
                 Log.err(ex.getMessage(), ex);

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -281,7 +282,7 @@ class TorrentParserTest {
         Torrent result = TorrentParser.parseTorrent(root.bencode());
         
         assertThat(result.getCreationDate()).isNotNull();
-        assertThat(result.getCreationDate().getTime()).isEqualTo(creationTimestamp * 1000);
+        assertThat(result.getCreationDate()).isEqualTo(Instant.ofEpochSecond(creationTimestamp));
     }
 
     /**

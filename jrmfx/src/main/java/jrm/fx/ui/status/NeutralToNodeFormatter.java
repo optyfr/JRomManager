@@ -19,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.paint.Color;
+import jrm.misc.Log;
 import lombok.experimental.UtilityClass;
 
 public @UtilityClass class NeutralToNodeFormatter {
@@ -34,65 +35,70 @@ public @UtilityClass class NeutralToNodeFormatter {
             switch (qName) {
                 case "document":
                     break;
-                case "label": {
-                    flush();
-                    current = new Label();
-                    var bold = false;
-                    var italic = false;
-                    for (int i = 0; i < attributes.getLength(); i++) {
-                        switch (attributes.getQName(i)) {
-                            case "color":
-                                current.setTextFill(Color.web(attributes.getValue(i)));
-                                break;
-                            case "bold":
-                                bold = Boolean.parseBoolean(attributes.getValue(i));
-                                break;
-                            case "italic":
-                                italic = Boolean.parseBoolean(attributes.getValue(i));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    if (bold) {
-                        if (italic)
-                            current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold; -fx-font-style: italic;"));
-                        else
-                            current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
-                    } else if (italic)
-                        current.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
+                case "label":
+                    startLabel(attributes);
                     break;
-                }
-                case "progress": {
-                    flush();
-                    int width = 100;
-                    int value = 0;
-                    int max = 100;
-                    for (int i = 0; i < attributes.getLength(); i++) {
-                        switch (attributes.getQName(i)) {
-                            case "width":
-                                width = Integer.parseInt(attributes.getValue(i));
-                                break;
-                            case "value":
-                                value = Integer.parseInt(attributes.getValue(i));
-                                break;
-                            case "max":
-                                max = Integer.parseInt(attributes.getValue(i));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    final var progress = new ProgressBar();
-                    progress.setPrefWidth(width);
-                    progress.setPrefHeight(10);
-                    progress.setProgress((double) value / (double) max);
-                    nodes.add(progress);
+                case "progress":
+                    startProgress(attributes);
                     break;
-                }
                 default:
                     break;
             }
+        }
+
+        private void startLabel(Attributes attributes) {
+            flush();
+            current = new Label();
+            var bold = false;
+            var italic = false;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                switch (attributes.getQName(i)) {
+                    case "color":
+                        current.setTextFill(Color.web(attributes.getValue(i)));
+                        break;
+                    case "bold":
+                        bold = Boolean.parseBoolean(attributes.getValue(i));
+                        break;
+                    case "italic":
+                        italic = Boolean.parseBoolean(attributes.getValue(i));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (bold && italic)
+                current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold; -fx-font-style: italic;"));
+            else if (bold)
+                current.styleProperty().bind(new SimpleStringProperty("-fx-font-weight: bold;"));
+            else if (italic)
+                current.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
+        }
+
+        private void startProgress(Attributes attributes) {
+            flush();
+            int width = 100;
+            int value = 0;
+            int max = 100;
+            for (int i = 0; i < attributes.getLength(); i++) {
+                switch (attributes.getQName(i)) {
+                    case "width":
+                        width = Integer.parseInt(attributes.getValue(i));
+                        break;
+                    case "value":
+                        value = Integer.parseInt(attributes.getValue(i));
+                        break;
+                    case "max":
+                        max = Integer.parseInt(attributes.getValue(i));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            final var progress = new ProgressBar();
+            progress.setPrefWidth(width);
+            progress.setPrefHeight(10);
+            progress.setProgress((double) value / (double) max);
+            nodes.add(progress);
         }
 
         @Override
@@ -108,7 +114,7 @@ public @UtilityClass class NeutralToNodeFormatter {
         }
 
         private void flush() {
-            if (buffer.length() > 0) {
+            if (!buffer.isEmpty()) {
                 if (current == null)
                     current = new Label();
                 current.setText(buffer.toString());
@@ -139,7 +145,7 @@ public @UtilityClass class NeutralToNodeFormatter {
                 parser.parse(in, handler);
                 return handler.nodes;
             } catch (SAXException | ParserConfigurationException | IOException e) {
-                e.printStackTrace();
+                Log.warn("Failed to parse XML: " + e.getMessage());
             }
         }
         return List.of(new Label(xml));

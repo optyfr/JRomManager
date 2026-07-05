@@ -1,7 +1,7 @@
 package jrm.server.shared.actions;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Optional;
 
 import com.eclipsesource.json.JsonObject;
@@ -10,7 +10,6 @@ import jrm.misc.Log;
 import jrm.server.shared.SessionStub;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.Worker;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Interface for managing and routing JSON actions and commands within a web session.
@@ -91,7 +90,7 @@ public interface ActionsMgr extends SessionStub {
     public default void processActions(ActionsMgr mgr, JsonObject jso) {
         try {
             if (jso != null) {
-                mgr.getSession().setLastAction(new Date());
+                mgr.getSession().setLastAction(Instant.now());
                 switch (jso.getString("cmd", "unknown")) {
                     case "Global.setProperty" -> new GlobalActions(mgr).setProperty(jso);
                     case "Global.getMemory" -> new GlobalActions(mgr).setMemory(jso);
@@ -123,48 +122,28 @@ public interface ActionsMgr extends SessionStub {
 
     /**
      * Represents the JSON-serializable result of an update action sent back to the client.
+     *
+     * @param cmd the command identifier associated with this update result
+     * @param params the parameter details nested within the update result
      */
-    @RequiredArgsConstructor
-    static class UpdateResult {
-
-        /**
-         * The command identifier associated with this update result.
-         */
-        final String cmd;
-
-        /**
-         * The parameter details nested within the update result.
-         */
-        final Params params;
+    record UpdateResult(String cmd, Params params) {
 
         /**
          * Nested parameter details containing row index and action operation results.
+         *
+         * @param row the targeted data row index
+         * @param result the textual result or status description of the execution
          */
-        @RequiredArgsConstructor
-        static class Params {
-
-            /**
-             * The targeted data row index.
-             */
-            final int row;
-
-            /**
-             * The textual result or status description of the execution.
-             */
-            final String result;
+        record Params(int row, String result) {
         }
     }
 
     /**
      * Represents a single standalone client command request wrapper containing only the command name.
+     *
+     * @param cmd the name of the command to trigger
      */
-    @RequiredArgsConstructor
-    static class SingleCmd {
-
-        /**
-         * The name of the command to trigger.
-         */
-        final String cmd;
+    record SingleCmd(String cmd) {
     }
 
 }

@@ -28,9 +28,7 @@ final class ProgressTaskRunner {
 	static <T> void run(Stage stage, ProgressTaskFactory<T> taskFactory) {
 		try {
 			final var task = taskFactory.create(stage);
-			final var thread = new Thread(task);
-			thread.setDaemon(true);
-			thread.start();
+			Thread.startVirtualThread(task);
 		} catch (IOException | URISyntaxException e) {
 			Log.err(e.getMessage(), e);
 			Dialogs.showError(e);

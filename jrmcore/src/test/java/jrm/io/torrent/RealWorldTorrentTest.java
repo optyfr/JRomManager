@@ -1098,7 +1098,7 @@ class RealWorldTorrentTest {
                 if (!torrent.getAnnounceList().isEmpty()) {
                     assertThat(torrent.getAnnounceList())
                         .as("Announce list entries for " + filename)
-                        .allMatch(url -> url.matches("(https?|udp)://.*"));
+                        .allMatch(url -> url.matches("^(https?|udp)://.*"));
                 }
             }
         }

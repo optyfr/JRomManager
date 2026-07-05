@@ -3,9 +3,9 @@ package jrm.server.shared.actions;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
@@ -165,7 +165,7 @@ public class ProfileActions extends PathAbstractor {
             } finally {
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }
@@ -278,7 +278,7 @@ public class ProfileActions extends PathAbstractor {
             } finally {
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }
@@ -421,7 +421,7 @@ public class ProfileActions extends PathAbstractor {
             }
             session.getWorker().progress.close();
             session.getWorker().progress = null;
-            session.setLastAction(new Date());
+            session.setLastAction(Instant.now());
             final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
             scanned(session.getCurrScan(), automation.hasReport());
             if (automate && session.getCurrScan() != null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
@@ -494,7 +494,7 @@ public class ProfileActions extends PathAbstractor {
                     scan(jso, false);
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }

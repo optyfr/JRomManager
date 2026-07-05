@@ -52,12 +52,12 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer {
     public Component getTreeCellRendererComponent(final JTree tree, Object value, final boolean sel, final boolean expanded, final boolean leaf, final int row,
             final boolean hasFocus) {
         try {
-            if (value instanceof ReportNode rn)
-                value = rn.getReport();
-            else if (value instanceof SubjectNode sn)
-                value = sn.getSubject();
-            else if (value instanceof NoteNode nn)
-                value = nn.getNote();
+            value = switch (value) {
+                case ReportNode rn -> rn.getReport();
+                case SubjectNode sn -> sn.getSubject();
+                case NoteNode nn -> nn.getNote();
+                default -> value;
+            };
             if (value instanceof Subject s)
                 super.getTreeCellRendererComponent(tree, s.getDocument(), sel, expanded, leaf, row, hasFocus);
             else if (value instanceof Note n)
@@ -77,32 +77,24 @@ public class ReportTreeCellRenderer extends DefaultTreeCellRenderer {
      * @param leaf
      */
     private void setIcon(Object value, final boolean expanded, final boolean leaf) {
-        if (value instanceof RomSuspiciousCRC)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
-        else if (value instanceof ContainerUnknown)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
-        else if (value instanceof ContainerUnneeded)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
-        else if (value instanceof ContainerTZip)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/compress.png")); //$NON-NLS-1$
-        else if (value instanceof EntryOK)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
-        else if (value instanceof EntryAdd)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png")); //$NON-NLS-1$
-        else if (value instanceof EntryMissingDuplicate)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png")); //$NON-NLS-1$
-        else if (value instanceof EntryMissing)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
-        else if (value instanceof EntryUnneeded)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
-        else if (value instanceof EntryWrongHash)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png")); //$NON-NLS-1$
-        else if (value instanceof EntryWrongName)
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
-        else if (!leaf)
-            setIcon(MainFrame.getIcon(getFolderIcon(value, expanded)));
-        else if (value instanceof SubjectSet ss && SubjectSet.Status.FOUND.equals(ss.getStatus()))
-            setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
+        switch (value) {
+            case RomSuspiciousCRC _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/information.png")); //$NON-NLS-1$
+            case ContainerUnknown _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
+            case ContainerUnneeded _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/error.png")); //$NON-NLS-1$
+            case ContainerTZip _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/compress.png")); //$NON-NLS-1$
+            case EntryOK _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
+            case EntryAdd _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png")); //$NON-NLS-1$
+            case EntryMissingDuplicate _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png")); //$NON-NLS-1$
+            case EntryMissing _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png")); //$NON-NLS-1$
+            case EntryUnneeded _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png")); //$NON-NLS-1$
+            case EntryWrongHash _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png")); //$NON-NLS-1$
+            case EntryWrongName _ -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png")); //$NON-NLS-1$
+            case SubjectSet ss when leaf && SubjectSet.Status.FOUND.equals(ss.getStatus()) -> setIcon(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png")); //$NON-NLS-1$
+            default -> {
+                if (!leaf)
+                    setIcon(MainFrame.getIcon(getFolderIcon(value, expanded)));
+            }
+        }
     }
 
     /**

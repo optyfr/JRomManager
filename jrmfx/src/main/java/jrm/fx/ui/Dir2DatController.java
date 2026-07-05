@@ -168,9 +168,7 @@ public class Dir2DatController extends BaseController {
      */
     private void dir2dat() {
         try {
-            final var thread = new Thread(dir2DatTask());
-            thread.setDaemon(true);
-            thread.start();
+            Thread.startVirtualThread(dir2DatTask());
         } catch (IOException | URISyntaxException e) {
             Log.err(e.getMessage(), e);
             Dialogs.showError(e);

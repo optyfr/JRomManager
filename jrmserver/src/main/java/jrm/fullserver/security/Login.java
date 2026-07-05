@@ -3,6 +3,7 @@ package jrm.fullserver.security;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 import javax.security.auth.Subject;
@@ -114,6 +115,13 @@ public class Login extends SQL implements LoginService {
      * authentication system.
      */
     private static final HashMap<String, UserIdentity> cache = new HashMap<>();
+
+    /**
+     * Reentrant lock protecting {@link #cache} and {@link #cachetime}. Uses {@link ReentrantLock} rather than
+     * {@code synchronized} so that virtual threads handling requests are not pinned to their carrier thread
+     * while waiting for the lock during database I/O in {@link #login(String, Object, String, WebSession)}.
+     */
+    private static final ReentrantLock cacheLock = new ReentrantLock();
 
     /**
      * The timestamp of the last cache update, used to determine when to clear the cache. The cache is cleared if it has been more
@@ -247,7 +255,8 @@ public class Login extends SQL implements LoginService {
      * @see UserIdentity for the class representing the authenticated user's identity, including their roles and credentials.
      */
     private UserIdentity login(String username, Object credentials, String sessionid, WebSession sess) {
-        synchronized (cache) {
+        cacheLock.lock();
+        try {
             if (60000 < (System.currentTimeMillis() - cachetime)) {
                 cache.clear();
                 cachetime = System.currentTimeMillis();
@@ -273,6 +282,8 @@ public class Login extends SQL implements LoginService {
                     return identity;
                 }
             }
+        } finally {
+            cacheLock.unlock();
         }
         return null;
     }

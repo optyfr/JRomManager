@@ -2,7 +2,7 @@ package jrm.server.shared.actions;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashMap;
 
@@ -147,7 +147,7 @@ public class Dir2DatActions {
                 session.setCurrScan(null);
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }

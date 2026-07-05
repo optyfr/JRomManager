@@ -785,9 +785,9 @@ public class Scan extends PathAbstractor {
                 tzipcontainer = Optional.of(archive);
         }
         tzipcontainer.ifPresent(c -> {
-            final long estimated_roms_size = roms.stream().mapToLong(Rom::getSize).sum();
+            final long estimatedRomsSize = roms.stream().mapToLong(Rom::getSize).sum();
             c.setRelAW(ware);
-            tzipActions.put(c.getFile().getAbsolutePath(), new TZipContainer(c, format, estimated_roms_size));
+            tzipActions.put(c.getFile().getAbsolutePath(), new TZipContainer(c, format, estimatedRomsSize));
             report.add(new ContainerTZip(c));
         });
     }

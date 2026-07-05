@@ -3,7 +3,7 @@ package jrm.server.shared;
 import java.io.Closeable;
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.BlockingDeque;
@@ -117,7 +117,7 @@ public class WebSession extends Session implements Closeable, Serializable {
      * 
      * @return the timestamp of the last client action
      */
-    private @Getter @Setter Date lastAction = new Date();
+    private @Getter @Setter Instant lastAction = Instant.now();
 
     /**
      * Temporary scan report being generated for this session.

@@ -14,8 +14,8 @@ import org.apache.commons.daemon.DaemonContext;
 import org.eclipse.jetty.ee9.servlet.FilterHolder;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
-import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnectionLimit;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.resource.ResourceFactory;
@@ -292,8 +292,7 @@ public class Server extends AbstractServer {
             httpConnector.setName("HTTP");
             jettyserver.addConnector(httpConnector);
 
-            @SuppressWarnings("removal")
-            final var connectionLimit = new ConnectionLimit(connLimit, jettyserver);
+            final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyserver);
             jettyserver.addBean(connectionLimit); // limit simultaneous connections
 
             jettyserver.start();

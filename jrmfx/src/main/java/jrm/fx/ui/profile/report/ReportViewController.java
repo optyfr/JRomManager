@@ -548,7 +548,11 @@ public class ReportViewController implements Initializable {
             final String[] t = switch (s.getStatus()) {
                 case MISSING -> missing;
                 case UNNEEDED -> unneeded;
-                case FOUND -> s.hasNotes() ? (s.isFixable() ? foundneedfixes : foundincomplete) : found;
+                case FOUND -> {
+                    if (s.hasNotes())
+                        yield s.isFixable() ? foundneedfixes : foundincomplete;
+                    yield found;
+                }
                 case CREATE, CREATEFULL -> s.isFixable() ? missingtotallycreated : missingpartiallycreated;
                 default -> unknown;
             };
@@ -580,7 +584,11 @@ public class ReportViewController implements Initializable {
             icon += expanded ? "_open" : "_closed";
             if (value instanceof SubjectSet s) {
                 icon += switch (s.getStatus()) {
-                    case FOUND -> s.hasNotes() ? (s.isFixable() ? "_purple" : "_orange") : "_green";
+                    case FOUND -> {
+                        if (!s.hasNotes())
+                            yield "_green";
+                        yield s.isFixable() ? "_purple" : "_orange";
+                    }
                     case CREATE, CREATEFULL -> s.isFixable() ? "_blue" : "_orange";
                     case MISSING -> "_red"; //$NON-NLS-1$
                     case UNNEEDED -> "_gray"; //$NON-NLS-1$
@@ -590,7 +598,5 @@ public class ReportViewController implements Initializable {
             icon += ".png"; //$NON-NLS-1$
             return icon;
         }
-
     }
-
 }

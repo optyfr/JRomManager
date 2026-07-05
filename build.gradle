@@ -63,8 +63,9 @@ codeCoverageReport.dependsOn {
 apply plugin: 'java'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 apply plugin: 'eclipse'
@@ -125,14 +126,18 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 subprojects {
 	apply plugin: 'java'
 	java {
-	    sourceCompatibility = JavaVersion.VERSION_25
-	    targetCompatibility = JavaVersion.VERSION_25
+	    toolchain {
+	        languageVersion = JavaLanguageVersion.of(25)
+	    }
 	}
 
     tasks.withType(JavaCompile).configureEach {
-  //      options.compilerArgs += ['-Xlint:deprecation']
+        options.compilerArgs += ['-Xlint:deprecation']
         options.encoding = 'UTF-8'
-        options.release = (project.name == 'WebClient') ? 17 : java.targetCompatibility.majorVersion.toInteger()
+        // WebClient uses GWT 2.13 which requires Java 17 source; pin its bytecode to 17 even on a JDK 25 toolchain.
+        if (project.name == 'WebClient') {
+            options.release = 17
+        }
     }
     tasks.withType(AbstractTestTask).configureEach {
         failOnNoDiscoveredTests = false
@@ -502,13 +507,13 @@ project(':jrmserver') {
 		implementation 'commons-io:commons-io:2.+'
 		implementation 'commons-daemon:commons-daemon:latest.release'
 		implementation 'org.apache.commons:commons-lang3:3.+'
-		implementation 'org.eclipse.jetty:jetty-server:12.+'
-		implementation 'org.eclipse.jetty.ee9:jetty-ee9-servlet:12.+'
-		implementation 'org.eclipse.jetty:jetty-security:12.+'
-		implementation 'org.eclipse.jetty:jetty-session:12.+'
-		implementation 'org.eclipse.jetty:jetty-alpn-server:12.+'
-		implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server:12.+'
-		implementation 'org.eclipse.jetty.http2:jetty-http2-server:12.+'
+		implementation 'org.eclipse.jetty:jetty-server:12.1.10'
+		implementation 'org.eclipse.jetty.ee9:jetty-ee9-servlet:12.1.10'
+		implementation 'org.eclipse.jetty:jetty-security:12.1.10'
+		implementation 'org.eclipse.jetty:jetty-session:12.1.10'
+		implementation 'org.eclipse.jetty:jetty-alpn-server:12.1.10'
+		implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server:12.1.10'
+		implementation 'org.eclipse.jetty.http2:jetty-http2-server:12.1.10'
 		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 		implementation 'com.google.code.gson:gson:latest.release'
 		implementation 'one.util:streamex:0.8.+'
@@ -521,8 +526,8 @@ project(':jrmserver') {
 		implementation 'ch.qos.logback:logback-classic:latest.release'
 		implementation files(wcjar)
 
-		testImplementation 'org.eclipse.jetty:jetty-client:12.+'
-		testImplementation 'org.eclipse.jetty:jetty-http:12.+'
+		testImplementation 'org.eclipse.jetty:jetty-client:12.1.10'
+		testImplementation 'org.eclipse.jetty:jetty-http:12.1.10'
 		testImplementation 'org.awaitility:awaitility:4.+'
     	testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
     	testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")

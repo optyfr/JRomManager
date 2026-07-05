@@ -19,11 +19,12 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -811,7 +812,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
     }
 
     private File createReportFile(final File reportdir) {
-        return new File(reportdir, "report-" + new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + ".log");
+        return new File(reportdir, "report-" + DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS").format(LocalDateTime.now(ZoneId.systemDefault())) + ".log");
     }
 
     private void writeReportHeader(PrintWriter reportWriter) {

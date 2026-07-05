@@ -629,9 +629,7 @@ public class BatchToolsPanelController extends BaseController {
                                 item.setResult("");
                         }
                     };
-                    final var thread = new Thread(buildDir2DatTask(sdrl, updater));
-                    thread.setDaemon(true);
-                    thread.start();
+                    Thread.startVirtualThread(buildDir2DatTask(sdrl, updater));
                 } catch (URISyntaxException | IOException ex) {
                     Log.err(ex.getMessage(), ex);
                 }
@@ -669,9 +667,7 @@ public class BatchToolsPanelController extends BaseController {
                 opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
             try {
-                final var thread = new Thread(buildTorrentTask(sdrl, mode, updater, opts));
-                thread.setDaemon(true);
-                thread.start();
+                Thread.startVirtualThread(buildTorrentTask(sdrl, mode, updater, opts));
             } catch (URISyntaxException | IOException ex) {
                 Log.err(ex.getMessage(), ex);
                 Dialogs.showError(ex);

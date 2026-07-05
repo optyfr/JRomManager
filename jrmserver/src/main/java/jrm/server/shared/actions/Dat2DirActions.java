@@ -1,7 +1,7 @@
 package jrm.server.shared.actions;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -166,7 +166,7 @@ public class Dat2DirActions {
                 session.setCurrScan(null);
                 session.getWorker().progress.close();
                 session.getWorker().progress = null;
-                session.setLastAction(new Date());
+                session.setLastAction(Instant.now());
             }
         }))).start();
     }
