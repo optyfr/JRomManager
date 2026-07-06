@@ -241,7 +241,7 @@ public class Server extends AbstractServer {
      * {@link SessionListener}.</li>
      * <li>Wraps the servlet context in a {@link GzipHandler} for HTTP response compression.</li>
      * <li>Configures the HTTP connector with the specified port and bind address, and adds it to the server.</li>
-     * <li>Adds a {@link ConnectionLimit} to restrict the number of simultaneous connections.</li>
+     * <li>Adds a {@link NetworkConnectionLimit} to restrict the number of simultaneous connections.</li>
      * <li>Starts the server and logs the configuration details.</li>
      * </ol>
      *
@@ -363,7 +363,7 @@ public class Server extends AbstractServer {
         try {
             terminate();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.err(e.getMessage(), e);
         }
     }
 
