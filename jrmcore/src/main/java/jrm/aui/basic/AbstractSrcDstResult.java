@@ -9,6 +9,8 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
+import jrm.misc.Log;
+
 /**
  * AbstractSrcDstResult is an abstract class that represents a source-destination result. It provides methods to set and get the
  * source, destination, result, and selection status. It also includes methods to convert the object to and from JSON format.
@@ -168,7 +170,7 @@ public abstract class AbstractSrcDstResult {
                 }
                 sdrl.add(sdr);
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.err(() ->e.getMessage() + " for " + json, e);
             }
         }
         return sdrl;

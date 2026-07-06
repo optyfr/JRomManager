@@ -893,7 +893,7 @@ public class FullServer extends AbstractServer {
         try {
             terminate();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.err(e.getMessage(), e);
         }
     }
 
