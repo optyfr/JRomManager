@@ -49,17 +49,15 @@ public class BatchDirUpd8rResultsController extends BaseController {
     public void initialize(URL location, ResourceBundle resources) {
         ok.setOnAction(_ -> ok.getScene().getWindow().hide());
         resultList.setSelectionModel(null);
-        
+
         setupStringColumn(datCol, result -> result.getDat().toString());
         setupIntegerColumn(haveCol, Color.GREEN, Report.Stats::getSetFoundOk);
         setupIntegerColumn(createCol, Color.BLUE, Report.Stats::getSetCreateComplete);
         setupIntegerColumn(fixCol, Color.DARKVIOLET, Report.Stats::getSetFoundFixComplete);
-        setupIntegerColumn(missCol, Color.RED, stats -> 
-            stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing()
-            - (stats.getSetCreateComplete() + stats.getSetFoundFixComplete() + stats.getSetFoundOk()));
-        setupIntegerColumn(totalCol, null, stats -> 
-            stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing());
-        
+        setupIntegerColumn(missCol, Color.RED, stats -> stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing()
+                - (stats.getSetCreateComplete() + stats.getSetFoundFixComplete() + stats.getSetFoundOk()));
+        setupIntegerColumn(totalCol, null, stats -> stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing());
+
         reportCol.setCellFactory(_ -> new ButtonCellFactory<>("Report", cell -> {
             final var result = resultList.getItems().get(cell.getIndex());
             try {
@@ -69,16 +67,15 @@ public class BatchDirUpd8rResultsController extends BaseController {
             }
         }));
     }
-    
+
     /**
      * Configures a table column to display integer values with custom color and right alignment.
      *
-     * @param col       the table column to configure
-     * @param color     the text color, or null for default color
+     * @param col the table column to configure
+     * @param color the text color, or null for default color
      * @param extractor function to extract the integer value from the stats object
      */
-    private void setupIntegerColumn(TableColumn<DirUpdaterResult, Integer> col, Color color, 
-                                     ToIntFunction<Report.Stats> extractor) {
+    private void setupIntegerColumn(TableColumn<DirUpdaterResult, Integer> col, Color color, ToIntFunction<Report.Stats> extractor) {
         col.setCellFactory(_ -> new ColoredIntegerCellFactory<>(color, Pos.CENTER_RIGHT));
         col.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override
@@ -87,15 +84,14 @@ public class BatchDirUpd8rResultsController extends BaseController {
             }
         });
     }
-    
+
     /**
      * Configures a table column to display string values with leading ellipsis and tooltip.
      *
-     * @param col       the table column to configure
+     * @param col the table column to configure
      * @param extractor function to extract the string value from the result object
      */
-    private void setupStringColumn(TableColumn<DirUpdaterResult, String> col, 
-                                   Function<DirUpdaterResult, String> extractor) {
+    private void setupStringColumn(TableColumn<DirUpdaterResult, String> col, Function<DirUpdaterResult, String> extractor) {
         col.setCellFactory(_ -> new EllipsisStringCellFactory<>(OverrunStyle.LEADING_ELLIPSIS));
         col.setCellValueFactory(param -> new ObservableValueBase<>() {
             @Override

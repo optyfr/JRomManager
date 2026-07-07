@@ -11,8 +11,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import jrm.misc.Log;
 
 interface JFileDrop extends DropTargetListener {
@@ -48,7 +46,7 @@ interface JFileDrop extends DropTargetListener {
             else if (getFilter() != null)
                 return getFilter().accept(f.getParentFile(), f.getName());
             return true;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public boolean checkValid(final List<File> files);

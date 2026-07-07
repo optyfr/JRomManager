@@ -27,12 +27,14 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import jrm.locale.Messages;
+import jrm.misc.BreakException;
 import jrm.misc.Log;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.Profile;
 import jrm.profile.fix.Fix;
 import jrm.profile.manager.ProfileNFO;
 import jrm.profile.scan.Scan;
+import jrm.profile.scan.ScanException;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
 import jrm.ui.basic.JRMFileChooser;
@@ -255,11 +257,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
                     if (MainFrame.getProfileViewer() != null)
                         MainFrame.getProfileViewer().reload();
                     ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
-                    if (MainFrame.getReportFrame() != null) {
-                        if (automation.hasReport())
-                            MainFrame.getReportFrame().setVisible(true);
-                        MainFrame.getReportFrame().setNeedUpdate(true);
-                    }
+                    updateReportFrame(automation);
                     if (automate && btnFix.isEnabled() && automation.hasFix()) {
                         fix(session);
                     }
@@ -267,16 +265,28 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
                     Log.err(e.getMessage(), e);
                     Thread.currentThread().interrupt();
                 } catch (Exception e) {
-                    Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
-                        Log.err(cause.getMessage(), cause);
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
-                    }, () -> {
-                        Log.err(e.getMessage(), e);
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
-                    });
+                    handleScanError(e);
                 }
             }
         }.execute();
+    }
+
+    private void updateReportFrame(ScanAutomation automation) {
+        if (MainFrame.getReportFrame() != null) {
+            if (automation.hasReport())
+                MainFrame.getReportFrame().setVisible(true);
+            MainFrame.getReportFrame().setNeedUpdate(true);
+        }
+    }
+
+    private void handleScanError(Exception e) {
+        Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
+            Log.err(cause.getMessage(), cause);
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+        }, () -> {
+            Log.err(e.getMessage(), e);
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
+        });
     }
 
     /**
@@ -288,26 +298,32 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
 
             @Override
             protected Void doInBackground() throws Exception {
-                if (session.getCurrProfile().hasPropsChanged()) {
-                    switch (JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), //$NON-NLS-1$
-                            Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION)) //$NON-NLS-1$
-                    {
-                        case JOptionPane.YES_OPTION:
-                            session.setCurrScan(new Scan(session.getCurrProfile(), this));
-                            toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
-                            if (!toFix)
-                                return null;
-                            break;
-                        case JOptionPane.NO_OPTION:
-                            break;
-                        case JOptionPane.CANCEL_OPTION:
-                        default:
-                            return null;
-                    }
-                }
+                if (session.getCurrProfile().hasPropsChanged() && handlePropsChanged(session))
+                    return null;
                 final Fix fix = new Fix(session.getCurrProfile(), session.getCurrScan(), this);
                 toFix = fix.getActionsRemain() > 0;
                 return null;
+            }
+
+            /**
+             * Ask the user how to handle changed profile properties, optionally re-scanning before fixing.
+             *
+             * @param session the current session
+             * @return {@code true} if the fix should be aborted, {@code false} otherwise
+             * @throws ScanException 
+             * @throws BreakException 
+             */
+            private boolean handlePropsChanged(final Session session) throws BreakException, ScanException {
+                final int choice = JOptionPane.showConfirmDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), Messages.getString("MainFrame.WarnSettingsChanged"), //$NON-NLS-1$
+                        Messages.getString("MainFrame.RescanBeforeFix"), JOptionPane.YES_NO_CANCEL_OPTION); //$NON-NLS-1$
+                if (choice == JOptionPane.NO_OPTION)
+                    return false;
+                if (choice == JOptionPane.YES_OPTION) {
+                    session.setCurrScan(new Scan(session.getCurrProfile(), this));
+                    toFix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
+                    return !toFix;
+                }
+                return true;
             }
 
             @Override
@@ -326,13 +342,7 @@ public class ScannerPanel extends JPanel implements ProfileLoader {
                     Log.err(e.getMessage(), e);
                     Thread.currentThread().interrupt();
                 } catch (Exception e) {
-                    Optional.ofNullable(e.getCause()).ifPresentOrElse(cause -> {
-                        Log.err(cause.getMessage(), cause);
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), cause.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
-                    }, () -> {
-                        Log.err(e.getMessage(), e);
-                        JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ScannerPanel.this), e.getMessage(), ERROR_STR, JOptionPane.ERROR_MESSAGE);
-                    });
+                    handleScanError(e);
                 }
             }
 

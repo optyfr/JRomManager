@@ -65,9 +65,7 @@ public class SettingsCompressorsPanel extends JPanel {
 
     /**
      * Create the panel.
-     */
-    /**
-     * @param session
+     * @param session the session
      */
     public SettingsCompressorsPanel(final Session session) {
         this.setLayout(new BorderLayout(0, 0));

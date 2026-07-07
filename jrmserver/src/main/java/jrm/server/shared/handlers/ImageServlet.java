@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -96,10 +93,10 @@ public class ImageServlet extends HttpServlet {
     private boolean ifModifiedSince(HttpServletRequest req, URLConnection urlconn) {
         String ifModifiedSince = req.getHeader("if-modified-since");
         try {
-            if (ifModifiedSince != null && dateParse(ifModifiedSince).getTime() / 1000 == urlconn.getLastModified() / 1000) {
+            if (ifModifiedSince != null && dateParse(ifModifiedSince).toEpochSecond() == urlconn.getLastModified() / 1000) {
                 return false;
             }
-        } catch (ParseException _) {
+        } catch (DateTimeParseException _) {
             // ignore
         }
         return true;
@@ -196,21 +193,19 @@ public class ImageServlet extends HttpServlet {
     }
 
     /**
-     * Parses an HTTP date string in RFC 1123 format into a {@link Date} object.
+     * Parses an HTTP date string in RFC 1123 format into a {@link ZonedDateTime} object.
      * <p>
-     * The expected format is {@code "E, d MMM yyyy HH:mm:ss z"} (e.g., {@code "Wed, 21 Oct 2015 07:28:00 GMT"}), parsed in the GMT
-     * time zone using the US locale.
+     * The expected format follows RFC 1123 (e.g., {@code "Wed, 21 Oct 2015 07:28:00 GMT"}), parsed using the
+     * {@link DateTimeFormatter#RFC_1123_DATE_TIME} formatter, which uses the US locale for day and month names.
      * </p>
      * 
      * @param str the HTTP date string to parse
      * 
-     * @return the parsed {@link Date} object
+     * @return the parsed {@link ZonedDateTime} object
      * 
-     * @throws ParseException if the string cannot be parsed as a valid HTTP date
+     * @throws DateTimeParseException if the string cannot be parsed as a valid HTTP date
      */
-    private static Date dateParse(final String str) throws ParseException {
-        final var gmtFrmt = new SimpleDateFormat("E, d MMM yyyy HH:mm:ss z", Locale.US);
-        gmtFrmt.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT")));
-        return gmtFrmt.parse(str);
+    private static ZonedDateTime dateParse(final String str) {
+        return ZonedDateTime.parse(str, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 }

@@ -506,7 +506,6 @@ public class FullServer extends AbstractServer {
             Log.init(getLogPath() + "/Server.%g.log", false, 1024 * 1024, 5);
         } catch (ParameterException e) {
             Log.err(e.getMessage(), e);
-            e.printStackTrace();
             cmd.usage();
             System.exit(1);
         }

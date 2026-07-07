@@ -15,8 +15,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
@@ -146,7 +144,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
 
             @SuppressWarnings("unchecked")
             final List<File> files = ((List<File>) transferable.getTransferData(DataFlavor.javaFileListFlavor)).stream().filter(f -> dropFilter(col, f))
-                    .collect(Collectors.toList());
+                    .toList();
             if (!files.isEmpty()) {
                 final var startSize = model.getData().size();
                 for (int i = 0; i < files.size(); i++)
@@ -159,7 +157,7 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
                 dtde.getDropTargetContext().dropComplete(true);
             } else
                 dtde.getDropTargetContext().dropComplete(false);
-        } catch (final UnsupportedFlavorException e) {
+        } catch (final UnsupportedFlavorException _) {
             dtde.rejectDrop();
         } catch (final Exception e) {
             Log.err(e.getMessage(), e);

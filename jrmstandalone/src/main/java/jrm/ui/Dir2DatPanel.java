@@ -518,7 +518,7 @@ public class Dir2DatPanel extends JPanel {
             protected Void doInBackground() throws Exception {
                 final String src = tfDir2DatSrc.getText();
                 final String dst = tfDir2DatDst.getText();
-                if (src != null && src.length() > 0 && dst != null && dst.length() > 0) {
+                if (src != null && !src.isEmpty() && dst != null && !dst.isEmpty()) {
                     final File srcdir = new File(src);
                     if (srcdir.isDirectory()) {
                         final File dstdat = new File(dst);

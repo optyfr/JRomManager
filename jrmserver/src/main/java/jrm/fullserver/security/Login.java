@@ -22,6 +22,7 @@ import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
+import lombok.Setter;
 import lombok.val;
 
 /**
@@ -138,6 +139,7 @@ public class Login extends SQL implements LoginService {
      * user identities are stored in memory. It is important to handle the cachetime correctly to maintain the security and
      * integrity of the authentication system while also improving performance by reducing database queries for user authentication.
      */
+    @Setter
     private static long cachetime = System.currentTimeMillis();
 
     /**
@@ -259,7 +261,7 @@ public class Login extends SQL implements LoginService {
         try {
             if (60000 < (System.currentTimeMillis() - cachetime)) {
                 cache.clear();
-                cachetime = System.currentTimeMillis();
+                setCachetime(System.currentTimeMillis());
             }
             if (sessionid != null && cache.containsKey(username + ":" + sessionid))
                 return cache.get(username + ":" + sessionid);

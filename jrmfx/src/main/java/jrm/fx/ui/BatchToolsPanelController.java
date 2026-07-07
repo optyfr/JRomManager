@@ -244,8 +244,8 @@ public class BatchToolsPanelController extends BaseController {
             protected Void call() throws Exception {
                 final var cnt = new AtomicInteger();
                 final var compressor = new Compressor(session, cnt, tvBatchToolsCompressor.getItems().size(), this);
-                final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
-                final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+                final var useParallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
+                final var nThreads = Boolean.TRUE.equals(useParallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
                 setInfos(nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads, true);
                 tvBatchToolsCompressor.getItems().forEach(fr -> fr.setResult(""));

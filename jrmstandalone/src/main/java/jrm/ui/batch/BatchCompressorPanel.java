@@ -383,8 +383,8 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
                     table.setValueAt("", i, 1);
                 final var cnt = new AtomicInteger();
                 final var compressor = new Compressor(session, cnt, table.getRowCount(), this);
-                final var use_parallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
-                final var nThreads = Boolean.TRUE.equals(use_parallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+                final var useParallelism = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_parallelism, Boolean.class);
+                final var nThreads = Boolean.TRUE.equals(useParallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
                 try (final var mt = new MultiThreadingVirtual<FileResult>("compressor", this, nThreads, fr -> {
                     if (isCancel())
                         return;
