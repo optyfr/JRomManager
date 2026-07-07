@@ -13,9 +13,11 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * Anless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License.
+ * A custom table cell editor and renderer for displaying buttons in a JTable.
+ * <p>
+ * This class provides a way to add interactive buttons to table cells, allowing users to
+ * trigger actions when clicking on them.
+ * </p>
  *
  * @see AbstractCellEditor
  * @see TableCellEditor

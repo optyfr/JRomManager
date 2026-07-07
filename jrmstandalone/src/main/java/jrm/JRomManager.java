@@ -52,11 +52,6 @@ public final class JRomManager {
      * <p>
      * Uses JCommander annotations to parse command-line parameters.
      */
-    /**
-     * Command-line argument container for the application.
-     * <p>
-     * Uses JCommander annotations to parse command-line parameters.
-     */
     @Parameters(separators = " =")
     private static class Args {
         /** Whether to enable multi-user mode. */
