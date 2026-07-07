@@ -62,7 +62,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
             final var result = resultList.getItems().get(cell.getIndex());
             try {
                 new ReportLite((Stage) resultList.getScene().getWindow(), Report.load(session, result.getDat()));
-            } catch (IOException | URISyntaxException e1) {
+            } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
                 Log.err("Failed to load report for " + result.getDat(), e1);
             }
         }));

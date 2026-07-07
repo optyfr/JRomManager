@@ -73,6 +73,7 @@ import jrm.profile.scan.ScanException;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import lombok.Setter;
 import lombok.val;
 
 public class JRomManagerCLI {
@@ -84,7 +85,8 @@ public class JRomManagerCLI {
     private static final AttributedStyle STYLE_CYAN_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN).bold();
     @SuppressWarnings("unused")
     private static final AttributedStyle STYLE_DIM = AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT).italic();
-    Session session;
+    @Setter
+    static Session session;
     Path cwdir = null;
     Path rootdir = null;
 
@@ -110,7 +112,7 @@ public class JRomManagerCLI {
                 .build();
         out = terminal.writer();
 
-        session = Sessions.getSession(true, false);
+        setSession(Sessions.getSession(true, false));
         rootdir = cwdir = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize(); //$NON-NLS-1$
         StatusRendererFactory.Factory.setInstance(new PlainTextRenderer());
         Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5); //$NON-NLS-1$

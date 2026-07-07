@@ -225,7 +225,7 @@ public class BatchToolsPanelController extends BaseController {
                 final var thread = new Thread(startCompression());
                 thread.setDaemon(true);
                 thread.start();
-            } catch (IOException | URISyntaxException e1) {
+            } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
                 Log.err(e1.getMessage(), e1);
             }
         });

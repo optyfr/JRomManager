@@ -277,7 +277,7 @@ public class ProfilePanelController implements Initializable {
                     final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
                     columnToFitMethod.setAccessible(true); // NOSONAR
                     columnToFitMethod.invoke(th, -1);
-                } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException e) /* NOSONAR */ {
                     Log.err("Failed to resize column " + columns.get(i).getText(), e);
                 }
 
