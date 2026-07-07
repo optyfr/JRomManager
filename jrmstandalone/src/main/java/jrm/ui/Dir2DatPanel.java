@@ -34,26 +34,53 @@ import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JTextFieldHintUI;
 import jrm.ui.progress.SwingWorkerProgress;
 
+/**
+ * Panel for scanning a directory and generating a DAT file from its contents.
+ * <p>
+ * Provides controls for selecting source and destination directories, configuring scan options
+ * (subfolders, deep scan, hash algorithms), and specifying DAT header metadata (name, description,
+ * version, author, etc.). Supports multiple DAT formats including Logiqx XML and MAME-compatible formats.
+ */
 @SuppressWarnings("serial")
 public class Dir2DatPanel extends JPanel {
+    /** Preference key for the destination DAT file path. */
     private static final String MAIN_FRAME_CHOOSE_DAT_DST = "MainFrame.ChooseDatDst";
+    /** Preference key for the source directory path. */
     private static final String MAIN_FRAME_CHOOSE_DAT_SRC = "MainFrame.ChooseDatSrc";
+    /** Text field for the source directory to scan. */
     private JFileDropTextField tfDir2DatSrc;
+    /** Text field for the destination DAT file path. */
     private JFileDropTextField tfDir2DatDst;
+    /** Button group for selecting the DAT output format. */
     private final ButtonGroup btngrpDir2DatFormat = new ButtonGroup();
+    /** Text field for the DAT name header. */
     private JTextField tfDir2DatName;
+    /** Text field for the DAT description header. */
     private JTextField tfDir2DatDescription;
+    /** Text field for the DAT version header. */
     private JTextField tfDir2DatVersion;
+    /** Text field for the DAT author header. */
     private JTextField tfDir2DatAuthor;
+    /** Text field for the DAT comment header. */
     private JTextField tfDir2DatComment;
+    /** Text field for the DAT category header. */
     private JTextField tfDir2DatCategory;
+    /** Text field for the DAT date header. */
     private JTextField tfDir2DatDate;
+    /** Text field for the DAT email header. */
     private JTextField tfDir2DatEMail;
+    /** Text field for the DAT homepage URL header. */
     private JTextField tfDir2DatHomepage;
+    /** Text field for the DAT URL header. */
     private JTextField tfDir2DatURL;
 
     /**
-     * Create the panel.
+     * Constructs the Dir2Dat panel.
+     * <p>
+     * Initializes the UI with source/destination directory selectors, scan option checkboxes,
+     * and DAT header metadata fields. All settings are persisted to the user's preferences.
+     *
+     * @param session the current user session providing access to settings
      */
     public Dir2DatPanel(final Session session) {
         GridBagLayout gblDir2DatTab = new GridBagLayout();

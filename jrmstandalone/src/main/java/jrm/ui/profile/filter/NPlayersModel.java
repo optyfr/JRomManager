@@ -5,10 +5,22 @@ import javax.swing.AbstractListModel;
 import jrm.profile.filter.NPlayer;
 import jrm.profile.filter.NPlayers;
 
+/**
+ * List model providing the collection of player count filters.
+ * <p>
+ * Wraps an {@link NPlayers} instance to expose individual {@link NPlayer} entries
+ * for use in combo boxes or lists.
+ */
 @SuppressWarnings("serial")
 public class NPlayersModel extends AbstractListModel<NPlayer> {
+    /** The underlying player count collection. */
     private final transient NPlayers nplayers;
 
+    /**
+     * Constructs a new player count model.
+     *
+     * @param nplayers the player count collection to display
+     */
     public NPlayersModel(final NPlayers nplayers) {
         this.nplayers = nplayers;
     }

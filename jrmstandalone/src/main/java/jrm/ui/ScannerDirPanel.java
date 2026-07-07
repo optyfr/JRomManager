@@ -34,49 +34,49 @@ import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.basic.JTextFieldHintUI;
 import jrm.ui.basic.Popup;
 
+/**
+ * Panel for configuring scanner source and destination directories.
+ * <p>
+ * Provides controls for selecting ROM/disk source directories, destination paths for
+ * ROMs, disks, samples, backups, and software list entries. Supports drag-and-drop
+ * for directory selection and context menus for managing entries.
+ */
 @SuppressWarnings("serial")
 public class ScannerDirPanel extends JPanel {
+    /** Preference key for the samples destination directory. */
     private static final String MAIN_FRAME_CHOOSE_SAMPLES_DESTINATION = "MainFrame.ChooseSamplesDestination";
-
+    /** Preference key for the backup destination directory. */
     private static final String MAIN_FRAME_CHOOSE_BACKUP_DESTINATION = "MainFrame.ChooseBackupDestination";
-
+    /** Preference key for the software list disks destination directory. */
     private static final String MAIN_FRAME_CHOOSE_SW_DISKS_DESTINATION = "MainFrame.ChooseSWDisksDestination";
-
+    /** Preference key for the software list ROMs destination directory. */
     private static final String MAIN_FRAME_CHOOSE_SW_ROMS_DESTINATION = "MainFrame.ChooseSWRomsDestination";
-
+    /** Preference key for the disks destination directory. */
     private static final String MAIN_FRAME_CHOOSE_DISKS_DESTINATION = "MainFrame.ChooseDisksDestination";
-
+    /** Preference key for the ROMs destination directory. */
     private static final String MAIN_FRAME_CHOOSE_ROMS_DESTINATION = "MainFrame.ChooseRomsDestination";
-
+    /** Preference key for the drop directory hint text. */
     private static final String MAIN_FRAME_DROP_DIR_HINT = "MainFrame.DropDirHint";
-
+    /** Resource path for the disk icon. */
     private static final String ICONS_DISK = "/jrm/resicons/icons/disk.png";
 
-    /** The lbl disks dest. */
+    /** Checkbox to enable disk destination processing. */
     private JCheckBox lblDisksDest;
-
-    /** The lbl samples dest. */
+    /** Checkbox to enable samples destination processing. */
     private JCheckBox lblSamplesDest;
-
-    /** The lbl backup dest. */
+    /** Checkbox to enable backup destination processing. */
     private JCheckBox lblBackupDest;
-
-    /** The lbl SW dest. */
+    /** Checkbox to enable software list ROM destination processing. */
     private JCheckBox lblSWDest;
-
-    /** The lbl SW disks dest. */
+    /** Checkbox to enable software list disk destination processing. */
     private JCheckBox lblSWDisksDest;
-
-    /** The list src dir. */
+    /** List of source directories to scan. */
     private JFileDropList listSrcDir;
-
-    /** The mntm delete selected. */
+    /** Context menu item to delete selected source directory entries. */
     private JMenuItem mntmDeleteSelected;
-
-    /** The tf disks dest. */
+    /** Text field for the disk destination directory. */
     private JFileDropTextField tfDisksDest;
-
-    /** The tf samples dest. */
+    /** Text field for the samples destination directory. */
     private JFileDropTextField tfSamplesDest;
 
     /** The tf samples dest. */

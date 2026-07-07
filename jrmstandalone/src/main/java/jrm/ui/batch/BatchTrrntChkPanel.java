@@ -55,18 +55,30 @@ import jrm.ui.basic.Popup;
 import jrm.ui.basic.SDRTableModel;
 import jrm.ui.progress.SwingWorkerProgress;
 
+/**
+ * Panel for batch torrent check operations.
+ * <p>
+ * Provides controls for checking and fixing torrent-structured directories.
+ */
 @SuppressWarnings("serial")
 public class BatchTrrntChkPanel extends JPanel {
+    /** Table for torrent check source/destination entries. */
     private JSDRDropTable tableTrntChk;
+    /** Combo box for selecting the torrent check mode. */
     private JComboBox<TrntChkMode> cbbxTrntChk;
+    /** Checkbox to remove unknown files during torrent check. */
     private JCheckBox cbRemoveUnknownFiles;
+    /** Checkbox to remove wrong-sized files during torrent check. */
     private JCheckBox cbRemoveWrongSizedFiles;
-
+    /** Position for popup menu. */
     private Point popupPoint;
+    /** Checkbox to detect archived folders. */
     private JCheckBox chckbxDetectArchivedFolder;
 
     /**
-     * Create the panel.
+     * Constructs the batch torrent check panel.
+     *
+     * @param session the user session for accessing settings
      */
     public BatchTrrntChkPanel(final @Nonnull Session session) {
         final GridBagLayout gblPanelBatchToolsDir2Torrent = new GridBagLayout();
@@ -88,7 +100,7 @@ public class BatchTrrntChkPanel extends JPanel {
         BatchTableModel model = new BatchTableModel(new String[] { Messages.getString("MainFrame.TorrentFiles"), Messages.getString("MainFrame.DstDirs"),
                 Messages.getString("MainFrame.Result"), "Details", "Selected" });
         tableTrntChk = new JSDRDropTable(model, files -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(files)));
-        model.setButtonHandler((row, _) -> new BatchTrrntChkResultsDialog(session, SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this),
+        model.setButtonHandler((row, _) -> new BatchTrrntChkResultsDialog(SwingUtilities.getWindowAncestor(BatchTrrntChkPanel.this),
                 TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, model.getData().get(row).getSrc()).toFile())));
         tableTrntChk.addMouseListener(getTableTrntChkMouseListener());
         ((BatchTableModel) tableTrntChk.getModel()).applyColumnsWidths(tableTrntChk);

@@ -7,9 +7,21 @@ import javax.swing.event.TableModelEvent;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.SoftwareListList;
 
+/**
+ * Table model for displaying a list of software lists.
+ * <p>
+ * Provides data for the software list list table, showing aggregated
+ * statistics for each software list.
+ */
 public class SoftwareListListModel extends AnywareListListModel {
+    /** The underlying software list list data. */
     private SoftwareListList softwareListList;
 
+    /**
+     * Constructs a new software list list model.
+     *
+     * @param softwareListList the software list list to display
+     */
     public SoftwareListListModel(SoftwareListList softwareListList) {
         this.softwareListList = softwareListList;
     }

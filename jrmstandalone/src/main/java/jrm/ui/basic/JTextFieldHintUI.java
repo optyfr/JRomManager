@@ -18,21 +18,29 @@ import javax.swing.plaf.basic.BasicTextFieldUI;
 import javax.swing.text.JTextComponent;
 
 /**
- * The Class JTextFieldHintUI.
+ * A custom {@link BasicTextFieldUI} delegate that renders a hint message when the text field is empty and unfocused.
+ * <p>
+ * When the text component contains no text, does not have focus, and is enabled, this UI delegate
+ * paints an italic hint string within the text field. The hint disappears automatically when the
+ * user focuses the field or types text.
+ * </p>
+ *
+ * @see javax.swing.JTextField
+ * @see BasicTextFieldUI
  */
 public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener {
 
-    /** The hint. */
+    /** The hint text displayed when the field is empty and unfocused. */
     private final String hint;
 
-    /** The hint color. */
+    /** The color used to render the hint text. */
     private final Color hintColor;
 
     /**
-     * Instantiates a new j text field hint UI.
+     * Constructs a new text field hint UI delegate.
      *
-     * @param hint the hint
-     * @param hintColor the hint color
+     * @param hint the hint text to display when the field is empty
+     * @param hintColor the {@link Color} used to render the hint text
      */
     public JTextFieldHintUI(final String hint, final Color hintColor) {
         this.hint = hint;
@@ -40,7 +48,7 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener 
     }
 
     /**
-     * Repaint.
+     * Triggers a repaint of the associated text component.
      */
     private void repaint() {
         if (getComponent() != null) {
@@ -48,6 +56,15 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * After the default paint, if the text component is empty, unfocused, and enabled,
+     * the hint text is drawn in italic font at the left edge of the component.
+     * </p>
+     *
+     * @param g the {@link Graphics} context to paint with
+     */
     @Override
     protected void paintSafely(final Graphics g) {
         // Render the default text field UI
@@ -63,22 +80,50 @@ public class JTextFieldHintUI extends BasicTextFieldUI implements FocusListener 
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Triggers a repaint to hide the hint when focus is gained.
+     * </p>
+     *
+     * @param e the {@link FocusEvent}
+     */
     @Override
     public void focusGained(final FocusEvent e) {
         repaint();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Triggers a repaint to show the hint when focus is lost.
+     * </p>
+     *
+     * @param e the {@link FocusEvent}
+     */
     @Override
     public void focusLost(final FocusEvent e) {
         repaint();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Installs the default listeners and adds this instance as a focus listener on the text component.
+     * </p>
+     */
     @Override
     public void installListeners() {
         super.installListeners();
         getComponent().addFocusListener(this);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Removes this instance as a focus listener from the text component, then uninstalls the default listeners.
+     * </p>
+     */
     @Override
     public void uninstallListeners() {
         super.uninstallListeners();

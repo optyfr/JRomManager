@@ -9,6 +9,11 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+/**
+ * Cell renderer for File objects in tables.
+ * <p>
+ * Displays file paths with ellipsis truncation when the path is too long.
+ */
 @SuppressWarnings("serial")
 class FileCellRenderer extends DefaultTableCellRenderer {
     @Override

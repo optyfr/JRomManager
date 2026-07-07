@@ -1,5 +1,5 @@
 /**
- * Provides gui for profile manager
+ * Provides GUI controls for the profile manager.
  * 
  * @author optyfr
  */

@@ -12,12 +12,25 @@ import jrm.profile.filter.CatVer.Category;
 import jrm.profile.filter.CatVer.Category.SubCategory;
 import jrm.ui.basic.AbstractNGTreeNode;
 
+/**
+ * Tree node representing a category/version (CatVer) filter.
+ * <p>
+ * Provides a hierarchical view of machine categories and subcategories
+ * for filtering purposes. Caches child category nodes for performance.
+ */
 public class CatVerNode extends AbstractNGTreeNode {
 
+    /** The underlying CatVer filter data. */
     private final CatVer catver;
 
+    /** Cache of child category nodes keyed by category name. */
     private final Map<String, CategoryNode> categoryNodeCache = new HashMap<>();
 
+    /**
+     * Constructs a new CatVer tree node.
+     *
+     * @param catver the CatVer filter data to represent
+     */
     public CatVerNode(final CatVer catver) {
         this.catver = catver;
     }

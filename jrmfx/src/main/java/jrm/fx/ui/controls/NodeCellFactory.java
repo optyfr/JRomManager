@@ -6,6 +6,15 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import jrm.fx.ui.status.NeutralToNodeFormatter;
 
+/**
+ * A table cell that renders neutral markup as JavaFX nodes.
+ * <p>
+ * Parses the string content using {@link NeutralToNodeFormatter} and displays the
+ * resulting node graph (labels, progress bars) in the cell.
+ *
+ * @param <T> the type of the TableView items
+ * @since 2.5
+ */
 public final class NodeCellFactory<T> extends TableCell<T, String> {
     @Override
     protected void updateItem(String item, boolean empty) {

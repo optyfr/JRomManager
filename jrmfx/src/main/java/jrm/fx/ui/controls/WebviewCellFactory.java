@@ -7,6 +7,16 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.util.Callback;
 
+/**
+ * A table cell factory that renders HTML content in an embedded {@link WebView}.
+ * <p>
+ * The cell creates a new WebView for each row and loads the HTML string as content.
+ * The WebView is styled with a transparent background and reduced font scale.
+ *
+ * @param <S> the type of the TableView items
+ * @param <T> the type of the cell item
+ * @since 2.5
+ */
 public class WebviewCellFactory<S, T> implements Callback<TableColumn<S, T>, TableCell<S, T>> {
     @Override
     public TableCell<S, T> call(TableColumn<S, T> column) {

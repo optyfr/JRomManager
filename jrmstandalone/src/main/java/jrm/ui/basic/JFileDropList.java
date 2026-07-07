@@ -25,41 +25,49 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 /**
- * The Class JFileDropList.
+ * A list component that accepts file drops via drag-and-drop.
+ * <p>
+ * This component extends {@link JList} to display dropped files and implements {@link JFileDrop}
+ * for shared drop handling logic. The background color changes to indicate valid or invalid drop targets.
+ * A callback is invoked whenever files are added or removed from the list.
+ * </p>
+ *
+ * @see JFileDrop
+ * @see JFileDropMode
  */
 @SuppressWarnings("serial")
 public class JFileDropList extends JList<File> implements JFileDrop {
 
-    /** The color. */
+    /** The original background color, restored after drag operations. */
     private final Color color;
 
-    /** The add call back. */
+    /** The callback invoked when files are added or removed. */
     private final transient AddDelCallBack addCallBack;
 
-    /** The mode. */
+    /** The current drop mode controlling which file types are accepted. */
     private JFileDropMode mode = JFileDropMode.FILE;
 
-    /** The filter */
+    /** The optional filename filter applied to dropped files. */
     private transient FilenameFilter filter = null;
 
     /**
-     * The Interface AddDelCallBack.
+     * Callback interface invoked when the file list changes.
      */
     @FunctionalInterface
     public interface AddDelCallBack {
 
         /**
-         * Call.
+         * Called when files are added to or removed from the list.
          *
-         * @param files the files
+         * @param files the current list of {@link File} objects in the list
          */
         public void call(List<File> files);
     }
 
     /**
-     * Instantiates a new j file drop list.
+     * Constructs a new file drop list.
      *
-     * @param addCallBack the add call back
+     * @param addCallBack the {@link AddDelCallBack} invoked when files are added or removed
      */
     public JFileDropList(final AddDelCallBack addCallBack) {
         super(new DefaultListModel<>());
@@ -69,18 +77,31 @@ public class JFileDropList extends JList<File> implements JFileDrop {
     }
 
     /**
-     * Sets the mode.
+     * Sets the drop mode controlling which file types are accepted.
      *
-     * @param mode the new mode
+     * @param mode the {@link JFileDropMode} to set
      */
     public void setMode(JFileDropMode mode) {
         this.mode = mode;
     }
 
+    /**
+     * Sets the filename filter applied to dropped files.
+     *
+     * @param filter the {@link FilenameFilter} to set, or {@code null} to accept all files
+     */
     public void setFilter(FilenameFilter filter) {
         this.filter = filter;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Changes the background color to green for valid drops or red for invalid drops.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDragEvent}
+     */
     @Override
     public void dragEnter(final DropTargetDragEvent dtde) {
         final Transferable transferable = dtde.getTransferable();
@@ -93,31 +114,59 @@ public class JFileDropList extends JList<File> implements JFileDrop {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Restores the original background color.
+     * </p>
+     *
+     * @param dte the {@link DropTargetEvent}
+     */
     @Override
     public void dragExit(final DropTargetEvent dte) {
         setBackground(color);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Restores the background color and delegates to the shared drop handler.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDropEvent}
+     */
     @Override
     public void drop(final DropTargetDropEvent dtde) {
         setBackground(color);
         drop(dtde, this::add);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param transferable the {@link Transferable} to check
+     * @return {@code true} if the transferable supports the Java file list data flavor
+     */
     @Override
     public boolean isFlavorSupported(Transferable transferable) {
         return transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param files the list of {@link File} objects to validate
+     * @return {@code true} if the list is not empty
+     */
     @Override
     public boolean checkValid(List<File> files) {
         return !files.isEmpty();
     }
 
     /**
-     * Adds the.
+     * Adds the specified files to the list model and invokes the callback.
      *
-     * @param files the files
+     * @param files the list of {@link File} objects to add
      */
     public void add(final List<File> files) {
         for (final File file : files)
@@ -126,9 +175,9 @@ public class JFileDropList extends JList<File> implements JFileDrop {
     }
 
     /**
-     * Adds the.
+     * Adds the specified files to the list model and invokes the callback.
      *
-     * @param files the files
+     * @param files the array of {@link File} objects to add
      */
     public void add(final File[] files) {
         for (final File file : files)
@@ -137,9 +186,9 @@ public class JFileDropList extends JList<File> implements JFileDrop {
     }
 
     /**
-     * Del.
+     * Removes the specified files from the list model and invokes the callback.
      *
-     * @param files the files
+     * @param files the list of {@link File} objects to remove
      */
     public void del(final List<File> files) {
         for (final File file : files)
@@ -148,9 +197,9 @@ public class JFileDropList extends JList<File> implements JFileDrop {
     }
 
     /**
-     * Del.
+     * Removes the specified files from the list model and invokes the callback.
      *
-     * @param files the files
+     * @param files the array of {@link File} objects to remove
      */
     public void del(final File[] files) {
         for (final File file : files)
@@ -158,16 +207,31 @@ public class JFileDropList extends JList<File> implements JFileDrop {
         addCallBack.call(Collections.list(getModel().elements()));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return the underlying {@link DefaultListModel} cast to the appropriate type
+     */
     @Override
     public DefaultListModel<File> getModel() {
         return (DefaultListModel<File>) super.getModel();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return the current {@link JFileDropMode}
+     */
     @Override
     public JFileDropMode getMode() {
         return mode;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return the current {@link FilenameFilter}, or {@code null} if none is set
+     */
     @Override
     public FilenameFilter getFilter() {
         return filter;

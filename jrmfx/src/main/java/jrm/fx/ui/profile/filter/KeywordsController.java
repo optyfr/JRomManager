@@ -25,17 +25,31 @@ import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.security.Session;
 import jrm.security.Sessions;
 
+/**
+ * FXML controller for the keywords filter dialog.
+ * <p>
+ * Manages two list views (available and used keywords) with drag-and-drop support
+ * for reordering. Persists window state and invokes the callback when keywords change.
+ *
+ * @since 2.5
+ */
 public class KeywordsController implements Initializable {
 
+    /** The scene. */
     @FXML
     Scene sceneKW;
+    /** The list of available keywords. */
     @FXML
     ListView<String> listAvailKW;
+    /** The list of used keywords. */
     @FXML
     ListView<String> listUsedKW;
 
+    /** The current user session. */
     private Session session;
+    /** The callback to invoke when keywords change. */
     KFCallBack callback;
+    /** The anyware list being filtered. */
     AnywareList<? extends Anyware> awlist;
 
     @Override

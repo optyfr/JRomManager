@@ -37,59 +37,69 @@ import jrm.locale.Messages;
 import jrm.ui.MainFrame;
 
 /**
- * The Class Progress.
+ * Modal dialog for displaying progress information during long-running operations.
+ * <p>
+ * Shows up to three progress bars with associated labels and time-remaining estimates.
+ * Supports cancellation and multi-threaded operation status display.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
 public class Progress extends JDialog {
 
+    /** Format pattern for displaying progress as 'value / total'. */
     private static final String S_OF_S = "%s / %s";
 
+    /** Time format pattern for hours:minutes:seconds display. */
     private static final String HH_MM_SS_FMT = "HH:mm:ss";
 
+    /** Placeholder text when both elapsed and remaining time are unknown. */
     private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
+    /** Placeholder text when time is unknown. */
     private static final String HH_MM_SS_NONE = "--:--:--";
 
+    /** Lighter color for 3D border effects. */
     private static final Color colorLighter = SystemColor.controlHighlight;
+    /** Light color for highlight effects. */
     private static final Color colorLight = SystemColor.controlLtHighlight;
+    /** Normal background color for controls. */
     private static final Color colorNormal = SystemColor.control;
 
-    /** The panel. */
+    /** The main panel containing all progress controls. */
     private JPanel panel;
 
-    /** The lbl info. */
+    /** Array of info labels for displaying primary status messages. */
     private JLabel[] lblInfo;
 
-    /** The lbl sub info. */
+    /** Array of sub-info labels for displaying secondary status messages. */
     private JLabel[] lblSubInfo;
 
-    /** The progress bar. */
+    /** The primary progress bar for main operation progress. */
     private final JProgressBar progressBar;
 
-    /** The progress bar 2. */
+    /** The secondary progress bar for sub-operation progress. */
     private final JProgressBar progressBar2;
 
-    /** The progress bar 3. */
+    /** The tertiary progress bar for additional sub-operation progress. */
     private final JProgressBar progressBar3;
 
-    /** The lbl timeleft. */
+    /** Label displaying elapsed/remaining time for the primary progress. */
     private final JLabel lblTimeleft;
 
-    /** The lbl time left 2. */
+    /** Label displaying elapsed/remaining time for the secondary progress. */
     private final JLabel lblTimeLeft2;
 
-    /** The lbl time left 3. */
+    /** Label displaying elapsed/remaining time for the tertiary progress. */
     private final JLabel lblTimeLeft3;
 
-    /** The btn cancel. */
+    /** Button to cancel the ongoing operation. */
     private final JButton btnCancel;
 
-    /** The cancel. */
+    /** Flag indicating whether cancellation has been requested. */
     private boolean cancel = false;
 
-    /** Can we cancel. */
+    /** Flag indicating whether the operation can be cancelled. */
     private boolean canCancel = false;
 
     /**
@@ -220,6 +230,12 @@ public class Progress extends JDialog {
         setLocationRelativeTo(owner);
     }
 
+    /**
+     * Sets up the info display with the specified number of threads.
+     *
+     * @param threadCnt the number of threads to display
+     * @param multipleSubInfos whether to show multiple sub-info lines
+     */
     public void setInfos(int threadCnt, Boolean multipleSubInfos) {
         final var lblSubInfoCnt = Optional.ofNullable(multipleSubInfos).map(multSubNfo -> multSubNfo.booleanValue() ? threadCnt : 1).orElse(0);
 
@@ -248,6 +264,12 @@ public class Progress extends JDialog {
         packHeight();
     }
 
+    /**
+     * Extends the info display to accommodate additional threads.
+     *
+     * @param threadCnt the new total number of threads
+     * @param multipleSubInfos whether to show multiple sub-info lines
+     */
     void extendInfos(int threadCnt, Boolean multipleSubInfos) {
         if (lblInfo == null || lblInfo.length == threadCnt)
             return;
@@ -274,6 +296,12 @@ public class Progress extends JDialog {
         packHeight();
     }
 
+    /**
+     * Builds a status label with the specified background color.
+     *
+     * @param color the background color for the label
+     * @return the configured label
+     */
     public JLabel buildLabel(Color color) {
         final var label = new JLabel();
         label.setOpaque(true);
@@ -284,6 +312,9 @@ public class Progress extends JDialog {
         return label;
     }
 
+    /**
+     * Clears all info and sub-info labels.
+     */
     public void clearInfos() {
         for (JLabel label : lblInfo)
             label.setText(null);
@@ -291,10 +322,20 @@ public class Progress extends JDialog {
             label.setText(null);
     }
 
-    /** The start time. */
+    /** The start time for progress bar 1. */
     private long startTime = System.currentTimeMillis();
+    /** Constant representing -1. */
     private static final Integer MOINS_UN = Integer.valueOf(-1);
 
+    /**
+     * Updates the primary progress bar and associated labels.
+     *
+     * @param offset the thread offset for multi-threaded display
+     * @param msg the status message to display
+     * @param val the current progress value
+     * @param max the maximum progress value
+     * @param submsg the sub-status message to display
+     */
     public synchronized void setProgress(final int offset, final String msg, final Integer val, final Integer max, final String submsg) {
 
         if (msg != null)
@@ -323,9 +364,11 @@ public class Progress extends JDialog {
     }
 
     /**
-     * @param offset
-     * @param val
-     * @param submsg
+     * Sets the sub-info text for the specified thread offset.
+     *
+     * @param offset the thread offset
+     * @param val the progress value; {@code -1} forces the sub-message to display
+     * @param submsg the sub-status message text
      */
     protected void subMsg(final int offset, final Integer val, final String submsg) {
         if (submsg != null || MOINS_UN.equals(val)) {
@@ -336,6 +379,14 @@ public class Progress extends JDialog {
         }
     }
 
+    /**
+     * Displays the estimated time remaining for the operation.
+     *
+     * @param start the start time in milliseconds
+     * @param val the current progress value
+     * @param pb the progress bar component
+     * @param lab the label to display the time
+     */
     private void showTimeLeft(long start, int val, JProgressBar pb, JLabel lab) {
         if (val > 0) {
             final String left = DurationFormatUtils.formatDuration((System.currentTimeMillis() - start) * (pb.getMaximum() - val) / val, HH_MM_SS_FMT); // $NON-NLS-1$
@@ -345,9 +396,16 @@ public class Progress extends JDialog {
             lab.setText(HH_MM_SS_OF_HH_MM_SS_NONE); // $NON-NLS-1$
     }
 
-    /** The start time 2. */
+    /** The start time for progress bar 2. */
     private long startTime2 = System.currentTimeMillis();
 
+    /**
+     * Updates the secondary progress bar and associated labels.
+     *
+     * @param msg the status message to display
+     * @param val the current progress value
+     * @param max the maximum progress value
+     */
     public void setProgress2(final String msg, final Integer val, final Integer max) {
         if (msg != null && val != null) {
             if (!progressBar2.isVisible()) {
@@ -372,9 +430,16 @@ public class Progress extends JDialog {
         }
     }
 
-    /** The start time 3. */
+    /** The start time for progress bar 3. */
     private long startTime3 = System.currentTimeMillis();
 
+    /**
+     * Updates the tertiary progress bar and associated labels.
+     *
+     * @param msg the status message to display
+     * @param val the current progress value
+     * @param max the maximum progress value
+     */
     public void setProgress3(final String msg, final Integer val, final Integer max) {
         if (msg != null && val != null) {
             if (!progressBar3.isVisible()) {
@@ -400,7 +465,7 @@ public class Progress extends JDialog {
     }
 
     /**
-     * Pack height.
+     * Recalculates and applies the optimal dialog height based on content.
      */
     private void packHeight() {
         invalidate();
@@ -411,37 +476,73 @@ public class Progress extends JDialog {
         validate();
     }
 
+    /**
+     * Checks whether the operation has been cancelled.
+     *
+     * @return {@code true} if the operation was cancelled
+     */
     public boolean isCancel() {
         return cancel;
     }
 
+    /**
+     * Cancels the current operation and disables the cancel button.
+     */
     public void cancel() {
         cancel = true;
         btnCancel.setEnabled(false);
         btnCancel.setText(Messages.getString("Progress.Canceling")); //$NON-NLS-1$
     }
 
+    /**
+     * Gets the current value of the primary progress bar.
+     *
+     * @return the current progress value
+     */
     public int getValue() {
         return progressBar.getValue();
     }
 
+    /**
+     * Gets the current value of the secondary progress bar.
+     *
+     * @return the current progress value
+     */
     public int getValue2() {
         return progressBar2.getValue();
     }
 
+    /**
+     * Gets the current value of the tertiary progress bar.
+     *
+     * @return the current progress value
+     */
     public int getValue3() {
         return progressBar3.getValue();
     }
 
+    /**
+     * Closes and disposes the progress dialog.
+     */
     public void close() {
         dispose();
     }
 
+    /**
+     * Enables or disables the cancel button.
+     *
+     * @param canCancel {@code true} to enable cancellation
+     */
     public void canCancel(boolean canCancel) {
         this.canCancel = canCancel;
         btnCancel.setEnabled(canCancel);
     }
 
+    /**
+     * Checks whether cancellation is currently allowed.
+     *
+     * @return {@code true} if the operation can be cancelled
+     */
     public boolean canCancel() {
         return canCancel;
     }

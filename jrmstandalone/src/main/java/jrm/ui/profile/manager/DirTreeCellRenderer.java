@@ -16,7 +16,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import jrm.ui.MainFrame;
 
 /**
- * The Class DirTreeCellRenderer.
+ * Cell renderer for directory tree nodes in the profile manager.
+ * <p>
+ * Displays folder icons (open/closed) for directory nodes in the tree.
  *
  * @author optyfr
  */

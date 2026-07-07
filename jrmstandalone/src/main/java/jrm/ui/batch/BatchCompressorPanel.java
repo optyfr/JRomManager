@@ -57,6 +57,11 @@ import jrm.ui.basic.AbstractEnhTableModel;
 import jrm.ui.basic.JRMFileChooser;
 import jrm.ui.progress.SwingWorkerProgress;
 
+/**
+ * Panel for batch compression operations.
+ * <p>
+ * Provides controls for compressing ROM sets using various compression formats.
+ */
 @SuppressWarnings("serial")
 public class BatchCompressorPanel extends JPanel implements StatusRendererFactory {
     private BatchCompressorTable table;
@@ -333,8 +338,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
         comboBox = new JComboBox<>();
         comboBox.setModel(new DefaultComboBoxModel<>(CompressorFormat.values()));
         comboBox.setSelectedIndex(1);
-        if (session != null)
-            comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
+        comboBox.setSelectedItem(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
         comboBox.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_format, comboBox.getSelectedItem().toString()));
         GridBagConstraints gbcComboBox = new GridBagConstraints();
         gbcComboBox.insets = new Insets(0, 0, 0, 5);
@@ -345,8 +349,7 @@ public class BatchCompressorPanel extends JPanel implements StatusRendererFactor
 
         chckbxForce = new JCheckBox(Messages.getString("BatchCompressorPanel.Force")); //$NON-NLS-1$
         chckbxForce.addActionListener(_ -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.compressor_force, chckbxForce.isSelected()));
-        if (session != null)
-            chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, Boolean.class)); // $NON-NLS-1$
+        chckbxForce.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_force, Boolean.class)); // $NON-NLS-1$
         GridBagConstraints gbcChckbxForce = new GridBagConstraints();
         gbcChckbxForce.insets = new Insets(0, 0, 0, 5);
         gbcChckbxForce.gridx = 2;

@@ -23,31 +23,35 @@ import jrm.security.Session;
 import lombok.Getter;
 
 /**
- * The Class FileTableModel.
+ * Table model for displaying profile files in a directory.
+ * <p>
+ * Shows profile information including name, version, set/ROM/disk counts,
+ * and various timestamps. Implements {@link StatusRendererFactory} to provide
+ * status indicators for each profile.
  *
  * @author optyfr
  */
-
 @SuppressWarnings("serial")
 public class FileTableModel extends AbstractTableModel implements StatusRendererFactory {
 
-    /** The curr dir. */
+    /** The current directory being displayed. */
     private transient @Getter Dir currDir = null;
 
-    /** The columns. */
+    /** Column headers for the profile table. */
     private final String[] columns = new String[] { Messages.getString("FileTableModel.Profile"), Messages.getString("FileTableModel.Version"), //$NON-NLS-1$//$NON-NLS-2$
             Messages.getString("FileTableModel.HaveSets"), Messages.getString("FileTableModel.HaveRoms"), Messages.getString("FileTableModel.HaveDisks"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
             Messages.getString("FileTableModel.Created"), Messages.getString("FileTableModel.Scanned"), Messages.getString("FileTableModel.Fixed") }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-    /** The columns class. */
+    /** Data types for each column. */
     private final Class<?>[] columnsClass = new Class<?>[] { Object.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class };
 
-    /** The columns widths. */
+    /** Preferred column widths for the table. */
     protected static final @Getter int[] columnsWidths = new int[] { 100, 50, -14, -14, -9, -19, -19, -19 };
 
-    /** The rows. */
+    /** List of profile information objects for the current directory. */
     private transient List<ProfileNFO> rows;
 
+    /** The current security session for accessing profile data. */
     private transient Session session;
 
     /**

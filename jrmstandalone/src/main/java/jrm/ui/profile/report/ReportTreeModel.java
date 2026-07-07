@@ -12,16 +12,16 @@ import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.profile.report.Report;
 
 /**
- * The Class ReportTreeModel.
+ * Tree model for scan reports.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
 public final class ReportTreeModel extends ReportTreeModelGeneric<Report> {
     /**
-     * Instantiates a new report tree model.
+     * Constructs a new report tree model.
      *
-     * @param root the root
+     * @param root the root report
      */
     private ReportTreeModel(final Report root) // NOSONAR
     {

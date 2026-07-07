@@ -13,6 +13,11 @@ import jrm.locale.Messages;
 import jrm.ui.basic.JTableButton;
 import jrm.ui.basic.SDRTableModel;
 
+/**
+ * Table model for batch operations.
+ * <p>
+ * Manages data for batch processing tables with source/destination columns.
+ */
 public class BatchTableModel extends SDRTableModel {
 
     @SuppressWarnings("serial")

@@ -13,15 +13,25 @@ import javax.swing.border.EmptyBorder;
 import jrm.ui.ScannerSettingsPanel;
 import lombok.Getter;
 
+/**
+ * Dialog for configuring batch directory update settings.
+ */
 @SuppressWarnings("serial")
 public class BatchDirUpd8rSettingsDialog extends JDialog {
 
+    /** The scanner settings panel. */
     final ScannerSettingsPanel settingsPanel = new ScannerSettingsPanel();
 
+    /**
+     * Whether the user confirmed the settings.
+     * @return true if the user clicked OK
+     */
     private @Getter boolean success = false;
 
     /**
-     * Create the dialog.
+     * Constructs the settings dialog.
+     *
+     * @param parent the parent window
      */
     public BatchDirUpd8rSettingsDialog(Window parent) {
         super(parent);

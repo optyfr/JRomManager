@@ -6,6 +6,11 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+/**
+ * Cell renderer for status columns in tables.
+ * <p>
+ * Displays status information with right-aligned text.
+ */
 @SuppressWarnings("serial")
 final class StatusCellRenderer extends DefaultTableCellRenderer {
     @Override

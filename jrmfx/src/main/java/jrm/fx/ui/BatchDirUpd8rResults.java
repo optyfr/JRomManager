@@ -13,11 +13,26 @@ import jrm.locale.Messages;
 import jrm.security.Session;
 import jrm.security.Sessions;
 
+/**
+ * Modal dialog displaying batch directory update results.
+ *
+ * @since 2.5
+ */
 class BatchDirUpd8rResults extends Stage {
+    /** The FXML controller. */
     private BatchDirUpd8rResultsController controller;
 
+    /** The current user session. */
     private Session session;
 
+    /**
+     * Constructs and shows the batch directory update results dialog.
+     *
+     * @param parent  the parent stage
+     * @param results the results to display, or {@code null}
+     * @throws URISyntaxException if the FXML resource cannot be converted to a URI
+     * @throws IOException        if the FXML cannot be loaded
+     */
     public BatchDirUpd8rResults(Stage parent, DirUpdaterResults results) throws URISyntaxException, IOException {
         super();
         session = Sessions.getSingleSession();

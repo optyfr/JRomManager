@@ -17,7 +17,10 @@ import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
 /**
- * The Class DirTreeCellEditor.
+ * Cell editor for directory tree nodes in the profile manager.
+ * <p>
+ * Allows inline editing of directory names. Prevents editing of the
+ * root node to protect the base directory from being renamed.
  *
  * @author optyfr
  */

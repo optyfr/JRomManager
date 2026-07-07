@@ -15,7 +15,18 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+/**
+ * Undecorated modal loading indicator stage.
+ * <p>
+ * Displays a small animated GIF with a "Loading..." label while the main application
+ * initializes in the background.
+ *
+ * @since 2.5
+ */
 public class Loading extends Stage {
+    /**
+     * Constructs and shows the loading indicator.
+     */
     public Loading() {
         initModality(Modality.WINDOW_MODAL);
         initStyle(StageStyle.UNDECORATED);

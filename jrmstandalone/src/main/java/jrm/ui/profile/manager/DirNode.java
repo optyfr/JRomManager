@@ -16,14 +16,18 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import jrm.profile.manager.Dir;
 
 /**
- * The Class DirNode.
+ * Tree node representing a directory in the profile manager's directory tree.
+ * <p>
+ * Wraps a {@link Dir} object and recursively builds a tree structure
+ * from the filesystem. Supports reloading the directory structure
+ * when the filesystem changes.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
 public class DirNode extends DefaultMutableTreeNode {
 
-    /** The dir. */
+    /** The directory data associated with this node. */
     private transient Dir dir;
 
     /**

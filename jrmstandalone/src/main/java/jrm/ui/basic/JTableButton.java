@@ -13,21 +13,19 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
 /**
- * An implementation of an embeddable Button component that fits into a JTable
- * <p>
- * Copyright (C) 2010 by Ilya Volodarsky
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
+ * Anless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
+ *
+ * @see AbstractCellEditor
+ * @see TableCellEditor
+ * @see TableCellRenderer
  */
 @SuppressWarnings("serial")
 public class JTableButton extends AbstractCellEditor implements TableCellEditor, TableCellRenderer {
+    /**
+     * Handler interface for button press events within table cells.
+     */
     public interface TableButtonPressedHandler {
         /**
          * Called when the button is pressed.
@@ -38,18 +36,23 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
         void onButtonPress(int row, int column);
     }
 
+    /** The list of registered button press handlers. */
     private transient List<TableButtonPressedHandler> handlers;
+    /** The map of row indices to their corresponding button instances. */
     private Map<Integer, JButton> buttons;
 
+    /**
+     * Constructs a new table button cell editor/renderer.
+     */
     public JTableButton() {
         handlers = new ArrayList<>();
         buttons = new HashMap<>();
     }
 
     /**
-     * Add a slide callback handler
-     * 
-     * @param handler
+     * Adds a button press callback handler.
+     *
+     * @param handler the {@link TableButtonPressedHandler} to add
      */
     public void addHandler(TableButtonPressedHandler handler) {
         if (handlers != null) {
@@ -58,9 +61,9 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
     }
 
     /**
-     * Remove a slide callback handler
-     * 
-     * @param handler
+     * Removes a previously registered button press callback handler.
+     *
+     * @param handler the {@link TableButtonPressedHandler} to remove
      */
     public void removeHandler(TableButtonPressedHandler handler) {
         if (handlers != null) {
@@ -69,9 +72,9 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
     }
 
     /**
-     * Removes the component at that row index
-     * 
-     * @param row The row index which was just removed
+     * Removes the button component at the specified row index.
+     *
+     * @param row the row index whose button should be removed
      */
     public void removeRow(int row) {
         if (buttons.containsKey(row)) {
@@ -80,10 +83,10 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
     }
 
     /**
-     * Moves the component at oldRow index to newRow index
-     * 
-     * @param oldRow The old row index
-     * @param newRow THe new row index
+     * Moves the button component from one row index to another.
+     *
+     * @param oldRow the source row index
+     * @param newRow the destination row index
      */
     public void moveRow(int oldRow, int newRow) {
         if (buttons.containsKey(oldRow)) {
@@ -92,6 +95,22 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link JButton} for the specified row, creating one if it does not yet exist.
+     * The button's text is set from the cell value if it is a string, and a press handler is
+     * registered to notify all registered handlers.
+     * </p>
+     *
+     * @param table the {@link JTable} rendering this cell
+     * @param value the value of the cell
+     * @param selected whether the cell is selected
+     * @param focus whether the cell has focus
+     * @param row the row index
+     * @param column the column index
+     * @return the {@link Component} for rendering
+     */
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean selected, boolean focus, final int row, final int column) {
         JButton button = null;
@@ -113,6 +132,20 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
         return button;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Returns a {@link JButton} for the specified row, creating one if it does not yet exist.
+     * The button's text is set from the cell value if it is a string.
+     * </p>
+     *
+     * @param table the {@link JTable} editing this cell
+     * @param value the value of the cell
+     * @param selected whether the cell is selected
+     * @param row the row index
+     * @param column the column index
+     * @return the {@link Component} for editing
+     */
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean selected, int row, int column) {
         JButton button = null;
@@ -128,6 +161,12 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
         return button;
     }
 
+    /**
+     * Sets the text of the button at the specified row.
+     *
+     * @param row the row index of the button
+     * @param text the new button text
+     */
     public void setButtonText(int row, String text) {
         JButton button = null;
         if (buttons.containsKey(row)) {
@@ -136,11 +175,19 @@ public class JTableButton extends AbstractCellEditor implements TableCellEditor,
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return always {@code null}
+     */
     @Override
     public Object getCellEditorValue() {
         return null;
     }
 
+    /**
+     * Releases all registered handlers.
+     */
     public void dispose() {
         if (handlers != null) {
             handlers.clear();

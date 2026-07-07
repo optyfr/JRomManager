@@ -39,26 +39,49 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The Class MainFrame.
+ * The main application window for JRomManager.
+ * <p>
+ * Hosts the tabbed interface containing the Profiles, Scanner, Dir2Dat, Batch Tools,
+ * and Settings panels. Manages the global look-and-feel, window bounds persistence,
+ * icon caching, and shutdown hooks for saving user settings.
  */
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame implements Popup {
 
-    /** The profile viewer. */
+    /**
+     * The global profile viewer instance.
+     * @param profileViewer the profile viewer to set
+     * @return the profile viewer
+     */
     private static @Getter @Setter ProfileViewer profileViewer = null;
 
-    /** The report frame. */
+    /**
+     * The global report frame instance.
+     * @param reportFrame the report frame to set
+     * @return the report frame
+     */
     private static @Getter @Setter ReportFrame reportFrame = null;
 
-    /** The main pane. */
+    /**
+     * The main tabbed pane holding all top-level panels.
+     * @return the main tabbed pane
+     */
     private @Getter JTabbedPane mainPane;
 
+    /** The profile management panel. */
     private ProfilePanel profilesPanel;
 
+    /** The user session associated with this frame. */
     private transient Session session;
 
     /**
-     * Instantiates a new main frame.
+     * Constructs the main application frame.
+     * <p>
+     * Sets up the look-and-feel, creates the working directory structure,
+     * builds all tab panels, restores saved window bounds, and registers
+     * a shutdown hook to persist settings.
+     *
+     * @param session the user session providing access to settings and profile data
      */
     public MainFrame(Session session) {
         super();
@@ -140,11 +163,17 @@ public class MainFrame extends JFrame implements Popup {
 
     }
 
+    /** Builds and adds the Profiles tab to the main pane. */
     private void buildProfileTab() {
         profilesPanel = new ProfilePanel(session);
         mainPane.addTab(Messages.getString("MainFrame.Profiles"), MainFrame.getIcon("/jrm/resicons/icons/script.png"), profilesPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    /**
+     * Builds and adds the Scanner tab to the main pane.
+     * <p>
+     * The scanner tab is initially disabled until a profile is loaded.
+     */
     private void buildScannerTab() {
         ScannerPanel scannerPanel = new ScannerPanel(session);
         profilesPanel.setProfileLoader(scannerPanel);
@@ -153,25 +182,39 @@ public class MainFrame extends JFrame implements Popup {
         mainPane.setEnabledAt(1, false);
     }
 
+    /** Builds and adds the Dir2Dat tab to the main pane. */
     private void buildDir2DatTab() {
         Dir2DatPanel dir2datPanel = new Dir2DatPanel(session);
         mainPane.addTab(Messages.getString("MainFrame.Dir2Dat"), MainFrame.getIcon("/jrm/resicons/icons/drive_go.png"), dir2datPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
 
     }
 
+    /** Builds and adds the Batch Tools tab to the main pane. */
     private void buildBatchToolsTab() {
         BatchPanel batchToolsPanel = new BatchPanel(session);
         mainPane.addTab(Messages.getString("MainFrame.BatchTools"), MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"), batchToolsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    /** Builds and adds the Settings tab to the main pane. */
     private void buildSettingsTab() {
         final SettingsPanel settingsPanel = new SettingsPanel(session);
         mainPane.addTab(Messages.getString("MainFrame.Settings"), MainFrame.getIcon("/jrm/resicons/icons/cog.png"), settingsPanel, null); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    /** Cache of loaded {@link ImageIcon} instances keyed by resource path. */
     private static HashMap<String, ImageIcon> iconsCache = new HashMap<>();
+    /** The module providing icon resources, if available on the module layer. */
     private static Optional<Module> iconsModule = ModuleLayer.boot().findModule("res.icons");
 
+    /**
+     * Returns a cached {@link ImageIcon} for the given resource path.
+     * <p>
+     * Attempts to load from the {@code res.icons} module first, falling back to
+     * the classpath. The result is cached for subsequent calls.
+     *
+     * @param res the resource path (e.g. {@code "/jrm/resicons/icons/cog.png"})
+     * @return the icon, or an empty {@link ImageIcon} if the resource cannot be found
+     */
     public static ImageIcon getIcon(String res) {
         if (!iconsCache.containsKey(res)) {
             iconsModule.ifPresentOrElse(module -> {

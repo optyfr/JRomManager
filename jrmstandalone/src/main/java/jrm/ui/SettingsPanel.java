@@ -9,14 +9,21 @@ import javax.swing.SwingConstants;
 import jrm.locale.Messages;
 import jrm.security.Session;
 
+/**
+ * Panel for application settings.
+ * <p>
+ * Contains tabs for General, Compressors, and Debug settings.
+ */
 @SuppressWarnings("serial")
 public class SettingsPanel extends JPanel {
 
-    /** The settings pane. */
+    /** The tabbed pane holding settings sub-panels. */
     private JTabbedPane settingsPane;
 
     /**
-     * Create the panel.
+     * Constructs the settings panel.
+     *
+     * @param session the user session for accessing settings
      */
     public SettingsPanel(final Session session) {
         this.setLayout(new BorderLayout(0, 0));

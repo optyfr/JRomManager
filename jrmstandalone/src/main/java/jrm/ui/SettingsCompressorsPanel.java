@@ -34,38 +34,37 @@ import jrm.ui.basic.JFileDropMode;
 import jrm.ui.basic.JFileDropTextField;
 import jrm.ui.basic.JTextFieldHintUI;
 
+/**
+ * Panel for compressor settings.
+ * <p>
+ * Provides controls for configuring 7-Zip and ZIP compression options, including command paths,
+ * thread counts, compression levels, and solid archive settings.
+ */
 @SuppressWarnings("serial")
 public class SettingsCompressorsPanel extends JPanel {
-    /** The cb 7 z args. */
+    /** Combo box for 7-Zip command options. */
     private JComboBox<SevenZipOptions> cb7zArgs;
-
-    /** The cb zip E args. */
+    /** Combo box for ZIP command options. */
     private JComboBox<ZipOptions> cbZipEArgs;
-
-    /** The ckbx 7 z solid. */
+    /** Checkbox to enable 7-Zip solid archives. */
     private JCheckBox ckbx7zSolid;
-
-    /** The tf 7 z cmd. */
+    /** Text field for the 7-Zip command path. */
     private JFileDropTextField tf7zCmd;
-
-    /** The tf 7 z threads. */
+    /** Text field for the 7-Zip thread count. */
     private JTextField tf7zThreads;
-
-    /** The tf zip E cmd. */
+    /** Text field for the ZIP command path. */
     private JFileDropTextField tfZipECmd;
-
-    /** The tf zip E threads. */
+    /** Text field for the ZIP thread count. */
     private JTextField tfZipEThreads;
-
-    /** The cbbx zip level. */
+    /** Combo box for ZIP compression level. */
     private JComboBox<ZipLevel> cbbxZipLevel;
-
-    /** The cbbx zip temp threshold. */
+    /** Combo box for ZIP temporary file threshold. */
     private JComboBox<ZipTempThreshold> cbbxZipTempThreshold;
 
     /**
-     * Create the panel.
-     * @param session the session
+     * Constructs the compressors settings panel.
+     *
+     * @param session the user session for accessing settings
      */
     public SettingsCompressorsPanel(final Session session) {
         this.setLayout(new BorderLayout(0, 0));

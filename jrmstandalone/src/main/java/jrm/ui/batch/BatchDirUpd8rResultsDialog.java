@@ -14,12 +14,20 @@ import javax.swing.border.EmptyBorder;
 import jrm.batch.DirUpdaterResults;
 import jrm.security.Session;
 
+/**
+ * Dialog displaying batch directory update results.
+ */
 @SuppressWarnings("serial")
 public class BatchDirUpd8rResultsDialog extends JDialog {
+    /** The parent window that opened this dialog. */
     Window parentWindow;
 
     /**
-     * Create the dialog.
+     * Constructs the results dialog.
+     *
+     * @param session the user session
+     * @param parent the parent window
+     * @param results the directory updater results to display
      */
     public BatchDirUpd8rResultsDialog(final Session session, Window parent, DirUpdaterResults results) {
         super(parent);

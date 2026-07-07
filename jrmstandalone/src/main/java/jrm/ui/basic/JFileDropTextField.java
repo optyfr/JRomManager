@@ -27,92 +27,97 @@ import javax.swing.JTextField;
 import javax.swing.text.Document;
 
 /**
- * The Class JFileDropTextField.
+ * A text field component that accepts file drops via drag-and-drop.
+ * <p>
+ * This component extends {@link JTextField} to display the absolute path of a dropped file.
+ * Implements {@link JFileDrop} for shared drop handling logic and {@link FocusListener}
+ * to invoke the callback when focus is lost. The background color changes to indicate valid
+ * or invalid drop targets.
+ * </p>
+ *
+ * @see JFileDrop
+ * @see JFileDropMode
  */
 @SuppressWarnings("serial")
 public class JFileDropTextField extends JTextField implements FocusListener, JFileDrop {
 
-    /** The color. */
+    /** The original background color, restored after drag operations. */
     private final Color color;
 
-    /** The callback. */
+    /** The callback invoked when the text field value changes. */
     private final transient SetCallBack callback;
 
-    /** The mode. */
+    /** The current drop mode controlling which file types are accepted. */
     private JFileDropMode mode = JFileDropMode.FILE;
 
-    /** The filter */
+    /** The optional filename filter applied to dropped files. */
     private transient FilenameFilter filter = null;
 
     /**
-     * The Interface SetCallBack.
+     * Callback interface invoked when the text field value changes.
      */
     @FunctionalInterface
     public interface SetCallBack {
 
         /**
-         * Call.
+         * Called when the text field value changes.
          *
-         * @param txt the txt
+         * @param txt the new text value (typically a file path)
          */
         public void call(String txt);
     }
 
     /**
-     * Instantiates a new j file drop text field.
+     * Constructs a new file drop text field with default settings.
      *
-     * @param callback the callback
-     * 
-     * @throws HeadlessException the headless exception
+     * @param callback the {@link SetCallBack} invoked when the value changes
+     * @throws HeadlessException if the component is created in a headless environment
      */
     public JFileDropTextField(final SetCallBack callback) throws HeadlessException {
         this(null, "", 0, callback); //$NON-NLS-1$
     }
 
     /**
-     * Instantiates a new j file drop text field.
+     * Constructs a new file drop text field with the specified initial text.
      *
-     * @param text the text
-     * @param callback the callback
-     * 
-     * @throws HeadlessException the headless exception
+     * @param text the initial text to display
+     * @param callback the {@link SetCallBack} invoked when the value changes
+     * @throws HeadlessException if the component is created in a headless environment
      */
     public JFileDropTextField(final String text, final SetCallBack callback) throws HeadlessException {
         this(null, text, 0, callback);
     }
 
     /**
-     * Instantiates a new j file drop text field.
+     * Constructs a new file drop text field with the specified number of columns.
      *
-     * @param columns the columns
-     * @param callback the callback
-     * 
-     * @throws HeadlessException the headless exception
+     * @param columns the number of columns for the text field
+     * @param callback the {@link SetCallBack} invoked when the value changes
+     * @throws HeadlessException if the component is created in a headless environment
      */
     public JFileDropTextField(final int columns, final SetCallBack callback) throws HeadlessException {
         this(null, "", columns, callback); //$NON-NLS-1$
     }
 
     /**
-     * Instantiates a new j file drop text field.
+     * Constructs a new file drop text field with the specified text and number of columns.
      *
-     * @param text the text
-     * @param columns the columns
-     * @param callback the callback
-     * 
-     * @throws HeadlessException the headless exception
+     * @param text the initial text to display
+     * @param columns the number of columns for the text field
+     * @param callback the {@link SetCallBack} invoked when the value changes
+     * @throws HeadlessException if the component is created in a headless environment
      */
     public JFileDropTextField(final String text, final int columns, final SetCallBack callback) throws HeadlessException {
         this(null, "", columns, callback); //$NON-NLS-1$
     }
 
     /**
-     * Instantiates a new j file drop text field.
+     * Constructs a new file drop text field with full configuration.
      *
-     * @param doc the doc
-     * @param text the text
-     * @param columns the columns
-     * @param callback the callback
+     * @param doc the {@link Document} model for the text field, or {@code null}
+     * @param text the initial text to display
+     * @param columns the number of columns for the text field
+     * @param callback the {@link SetCallBack} invoked when the value changes
      */
     public JFileDropTextField(final Document doc, final String text, final int columns, final SetCallBack callback) {
         super(doc, text, columns);
@@ -123,29 +128,58 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
     }
 
     /**
-     * Sets the mode.
+     * Sets the drop mode controlling which file types are accepted.
      *
-     * @param mode the new mode
+     * @param mode the {@link JFileDropMode} to set
      */
     public void setMode(JFileDropMode mode) {
         this.mode = mode;
     }
 
+    /**
+     * Sets the filename filter applied to dropped files.
+     *
+     * @param filter the {@link FilenameFilter} to set, or {@code null} to accept all files
+     */
     public void setFilter(FilenameFilter filter) {
         this.filter = filter;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * No action is taken when focus is gained.
+     * </p>
+     *
+     * @param e the {@link FocusEvent}
+     */
     @Override
     public void focusGained(final FocusEvent e) {
         // do nothing
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Invokes the callback with the current text when focus is lost.
+     * </p>
+     *
+     * @param e the {@link FocusEvent}
+     */
     @Override
     public void focusLost(final FocusEvent e) {
         if (callback != null)
             callback.call(JFileDropTextField.this.getText());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Changes the background color to green for valid drops or red for invalid drops.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDragEvent}
+     */
     @Override
     public void dragEnter(final DropTargetDragEvent dtde) {
         final Transferable transferable = dtde.getTransferable();
@@ -158,11 +192,28 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Restores the original background color.
+     * </p>
+     *
+     * @param dte the {@link DropTargetEvent}
+     */
     @Override
     public void dragExit(final DropTargetEvent dte) {
         JFileDropTextField.this.setBackground(color);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Restores the background color, sets the text field to the first dropped file's absolute path,
+     * and invokes the callback.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDropEvent}
+     */
     @Override
     public void drop(final DropTargetDropEvent dtde) {
         JFileDropTextField.this.setBackground(color);
@@ -173,9 +224,13 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
     }
 
     /**
-     * @param files
-     * 
-     * @return
+     * {@inheritDoc}
+     * <p>
+     * Validates that exactly one file was dropped.
+     * </p>
+     *
+     * @param files the list of {@link File} objects to validate
+     * @return {@code true} if exactly one file was dropped, {@code false} otherwise
      */
     @Override
     public boolean checkValid(final List<File> files) {
@@ -183,20 +238,34 @@ public class JFileDropTextField extends JTextField implements FocusListener, JFi
     }
 
     /**
-     * @param transferable
-     * 
-     * @return
+     * {@inheritDoc}
+     * <p>
+     * Checks that the component is enabled and the transferable supports the Java file list data flavor.
+     * </p>
+     *
+     * @param transferable the {@link Transferable} to check
+     * @return {@code true} if the data flavor is supported and the component is enabled
      */
     @Override
     public boolean isFlavorSupported(final Transferable transferable) {
         return JFileDropTextField.this.isEnabled() && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return the current {@link JFileDropMode}
+     */
     @Override
     public JFileDropMode getMode() {
         return mode;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return the current {@link FilenameFilter}, or {@code null} if none is set
+     */
     @Override
     public FilenameFilter getFilter() {
         return filter;

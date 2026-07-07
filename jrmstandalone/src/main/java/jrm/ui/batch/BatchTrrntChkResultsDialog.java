@@ -12,22 +12,28 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import jrm.batch.TrntChkReport;
-import jrm.security.Session;
 
+/**
+ * Dialog displaying batch torrent check results.
+ */
 @SuppressWarnings("serial")
 public class BatchTrrntChkResultsDialog extends JDialog {
+    /** The parent window that opened this dialog. */
     Window parentWindow;
 
     /**
-     * Create the dialog.
+     * Constructs the results dialog.
+     *
+     * @param parent the parent window
+     * @param results the torrent check results to display
      */
-    public BatchTrrntChkResultsDialog(final Session session, Window parent, TrntChkReport results) {
+    public BatchTrrntChkResultsDialog(Window parent, TrntChkReport results) {
         super(parent);
         this.parentWindow = parent;
         parent.setEnabled(false);
         setBounds(100, 100, 455, 410);
         getContentPane().setLayout(new BorderLayout());
-        JScrollPane contentPanel = new BatchTrrntChkReportView(session, results);
+        JScrollPane contentPanel = new BatchTrrntChkReportView(results);
         contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
         getContentPane().add(contentPanel, BorderLayout.CENTER);
         JPanel buttonPane = new JPanel();

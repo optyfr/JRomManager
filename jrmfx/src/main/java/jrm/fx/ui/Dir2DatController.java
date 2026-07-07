@@ -32,6 +32,15 @@ import jrm.profile.scan.DirScan;
 import jrm.profile.scan.DirScan.Options;
 import jrm.security.Session;
 
+/**
+ * FXML controller for the Dir2Dat panel.
+ * <p>
+ * Scans a source directory and generates a DAT file containing ROM information.
+ * Supports multiple output formats (MAME, Logiqx, Software List), hash computation
+ * (MD5, SHA1), and various scanning options (subfolders, deep scan, junk folders).
+ *
+ * @since 2.5
+ */
 public class Dir2DatController extends BaseController {
     @FXML
     CheckBox includeEmptyDirs;
@@ -176,10 +185,11 @@ public class Dir2DatController extends BaseController {
     }
 
     /**
-     * @return
-     * 
-     * @throws IOException
-     * @throws URISyntaxException
+     * Creates the Dir2Dat background task.
+     *
+     * @return the progress task
+     * @throws IOException        if an I/O error occurs
+     * @throws URISyntaxException if the FXML resource URI is invalid
      */
     private ProgressTask<Void> dir2DatTask() throws IOException, URISyntaxException {
         return new ProgressTask<Void>((Stage) dstDat.getScene().getWindow()) {
@@ -226,9 +236,10 @@ public class Dir2DatController extends BaseController {
     }
 
     /**
-     * @param session
-     * 
-     * @return
+     * Initializes the directory scan options from settings.
+     *
+     * @param session the security session
+     * @return the scan options
      */
     private EnumSet<DirScan.Options> initOptions(final Session session) {
         EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
@@ -252,7 +263,9 @@ public class Dir2DatController extends BaseController {
     }
 
     /**
-     * @return
+     * Initializes the DAT file headers from the form fields.
+     *
+     * @return the header map
      */
     private HashMap<String, String> initHeaders() {
         HashMap<String, String> headers = new HashMap<>();

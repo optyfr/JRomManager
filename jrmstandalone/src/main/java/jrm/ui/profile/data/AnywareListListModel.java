@@ -8,9 +8,21 @@ import javax.swing.table.TableCellRenderer;
 import jrm.profile.data.AnywareStatus;
 import jrm.ui.basic.AbstractEnhTableModel;
 
+/**
+ * Abstract base class for anyware list-of-lists table models.
+ * <p>
+ * Provides common functionality for displaying aggregated statistics
+ * of multiple anyware lists in a single table.
+ */
 public abstract class AnywareListListModel extends AbstractEnhTableModel {
+    /** Resets the model and refreshes the table. */
     public abstract void reset();
 
+    /**
+     * Applies a filter and refreshes the table.
+     *
+     * @param filter the new {@link Set} of {@link AnywareStatus} filter to apply
+     */
     public abstract void setFilter(final Set<AnywareStatus> filter);
 
     @Override

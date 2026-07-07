@@ -23,28 +23,38 @@ import jrm.locale.Messages;
 import jrm.misc.Log;
 
 /**
- * The Class JRMFileChooser.
+ * Enhanced file chooser dialog with callback-based result handling and configurable filters.
+ * <p>
+ * This component extends {@link JFileChooser} to provide a fluent API for configuring file selection
+ * dialogs with custom filters, titles, and selection modes. Supports callback-based result processing
+ * and includes a custom file system view that restricts navigation to a single root directory.
+ * </p>
  *
- * @param <V> the value type
+ * @param <V> the type of value returned by the callback
+ * @see JFileChooser
  */
 @SuppressWarnings("serial")
 public class JRMFileChooser<V> extends JFileChooser {
 
     /**
-     * The Class OneRootFileSystemView.
+     * A custom file system view that restricts navigation to a single root directory.
+     * <p>
+     * This view limits the user to browsing within a specified root directory and its subdirectories,
+     * preventing navigation to parent directories or other file system roots.
+     * </p>
      */
     public static class OneRootFileSystemView extends FileSystemView {
 
-        /** The root. */
+        /** The root directory for this file system view. */
         File root;
 
-        /** The roots. */
+        /** The array containing the single root directory. */
         File[] roots = new File[1];
 
         /**
-         * Instantiates a new one root file system view.
+         * Constructs a new one-root file system view.
          *
-         * @param root the root
+         * @param root the root directory to restrict navigation to
          */
         public OneRootFileSystemView(final File root) {
             try {
@@ -56,6 +66,16 @@ public class JRMFileChooser<V> extends JFileChooser {
             }
         }
 
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Creates a new folder with a localized name in the specified directory.
+         * </p>
+         *
+         * @param containingDir the directory in which to create the new folder
+         * @return the newly created folder
+         * @throws IOException if an I/O error occurs
+         */
         @Override
         public File createNewFolder(final File containingDir) throws IOException {
             final File folder = new File(containingDir, Messages.getString("JRMFileChooser.NewFolder")); //$NON-NLS-1$
@@ -63,16 +83,31 @@ public class JRMFileChooser<V> extends JFileChooser {
             return folder;
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @return the root directory
+         */
         @Override
         public File getDefaultDirectory() {
             return root;
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @return the root directory
+         */
         @Override
         public File getHomeDirectory() {
             return root;
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @return an array containing the single root directory
+         */
         @Override
         public File[] getRoots() {
             return roots;
@@ -80,60 +115,59 @@ public class JRMFileChooser<V> extends JFileChooser {
     }
 
     /**
-     * The Interface CallBack.
+     * Callback interface for processing the result of a file chooser dialog.
      *
-     * @param <V> the value type
+     * @param <V> the type of value returned by the callback
      */
     public interface CallBack<V> {
 
         /**
-         * Call.
+         * Called when the user approves the file selection.
          *
-         * @param chooser the chooser
-         * 
-         * @return the v
+         * @param chooser the {@link JRMFileChooser} containing the selected file(s)
+         * @return the processed result
          */
         public V call(JRMFileChooser<V> chooser);
     }
 
     /**
-     * Instantiates a new JRM file chooser.
+     * Constructs a new file chooser with default settings.
      */
     public JRMFileChooser() {
         this(null, null, null, null, null, null, false);
     }
 
     /**
-     * Instantiates a new JRM file chooser.
+     * Constructs a new file chooser with the specified dialog type and file selection mode.
      *
-     * @param type the type
-     * @param mode the mode
+     * @param type the dialog type (e.g., {@link JFileChooser#OPEN_DIALOG})
+     * @param mode the file selection mode (e.g., {@link JFileChooser#FILES_ONLY})
      */
     public JRMFileChooser(final int type, final int mode) {
         this(type, mode, null, null, null, null, false);
     }
 
     /**
-     * Instantiates a new JRM file chooser.
+     * Constructs a new file chooser with the specified dialog type, mode, and current directory.
      *
-     * @param type the type
-     * @param mode the mode
-     * @param currdir the currdir
+     * @param type the dialog type (e.g., {@link JFileChooser#OPEN_DIALOG})
+     * @param mode the file selection mode (e.g., {@link JFileChooser#FILES_ONLY})
+     * @param currdir the initial directory to display, or {@code null} for default
      */
     public JRMFileChooser(final int type, final int mode, final File currdir) {
         this(type, mode, currdir, null, null, null, false);
     }
 
     /**
-     * Instantiates a new JRM file chooser.
+     * Constructs a new file chooser with full configuration.
      *
-     * @param type the type
-     * @param mode the mode
-     * @param currdir the currdir
-     * @param selected the selected
-     * @param filters the filters
-     * @param title the title
-     * @param multi the multi
+     * @param type the dialog type, or {@code null} for default
+     * @param mode the file selection mode, or {@code null} for default
+     * @param currdir the initial directory, or {@code null} for default
+     * @param selected the initially selected file, or {@code null} for none
+     * @param filters the list of file filters to add, or {@code null} for none
+     * @param title the dialog title, or {@code null} for default
+     * @param multi {@code true} to enable multiple file selection
      */
     public JRMFileChooser(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
             final boolean multi) {
@@ -142,17 +176,20 @@ public class JRMFileChooser<V> extends JFileChooser {
     }
 
     /**
-     * Setup.
+     * Configures the file chooser with the specified settings.
+     * <p>
+     * Sets the dialog type, file selection mode, current directory, selected file, filters, title,
+     * and multi-selection mode. If the current directory is a file, it is set as the selected file instead.
+     * </p>
      *
-     * @param type the type
-     * @param mode the mode
-     * @param currdir the currdir
-     * @param selected the selected
-     * @param filters the filters
-     * @param title the title
-     * @param multi the multi
-     * 
-     * @return the JRM file chooser
+     * @param type the dialog type, or {@code null} to leave unchanged
+     * @param mode the file selection mode, or {@code null} to leave unchanged
+     * @param currdir the initial directory, or {@code null} to leave unchanged
+     * @param selected the initially selected file, or {@code null} for none
+     * @param filters the list of file filters to add, or {@code null} for none
+     * @param title the dialog title, or {@code null} to leave unchanged
+     * @param multi {@code true} to enable multiple file selection
+     * @return this file chooser instance for method chaining
      */
     public JRMFileChooser<V> setup(final Integer type, final Integer mode, final File currdir, final File selected, final List<FileFilter> filters, final String title,
             final boolean multi) {
@@ -182,21 +219,20 @@ public class JRMFileChooser<V> extends JFileChooser {
     }
 
     /**
-     * Instantiates a new JRM file chooser.
+     * Constructs a new file chooser with the specified file system view.
      *
-     * @param fsv the fsv
+     * @param fsv the {@link FileSystemView} to use
      */
     public JRMFileChooser(final FileSystemView fsv) {
         super(fsv);
     }
 
     /**
-     * Show.
+     * Displays the file chooser dialog and invokes the callback if the user approves the selection.
      *
-     * @param parent the parent
-     * @param callback the callback
-     * 
-     * @return the v
+     * @param parent the parent component for the dialog
+     * @param callback the {@link CallBack} to invoke with the result
+     * @return the result from the callback, or {@code null} if the user cancelled
      */
     public V show(final Component parent, final CallBack<V> callback) {
         if (showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
@@ -205,12 +241,11 @@ public class JRMFileChooser<V> extends JFileChooser {
     }
 
     /**
-     * Show open.
+     * Displays an open file dialog and invokes the callback if the user approves the selection.
      *
-     * @param parent the parent
-     * @param callback the callback
-     * 
-     * @return the v
+     * @param parent the parent component for the dialog
+     * @param callback the {@link CallBack} to invoke with the result
+     * @return the result from the callback, or {@code null} if the user cancelled
      */
     public V showOpen(final Component parent, final CallBack<V> callback) {
         setDialogType(JFileChooser.OPEN_DIALOG);
@@ -218,12 +253,11 @@ public class JRMFileChooser<V> extends JFileChooser {
     }
 
     /**
-     * Show save.
+     * Displays a save file dialog and invokes the callback if the user approves the selection.
      *
-     * @param parent the parent
-     * @param callback the callback
-     * 
-     * @return the v
+     * @param parent the parent component for the dialog
+     * @param callback the {@link CallBack} to invoke with the result
+     * @return the result from the callback, or {@code null} if the user cancelled
      */
     public V showSave(final Component parent, final CallBack<V> callback) {
         setDialogType(JFileChooser.SAVE_DIALOG);

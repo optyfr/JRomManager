@@ -38,10 +38,18 @@ import jrm.ui.profile.report.ReportNode.SubjectNode;
 import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 import lombok.val;
 
+/**
+ * Scrollable view displaying scan reports as a tree.
+ * <p>
+ * Provides filtering options, context menus for node operations, and detail views.
+ */
 @SuppressWarnings("serial")
 public class ReportView extends JScrollPane implements Popup {
+    /** The report data. */
     private final Report report;
+    /** Loading indicator label. */
     private final JLabel wait;
+    /** The tree component displaying the report hierarchy. */
     private final JTree tree;
 
     public ReportView(Report report) {

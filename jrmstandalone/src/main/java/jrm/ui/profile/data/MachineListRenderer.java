@@ -25,7 +25,11 @@ import jrm.ui.MainFrame;
 import jrm.ui.basic.CenteredTableCellRenderer;
 
 /**
- * The Class MachineListRenderer.
+ * Provides cell renderers and column definitions for the machine list table.
+ * <p>
+ * Defines columns for status, name, description, have-count, clone-of, rom-of,
+ * sample-of, and selection. Uses color-coded folder icons to indicate machine
+ * completion status and specialized renderers for different entity types.
  */
 @SuppressWarnings("serial")
 public final class MachineListRenderer {

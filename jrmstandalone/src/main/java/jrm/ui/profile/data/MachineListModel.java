@@ -10,9 +10,21 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Machine;
 import jrm.profile.data.MachineList;
 
+/**
+ * Table model for displaying a list of machines.
+ * <p>
+ * Provides data for the machine list table with columns for status, name, description,
+ * have count, clone/rom/sample relationships, and selection state.
+ */
 public class MachineListModel extends AnywareListModel<Machine> {
+    /** The underlying machine list data. */
     MachineList machineList;
 
+    /**
+     * Constructs a new machine list model.
+     *
+     * @param machineList the machine list to display
+     */
     public MachineListModel(MachineList machineList) {
         this.machineList = machineList;
     }

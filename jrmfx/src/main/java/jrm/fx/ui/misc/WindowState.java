@@ -4,17 +4,72 @@ import javafx.stage.Stage;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Captures and restores the state of a JavaFX window.
+ * <p>
+ * Stores position (x, y), size (width, height), and state flags (maximized, full-screen,
+ * iconified) for persistence across application sessions.
+ *
+ * @since 2.5
+ */
 @Data
 @NoArgsConstructor
 class WindowState {
+    /**
+     * The X coordinate.
+     *
+     * @param x the X coordinate
+     * @return the X coordinate
+     */
     private double x;
+    /**
+     * The Y coordinate.
+     *
+     * @param y the Y coordinate
+     * @return the Y coordinate
+     */
     private double y;
+    /**
+     * The width.
+     *
+     * @param w the width
+     * @return the width
+     */
     private double w;
+    /**
+     * The height.
+     *
+     * @param h the height
+     * @return the height
+     */
     private double h;
+    /**
+     * Whether maximized.
+     *
+     * @param m whether maximized
+     * @return whether maximized
+     */
     private boolean m = false;
+    /**
+     * Whether full-screen.
+     *
+     * @param f whether full-screen
+     * @return whether full-screen
+     */
     private boolean f = false;
+    /**
+     * Whether iconified.
+     *
+     * @param i whether iconified
+     * @return whether iconified
+     */
     private boolean i = false;
 
+    /**
+     * Constructs a window state from a stage.
+     *
+     * @param window the window to capture
+     */
     private WindowState(Stage window) {
         m = window.isMaximized();
         f = window.isFullScreen();
@@ -28,10 +83,21 @@ class WindowState {
         h = window.getHeight();
     }
 
+    /**
+     * Creates a window state instance from a stage.
+     *
+     * @param window the window to capture
+     * @return the window state
+     */
     public static WindowState getInstance(Stage window) {
         return new WindowState(window);
     }
 
+    /**
+     * Restores the window state to a stage.
+     *
+     * @param window the window to restore
+     */
     public void restore(Stage window) {
         window.setX(x);
         window.setY(y);

@@ -18,15 +18,18 @@ import jrm.ui.basic.AbstractNGTreeNode;
 import jrm.ui.basic.NGTreeNode;
 
 /**
- * The Class CatVerModel.
+ * Tree model for displaying category/version (CatVer) filter hierarchy.
+ * <p>
+ * Provides a tree structure of machine categories and subcategories
+ * for filtering purposes.
  */
 @SuppressWarnings("serial")
 public class CatVerModel extends DefaultTreeModel {
 
     /**
-     * Instantiates a new cat ver model.
+     * Constructs a new CatVer tree model with the specified root node.
      *
-     * @param root the root
+     * @param root the root tree node
      */
     public CatVerModel(final NGTreeNode root) {
         super(root);

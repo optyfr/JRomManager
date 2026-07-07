@@ -44,18 +44,22 @@ import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.ui.MainFrame;
 
 /**
- * The Class KeywordFilter.
+ * Modal dialog for filtering machines/software by keywords.
+ * <p>
+ * Provides a dual-list interface where users can select keywords to include
+ * or exclude from the filter. Supports drag-and-drop for moving keywords
+ * between lists.
  */
 @SuppressWarnings("serial")
 public class KeywordFilter extends JDialog {
 
-    /** The KW src. */
+    /** Source keyword list showing available keywords. */
     private JList<String> keywordSrc;
 
-    /** The KW dst. */
+    /** Destination keyword list showing selected filter keywords. */
     private JList<String> keywordDst;
 
-    /** The dstmodel. */
+    /** List model for the destination keyword list. */
     private DefaultListModel<String> dstmodel = new DefaultListModel<>();
 
     /**

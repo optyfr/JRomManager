@@ -25,23 +25,40 @@ import jrm.misc.Log;
 import jrm.profile.report.Report;
 import lombok.Getter;
 
+/**
+ * FXML controller for the batch directory update results dialog.
+ * <p>
+ * Populates a table with per-DAT statistics (have, create, fix, miss, total) and
+ * provides a button to open the detailed report for each entry.
+ *
+ * @since 2.5
+ */
 public class BatchDirUpd8rResultsController extends BaseController {
+    /** The result table. */
     @FXML
     private @Getter TableView<DirUpdaterResult> resultList;
+    /** Column displaying the DAT name. */
     @FXML
     private TableColumn<DirUpdaterResult, String> datCol;
+    /** Column displaying the number of sets found. */
     @FXML
     private TableColumn<DirUpdaterResult, Integer> haveCol;
+    /** Column displaying the number of sets created. */
     @FXML
     private TableColumn<DirUpdaterResult, Integer> createCol;
+    /** Column displaying the number of sets fixed. */
     @FXML
     private TableColumn<DirUpdaterResult, Integer> fixCol;
+    /** Column displaying the number of sets missing. */
     @FXML
     private TableColumn<DirUpdaterResult, Integer> missCol;
+    /** Column displaying the total number of sets. */
     @FXML
     private TableColumn<DirUpdaterResult, Integer> totalCol;
+    /** Column with a button to open the detailed report. */
     @FXML
     private TableColumn<DirUpdaterResult, DirUpdaterResult> reportCol;
+    /** The OK button. */
     @FXML
     private Button ok;
 
@@ -71,8 +88,8 @@ public class BatchDirUpd8rResultsController extends BaseController {
     /**
      * Configures a table column to display integer values with custom color and right alignment.
      *
-     * @param col the table column to configure
-     * @param color the text color, or null for default color
+     * @param col       the table column to configure
+     * @param color     the text color, or {@code null} for default color
      * @param extractor function to extract the integer value from the stats object
      */
     private void setupIntegerColumn(TableColumn<DirUpdaterResult, Integer> col, Color color, ToIntFunction<Report.Stats> extractor) {
@@ -88,7 +105,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
     /**
      * Configures a table column to display string values with leading ellipsis and tooltip.
      *
-     * @param col the table column to configure
+     * @param col       the table column to configure
      * @param extractor function to extract the string value from the result object
      */
     private void setupStringColumn(TableColumn<DirUpdaterResult, String> col, Function<DirUpdaterResult, String> extractor) {

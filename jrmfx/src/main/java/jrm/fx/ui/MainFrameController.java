@@ -13,33 +13,70 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import lombok.Getter;
 
+/**
+ * FXML controller for the main tabbed window.
+ * <p>
+ * Wires up the five main panels (profile, scanner, Dir2Dat, batch tools, settings)
+ * and assigns tab icons.
+ *
+ * @since 2.5
+ */
 public class MainFrameController implements Initializable {
+    /**
+     * The main tab pane.
+     *
+     * @return the main tab pane
+     */
     @FXML
     private @Getter TabPane tabPane;
+    /** The profile panel container. */
     @FXML
     private BorderPane profilePanel;
+    /** The Dir2Dat panel container. */
     @FXML
     private GridPane dir2datPanel;
+    /** The batch tools panel container. */
     @FXML
     private TabPane batchtoolsPanel;
+    /** The settings panel container. */
     @FXML
     private ScrollPane settingsPanel;
 
+    /** The profile panel tab. */
     @FXML
     private Tab profilePanelTab;
+    /**
+     * The scanner panel tab.
+     *
+     * @return the scanner panel tab
+     */
     @FXML
     private @Getter Tab scannerPanelTab;
+    /** The Dir2Dat panel tab. */
     @FXML
     private Tab dir2datPanelTab;
+    /** The batch tools panel tab. */
     @FXML
     private Tab batchtoolsPanelTab;
+    /** The settings panel tab. */
     @FXML
     private Tab settingsPanelTab;
 
+    /**
+     * The profile panel controller.
+     *
+     * @return the profile panel controller
+     */
     @FXML
     private @Getter ProfilePanelController profilePanelController;
+    /** The scanner panel controller. */
     @FXML
     private ScannerPanelController scannerPanelController;
+    /**
+     * The settings panel controller.
+     *
+     * @return the settings panel controller
+     */
     @FXML
     private @Getter SettingsPanelController settingsPanelController;
 

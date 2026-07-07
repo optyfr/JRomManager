@@ -9,16 +9,23 @@
 package jrm.ui.basic;
 
 /**
- * The Enum JFileDropMode.
+ * Enumeration defining the types of files that can be dropped onto a file drop component.
+ * <p>
+ * This enum controls the filtering behavior for drag-and-drop operations, determining whether
+ * the component accepts any file type, only directories, or only regular files.
+ * </p>
+ *
+ * @see JFileDropList
+ * @see JFileDropTextField
  */
 public enum JFileDropMode {
 
-    /** The any. */
+    /** Accept any file or directory. */
     ANY,
 
-    /** The directory. */
+    /** Accept only directories. */
     DIRECTORY,
 
-    /** The file. */
+    /** Accept only regular files. */
     FILE
 }

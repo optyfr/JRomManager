@@ -27,7 +27,10 @@ import jrm.profile.data.Sample;
 import jrm.ui.MainFrame;
 
 /**
- * The Class AnywareRenderer.
+ * Provides cell renderers and column definitions for the anyware entity detail table.
+ * <p>
+ * Defines columns for status, name, size, CRC, MD5, SHA-1, merge info, and dump status.
+ * Each column has a dedicated renderer with appropriate icons and formatting.
  */
 @SuppressWarnings("serial")
 public final class AnywareRenderer {

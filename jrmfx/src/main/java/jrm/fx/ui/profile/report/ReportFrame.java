@@ -15,11 +15,28 @@ import jrm.locale.Messages;
 import jrm.security.Session;
 import jrm.security.Sessions;
 
+/**
+ * A non-modal stage for displaying the full scan report.
+ * <p>
+ * Implements {@link StatusHandler} to receive status updates from the scan process.
+ * Persists window state and updates the view when the report changes.
+ *
+ * @since 2.5
+ */
 public class ReportFrame extends Stage implements StatusHandler {
+    /** The report frame controller. */
     private ReportFrameController controller;
 
+    /** The current user session. */
     private Session session;
 
+    /**
+     * Constructs and shows the report frame.
+     *
+     * @param parent the parent stage
+     * @throws IOException        if the FXML cannot be loaded
+     * @throws URISyntaxException if the FXML resource URI is invalid
+     */
     public ReportFrame(Stage parent) throws IOException, URISyntaxException {
         super();
         session = Sessions.getSingleSession();
@@ -38,21 +55,36 @@ public class ReportFrame extends Stage implements StatusHandler {
         session.getReport().setStatusHandler(this);
     }
 
+    /** The current status message. */
     private String status = "";
 
+    /**
+     * Sets the status message.
+     *
+     * @param text the status text
+     */
     @Override
     public void setStatus(String text) {
         status = text;
     }
 
+    /** Whether the view needs updating. */
     private boolean needUpdate = false;
 
+    /**
+     * Marks the view as needing an update.
+     *
+     * @param needUpdate {@code true} to trigger an update
+     */
     public void setNeedUpdate(boolean needUpdate) {
         this.needUpdate = needUpdate;
         if (isShowing())
             update();
     }
 
+    /**
+     * Updates the view if needed.
+     */
     private void update() {
         if (needUpdate) {
             controller.viewController.setReport(Sessions.getSingleSession().getReport());
@@ -61,6 +93,9 @@ public class ReportFrame extends Stage implements StatusHandler {
         }
     }
 
+    /**
+     * Shows the report frame and updates the view.
+     */
     public void setVisible() {
         update();
         super.show();

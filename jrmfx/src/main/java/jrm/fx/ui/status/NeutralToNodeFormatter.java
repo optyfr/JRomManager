@@ -22,12 +22,27 @@ import javafx.scene.paint.Color;
 import jrm.misc.Log;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Converts neutral markup XML strings into JavaFX {@link Node} graphs.
+ * <p>
+ * Parses XML containing {@code <label>} and {@code <progress>} elements and produces
+ * corresponding {@link Label} and {@link ProgressBar} nodes. Labels support color,
+ * bold, and italic attributes.
+ *
+ * @since 2.5
+ */
 public @UtilityClass class NeutralToNodeFormatter {
+    /**
+     * SAX handler for parsing neutral markup XML.
+     */
     private static class Handler extends DefaultHandler {
+        /** The collected nodes. */
         private List<Node> nodes = new ArrayList<>();
 
+        /** The current label being built. */
         private Label current = null;
 
+        /** The text buffer. */
         private StringBuilder buffer = new StringBuilder();
 
         @Override

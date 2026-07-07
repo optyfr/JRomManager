@@ -21,7 +21,10 @@ import jrm.misc.Log;
 import jrm.profile.manager.Dir;
 
 /**
- * The Class DirTreeModel.
+ * Tree model for the profile manager's directory tree.
+ * <p>
+ * Extends {@link DefaultTreeModel} to handle directory rename and delete
+ * operations directly on the filesystem when tree nodes are modified.
  *
  * @author optyfr
  */

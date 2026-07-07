@@ -16,30 +16,46 @@ import javax.swing.JCheckBox;
 import jrm.ui.MainFrame;
 
 /**
- * The Class JTristateCheckBox.
+ * A checkbox component that supports three visual states: selected, unselected, and half-selected (indeterminate).
+ * <p>
+ * This checkbox extends {@link JCheckBox} to add a tri-state rendering capability. When in the half-selected
+ * state, a distinct icon is displayed to indicate partial selection, commonly used in tree structures
+ * where some (but not all) children are selected.
+ * </p>
+ *
+ * @see JCheckBox
  */
 @SuppressWarnings("serial")
 public class JTristateCheckBox extends JCheckBox {
 
-    /** The half state. */
+    /** Whether this checkbox is in the half-selected (indeterminate) state. */
     private boolean halfState;
 
-    /** The selected. */
+    /** The icon displayed when the checkbox is selected. */
     private static Icon selected = MainFrame.getIcon("/jrm/resicons/selected.png"); //$NON-NLS-1$
 
-    /** The unselected. */
+    /** The icon displayed when the checkbox is unselected. */
     private static Icon unselected = MainFrame.getIcon("/jrm/resicons/unselected.png"); //$NON-NLS-1$
 
-    /** The halfselected. */
+    /** The icon displayed when the checkbox is in the half-selected state. */
     private static Icon halfselected = MainFrame.getIcon("/jrm/resicons/halfselected.png"); //$NON-NLS-1$
 
     /**
-     * Instantiates a new j tristate check box.
+     * Constructs a new tristate checkbox with no text and no initial selection.
      */
     public JTristateCheckBox() {
         super();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the appropriate icon based on the current selection and half-selection state before painting.
+     * If the checkbox is selected, the half-state is cleared.
+     * </p>
+     *
+     * @param g the {@link Graphics} context to paint with
+     */
     @Override
     public void paint(final Graphics g) {
         final Icon icon;
@@ -55,18 +71,21 @@ public class JTristateCheckBox extends JCheckBox {
     }
 
     /**
-     * Checks if is half selected.
+     * Checks whether this checkbox is in the half-selected (indeterminate) state.
      *
-     * @return true, if is half selected
+     * @return {@code true} if this checkbox is half-selected, {@code false} otherwise
      */
     public boolean isHalfSelected() {
         return halfState;
     }
 
     /**
-     * Sets the half selected.
+     * Sets or clears the half-selected (indeterminate) state.
+     * <p>
+     * When set to {@code true}, the checkbox is deselected and the half-selected icon is displayed.
+     * </p>
      *
-     * @param halfState the new half selected
+     * @param halfState {@code true} to enter the half-selected state, {@code false} to clear it
      */
     public void setHalfSelected(final boolean halfState) {
         this.halfState = halfState;

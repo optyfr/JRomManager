@@ -24,19 +24,29 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 /**
- * The Class JCheckBoxTree.
+ * A tree component that renders nodes with checkboxes supporting tristate selection.
+ * <p>
+ * This component extends {@link JTree} to provide checkbox-based selection for tree nodes.
+ * Nodes can be individually selected, and parent nodes automatically reflect the selection
+ * state of their children (selected, unselected, or partially selected). Supports bulk
+ * operations and notifies listeners of selection changes.
+ * </p>
+ *
+ * @see NGTreeNode
+ * @see JTristateCheckBox
+ * @see JTree
  */
 @SuppressWarnings("serial")
 public class JCheckBoxTree extends JTree {
     /**
-     * The Class CheckChangeEvent.
+     * Event fired when the selection state of tree nodes changes.
      */
     public class CheckChangeEvent extends EventObject {
 
         /**
-         * Instantiates a new check change event.
+         * Constructs a new check change event.
          *
-         * @param source the source
+         * @param source the object that triggered the event
          */
         public CheckChangeEvent(final Object source) {
             super(source);
@@ -44,40 +54,40 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * The listener interface for receiving checkChangeEvent events.
+     * Listener interface for receiving check change events from the tree.
      */
     public interface CheckChangeEventListener extends EventListener {
 
         /**
-         * Check state changed.
+         * Called when the selection state of tree nodes changes.
          *
-         * @param event the event
+         * @param event the {@link CheckChangeEvent} containing details about the change
          */
         public void checkStateChanged(CheckChangeEvent event);
     }
 
     /**
-     * Adds the check change event listener.
+     * Adds a listener to receive check change events.
      *
-     * @param listener the listener
+     * @param listener the {@link CheckChangeEventListener} to add
      */
     public void addCheckChangeEventListener(final CheckChangeEventListener listener) {
         listenerList.add(CheckChangeEventListener.class, listener);
     }
 
     /**
-     * Removes the check change event listener.
+     * Removes a previously registered check change event listener.
      *
-     * @param listener the listener
+     * @param listener the {@link CheckChangeEventListener} to remove
      */
     public void removeCheckChangeEventListener(final CheckChangeEventListener listener) {
         listenerList.remove(CheckChangeEventListener.class, listener);
     }
 
     /**
-     * Fire check change event.
+     * Notifies all registered listeners of a check change event.
      *
-     * @param evt the evt
+     * @param evt the {@link CheckChangeEvent} to fire
      */
     void fireCheckChangeEvent(final CheckChangeEvent evt) {
         final Object[] listeners = listenerList.getListenerList();
@@ -88,7 +98,14 @@ public class JCheckBoxTree extends JTree {
         }
     }
 
-    // Override
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Also enables or disables the tree based on whether the model has children.
+     * </p>
+     *
+     * @param newModel the {@link TreeModel} to set
+     */
     @Override
     public void setModel(final TreeModel newModel) {
         super.setModel(newModel);
@@ -96,11 +113,13 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * Checks if is selected partially.
+     * Checks whether the node at the given path is partially selected.
+     * <p>
+     * A node is partially selected if it is selected but not all of its children are selected.
+     * </p>
      *
-     * @param path the path
-     * 
-     * @return true, if is selected partially
+     * @param path the {@link TreePath} to check
+     * @return {@code true} if the node is partially selected, {@code false} otherwise
      */
     public boolean isSelectedPartially(final TreePath path) {
         final NGTreeNode cn = (NGTreeNode) path.getLastPathComponent();
@@ -108,15 +127,15 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * The Class CheckBoxCellRenderer.
+     * Cell renderer that displays tree nodes with tristate checkboxes.
      */
     private class CheckBoxCellRenderer extends JPanel implements TreeCellRenderer {
 
-        /** The check box. */
+        /** The checkbox used to render each tree node. */
         JTristateCheckBox checkBox;
 
         /**
-         * Instantiates a new check box cell renderer.
+         * Constructs a new checkbox cell renderer.
          */
         public CheckBoxCellRenderer() {
             super();
@@ -128,6 +147,21 @@ public class JCheckBoxTree extends JTree {
             setOpaque(false);
         }
 
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Configures the checkbox to reflect the node's selection state, text, and partial selection state.
+         * </p>
+         *
+         * @param tree the enclosing {@link JTree}
+         * @param value the value of the current node
+         * @param selected whether the node is selected
+         * @param expanded whether the node is expanded
+         * @param leaf whether the node is a leaf
+         * @param row the row index
+         * @param hasFocus whether the node has focus
+         * @return the configured {@link Component} for rendering
+         */
         @Override
         public Component getTreeCellRendererComponent(final JTree tree, final Object value, final boolean selected, final boolean expanded, final boolean leaf, final int row,
                 final boolean hasFocus) {
@@ -145,9 +179,13 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * Instantiates a new j check box tree.
+     * Constructs a new checkbox tree with the given model.
+     * <p>
+     * Sets up the cell renderer, disables toggle on double-click, and registers mouse listeners
+     * for checkbox toggling.
+     * </p>
      *
-     * @param model the model
+     * @param model the {@link TreeModel} to display
      */
     public JCheckBoxTree(final TreeModel model) {
         super(model);
@@ -197,10 +235,13 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * Sets the selected.
+     * Sets the selection state of the specified nodes and their descendants.
+     * <p>
+     * Updates the selection state and propagates changes to parent nodes, then fires a check change event.
+     * </p>
      *
-     * @param selected the selected
-     * @param nodes the nodes
+     * @param selected {@code true} to select the nodes, {@code false} to deselect them
+     * @param nodes the {@link NGTreeNode} objects to update
      */
     public void setSelected(final boolean selected, final NGTreeNode... nodes) {
         for (final NGTreeNode node : nodes) {
@@ -213,41 +254,45 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * Select.
+     * Selects the specified nodes and their descendants.
      *
-     * @param nodes the nodes
+     * @param nodes the {@link NGTreeNode} objects to select
      */
     public void select(final NGTreeNode... nodes) {
         setSelected(true, nodes);
     }
 
     /**
-     * Unselect.
+     * Deselects the specified nodes and their descendants.
      *
-     * @param nodes the nodes
+     * @param nodes the {@link NGTreeNode} objects to deselect
      */
     public void unselect(final NGTreeNode... nodes) {
         setSelected(false, nodes);
     }
 
     /**
-     * Select all.
+     * Selects all nodes in the tree.
      */
     public void selectAll() {
         select((NGTreeNode) getModel().getRoot());
     }
 
     /**
-     * Select none.
+     * Deselects all nodes in the tree.
      */
     public void selectNone() {
         unselect((NGTreeNode) getModel().getRoot());
     }
 
     /**
-     * Update predecessors with check mode.
+     * Updates the selection state of all ancestor nodes based on their children's selection.
+     * <p>
+     * Recursively walks up the tree from the given path, setting each parent node's selection
+     * state based on whether any of its children are selected.
+     * </p>
      *
-     * @param tp the tp
+     * @param tp the {@link TreePath} to start updating from
      */
     protected void updatePredecessorsWithCheckMode(final TreePath tp) {
         final TreePath parentPath = tp.getParentPath();
@@ -263,10 +308,10 @@ public class JCheckBoxTree extends JTree {
     }
 
     /**
-     * Check sub tree.
+     * Recursively sets the selection state of all nodes in the subtree rooted at the given path.
      *
-     * @param tp the tp
-     * @param check the check
+     * @param tp the {@link TreePath} to the root of the subtree
+     * @param check {@code true} to select all nodes, {@code false} to deselect all nodes
      */
     protected void checkSubTree(final TreePath tp, final boolean check) {
         final NGTreeNode node = (NGTreeNode) tp.getLastPathComponent();

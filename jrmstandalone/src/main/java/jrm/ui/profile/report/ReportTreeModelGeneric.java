@@ -13,12 +13,16 @@ import jrm.aui.profile.report.ReportTreeHandler;
 import jrm.profile.report.FilterOptions;
 import jrm.profile.report.ReportIntf;
 
+/**
+ * Generic base class for report tree models.
+ * <p>
+ * Provides filtering and cloning support for report tree models.
+ */
 @SuppressWarnings("serial")
 public abstract class ReportTreeModelGeneric<T extends ReportIntf<T>> extends DefaultTreeModel implements ReportTreeHandler<T> {
-    /** The org root. */
+    /** The original unfiltered report root. */
     protected transient T orgRoot;
-
-    /** The filter options. */
+    /** The current set of filter options applied to the tree. */
     protected transient Set<FilterOptions> filterOptions = new HashSet<>();
 
     protected ReportTreeModelGeneric(TreeNode root) {

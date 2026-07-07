@@ -16,27 +16,45 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicTableUI;
 
 /**
- * The Class JListHintUI.
+ * A custom {@link BasicTableUI} delegate that renders a hint message when the table is empty.
+ * <p>
+ * When the table model contains no rows and the component is enabled, this UI delegate paints
+ * an italic hint string centered within the table area. This provides visual guidance to the user
+ * about what the table is intended to contain.
+ * </p>
+ *
+ * @see javax.swing.JTable
+ * @see BasicTableUI
  */
 public class JTableHintUI extends BasicTableUI {
 
-    /** The hint. */
+    /** The hint text displayed when the table is empty. */
     private final String hint;
 
-    /** The hint color. */
+    /** The color used to render the hint text. */
     private final Color hintColor;
 
     /**
-     * Instantiates a new j list hint UI.
+     * Constructs a new table hint UI delegate.
      *
-     * @param hint the hint
-     * @param hintColor the hint color
+     * @param hint the hint text to display when the table is empty
+     * @param hintColor the {@link Color} used to render the hint text
      */
     public JTableHintUI(final String hint, final Color hintColor) {
         this.hint = hint;
         this.hintColor = hintColor;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * After the default paint, if the table has no rows and the component is enabled,
+     * the hint text is drawn in italic font centered within the component bounds.
+     * </p>
+     *
+     * @param g the {@link Graphics} context to paint with
+     * @param c the {@link JComponent} being painted
+     */
     @Override
     public void paint(final Graphics g, final JComponent c) {
         super.paint(g, c);

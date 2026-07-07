@@ -19,6 +19,11 @@ import jrm.ui.basic.EnhTableModel;
 import jrm.ui.basic.JTableButton;
 import jrm.ui.profile.report.ReportLite;
 
+/**
+ * Scrollable view displaying batch directory update results.
+ * <p>
+ * Shows a table with columns for DAT/XML name, have, create, fix, miss, total, and report.
+ */
 @SuppressWarnings("serial")
 public class BatchDirUpdResultsView extends JScrollPane {
     private static class ColorRenderer extends DefaultTableCellRenderer {

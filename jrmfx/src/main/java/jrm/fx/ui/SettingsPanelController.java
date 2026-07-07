@@ -30,39 +30,63 @@ import jrm.misc.SettingsEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * FXML controller for the settings panel.
+ * <p>
+ * Manages application-wide settings including threading, style sheet, backup
+ * destination, compressor options (ZIP level, 7z options), and debug log level.
+ *
+ * @since 2.5
+ */
 public class SettingsPanelController extends BaseController {
+    /** The general settings pane. */
     @FXML
     TitledPane paneGeneral;
+    /** The threading choice box. */
     @FXML
     ChoiceBox<ThreadCnt> cbThreading;
+    /** The style sheet choice box. */
     @FXML
     ChoiceBox<JRMScene.StyleSheet> cbStyleSheet;
+    /** The backup destination enabled checkbox. */
     @FXML
     CheckBox ckbBackupDst;
+    /** The backup destination text field. */
     @FXML
     TextField tfBackupDst;
+    /** The backup destination browse button. */
     @FXML
     Button btBackupDst;
 
+    /** The compressors settings pane. */
     @FXML
     TitledPane paneCompressors;
+    /** The ZIP temp threshold choice box. */
     @FXML
     ChoiceBox<ZipTempThreshold> cbZipTempThreshold;
+    /** The ZIP compression level choice box. */
     @FXML
     ChoiceBox<ZipLevel> cbZipLevel;
+    /** The 7z options choice box. */
     @FXML
     ChoiceBox<SevenZipOptions> cb7zArgs;
+    /** The 7z thread count spinner. */
     @FXML
     Spinner<Integer> tf7zThreads;
+    /** The 7z solid archive checkbox. */
     @FXML
     CheckBox ckb7ZSolid;
 
+    /** The debug settings pane. */
     @FXML
     TitledPane paneDebug;
+    /** The debug level choice box. */
     @FXML
     ChoiceBox<Level> cbDbgLevel;
+    /** The garbage collection button. */
     @FXML
     Button gc;
+    /** The status text field. */
     @FXML
     TextField status;
 
@@ -79,7 +103,7 @@ public class SettingsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the general settings section.
      */
     private void initGeneral() {
         ImageView generaliv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/cog.png"));
@@ -115,7 +139,7 @@ public class SettingsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the compressor settings section.
      */
     private void initCompressors() {
         ImageView compressoriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
@@ -187,7 +211,7 @@ public class SettingsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the debug pane with log level selector and memory monitor.
      */
     private void initDebug() {
         ImageView debugiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bug.png"));
@@ -221,7 +245,17 @@ public class SettingsPanelController extends BaseController {
 
     @RequiredArgsConstructor
     private static class ThreadCnt {
+        /**
+         * The thread count.
+         *
+         * @return the thread count
+         */
         final @Getter int cnt;
+        /**
+         * The thread name.
+         *
+         * @return the thread name
+         */
         final @Getter String name;
 
         public ThreadCnt(int cnt) {

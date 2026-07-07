@@ -28,27 +28,58 @@ import jrm.ui.MainFrame;
 import lombok.Getter;
 
 /**
- * Main class
- * 
+ * Main entry point for the JRomManager application.
+ * <p>
+ * This class initializes the application, parses command-line arguments, sets up logging,
+ * creates a file lock to prevent multiple instances, and launches the main GUI window.
+ * <p>
+ * JRomManager is a retro-gaming ROM management tool that helps users organize, validate,
+ * and manage ROM collections for various emulators including MAME and others.
+ *
  * @author optyfr
- * 
  * @version %I%, %G%
- * 
  * @since 1.0
  */
 public final class JRomManager {
+    /**
+     * The main application window instance.
+     * @return the main application window
+     */
     private static @Getter MainFrame mainFrame;
 
+    /**
+     * Command-line argument container for the application.
+     * <p>
+     * Uses JCommander annotations to parse command-line parameters.
+     */
+    /**
+     * Command-line argument container for the application.
+     * <p>
+     * Uses JCommander annotations to parse command-line parameters.
+     */
     @Parameters(separators = " =")
     private static class Args {
+        /** Whether to enable multi-user mode. */
         @Parameter(names = { "-m", "--multiuser" }, description = "Multi-user mode")
         private boolean multiuser = false;
+        /** Whether to skip searching for application updates. */
         @Parameter(names = { "-n", "--noupdate" }, description = "Don't search for update")
         private boolean noupdate = false;
+        /** Whether to activate debug mode with verbose logging. */
         @Parameter(names = { "-d", "--debug" }, description = "Activate debug mode")
         private boolean debug = false;
     }
 
+    /**
+     * Application entry point.
+     * <p>
+     * Initializes the application by setting up UTF-8 encoding, configuring single-user mode,
+     * parsing command-line arguments, initializing logging, acquiring a file lock to prevent
+     * multiple instances, and displaying the main window.
+     *
+     * @param args command-line arguments; supports {@code -m/--multiuser} for multi-user mode,
+     *             {@code -n/--noupdate} to skip update checks, and {@code -d/--debug} for debug mode
+     */
     public static void main(final String[] args) {
         System.setProperty("file.encoding", "UTF-8");
         Sessions.setSingleMode(true);
@@ -75,11 +106,15 @@ public final class JRomManager {
     }
 
     /**
-     * Write lock file and keep it locked (rw) until program shutdown
-     * 
-     * @param lockFile the file to lock
-     * 
-     * @return true if successful, false otherwise
+     * Acquires an exclusive file lock to prevent multiple application instances.
+     * <p>
+     * Creates a lock file in the user's work directory and attempts to acquire an exclusive lock.
+     * The lock is held for the duration of the application and released via a shutdown hook.
+     * The lock file is automatically deleted on close.
+     *
+     * @param session the current user session containing settings and paths
+     * @param lockFile the name of the lock file to create (typically {@code "JRomManager.lock"})
+     * @return {@code true} if the lock was successfully acquired, {@code false} if another instance is already running
      */
     private static boolean lockInstance(final Session session, final String lockFile) {
         try (final var fc = FileChannel.open(session.getUser().getSettings().getWorkPath().resolve(lockFile), StandardOpenOption.CREATE, StandardOpenOption.READ,

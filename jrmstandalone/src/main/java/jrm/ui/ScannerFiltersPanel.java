@@ -36,43 +36,42 @@ import jrm.ui.basic.JCheckBoxList;
 import jrm.ui.basic.Popup;
 import jrm.ui.profile.data.YearsModel;
 
+/**
+ * Panel for configuring basic scanner filters.
+ * <p>
+ * Provides controls for filtering by driver status, cabinet type, display orientation,
+ * software support level, year range, and inclusion of clones/disks/samples. Also includes
+ * checkbox lists for selecting specific systems and sources.
+ */
 @SuppressWarnings("serial")
 public class ScannerFiltersPanel extends JSplitPane {
-    /** The cbbx driver status. */
+    /** Combo box for filtering by driver status (good, imperfect, preliminary). */
     private JComboBox<Driver.StatusType> cbbxDriverStatus;
-
-    /** The cbbx filter cabinet type. */
+    /** Combo box for filtering by cabinet type (upright, cocktail, etc.). */
     private JComboBox<CabinetType> cbbxFilterCabinetType;
-
-    /** The cbbx filter display orientation. */
+    /** Combo box for filtering by display orientation (horizontal, vertical). */
     private JComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
-
-    /** The cbbx SW min supported lvl. */
+    /** Combo box for minimum software support level. */
     private JComboBox<Supported> cbbxSWMinSupportedLvl;
-
-    /** The cbbx year max. */
+    /** Combo box for maximum year filter. */
     private JComboBox<String> cbbxYearMax;
-
-    /** The cbbx year min. */
+    /** Combo box for minimum year filter. */
     private JComboBox<String> cbbxYearMin;
-
-    /** The chckbx include clones. */
+    /** Checkbox to include clone ROM sets in the scan. */
     private JCheckBox chckbxIncludeClones;
-
-    /** The chckbx include disks. */
+    /** Checkbox to include disk images in the scan. */
     private JCheckBox chckbxIncludeDisks;
-
-    /** The chckbx include samples. */
+    /** Checkbox to include sample files in the scan. */
     private JCheckBox chckbxIncludeSamples;
-
-    /** The check box list systems. */
+    /** Checkbox list for selecting specific systems to scan. */
     JCheckBoxList<Systm> checkBoxListSystems;
-
-    /** The check box list systems. */
+    /** Checkbox list for selecting specific sources to scan. */
     JCheckBoxList<Source> checkBoxListSources;
 
     /**
-     * Create the panel.
+     * Constructs the scanner filters panel.
+     *
+     * @param session the current user session providing access to settings
      */
     public ScannerFiltersPanel(final Session session) {
         this.setResizeWeight(0.5);

@@ -25,27 +25,49 @@ import jrm.aui.basic.SDRList;
 import jrm.aui.basic.SrcDstResult;
 import jrm.misc.Log;
 
+/**
+ * A table component that accepts file drops and displays source-destination-result data.
+ * <p>
+ * This component extends {@link JTable} to provide drag-and-drop file handling for SDR data.
+ * Files can be dropped onto specific cells to populate source or destination columns. The table
+ * supports cell selection, column-specific file filters, and notifies listeners when data changes.
+ * </p>
+ *
+ * @see SDRTableModel
+ * @see SrcDstResult
+ */
 @SuppressWarnings("serial")
 public class JSDRDropTable extends JTable implements DropTargetListener, ResultColUpdater {
-    /** The color. */
+    /** The original background color, restored after drag operations. */
     private final Color color;
 
     /**
-     * The model from {@link JTable#getModel()} to avoid cast to {@link SDRTableModel} each time
+     * The model from {@link JTable#getModel()} to avoid cast to {@link SDRTableModel} each time.
      */
     private transient SDRTableModel model;
 
-    /** The add call back. */
+    /** The callback invoked when data changes. */
     private final transient AddDelCallBack addCallBack;
 
     /**
-     * The Interface AddDelCallBack.
+     * Callback interface invoked when the table data changes.
      */
     @FunctionalInterface
     public interface AddDelCallBack {
+        /**
+         * Called when the table data changes.
+         *
+         * @param files the current {@link SDRList} of {@link SrcDstResult} data
+         */
         public void call(SDRList<SrcDstResult> files);
     }
 
+    /**
+     * Constructs a new SDR drop table with the specified model and callback.
+     *
+     * @param model the {@link SDRTableModel} to use for data management
+     * @param callback the {@link AddDelCallBack} invoked when data changes
+     */
     public JSDRDropTable(SDRTableModel model, AddDelCallBack callback) {
         super(model);
         setCellSelectionEnabled(true);
@@ -63,6 +85,14 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         });
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Creates a table header that displays column-specific tooltip text from the model.
+     * </p>
+     *
+     * @return the configured {@link JTableHeader}
+     */
     @Override
     protected JTableHeader createDefaultTableHeader() {
         return new JTableHeader(columnModel) {
@@ -76,11 +106,28 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         };
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * No action is taken on drag enter.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDragEvent}
+     */
     @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         // do nothing
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Updates the current row and column hover state and changes the background color to indicate
+     * valid or invalid drop targets.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDragEvent}
+     */
     @Override
     public void dragOver(DropTargetDragEvent dtde) {
         final Transferable transferable = dtde.getTransferable();
@@ -111,11 +158,27 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * No action is taken when the drop action changes.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDragEvent}
+     */
     @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         // do nothing
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Resets the hover state and restores the original background color.
+     * </p>
+     *
+     * @param dte the {@link DropTargetEvent}
+     */
     @Override
     public void dragExit(DropTargetEvent dte) {
         model.setCurrentRow(-1);
@@ -123,6 +186,15 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         model.fireTableChanged(new TableModelEvent(model));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Resets the hover state, extracts files from the transferable, applies column-specific filters,
+     * and adds the files to the model at the drop location.
+     * </p>
+     *
+     * @param dtde the {@link DropTargetDropEvent}
+     */
     @Override
     public void drop(DropTargetDropEvent dtde) {
         model.setCurrentRow(-1);
@@ -166,10 +238,11 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     }
 
     /**
-     * @param col
-     * @param f
-     * 
-     * @return
+     * Applies column-specific file filters to the dropped file.
+     *
+     * @param col the column index where the file was dropped
+     * @param f the {@link File} to filter
+     * @return {@code true} if the file passes the filter or no filter is set, {@code false} otherwise
      */
     private boolean dropFilter(int col, File f) {
         FileFilter filter = null;
@@ -182,13 +255,23 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         return true;
     }
 
+    /**
+     * Returns the underlying SDR table model.
+     *
+     * @return the {@link SDRTableModel}
+     */
     public SDRTableModel getSDRModel() {
         return model;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see jrm.ui.basic.ResultColUpdater#updateResult(int, java.lang.String)
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Updates the result text for the specified row and fires a table change event.
+     * </p>
+     *
+     * @param row the row index to update
+     * @param result the result text to set
      */
     @Override
     public void updateResult(int row, String result) {
@@ -198,9 +281,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     }
 
     /**
-     * Del.
+     * Removes the specified data entries from the table.
      *
-     * @param sdrl the data to delete
+     * @param sdrl the {@link SDRList} of {@link SrcDstResult} entries to remove
      */
     public void del(final SDRList<SrcDstResult> sdrl) {
         for (final AbstractSrcDstResult sdr : sdrl)
@@ -210,9 +293,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
     }
 
     /**
-     * get selected values as a {@link List} of {@link SrcDstResult}
-     * 
-     * @return the {@link List} of {@link SrcDstResult} corresponding to selected values
+     * Returns the selected rows as a list of source-destination-result entries.
+     *
+     * @return the {@link SDRList} of {@link SrcDstResult} corresponding to selected rows
      */
     public SDRList<SrcDstResult> getSelectedValuesList() {
         int[] rows = getSelectedRows();
@@ -222,6 +305,12 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         return list;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Clears the result text for all rows and fires a table change event.
+     * </p>
+     */
     @Override
     public void clearResults() {
         model.getData().forEach(r -> r.setResult(""));
@@ -229,6 +318,9 @@ public class JSDRDropTable extends JTable implements DropTargetListener, ResultC
         addCallBack.call(model.getData());
     }
 
+    /**
+     * Invokes the callback with the current data.
+     */
     public void call() {
         addCallBack.call(model.getData());
     }

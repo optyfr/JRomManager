@@ -5,11 +5,22 @@ import javax.swing.AbstractListModel;
 import jrm.profile.data.Systm;
 import jrm.profile.data.Systms;
 
+/**
+ * List model providing the collection of systems for list-based UI components.
+ * <p>
+ * Wraps a {@link Systms} instance to expose individual {@link Systm} entries.
+ */
 @SuppressWarnings("serial")
 public class SystmsModel extends AbstractListModel<Systm> {
 
+    /** The underlying systems collection. */
     private final Systms systms;
 
+    /**
+     * Constructs a new systems model.
+     *
+     * @param systms the systems collection to display
+     */
     public SystmsModel(final Systms systms) {
         this.systms = systms;
     }

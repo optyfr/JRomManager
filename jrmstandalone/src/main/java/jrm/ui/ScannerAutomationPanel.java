@@ -17,11 +17,21 @@ import jrm.misc.ProfileSettings;
 import jrm.misc.ProfileSettingsEnum;
 import jrm.profile.scan.options.ScanAutomation;
 
+/**
+ * Panel for configuring scanner automation options.
+ * <p>
+ * Provides a combo box for selecting the automation action to perform after a scan completes.
+ */
 @SuppressWarnings("serial")
 public final class ScannerAutomationPanel extends JPanel {
+    /** The profile settings instance for persisting automation preferences. */
     public transient ProfileSettings settings;
+    /** Combo box for selecting the post-scan automation action. */
     private JComboBox<ScanAutomation> comboBox;
 
+    /**
+     * Constructs the scanner automation panel.
+     */
     public ScannerAutomationPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 0, 0, 0, 0, 0 };

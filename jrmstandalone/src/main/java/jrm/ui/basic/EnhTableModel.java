@@ -12,65 +12,86 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 /**
+ * Enhanced table model interface that extends {@link TableModel} with cell rendering, editing, and column configuration capabilities.
+ * <p>
+ * This interface provides methods for defining custom cell renderers and editors per column,
+ * configuring column widths (including fixed and auto-sized columns), and managing tooltip text
+ * for table columns.
+ * </p>
+ *
  * @author optyfr
+ * @see TableModel
+ * @see javax.swing.table.TableCellRenderer
+ * @see javax.swing.table.TableCellEditor
  */
 public interface EnhTableModel extends TableModel {
     /**
-     * @return the cellRenderers
+     * Returns the array of cell renderers for each column.
+     *
+     * @return an array of {@link TableCellRenderer} objects, one per column
      */
     public abstract TableCellRenderer[] getCellRenderers();
 
     /**
-     * @return the cellEditors
+     * Returns the array of cell editors for each column.
+     * <p>
+     * Default implementation returns an empty array, indicating no custom editors.
+     * </p>
+     *
+     * @return an array of {@link TableCellEditor} objects, one per column
      */
     public default TableCellEditor[] getCellEditors() {
         return new TableCellEditor[0];
     }
 
     /**
-     * get the declared renderer for a given column
-     * 
-     * @param columnIndex the requested column index
-     * 
-     * @return a {@link TableCellRenderer} associated with the given columnindex
+     * Returns the cell renderer for the specified column.
+     *
+     * @param columnIndex the zero-based column index
+     * @return the {@link TableCellRenderer} associated with the specified column
      */
     public default TableCellRenderer getColumnRenderer(int columnIndex) {
         return getCellRenderers()[columnIndex];
     }
 
     /**
-     * get the declared editor for a given column
-     * 
-     * @param columnIndex the requested column index
-     * 
-     * @return a {@link TableCellEditor} associated with the given columnindex
+     * Returns the cell editor for the specified column.
+     *
+     * @param columnIndex the zero-based column index
+     * @return the {@link TableCellEditor} associated with the specified column
      */
     public default TableCellEditor getColumnEditor(int columnIndex) {
         return getCellEditors()[columnIndex];
     }
 
     /**
-     * get the declared width for a given column
-     * 
-     * @param columnIndex the requested column index
-     * 
-     * @return a width in pixel (if negative then it's a fixed column width)
+     * Returns the preferred width for the specified column.
+     * <p>
+     * Positive values indicate preferred width in pixels. Negative values indicate fixed width
+     * (the absolute value is used as the fixed width).
+     * </p>
+     *
+     * @param columnIndex the zero-based column index
+     * @return the column width in pixels; negative values indicate fixed width
      */
     public abstract int getColumnWidth(int columnIndex);
 
     /**
-     * get the tooltip text for a given column
-     * 
-     * @param columnIndex the requested column index
-     * 
-     * @return the string of the tooltip
+     * Returns the tooltip text for the specified column.
+     *
+     * @param columnIndex the zero-based column index
+     * @return the tooltip text for the column header
      */
     public abstract String getColumnTT(int columnIndex);
 
     /**
-     * apply column width limits to the table
-     * 
-     * @param table the table to modify
+     * Applies the configured column widths to the specified table.
+     * <p>
+     * For positive widths, sets the minimum and preferred width. For negative widths, sets
+     * the minimum, maximum, and preferred width to the absolute value, creating a fixed-width column.
+     * </p>
+     *
+     * @param table the {@link JTable} to configure
      */
     public default void applyColumnsWidths(JTable table) {
         for (int i = 0; i < getColumnCount(); i++) {

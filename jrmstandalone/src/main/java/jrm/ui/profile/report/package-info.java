@@ -1,5 +1,5 @@
 /**
- * all the crontrols related to profile scan Report gui
+ * All the controls related to profile scan Report GUI.
  * 
  * @author optyfr
  */

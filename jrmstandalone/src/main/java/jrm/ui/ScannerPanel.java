@@ -43,40 +43,63 @@ import jrm.ui.profile.data.SourcesModel;
 import jrm.ui.profile.data.SystmsModel;
 import jrm.ui.progress.SwingWorkerProgress;
 
+/**
+ * Panel for scanning ROM sets and comparing them against a loaded profile.
+ * <p>
+ * Provides controls for scanning directories, applying filters, fixing issues,
+ * and managing scan presets. Integrates with multiple sub-panels for configuration,
+ * directory selection, filtering, and automation options.
+ */
 @SuppressWarnings("serial")
 public class ScannerPanel extends JPanel implements ProfileLoader {
+    /** Error message constant. */
     private static final String ERROR_STR = "Error";
 
-    /** The scanner cfg tab. */
+    /** The tabbed pane containing scanner configuration panels. */
     private JTabbedPane scannerTabbedPane;
 
+    /** The scanner settings configuration panel. */
     private ScannerSettingsPanel scannerSettingsPanel;
 
+    /** The scanner directory selection panel. */
     private ScannerDirPanel scannerDirPanel;
 
+    /** The scanner filters panel. */
     private ScannerFiltersPanel scannerFilters;
 
+    /** The scanner advanced filters panel. */
     private ScannerAdvFilterPanel scannerAdvFilters;
 
+    /** The scanner automation options panel. */
     private ScannerAutomationPanel scannerAutomation;
 
-    /** The btn fix. */
+    /** The button to fix detected issues. */
     private JButton btnFix;
 
-    /** The btn scan. */
+    /** The button to initiate a scan. */
     private JButton btnScan;
 
-    /** The lbl profileinfo. */
+    /** The label displaying profile information. */
     private JLabel lblProfileinfo;
 
+    /** The main tabbed pane from the parent frame. */
     private JTabbedPane mainPane;
+    /** Vertical separator. */
     private JSeparator separator2;
+    /** Button to load a scan preset. */
     private JButton btnLoadPreset;
+    /** Button to save a scan preset. */
     private JButton btnSavePreset;
+    /** Vertical separator. */
     private JSeparator separator1;
 
     /**
-     * Create the panel.
+     * Constructs the Scanner panel.
+     * <p>
+     * Initializes all sub-panels (settings, directories, filters, automation),
+     * sets up action listeners for scan and fix operations, and loads saved settings.
+     *
+     * @param session the current user session providing access to settings and profile data
      */
     public ScannerPanel(final Session session) {
         final GridBagLayout gblScannerTab = new GridBagLayout();

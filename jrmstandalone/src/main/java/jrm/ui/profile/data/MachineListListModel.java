@@ -7,11 +7,24 @@ import javax.swing.event.TableModelEvent;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.MachineListList;
 
+/**
+ * Table model for displaying a list of machine lists.
+ * <p>
+ * Combines machine lists and software lists into a single table model,
+ * showing aggregated statistics for each list.
+ */
 public class MachineListListModel extends AnywareListListModel {
+    /** The underlying machine list list data. */
     private MachineListList machineListList;
 
+    /** The nested software list list model for displaying software lists. */
     private SoftwareListListModel sllmodel;
 
+    /**
+     * Constructs a new machine list list model.
+     *
+     * @param machineListList the machine list list to display
+     */
     public MachineListListModel(MachineListList machineListList) {
         this.machineListList = machineListList;
         sllmodel = new SoftwareListListModel(machineListList.getSoftwareListList());

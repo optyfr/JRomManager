@@ -65,43 +65,55 @@ import jrm.ui.profile.manager.FileTableModel;
 import jrm.ui.progress.SwingWorkerProgress;
 import lombok.val;
 
+/**
+ * Panel for managing profiles in the profile manager.
+ * <p>
+ * Provides a split-pane interface with a directory tree on the left and a profile
+ * file table on the right. Supports creating/deleting directories, importing profiles,
+ * renaming profiles, updating from MAME, and managing profile caches.
+ */
 @SuppressWarnings("serial")
 public class ProfilePanel extends JPanel {
+    /** Message key for the file chooser dialog when importing profiles. */
     private static final String MAIN_FRAME_CHOOSE_EXE_OR_DAT_TO_IMPORT = "MainFrame.ChooseExeOrDatToImport";
 
+    /** Message key for the "Update from MAME" menu item text. */
     private static final String MAIN_FRAME_MNTM_UPDATE_FROM_MAME_TEXT = "MainFrame.mntmUpdateFromMame.text";
 
-    /** The mntm create folder. */
+    /** Menu item for creating a new folder in the directory tree. */
     private JMenuItem mntmCreateFolder;
 
-    /** The mntm delete folder. */
+    /** Menu item for deleting the selected folder from the directory tree. */
     private JMenuItem mntmDeleteFolder;
 
-    /** The mntm delete profile. */
+    /** Menu item for deleting the selected profile. */
     private JMenuItem mntmDeleteProfile;
 
-    /** The mntm drop cache. */
+    /** Menu item for dropping the profile cache file. */
     private JMenuItem mntmDropCache;
 
-    /** The mntm rename profile. */
+    /** Menu item for renaming the selected profile. */
     private JMenuItem mntmRenameProfile;
 
-    /** The mntm update from mame. */
+    /** Menu item for updating the profile from MAME. */
     private JMenuItem mntmUpdateFromMame;
 
-    /** The profiles list. */
+    /** Table displaying profile files in the selected directory. */
     private JTable profilesList;
 
-    /** The scroll pane 1. */
+    /** Scroll pane containing the directory tree. */
     private JScrollPane scrollPaneTree;
 
-    /** The profiles tree. */
+    /** Tree displaying the directory structure for profile files. */
     private JTree profilesTree;
 
+    /** Callback interface for loading profiles into the UI. */
     private transient ProfileLoader profileLoader;
 
     /**
-     * Create the panel.
+     * Constructs a new profile panel.
+     *
+     * @param session the security session for accessing profile data
      */
     public ProfilePanel(final Session session) {
         final var gblProfilesTab = new GridBagLayout();
@@ -289,7 +301,9 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param profilesTreeModel
+     * Deletes the selected folder from the directory tree.
+     *
+     * @param profilesTreeModel the tree model containing the directory structure
      */
     private void deleteFolder(final DirTreeModel profilesTreeModel) {
         final DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
@@ -302,7 +316,9 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param profilesTreeModel
+     * Creates a new folder under the selected directory tree node.
+     *
+     * @param profilesTreeModel the tree model containing the directory structure
      */
     private void createFolder(final DirTreeModel profilesTreeModel) {
         final DirNode selectedNode = (DirNode) profilesTree.getLastSelectedPathComponent();
@@ -317,7 +333,9 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param filemodel
+     * Deletes the cache file associated with the selected profile.
+     *
+     * @param filemodel the table model containing profile file information
      */
     private void dropCache(final FileTableModel filemodel) {
         final int row = profilesList.getSelectedRow();
@@ -330,7 +348,7 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * 
+     * Initiates in-place renaming of the selected profile by entering edit mode.
      */
     private void renameProfile() {
         final int row = profilesList.getSelectedRow();
@@ -339,8 +357,10 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param session
-     * @param filemodel
+     * Deletes the selected profile from the file system.
+     *
+     * @param session the current session
+     * @param filemodel the table model containing profile file information
      */
     private void deleteProfile(final Session session, final FileTableModel filemodel) {
         final int row = profilesList.getSelectedRow();
@@ -352,8 +372,10 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param session
-     * @param filemodel
+     * Updates the selected profile's MAME data, prompting for relocation if needed.
+     *
+     * @param session the current session
+     * @param filemodel the table model containing profile file information
      */
     private void updateFromMame(final Session session, final FileTableModel filemodel) {
         final int row = profilesList.getSelectedRow();
@@ -392,10 +414,11 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param nfo
-     * @param chooser
-     * 
-     * @return
+     * Handles relocation of the MAME executable when the original location is not found.
+     *
+     * @param nfo the profile NFO containing MAME configuration
+     * @param chooser the file chooser for selecting the new MAME location
+     * @return the updated MAME status after relocation attempt
      */
     private MameStatus updateFromMameRelocate(final ProfileNFO nfo, JRMFileChooser<MameStatus> chooser) {
         if (chooser.getSelectedFile().exists())
@@ -404,9 +427,10 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * Import dat.
+     * Imports a DAT file into the profile system.
      *
-     * @param sl the sl
+     * @param session the current session
+     * @param sl true if importing a software list DAT, false for regular DAT
      */
     private void importDat(final Session session, final boolean sl) {
         final List<FileFilter> filters = Arrays.asList(new ImportDatFileFilter(), new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "dat", "xml"));
@@ -419,9 +443,11 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param session
-     * @param sl
-     * @param chooser
+     * Processes the DAT file import using the provided file chooser.
+     *
+     * @param session the current session
+     * @param sl true if importing a software list DAT, false for regular DAT
+     * @param chooser the file chooser containing the selected DAT file
      */
     private void importDat(final Session session, final boolean sl, JRMFileChooser<Void> chooser) {
         new SwingWorkerProgress<Void, Import>(SwingUtilities.getWindowAncestor(this)) {
@@ -449,22 +475,28 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @return the profileLoader
+     * Gets the profile loader callback.
+     *
+     * @return the profile loader callback
      */
     public ProfileLoader getProfileLoader() {
         return profileLoader;
     }
 
     /**
-     * @param profileLoader the profileLoader to set
+     * Sets the profile loader callback.
+     *
+     * @param profileLoader the profile loader callback to set
      */
     public void setProfileLoader(ProfileLoader profileLoader) {
         this.profileLoader = profileLoader;
     }
 
     /**
-     * @param session
-     * @param filemodel
+     * Loads the selected profile into the application.
+     *
+     * @param session the current session
+     * @param filemodel the table model containing profile file information
      */
     private void loadProfile(final Session session, final FileTableModel filemodel) {
         final int row = profilesList.getSelectedRow();
@@ -474,11 +506,11 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param file
-     * 
-     * @return
-     * 
-     * @throws IllegalArgumentException
+     * Generates a unique filename by appending a numeric suffix.
+     *
+     * @param file the original file to rename
+     * @return a new file with a unique name
+     * @throws IllegalArgumentException if unable to generate a unique name
      */
     private File autoRenameFile(File file) throws IllegalArgumentException {
         for (var i = 1;; i++) {
@@ -489,12 +521,12 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param file
-     * 
-     * @return
-     * 
-     * @throws HeadlessException
-     * @throws IllegalArgumentException
+     * Prompts the user when a DAT file already exists at the target location.
+     *
+     * @param file reference to the file that may need renaming
+     * @return the user's choice: 0=Overwrite, 1=Auto Rename, 2=File Chooser, 3=Cancel
+     * @throws HeadlessException if the operation requires a display that is not available
+     * @throws IllegalArgumentException if unable to generate a unique filename
      */
     private int importDatExistsChoose(AtomicReference<File> file) throws HeadlessException, IllegalArgumentException {
         int mode = -1;
@@ -509,10 +541,13 @@ public class ProfilePanel extends JPanel {
     }
 
     /**
-     * @param session
-     * @param sl
-     * @param imprt
-     * @param file
+     * Processes the imported DAT file and updates the profile tree.
+     *
+     * @param session the current session
+     * @param sl true if importing a software list DAT, false for regular DAT
+     * @param imprt the import operation containing the DAT file
+     * @param file the target file location
+     * @return null (placeholder for SwingWorker compatibility)
      */
     private Void importDat(final Session session, final boolean sl, final jrm.profile.manager.Import imprt, final File file) {
         try {

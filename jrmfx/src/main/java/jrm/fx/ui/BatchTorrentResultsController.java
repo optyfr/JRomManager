@@ -23,23 +23,39 @@ import jrm.batch.TrntChkReport.Status;
 import jrm.profile.report.FilterOptions;
 import lombok.Getter;
 
+/**
+ * FXML controller for the batch torrent check results dialog.
+ * <p>
+ * Displays a tree view of torrent check results with color-coded status indicators
+ * and context menu options for expanding/collapsing nodes and filtering by status.
+ *
+ * @since 2.5
+ */
 public class BatchTorrentResultsController implements Initializable {
+    /** The tree view displaying the results. */
     @FXML
     @Getter
     private TreeView<Child> treeview;
+    /** The context menu. */
     @FXML
     private ContextMenu menu;
+    /** Menu item to expand all nodes. */
     @FXML
     private MenuItem openAllNodes;
+    /** Menu item to collapse all nodes. */
     @FXML
     private MenuItem closeAllNodes;
+    /** Menu item to show OK entries. */
     @FXML
     private CheckMenuItem showok;
+    /** Menu item to hide missing entries. */
     @FXML
     private CheckMenuItem hidemissing;
 
+    /** The active filter options. */
     private static final EnumSet<FilterOptions> filterOptions = EnumSet.noneOf(FilterOptions.class);
 
+    /** The torrent check report. */
     private TrntChkReport report;
 
     @Override
@@ -68,9 +84,10 @@ public class BatchTorrentResultsController implements Initializable {
     }
 
     /**
-     * @param status
-     * 
-     * @return
+     * Returns the color suffix for the given status.
+     *
+     * @param status the status to map
+     * @return the color suffix string (e.g., "_green", "_red")
      */
     protected String statusColor(final Status status) {
         switch (status) {
@@ -96,6 +113,11 @@ public class BatchTorrentResultsController implements Initializable {
         treeview.getScene().getWindow().hide();
     }
 
+    /**
+     * Sets the torrent check report to display.
+     *
+     * @param report the report to display
+     */
     public void setResult(TrntChkReport report) {
         this.report = report;
         build();

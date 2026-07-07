@@ -14,11 +14,29 @@ import jrm.profile.report.Report;
 import jrm.security.Session;
 import jrm.security.Sessions;
 
+/**
+ * A non-modal stage for displaying a lightweight report view.
+ * <p>
+ * Shows a simplified report without status updates, suitable for viewing
+ * completed scan results.
+ *
+ * @since 2.5
+ */
 public class ReportLite extends Stage {
+    /** The report lite controller. */
     private ReportLiteController controller;
 
+    /** The current user session. */
     private Session session;
 
+    /**
+     * Constructs and shows the lightweight report.
+     *
+     * @param parent the parent stage
+     * @param report the report to display
+     * @throws IOException        if the FXML cannot be loaded
+     * @throws URISyntaxException if the FXML resource URI is invalid
+     */
     public ReportLite(Stage parent, Report report) throws IOException, URISyntaxException {
         super();
         session = Sessions.getSingleSession();

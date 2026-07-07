@@ -12,6 +12,11 @@ import jrm.batch.TrntChkReport.Child;
 import jrm.ui.profile.report.ReportNodeGeneric;
 import lombok.Getter;
 
+/**
+ * Tree node representing a torrent check report.
+ * <p>
+ * Provides a hierarchical view of torrent check results with cached child nodes.
+ */
 public class BatchTrrntChkReportNode extends ReportNodeGeneric<TrntChkReport> {
     private Map<Long, ChildNode> nodeCache = new HashMap<>();
 
@@ -65,9 +70,21 @@ public class BatchTrrntChkReportNode extends ReportNodeGeneric<TrntChkReport> {
         };
     }
 
+    /**
+     * Tree node representing a child entry in the torrent check report.
+     */
     public class ChildNode implements TreeNode {
+        /**
+         * The child data.
+         * @return the child
+         */
         private final @Getter Child child;
 
+        /**
+         * Constructs a child node.
+         *
+         * @param child the child data
+         */
         public ChildNode(final Child child) {
             this.child = child;
         }

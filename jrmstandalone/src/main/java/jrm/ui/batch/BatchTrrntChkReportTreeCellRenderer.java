@@ -20,7 +20,9 @@ import jrm.ui.MainFrame;
 import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 
 /**
- * The Class ReportTreeCellRenderer.
+ * Tree cell renderer for torrent check report trees.
+ * <p>
+ * Displays report nodes with status-based color-coded icons.
  *
  * @author optyfr
  */
@@ -28,7 +30,7 @@ import jrm.ui.batch.BatchTrrntChkReportNode.ChildNode;
 public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer {
 
     /**
-     * Instantiates a new report tree cell renderer.
+     * Constructs a new report tree cell renderer.
      */
     public BatchTrrntChkReportTreeCellRenderer() {
         super();
@@ -59,9 +61,10 @@ public class BatchTrrntChkReportTreeCellRenderer extends DefaultTreeCellRenderer
     }
 
     /**
-     * @param status
-     * 
-     * @return
+     * Returns the color suffix for the given status.
+     *
+     * @param status the torrent check status
+     * @return the color suffix (e.g., "_green", "_red")
      */
     protected String statusColor(final Status status) {
         switch (status) {

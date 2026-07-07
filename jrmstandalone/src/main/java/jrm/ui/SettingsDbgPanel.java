@@ -22,23 +22,30 @@ import jrm.misc.Log;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
 
+/**
+ * Panel for debug and diagnostic settings.
+ * <p>
+ * Provides controls for configuring log level, monitoring memory usage,
+ * and other debugging options.
+ */
 @SuppressWarnings("serial")
 public class SettingsDbgPanel extends JPanel {
+    /** Format string for memory usage display. */
     private static final String XX_MIB = "%.2f MiB";
 
-    /** The cb log level. */
+    /** Combo box for selecting the log level. */
     private JComboBox<Level> cbLogLevel;
-
-    /** The lbl memory usage. */
+    /** Label displaying current memory usage. */
     private JLabel lblMemoryUsage;
-
-    /** The scheduler. */
+    /** Scheduler for periodic memory usage updates. */
     final transient ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
+    /** Available log levels for selection. */
     final Level[] levels = new Level[] { Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.ALL };
 
     /**
-     * Create the panel.
+     * Constructs the debug settings panel.
+     *
+     * @param session the user session for accessing settings
      */
     public SettingsDbgPanel(final Session session) {
         final GridBagLayout gblDebug = new GridBagLayout();

@@ -17,13 +17,17 @@ import jrm.profile.manager.Dir;
 import jrm.security.Session;
 
 /**
- * The listener interface for receiving dirTreeSelection events.
+ * Selection listener for the directory tree in the profile manager.
+ * <p>
+ * When a directory node is selected, updates the profiles table to show
+ * all profile files contained in that directory.
  */
 public class DirTreeSelectionListener implements TreeSelectionListener {
 
-    /** The profiles list. */
+    /** The profiles table to update when a directory is selected. */
     JTable profilesList;
 
+    /** The current security session for accessing profile data. */
     private Session session;
 
     /**

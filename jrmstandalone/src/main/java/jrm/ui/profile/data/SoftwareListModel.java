@@ -9,9 +9,21 @@ import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Software;
 import jrm.profile.data.SoftwareList;
 
+/**
+ * Table model for displaying a list of software entries.
+ * <p>
+ * Provides data for the software list table with columns for status, name,
+ * description, have count, clone relationships, and selection state.
+ */
 public class SoftwareListModel extends AnywareListModel<Software> {
+    /** The underlying software list data. */
     private SoftwareList softwareList;
 
+    /**
+     * Constructs a new software list model.
+     *
+     * @param softwareList the software list to display
+     */
     public SoftwareListModel(SoftwareList softwareList) {
         this.softwareList = softwareList;
     }

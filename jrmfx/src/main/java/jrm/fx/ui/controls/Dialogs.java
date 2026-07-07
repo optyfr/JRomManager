@@ -16,9 +16,22 @@ import jrm.fx.ui.JRMScene;
 import jrm.fx.ui.MainFrame;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Utility class for displaying modal dialogs (error, warning, confirmation).
+ * <p>
+ * All dialogs are styled with the application icon and the current {@link JRMScene} style sheet.
+ *
+ * @since 2.5
+ */
 public @UtilityClass class Dialogs {
+    /** The application icon resource path. */
     private static final String ICO = "/jrm/resicons/rom.png";
 
+    /**
+     * Shows an error dialog with the exception message and stack trace.
+     *
+     * @param e the exception to display
+     */
     public static void showError(Throwable e) {
         final var alert = new Alert(AlertType.ERROR);
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
@@ -40,6 +53,11 @@ public @UtilityClass class Dialogs {
         alert.showAndWait();
     }
 
+    /**
+     * Shows a warning dialog with the given message.
+     *
+     * @param message the message to display
+     */
     public static void showAlert(String message) {
         Alert alert = new Alert(AlertType.WARNING);
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
@@ -53,6 +71,14 @@ public @UtilityClass class Dialogs {
         alert.showAndWait();
     }
 
+    /**
+     * Shows a confirmation dialog with the given title and message.
+     *
+     * @param title   the dialog title
+     * @param message the message to display
+     * @param buttons the button types to show, or {@code null} for defaults
+     * @return the selected button type
+     */
     public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
@@ -67,6 +93,14 @@ public @UtilityClass class Dialogs {
         return alert.showAndWait();
     }
 
+    /**
+     * Shows a confirmation dialog with the given title and custom node content.
+     *
+     * @param title   the dialog title
+     * @param message the custom node to display
+     * @param buttons the button types to show, or {@code null} for defaults
+     * @return the selected button type
+     */
     public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
@@ -81,6 +115,12 @@ public @UtilityClass class Dialogs {
         return alert.showAndWait();
     }
 
+    /**
+     * Extracts the stack trace from an exception as a string.
+     *
+     * @param e the exception
+     * @return the formatted stack trace
+     */
     private static String getStackTrace(Throwable e) {
         final var sw = new StringWriter();
         final var pw = new PrintWriter(sw);

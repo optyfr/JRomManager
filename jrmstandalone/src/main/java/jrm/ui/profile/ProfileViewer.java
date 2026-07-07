@@ -101,32 +101,34 @@ import jrm.ui.progress.SwingWorkerProgress;
 import lombok.val;
 
 /**
- * The Class ProfileViewer.
+ * Dialog for viewing and managing profile data.
+ * <p>
+ * Displays machines, software lists, and anyware lists with filtering and export capabilities.
  */
 @SuppressWarnings("serial")
 public class ProfileViewer extends JDialog {
 
+    /** Preference key for exporting as software lists DAT. */
     private static final String PROFILE_VIEWER_AS_SW_LISTS_DAT = "ProfileViewer.AsSWListsDat";
-
+    /** Error message constant. */
     private static final String PROFILE_VIEWER_ERROR = "ProfileViewer.Error";
 
-    /** The table entity. */
+    /** Table for displaying entities (machines/software). */
     private JTable tableEntity;
-
-    /** The table W. */
+    /** Table for displaying software lists. */
     private JTable tableW;
-
-    /** The table WL. */
+    /** Table for displaying anyware lists. */
     private JTable tableWL;
 
-    /** The txt search. */
+    /** Text field for searching/filtering the displayed data. */
     private JTextField txtSearch;
 
     /**
-     * Instantiates a new profile viewer.
+     * Constructs a new profile viewer dialog.
      *
-     * @param owner the owner
-     * @param profile the profile
+     * @param session the security session for accessing profile data
+     * @param owner the parent window
+     * @param profile the profile to display
      */
     @SuppressWarnings("unchecked")
     public ProfileViewer(final Session session, final Window owner, final Profile profile) {
@@ -504,7 +506,10 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @throws HeadlessException
+     * Copies the hash value from the specified column of the selected entity to the clipboard.
+     *
+     * @param col the column index containing the hash to copy
+     * @throws HeadlessException if the operation requires a display that is not available
      */
     private void copyHash(int col) throws HeadlessException {
         val index = tableEntity.getSelectedRow();
@@ -516,7 +521,9 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param e
+     * Handles selection changes in the software list table.
+     *
+     * @param e the list selection event
      */
     private void selecteItemW(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
@@ -542,7 +549,9 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param anyware
+     * Adjusts column widths and renderers for the entity table.
+     *
+     * @param anyware the anyware model containing column configuration
      */
     private void readjustColumnsE(final AnywareModel anyware) {
         for (var i = 0; i < tableEntity.getColumnModel().getColumnCount(); i++) {
@@ -565,10 +574,11 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param session
-     * @param e
-     * 
-     * @throws HeadlessException
+     * Handles double-click events on items in the software table.
+     *
+     * @param session the current session
+     * @param e the mouse event
+     * @throws HeadlessException if the operation requires a display that is not available
      */
     private void clickItemW(final Session session, final MouseEvent e) throws HeadlessException {
         if (e.getClickCount() != 2)
@@ -603,8 +613,10 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param target
-     * @param row
+     * Scrolls the target table to the specified row and selects it.
+     *
+     * @param target the table to scroll
+     * @param row the row index to select
      */
     private void jumpTo(final JTable target, int row) {
         if (row >= 0) {
@@ -614,10 +626,11 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * 
-     * @throws HeadlessException
+     * Launches MAME with the specified anyware and profile configuration.
+     *
+     * @param ware the anyware (machine or software) to launch
+     * @param profile the profile containing MAME configuration
+     * @throws HeadlessException if the operation requires a display that is not available
      */
     private void launchMame(final Anyware ware, final Profile profile) throws HeadlessException {
         final ProfileNFOMame mame = profile.getNfo().getMame();
@@ -642,11 +655,12 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * @param mame
-     * 
-     * @return
+     * Builds MAME command-line arguments for launching a machine.
+     *
+     * @param ware the machine to launch
+     * @param profile the profile containing ROM paths
+     * @param mame the MAME configuration
+     * @return the command-line arguments array
      */
     private String[] getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame) {
         String[] args;
@@ -660,14 +674,14 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * @param mame
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws HeadlessException
+     * Builds MAME command-line arguments for launching software.
+     *
+     * @param ware the software to launch
+     * @param profile the profile containing ROM paths
+     * @param mame the MAME configuration
+     * @param args initial arguments (may be null)
+     * @return the command-line arguments array
+     * @throws HeadlessException if the operation requires a display that is not available
      */
     private String[] getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, String[] args) throws HeadlessException {
         final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
@@ -702,7 +716,9 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param e
+     * Handles selection changes in the anyware list table.
+     *
+     * @param e the list selection event
      */
     private void selectItemWL(ListSelectionEvent e) {
         if (e.getValueIsAdjusting())
@@ -732,7 +748,9 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * @param anywarelist
+     * Adjusts column widths for the anyware list table.
+     *
+     * @param anywarelist the anyware list model containing column configuration
      */
     private void readjustColumnsW(final AnywareListModel<?> anywarelist) {
         for (var i = 0; i < tableW.getColumnModel().getColumnCount(); i++) {
@@ -762,15 +780,15 @@ public class ProfileViewer extends JDialog {
         protected void updateList() {
             list.fireTableChanged(new TableModelEvent(list, 0, list.getRowCount() - 1, TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
         }
-
     }
 
     /**
-     * Export.
+     * Exports profile data in the specified format.
      *
-     * @param type the type
-     * @param filtered the filtered
-     * @param selection the selection
+     * @param session the current session
+     * @param type the export format type
+     * @param modes the export modes (filtered or all)
+     * @param selection the specific software list to export, or null for all
      */
     private void export(final Session session, final ExportType type, final Set<ExportMode> modes, final SoftwareList selection) {
         final var fnef = new FileNameExtensionFilter(Messages.getString("MainFrame.DatFile"), "xml", "dat"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -904,7 +922,7 @@ public class ProfileViewer extends JDialog {
     }
 
     /**
-     * 
+     * Searches for the text entered in the search field and selects the matching row.
      */
     private void search() {
         final String search = txtSearch.getText();

@@ -21,19 +21,43 @@ import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.Getter;
 
+/**
+ * Main entry point for the JRomManager JavaFX desktop application.
+ * <p>
+ * Parses command-line arguments, initializes the logging subsystem and single-user session,
+ * acquires an exclusive file lock to prevent concurrent instances, and launches the JavaFX
+ * {@link MainFrame}.
+ *
+ * @since 2.5
+ */
 public class JRomManager {
+    /** The main application frame. */
     private static @Getter MainFrame mainFrame;
 
+    /**
+     * Command-line argument holder parsed by JCommander.
+     */
     @Parameters(separators = " =")
     private static class Args {
+        /** Whether to run in multi-user mode. */
         @Parameter(names = { "--multiuser", "-m" }, description = "Multi-user mode")
         private boolean multiuser = false;
+        /** Whether to skip the update check on startup. */
         @Parameter(names = { "--noupdate", "-n" }, description = "Don't search for update")
         private boolean noupdate = false;
+        /** Whether to enable debug-level logging. */
         @Parameter(names = { "--debug", "-d" }, description = "Activate debug mode")
         private boolean debug = false;
     }
 
+    /**
+     * Application entry point.
+     * <p>
+     * Sets the file encoding, initializes the session and logging subsystem, acquires the
+     * instance lock, and launches the JavaFX {@link MainFrame}.
+     *
+     * @param args command-line arguments forwarded to {@link Args}
+     */
     public static void main(final String[] args) {
         System.setProperty("file.encoding", "UTF-8");
         Sessions.setSingleMode(true);
@@ -89,12 +113,12 @@ public class JRomManager {
     }
 
     /**
-     * @param session
-     * @param lockFile
-     * 
-     * @return
-     * 
-     * @throws IOException
+     * Opens or creates the lock file in the session work path and returns a writable channel.
+     *
+     * @param session  the current user session providing the work path
+     * @param lockFile the lock file name
+     * @return a {@link FileChannel} for the lock file
+     * @throws IOException if the file cannot be created or opened
      */
     private static FileChannel getLock(final Session session, final String lockFile) throws IOException {
         return FileChannel.open(session.getUser().getSettings().getWorkPath().resolve(lockFile), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE,

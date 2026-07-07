@@ -13,7 +13,13 @@ import jrm.profile.report.Subject;
 import jrm.ui.basic.AbstractNGTreeNode;
 import lombok.Getter;
 
+/**
+ * Tree node representing a scan report.
+ * <p>
+ * Provides a hierarchical view of report subjects with cached child nodes.
+ */
 public class ReportNode extends ReportNodeGeneric<Report> {
+    /** Cache of subject nodes. */
     private final Map<Integer, SubjectNode> subjectNodeCache = new HashMap<>();
 
     public ReportNode(final Report report) {
@@ -61,9 +67,16 @@ public class ReportNode extends ReportNodeGeneric<Report> {
         };
     }
 
+    /**
+     * Tree node representing a subject in the report.
+     */
     public final class SubjectNode implements TreeNode {
+        /**
+         * The subject data.
+         * @return the subject
+         */
         private final @Getter Subject subject;
-
+        /** Cache of note nodes. */
         private final Map<Integer, NoteNode> noteNodeCache = new HashMap<>();
 
         public SubjectNode(Subject subject) {

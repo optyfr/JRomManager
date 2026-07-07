@@ -19,29 +19,61 @@ import jrm.aui.progress.ProgressInputStream;
 import jrm.misc.OffsetProvider;
 import lombok.Data;
 
+/**
+ * Abstract base class for JavaFX tasks that display progress in a modal dialog.
+ * <p>
+ * Extends {@link Task} and implements {@link ProgressHandler} to provide a unified
+ * progress reporting mechanism. Tracks errors, supports cancellation, and maintains
+ * a {@link PData} snapshot for the UI.
+ *
+ * @param <V> the result type of the task
+ * @since 2.5
+ */
 public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler {
+    /** The time format pattern. */
     private static final String HH_MM_SS = "HH:mm:ss";
+    /** The value format pattern. */
     private static final String S_OF_S = "%s / %s";
+    /** The placeholder for unknown time. */
     private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
+    /** The progress dialog. */
     private final Progress progress;
 
+    /** Collected error messages. */
     private final List<String> errors = new ArrayList<>();
 
+    /** Whether the task has been cancelled. */
     private boolean cancel = false;
+    /** Whether the task can be cancelled. */
     private boolean canCancel = true;
 
+    /**
+     * Progress data snapshot for the UI.
+     */
     static final @Data class PData {
+        /**
+         * Progress bar state.
+         */
         static final @Data class PB {
+            /** Whether the progress bar is visible. */
             boolean visibility = false;
+            /** Whether the progress bar shows a string. */
             boolean stringPainted = false;
+            /** Whether the progress bar is indeterminate. */
             boolean indeterminate = false;
+            /** The maximum value. */
             int max = 100;
+            /** The current value. */
             int val = 0;
+            /** The percentage. */
             double perc = 0;
+            /** The progress message. */
             String msg = null;
+            /** The time remaining. */
             String timeleft;
 
+            /** The start time. */
             transient long startTime = System.currentTimeMillis(); // NOSONAR
 
             PB() {
@@ -60,16 +92,34 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
             }
         }
 
-        /** Current thread cnt */
+        /** Current thread count.
+         * @param threadCnt the thread count
+         * @return the thread count
+         */
         int threadCnt = 1;
 
+        /** Whether to show multiple sub-info panels.
+         * @param multipleSubInfos whether to show multiple sub-info panels
+         * @return whether to show multiple sub-info panels
+         */
         Boolean multipleSubInfos = false;
 
+        /** The info messages.
+         * @param infos the info messages
+         * @return the info messages
+         */
         String[] infos = { null };
+        /** The sub-info messages.
+         * @param subinfos the sub-info messages
+         * @return the sub-info messages
+         */
         String[] subinfos = { null };
 
+        /** The primary progress bar state. */
         final PB pb1;
+        /** The secondary progress bar state. */
         final PB pb2;
+        /** The tertiary progress bar state. */
         final PB pb3;
 
         PData() {
@@ -89,8 +139,16 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         }
     }
 
+    /** The progress data snapshot. */
     private final PData data = new PData();
 
+    /**
+     * Constructs a progress task and shows the progress dialog.
+     *
+     * @param owner the owner stage for the dialog
+     * @throws IOException        if the FXML cannot be loaded
+     * @throws URISyntaxException if the FXML resource URI is invalid
+     */
     protected ProgressTask(Stage owner) throws IOException, URISyntaxException {
         super();
         progress = new Progress(owner, this);
@@ -139,7 +197,9 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     }
 
     /**
-     * @return
+     * Returns the current thread offset, extending info arrays if needed.
+     *
+     * @return the thread offset, or {@code 0} if no offset provider is set
      */
     private synchronized int getOffset() {
         if (offsetProvider != null) {

@@ -22,7 +22,11 @@ import jrm.ui.MainFrame;
 import jrm.ui.basic.CenteredTableCellRenderer;
 
 /**
- * The Class AnywareListListRenderer.
+ * Provides cell renderers and column definitions for the list-of-lists summary table.
+ * <p>
+ * Displays aggregated statistics for machine lists and software lists, with columns
+ * for name, description, and have-count. Uses color-coded folder icons to indicate
+ * completion status (green = complete, orange = partial, red = missing, gray = unknown).
  */
 public final class AnywareListListRenderer {
 

@@ -10,9 +10,21 @@ import jrm.profile.data.Anyware;
 import jrm.profile.data.EntityStatus;
 import jrm.ui.basic.AbstractEnhTableModel;
 
+/**
+ * Table model for displaying individual entity entries of an anyware.
+ * <p>
+ * Shows detailed information about each ROM/disk entity including name,
+ * size, checksums (CRC, MD5, SHA1), and status.
+ */
 public class AnywareModel extends AbstractEnhTableModel {
+    /** The underlying anyware whose entities are displayed. */
     private Anyware anyware;
 
+    /**
+     * Constructs a new anyware model.
+     *
+     * @param anyware the anyware whose entities to display
+     */
     public AnywareModel(Anyware anyware) {
         this.anyware = anyware;
     }

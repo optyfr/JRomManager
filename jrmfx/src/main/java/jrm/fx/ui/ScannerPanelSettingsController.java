@@ -32,48 +32,77 @@ import jrm.profile.scan.options.HashCollisionOptions;
 import jrm.profile.scan.options.MergeOptions;
 import lombok.Getter;
 
+/**
+ * FXML controller for the scanner panel settings dialog.
+ * <p>
+ * Manages profile-specific scan settings including hash options, parallelism,
+ * create mode, merge options, collision handling, and exclude patterns.
+ * Changes are persisted to the profile settings.
+ *
+ * @since 2.5
+ */
 public class ScannerPanelSettingsController implements Initializable {
 
+    /** Whether to compute SHA-1/MD5 hashes. */
     @FXML
     private CheckBox needSHA1Chkbx;
+    /** Whether to use parallel processing. */
     @FXML
     private CheckBox useParallelismChkbx;
+    /** Whether to create missing sets. */
     @FXML
     private CheckBox createMissingSetsChkbx;
+    /** Whether to create only complete sets. */
     @FXML
     private CheckBox createOnlyCompleteChkbx;
+    /** Whether to ignore unneeded containers. */
     @FXML
     private CheckBox ignoreUnneededContainersChkbx;
+    /** Whether to ignore unneeded entries. */
     @FXML
     private CheckBox ignoreUnneededEntriesChkbx;
+    /** Whether to ignore unknown containers. */
     @FXML
     private CheckBox ignoreUnknownContainersChkbx;
+    /** Whether to use implicit merge. */
     @FXML
     private CheckBox useImplicitMergeChkbx;
+    /** Whether to ignore merge-named ROMs. */
     @FXML
     private CheckBox ignoreMergeNameRomsChkbx;
+    /** Whether to ignore merge-named disks. */
     @FXML
     private CheckBox ignoreMergeNameDisksChkbx;
+    /** Whether to exclude games. */
     @FXML
     private CheckBox excludeGamesChkbx;
+    /** Whether to exclude machines. */
     @FXML
     private CheckBox excludeMachinesChkbx;
+    /** Whether to enable backup. */
     @FXML
     private CheckBox backupChkbx;
+    /** Whether zero-entry ROMs matter. */
     @FXML
     private CheckBox zeroEntryMattersChkbx;
+    /** The compression descriptor combo box. */
     @FXML
     private ComboBox<Descriptor> compressionCbx;
+    /** The merge mode descriptor combo box. */
     @FXML
     private ComboBox<Descriptor> mergeModeCbx;
+    /** The collision mode descriptor combo box. */
     @FXML
     private ComboBox<Descriptor> collisionModeCbx;
+    /** The destination exclude glob patterns list. */
     @FXML
     private ListView<String> dstExcludeGlob;
 
+    /** The settings pane container. */
     @FXML
     private Pane settingsPane;
 
+    /** The CatVer context menu. */
     @FXML
     private ContextMenu catVerMenu;
 
@@ -133,6 +162,11 @@ public class ScannerPanelSettingsController implements Initializable {
         deleteDstExcludeGlobMenu.setGraphic(deliv);
     }
 
+    /**
+     * The profile settings.
+     *
+     * @return the profile settings
+     */
     private @Getter ProfileSettings settings;
     @FXML
     ContextMenu dstExcludeGlobMenu;

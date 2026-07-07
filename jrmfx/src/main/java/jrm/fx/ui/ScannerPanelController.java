@@ -69,6 +69,16 @@ import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
 
+/**
+ * FXML controller for the scanner panel.
+ * <p>
+ * Manages ROM scanning operations, profile selection, destination paths for ROMs/disks/
+ * software/samples, and scan automation. Implements {@link ProfileLoader} to handle
+ * profile loading callbacks. Provides buttons for scanning, reporting, fixing, importing,
+ * and exporting profiles.
+ *
+ * @since 2.5
+ */
 public class ScannerPanelController extends BaseController implements ProfileLoader {
     private static final String DISK_ICON = "/jrm/resicons/icons/disk.png";
 

@@ -9,15 +9,22 @@
 package jrm;
 
 /**
- * Main class
- * 
+ * Alternative entry point that launches JRomManager in multi-user mode with update checks disabled.
+ * <p>
+ * This class simply delegates to {@link JRomManager#main(String[])} with the
+ * {@code --multiuser} and {@code --noupdate} flags pre-set, providing a convenient
+ * shortcut for running the application in a multi-user environment.
+ *
  * @author optyfr
- * 
  * @version %I%, %G%
- * 
  * @since 1.0
  */
 public final class JRomManagerMulti {
+    /**
+     * Launches JRomManager in multi-user mode without searching for updates.
+     *
+     * @param args command-line arguments (ignored; multi-user and no-update flags are always applied)
+     */
     public static void main(final String[] args) {
         JRomManager.main(new String[] { "--multiuser", "--noupdate" });
     }

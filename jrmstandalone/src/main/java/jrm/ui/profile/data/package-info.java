@@ -1,5 +1,5 @@
 /**
- * All the controls relative to profile data gui representation
+ * All the controls related to profile data GUI representation.
  * 
  * @author optyfr
  */

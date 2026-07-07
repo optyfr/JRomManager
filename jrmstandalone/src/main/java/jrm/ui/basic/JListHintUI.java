@@ -16,27 +16,45 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicListUI;
 
 /**
- * The Class JListHintUI.
+ * A custom {@link BasicListUI} delegate that renders a hint message when the list is empty.
+ * <p>
+ * When the list model contains no items and the component is enabled, this UI delegate paints
+ * an italic hint string centered within the list area. This provides visual guidance to the user
+ * about what the list is intended to contain.
+ * </p>
+ *
+ * @see javax.swing.JList
+ * @see BasicListUI
  */
 public class JListHintUI extends BasicListUI {
 
-    /** The hint. */
+    /** The hint text displayed when the list is empty. */
     private final String hint;
 
-    /** The hint color. */
+    /** The color used to render the hint text. */
     private final Color hintColor;
 
     /**
-     * Instantiates a new j list hint UI.
+     * Constructs a new list hint UI delegate.
      *
-     * @param hint the hint
-     * @param hintColor the hint color
+     * @param hint the hint text to display when the list is empty
+     * @param hintColor the {@link Color} used to render the hint text
      */
     public JListHintUI(final String hint, final Color hintColor) {
         this.hint = hint;
         this.hintColor = hintColor;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * After the default paint, if the list model is empty and the component is enabled,
+     * the hint text is drawn in italic font centered within the component bounds.
+     * </p>
+     *
+     * @param g the {@link Graphics} context to paint with
+     * @param c the {@link JComponent} being painted
+     */
     @Override
     public void paint(final Graphics g, final JComponent c) {
         super.paint(g, c);

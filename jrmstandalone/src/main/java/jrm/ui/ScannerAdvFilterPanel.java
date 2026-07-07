@@ -40,8 +40,15 @@ import jrm.ui.profile.filter.CatVerNode;
 import jrm.ui.profile.filter.CatVerNode.CategoryNode;
 import jrm.ui.profile.filter.NPlayersModel;
 
+/**
+ * Panel for configuring advanced scanner filters.
+ * <p>
+ * Provides controls for filtering by number of players and CatVer category tree.
+ * Supports drag-and-drop for CatVer and NPlayers data files.
+ */
 @SuppressWarnings("serial")
 public class ScannerAdvFilterPanel extends JPanel {
+    /** Popup menu listener that performs no actions on CatVer menu events. */
     private final class CatVerPopupMenuListener implements PopupMenuListener {
         @Override
         public void popupMenuCanceled(final PopupMenuEvent e) {
@@ -59,22 +66,22 @@ public class ScannerAdvFilterPanel extends JPanel {
         }
     }
 
+    /** Label for the mature content category. */
     private static final String MATURE = "* Mature *";
 
-    /** The list N players. */
+    /** Checkbox list for filtering by number of players. */
     private JCheckBoxList<NPlayer> listNPlayers;
-
-    /** The tf cat ver. */
+    /** Text field for the CatVer data file path. */
     private JFileDropTextField tfCatVer;
-
-    /** The tf N players. */
+    /** Text field for the NPlayers data file path. */
     private JFileDropTextField tfNPlayers;
-
-    /** The tree cat ver. */
+    /** Checkbox tree for selecting CatVer categories. */
     private JCheckBoxTree treeCatVer;
 
     /**
-     * Create the panel.
+     * Constructs the advanced filters panel.
+     *
+     * @param session the current user session providing access to settings
      */
     public ScannerAdvFilterPanel(final Session session) {
         final GridBagLayout gblScannerAdvFilters = new GridBagLayout();

@@ -10,10 +10,17 @@ import jrm.locale.Messages;
 import jrm.security.Session;
 import jrm.ui.MainFrame;
 
+/**
+ * Main batch tools panel.
+ * <p>
+ * Contains tabs for batch directory update, torrent check, and compression operations.
+ */
 @SuppressWarnings("serial")
 public class BatchPanel extends JPanel {
     /**
-     * Create the panel.
+     * Constructs the batch tools panel.
+     *
+     * @param session the user session for accessing settings
      */
     public BatchPanel(final Session session) {
         this.setLayout(new BorderLayout(0, 0));

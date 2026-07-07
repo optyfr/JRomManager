@@ -19,7 +19,11 @@ import jrm.locale.Messages;
 import jrm.profile.manager.ProfileNFO;
 
 /**
- * The Class FileTableCellRenderer.
+ * Cell renderer for profile file table cells.
+ * <p>
+ * Displays profile names with color-coded status indicators:
+ * green for up-to-date, orange for needs update, red for status unknown.
+ * Right-aligns numeric columns and provides tooltips with detailed information.
  *
  * @author optyfr
  */
@@ -27,7 +31,7 @@ import jrm.profile.manager.ProfileNFO;
 public class FileTableCellRenderer extends DefaultTableCellRenderer {
 
     /**
-     * Instantiates a new file table cell renderer.
+     * Constructs a new file table cell renderer.
      */
     public FileTableCellRenderer() {
         super();

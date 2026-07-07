@@ -31,30 +31,51 @@ import jrm.fx.ui.status.NeutralToNodeFormatter;
 import jrm.locale.Messages;
 import lombok.Setter;
 
+/**
+ * FXML controller for the progress dialog.
+ * <p>
+ * Manages up to three progress bars (main, sub, sub-sub) with labels and time-left
+ * indicators. Dynamically adds/removes thread-specific progress panels based on
+ * the task's thread count.
+ *
+ * @since 2.5
+ */
 public class ProgressController implements Initializable {
+    /** The main panel container. */
     @FXML
     private VBox panel;
+    /** The primary progress bar. */
     @FXML
     private ProgressBar progressBar;
+    /** The primary progress label. */
     @FXML
     private Label progressBarLbl;
+    /** The primary time-left label. */
     @FXML
     private Label lblTimeleft;
+    /** The secondary progress bar. */
     @FXML
     private ProgressBar progressBar2;
+    /** The secondary progress label. */
     @FXML
     private Label progressBarLbl2;
+    /** The secondary time-left label. */
     @FXML
     private Label lblTimeleft2;
+    /** The tertiary progress bar. */
     @FXML
     private ProgressBar progressBar3;
+    /** The tertiary progress label. */
     @FXML
     private Label progressBarLbl3;
+    /** The tertiary time-left label. */
     @FXML
     private Label lblTimeleft3;
+    /** The cancel button. */
     @FXML
     private Button cancelBtn;
 
+    /** The progress task being tracked. */
     private @Setter ProgressTask<?> task;
 
     @Override
@@ -83,6 +104,12 @@ public class ProgressController implements Initializable {
     private static final Color colorLight = new Color(0.8, 0.8, 0.8, 1.0);
     private static final Color colorLighter = new Color(0.9, 0.9, 0.9, 1.0);
 
+    /**
+     * Configures the progress panels for the given thread count.
+     *
+     * @param threadCnt        the number of threads
+     * @param multipleSubInfos whether to show multiple sub-info panels
+     */
     void setInfos(int threadCnt, Boolean multipleSubInfos) {
         final var lblSubInfoCnt = Optional.ofNullable(multipleSubInfos).map(multSubNfo -> multSubNfo.booleanValue() ? threadCnt : 1).orElse(0);
 

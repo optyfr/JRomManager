@@ -23,7 +23,10 @@ import jrm.ui.basic.CenteredTableCellRenderer;
 import lombok.RequiredArgsConstructor;
 
 /**
- * The Class SoftwareListRenderer.
+ * Provides cell renderers and column definitions for the software list table.
+ * <p>
+ * Defines columns for status, name, description, have-count, clone-of, and selection.
+ * Uses color-coded folder icons to indicate software completion status.
  */
 @SuppressWarnings("serial")
 public final class SoftwareListRenderer {

@@ -6,24 +6,24 @@ import java.util.Collection;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
+/**
+ * List model providing a sorted collection of year strings for combo boxes.
+ * <p>
+ * Used in profile filter panels to allow filtering machines by release year.
+ */
 @SuppressWarnings("serial")
 public final class YearsModel extends AbstractListModel<String> implements ComboBoxModel<String> {
 
-     /**
-     * The currently selected object
-     */
-   transient Object selectedObject = null;
+    /** The currently selected object. */
+    transient Object selectedObject = null;
 
-    /**
-     * The internal list of years
-     */
+    /** The internal sorted list of year strings. */
     final ArrayList<String> years;
 
-
     /**
-     * Constructor, will build a sorted list of years
-     * 
-     * @param years a {@link Collection} of years {@link String}s
+     * Constructs a new years model, building a sorted list from the given collection.
+     *
+     * @param years a {@link Collection} of year {@link String}s
      */
     public YearsModel(final Collection<String> years) {
         this.years = new ArrayList<>(years);

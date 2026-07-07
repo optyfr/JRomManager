@@ -27,57 +27,47 @@ import jrm.profile.scan.options.MergeOptions;
 import jrm.ui.basic.Popup;
 import lombok.Getter;
 
+/**
+ * Panel for configuring scanner processing options.
+ * <p>
+ * Provides controls for set creation, merge behavior, compression, hash collision handling,
+ * parallelism, and various exclusion/ignore options. Settings are persisted per-profile.
+ */
 @SuppressWarnings("serial")
 public class ScannerSettingsPanel extends JPanel {
-    /** The scanner sub settings panel. */
+    /** Sub-panel for additional scanner settings. */
     private JPanel scannerSubSettingsPanel;
-
-    /** The chckbx create missing sets. */
+    /** Checkbox to create missing ROM sets during scan. */
     private JCheckBox chckbxCreateMissingSets;
-
-    /** The chckbx create only complete. */
+    /** Checkbox to only create complete sets. */
     private JCheckBox chckbxCreateOnlyComplete;
-
-    /** The chckbx ignore unknown containers. */
+    /** Checkbox to ignore unknown containers (e.g. unrecognized archives). */
     private JCheckBox chckbxIgnoreUnknownContainers;
-
-    /** The chckbx ignore unneeded containers. */
+    /** Checkbox to ignore unneeded containers. */
     private JCheckBox chckbxIgnoreUnneededContainers;
-
-    /** The chckbx ignore unneeded entries. */
+    /** Checkbox to ignore unneeded entries within containers. */
     private JCheckBox chckbxIgnoreUnneededEntries;
-
-    /** The chckbx need SHA 1. */
+    /** Checkbox to require SHA-1 hash verification. */
     private JCheckBox chckbxNeedSHA1;
-
-    /** The chckbx use implicit merge. */
+    /** Checkbox to use implicit merge when processing ROMs. */
     private JCheckBox chckbxUseImplicitMerge;
-
-    /** The chckbx use parallelism. */
+    /** Checkbox to enable parallel processing. */
     private JCheckBox chckbxUseParallelism;
-
-    /** The chckbx ignore merge name roms. */
+    /** Checkbox to ignore merge-name ROMs. */
     private JCheckBox chckbxIgnoreMergeNameRoms;
-
-    /** The chckbx ignore merge name disks. */
+    /** Checkbox to ignore merge-name disks. */
     private JCheckBox chckbxIgnoreMergeNameDisks;
-
-    /** The chckbx exclude games. */
+    /** Checkbox to exclude games from processing. */
     private JCheckBox chckbxExcludeGames;
-
-    /** The chckbx exclude machines. */
+    /** Checkbox to exclude machines from processing. */
     private JCheckBox chckbxExcludeMachines;
-
-    /** The chckbx backup. */
+    /** Checkbox to enable backup of original files. */
     private JCheckBox chckbxBackup;
-
-    /** The cbbx merge mode. */
+    /** Combo box for selecting the merge mode. */
     private JComboBox<MergeOptions> cbbxMergeMode;
-
-    /** The cb compression. */
+    /** Combo box for selecting the compression format. */
     private JComboBox<FormatOptions> cbCompression;
-
-    /** The cb hash collision. */
+    /** Combo box for selecting the hash collision handling strategy. */
     private JComboBox<HashCollisionOptions> cbHashCollision;
 
     /**

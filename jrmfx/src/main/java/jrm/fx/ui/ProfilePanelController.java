@@ -1,6 +1,5 @@
 package jrm.fx.ui;
 
-import java.awt.HeadlessException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -74,59 +73,106 @@ import jrm.security.Sessions;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 
+/**
+ * JavaFX controller for the profile management panel.
+ * <p>
+ * Backs the FXML view that lets the user browse the profile directory tree,
+ * import DAT files (optionally from a MAME executable or software list),
+ * and perform per-profile operations such as loading, renaming, deleting,
+ * dropping the cache, and updating from MAME.
+ *
+ * @author optyfr
+ */
 public class ProfilePanelController implements Initializable {
+    /** Button used to load the currently selected profile. */
     @FXML
     Button btnLoad;
+    /** Button used to import a DAT file. */
     @FXML
     Button btnImportDat;
+    /** Button used to import a MAME software list. */
     @FXML
     Button btnImportSL;
+    /** Tree view showing the profile directory hierarchy. */
     @FXML
     TreeView<Dir> profilesTree;
+    /** Table view listing the profiles contained in the selected directory. */
     @FXML
     TableView<ProfileNFO> profilesList;
+    /** Table column displaying the profile name (editable). */
     @FXML
     TableColumn<ProfileNFO, ProfileNFO> profileCol;
+    /** Table column displaying the profile version. */
     @FXML
     TableColumn<ProfileNFO, String> profileVersionCol;
+    /** Table column displaying the have/total sets count. */
     @FXML
     TableColumn<ProfileNFO, HaveNTotal> profileHaveSetsCol;
+    /** Table column displaying the have/total ROMs count. */
     @FXML
     TableColumn<ProfileNFO, HaveNTotal> profileHaveRomsCol;
+    /** Table column displaying the have/total disks count. */
     @FXML
     TableColumn<ProfileNFO, HaveNTotal> profileHaveDisksCol;
+    /** Table column displaying the profile creation date. */
     @FXML
     TableColumn<ProfileNFO, Instant> profileCreatedCol;
+    /** Table column displaying the date of the last profile scan. */
     @FXML
     TableColumn<ProfileNFO, Instant> profileLastScanCol;
+    /** Table column displaying the date of the last profile fix. */
     @FXML
     TableColumn<ProfileNFO, Instant> profileLastFixCol;
+    /** Menu item for creating a new profile folder. */
     @FXML
     MenuItem createFolderMenu;
+    /** Menu item for deleting the selected profile folder. */
     @FXML
     MenuItem deleteFolderMenu;
+    /** Menu item for deleting the selected profile. */
     @FXML
     MenuItem deleteProfileMenu;
+    /** Menu item for renaming the selected profile. */
     @FXML
     MenuItem renameProfileMenu;
+    /** Menu item for dropping the selected profile cache. */
     @FXML
     MenuItem dropCacheMenu;
+    /** Menu item for updating the selected profile from MAME. */
     @FXML
     MenuItem updateFromMameMenu;
+    /** Context menu shown for profile folder actions. */
     @FXML
     ContextMenu folderMenu;
+    /** Context menu shown for profile actions. */
     @FXML
     ContextMenu profileMenu;
 
+    /** The current user session. */
     final Session session = Sessions.getSingleSession();
+
+    /**
+     * Callback used to load a selected profile.
+     * @param profileLoader the callback used to load a selected profile
+     */
     private @Setter ProfileLoader profileLoader;
 
+    /** Null-safe comparator ordering {@code Long} values with {@code null} first. */
     private static Comparator<Long> nullSafeLongComparator = Comparator.nullsFirst(Long::compareTo);
 
+    /** Comparator for {@link HaveNTotal} values based on their have counts. */
     private static Comparator<HaveNTotal> haveNTotalComparator = Comparator
             .comparing(HaveNTotal::getHave, nullSafeLongComparator)
             .thenComparing(HaveNTotal::getHave, nullSafeLongComparator);
 
+    /**
+     * Initializes the controller: wires up button and menu icons, configures the
+     * profile tree and table, sets up cell factories, value factories, comparators,
+     * selection listeners, and drag-and-drop import support.
+     *
+     * @param location the location used to resolve relative paths for the root object, or {@code null} if unknown
+     * @param resources the resources used to localize the root object, or {@code null} if not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ImageView add = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/add.png"));
@@ -268,6 +314,12 @@ public class ProfilePanelController implements Initializable {
         new DragNDrop(profilesList).addAny(files -> importDat(files, true));
     }
 
+    /**
+     * Resizes all profile table columns to fit their content.
+     * <p>
+     * Uses reflection to invoke the package-private
+     * {@code TableColumnHeader.resizeColumnToFitContent} method on the JavaFX skin.
+     */
     public void resizeColumns() {
         Platform.runLater(() -> {
             final var columns = profilesList.getColumns();
@@ -286,7 +338,9 @@ public class ProfilePanelController implements Initializable {
     }
 
     /**
-     * 
+     * Reloads the directory tree item after a profile directory rename edit.
+     *
+     * @param e the tree edit event describing the renamed directory
      */
     private void editCommitProfileDir(TreeView.EditEvent<Dir> e) {
         Platform.runLater(() -> {
@@ -296,7 +350,11 @@ public class ProfilePanelController implements Initializable {
     }
 
     /**
-     * @param e
+     * Handles a profile rename edit by renaming the profile file along with its
+     * companion {@code .properties} and {@code .cache} files, and relocating the
+     * in-memory {@link ProfileNFO} (and the current profile, if it matches).
+     *
+     * @param e the cell edit event carrying the old and new profile names
      */
     private void editCommitProfile(CellEditEvent<ProfileNFO, ProfileNFO> e) {
         final ProfileNFO pnfo = e.getRowValue();
@@ -321,15 +379,22 @@ public class ProfilePanelController implements Initializable {
     }
 
     /**
-     * @param newValue
+     * Populates the profile table with the profiles contained in the given directory.
+     *
+     * @param newValue the newly selected tree item, or {@code null} to do nothing
      */
-    private void populate(TreeItem<Dir> newValue) {
+    private void populate(TreeItem<Dir> newValue) /* NOSONAR */ {
         if (newValue == null)
             return;
         profilesList.setItems(FXCollections.observableArrayList(ProfileNFO.list(session, newValue.getValue().getFile())));
         resizeColumns();
     }
 
+    /**
+     * Loads the currently selected profile.
+     *
+     * @param e the action event triggering the load
+     */
     @FXML
     void actionLoad(ActionEvent e) {
         final var profile = profilesList.getSelectionModel().getSelectedItem();
@@ -337,16 +402,33 @@ public class ProfilePanelController implements Initializable {
             profileLoader.loadProfile(session, profile);
     }
 
+    /**
+     * Opens a file chooser to import one or more DAT files.
+     *
+     * @param e the action event triggering the import
+     */
     @FXML
     void actionImportDat(ActionEvent e) {
         importDat(false);
     }
 
+    /**
+     * Opens a file chooser to import one or more MAME software list files.
+     *
+     * @param e the action event triggering the import
+     */
     @FXML
     void actionImportSL(ActionEvent e) {
         importDat(true);
     }
 
+    /**
+     * Opens a file chooser initialized from the user settings and imports the
+     * selected DAT files, optionally as software lists. Remembers the chosen
+     * directory in the user settings for the next import.
+     *
+     * @param sl {@code true} to import as a MAME software list, {@code false} otherwise
+     */
     private void importDat(final boolean sl) {
         final var workdir = session.getUser().getSettings().getWorkPath().toFile();
         final var chooser = new FileChooser();
@@ -362,17 +444,40 @@ public class ProfilePanelController implements Initializable {
             session.getUser().getSettings().setProperty("MainFrame.ChooseExeOrDatToImport", files.stream().filter(File::exists).map(File::getParent).findFirst().orElse(null));
     }
 
+    /**
+     * Background task that searches for DAT files in the selected inputs and imports
+     * them into the currently selected profile directory.
+     */
     private final class ImportDatTask extends ProgressTask<Void> {
+        /** The files selected by the user for import. */
         private final List<File> files;
+        /** Whether the import is a MAME software list import. */
         private final boolean sl;
+        /** The successfully prepared imports with their base files, to be processed on success. */
         final List<ImportWithBaseFile> imprts = new ArrayList<>();
 
+        /**
+         * Constructs a new DAT import task.
+         *
+         * @param owner the stage owning the progress dialog
+         * @param files the files selected for import
+         * @param sl {@code true} to import as a MAME software list, {@code false} otherwise
+         * @throws IOException if an I/O error occurs while preparing the task
+         * @throws URISyntaxException if a URI used by the task is malformed
+         */
         private ImportDatTask(Stage owner, List<File> files, boolean sl) throws IOException, URISyntaxException {
             super(owner);
             this.files = files;
             this.sl = sl;
         }
 
+        /**
+         * Searches each selected file for DAT/executable files and prepares the
+         * corresponding imports.
+         *
+         * @return always {@code null}
+         * @throws Exception if an error occurs while preparing an import
+         */
         @Override
         protected Void call() throws Exception {
             for (final var basefile : files) {
@@ -384,6 +489,10 @@ public class ProfilePanelController implements Initializable {
             return null;
         }
 
+        /**
+         * Called on the JavaFX application thread when the task succeeds: processes
+         * each prepared import and refreshes the selected directory in the tree.
+         */
         @Override
         protected void succeeded() {
             this.close();
@@ -403,6 +512,10 @@ public class ProfilePanelController implements Initializable {
                 Log.err(Messages.getString("MainFrame.NodeNotFound")); //$NON-NLS-1$
         }
 
+        /**
+         * Called on the JavaFX application thread when the task fails: shows an alert
+         * for user cancellations, or an error dialog with the cause otherwise.
+         */
         @Override
         protected void failed() {
             if (getException() instanceof BreakException)
@@ -420,10 +533,13 @@ public class ProfilePanelController implements Initializable {
         }
 
         /**
-         * @param imprt
-         * @param sl
+         * Import a DAT file into the currently selected profile directory, resolving its destination path relative to the given base file. Non-MAME DATs are copied directly (with an overwrite/rename/file-chooser prompt when the target already exists), while MAME DATs prompt the user for a JRM file name before delegating to {@link #importDat(Session, boolean, jrm.profile.manager.Import, File)}.
          * 
-         * @throws IllegalArgumentException
+         * @param imprt the import with base file holder describing the source import and the base used to compute the destination directory
+         * @param sl whether the import is a MAME software list import
+         * 
+         * @throws IllegalArgumentException if the destination directory or import parameters are not valid
+         * @throws IOException if the destination directory cannot be created or the import file cannot be copied
          */
         private void importDat(final ImportWithBaseFile imprt, final boolean sl) throws IllegalArgumentException, IOException {
             final var selDir = profilesTree.getSelectionModel().getSelectedItem().getValue().getFile().toPath();
@@ -460,12 +576,11 @@ public class ProfilePanelController implements Initializable {
         }
 
         /**
-         * @param file
-         * 
-         * @return
-         * 
-         * @throws HeadlessException
-         * @throws IllegalArgumentException
+         * Asks the user how to proceed when the import destination already exists.
+         *
+         * @param file the destination file reference, updated in place when auto-rename is chosen
+         * @return the chosen mode: {@code 0} overwrite, {@code 1} auto-rename, {@code 2} file chooser, {@code 3} cancel
+         * @throws IllegalArgumentException inherited from the underlying dialog API
          */
         private int importDatExistsChoose(AtomicReference<File> file) throws IllegalArgumentException {
             int mode = -1;
@@ -492,11 +607,12 @@ public class ProfilePanelController implements Initializable {
         }
 
         /**
-         * @param file
-         * 
-         * @return
-         * 
-         * @throws IllegalArgumentException
+         * Computes a non-existing sibling file name by appending an incrementing
+         * numeric suffix to the base name.
+         *
+         * @param file the original file
+         * @return a sibling file that does not exist yet
+         * @throws IllegalArgumentException never thrown; declared for signature compatibility
          */
         private File autoRenameFile(File file) throws IllegalArgumentException {
             for (var i = 1;; i++) {
@@ -506,10 +622,24 @@ public class ProfilePanelController implements Initializable {
             }
         }
 
+        /**
+         * Recursively searches for DAT files and MAME executables starting from the given file.
+         *
+         * @param file the file or directory to start the search from
+         * @return the accumulated list of matching files
+         */
         private List<File> searchDats(File file) {
             return searchDats(file, new ArrayList<>());
         }
 
+        /**
+         * Recursively searches for DAT files and MAME executables starting from the given file,
+         * appending matches to the provided list.
+         *
+         * @param file the file or directory to start the search from
+         * @param files the list to append matching files to
+         * @return the same list reference passed in, with matches appended
+         */
         private List<File> searchDats(File file, List<File> files) {
             if (file.isFile()) {
                 if (FilenameUtils.isExtension(file.getName(), "xml", "dat")
@@ -526,10 +656,14 @@ public class ProfilePanelController implements Initializable {
         }
 
         /**
-         * @param session
-         * @param sl
-         * @param imprt
-         * @param file
+         * Copies the prepared import file to its destination, and for MAME imports also
+         * copies the associated ROMs and software-list files and persists the profile.
+         *
+         * @param session the current user session
+         * @param sl {@code true} to import as a MAME software list, {@code false} otherwise
+         * @param imprt the prepared import
+         * @param file the destination file
+         * @return always {@code null}
          */
         private Void importDat(final Session session, final boolean sl, final jrm.profile.manager.Import imprt, final File file) {
             try {
@@ -556,19 +690,42 @@ public class ProfilePanelController implements Initializable {
 
     }
 
+    /**
+     * Background task that re-imports a profile from its MAME executable and updates
+     * the associated ROMs and software-list files.
+     */
     private final class UpdateFromMameTask extends ProgressTask<Import> {
+        /** The profile to update from MAME. */
         private final ProfileNFO nfo;
 
+        /**
+         * Constructs a new update-from-MAME task.
+         *
+         * @param owner the stage owning the progress dialog
+         * @param nfo the profile to update from MAME
+         * @throws IOException if an I/O error occurs while preparing the task
+         * @throws URISyntaxException if a URI used by the task is malformed
+         */
         private UpdateFromMameTask(Stage owner, ProfileNFO nfo) throws IOException, URISyntaxException {
             super(owner);
             this.nfo = nfo;
         }
 
+        /**
+         * Builds the MAME import for the profile.
+         *
+         * @return the prepared import
+         * @throws Exception if an error occurs while preparing the import
+         */
         @Override
         protected Import call() throws Exception {
             return new Import(session, nfo.getMame().getFile(), nfo.getMame().isSL(), this);
         }
 
+        /**
+         * Called on the JavaFX application thread when the task succeeds: applies the
+         * updated MAME import to the profile.
+         */
         @Override
         protected void succeeded() {
             try {
@@ -583,6 +740,10 @@ public class ProfilePanelController implements Initializable {
             }
         }
 
+        /**
+         * Called on the JavaFX application thread when the task fails: shows an alert
+         * for user cancellations, or an error dialog with the cause otherwise.
+         */
         @Override
         protected void failed() {
             if (getException() instanceof BreakException)
@@ -600,11 +761,13 @@ public class ProfilePanelController implements Initializable {
         }
 
         /**
-         * @param session
-         * @param nfo
-         * @param imprt
-         * 
-         * @throws IOException
+         * Applies the updated MAME import to the profile, replacing its ROMs and
+         * software-list files, resetting the stats, and persisting the profile.
+         *
+         * @param session the current user session
+         * @param nfo the profile to update
+         * @param imprt the prepared import
+         * @throws IOException if the ROMs or software-list files cannot be copied
          */
         private void updateFromMame(final Session session, final ProfileNFO nfo, Import imprt) throws IOException {
             nfo.getMame().delete();
@@ -621,12 +784,23 @@ public class ProfilePanelController implements Initializable {
         }
     }
 
+    /**
+     * Pairs a prepared import with the base file used to compute its destination directory.
+     */
     @AllArgsConstructor
     private static final class ImportWithBaseFile {
+        /** The prepared import. */
         Import imprt;
+        /** The base file from which the import originated. */
         File basefile;
     }
 
+    /**
+     * Starts a background task to import the given files, optionally as software lists.
+     *
+     * @param files the files to import, or {@code null} to do nothing
+     * @param sl {@code true} to import as MAME software lists, {@code false} otherwise
+     */
     private void importDat(final List<File> files, final boolean sl) {
         try {
             if (files == null)
@@ -638,6 +812,14 @@ public class ProfilePanelController implements Initializable {
         }
     }
 
+    /**
+     * Recursively searches the tree for the item holding the given value.
+     *
+     * @param <T> the type of values held by the tree items
+     * @param item the tree item to start the search from
+     * @param value the value to find
+     * @return the matching tree item, or {@code null} if none is found
+     */
     public static <T> TreeItem<T> getTreeViewItem(TreeItem<T> item, T value) {
         if (item != null) {
             if (item.getValue().equals(value))
@@ -652,10 +834,18 @@ public class ProfilePanelController implements Initializable {
         return null;
     }
 
+    /**
+     * Refreshes the profile table view.
+     */
     public void refreshList() {
         profilesList.refresh();
     }
 
+    /**
+     * Creates a new profile folder under the selected directory and enters edit mode.
+     *
+     * @param e the action event triggering the creation
+     */
     @FXML
     private void createFolder(ActionEvent e) {
         final var selectedItem = profilesTree.getSelectionModel().getSelectedItem();
@@ -670,6 +860,11 @@ public class ProfilePanelController implements Initializable {
         }
     }
 
+    /**
+     * Deletes the selected folder after confirming when it is not empty.
+     *
+     * @param e the action event triggering the deletion
+     */
     @FXML
     private void deleteFolder(ActionEvent e) {
         final var selectedItem = profilesTree.getSelectionModel().getSelectedItem();
@@ -694,6 +889,11 @@ public class ProfilePanelController implements Initializable {
         }
     }
 
+    /**
+     * Deletes the selected profile, unless it is the currently loaded profile.
+     *
+     * @param e the action event triggering the deletion
+     */
     @FXML
     private void deleteProfile(ActionEvent e) {
         final var nfo = profilesList.getSelectionModel().getSelectedItem();
@@ -701,6 +901,11 @@ public class ProfilePanelController implements Initializable {
             profilesList.getItems().remove(nfo);
     }
 
+    /**
+     * Enters edit mode on the selected profile name column to allow renaming.
+     *
+     * @param e the action event triggering the rename
+     */
     @FXML
     private void renameProfile(ActionEvent e) {
         profilesList.setEditable(true);
@@ -708,6 +913,11 @@ public class ProfilePanelController implements Initializable {
         profilesList.setEditable(false);
     }
 
+    /**
+     * Deletes the {@code .cache} file associated with the selected profile.
+     *
+     * @param e the action event triggering the cache drop
+     */
     @FXML
     private void dropCache(ActionEvent e) {
         final var nfo = profilesList.getSelectionModel().getSelectedItem();
@@ -719,6 +929,12 @@ public class ProfilePanelController implements Initializable {
             }
     }
 
+    /**
+     * Updates the selected profile from its MAME executable, optionally relocating
+     * the MAME file first if it cannot be found.
+     *
+     * @param e the action event triggering the update
+     */
     @FXML
     private void updateFromMame(ActionEvent e) {
         final var nfo = profilesList.getSelectionModel().getSelectedItem();
@@ -740,10 +956,11 @@ public class ProfilePanelController implements Initializable {
     }
 
     /**
-     * @param nfo
-     * @param chooser
-     * 
-     * @return
+     * Relocates the MAME executable for the given profile and reports the new status.
+     *
+     * @param nfo the profile whose MAME executable is being relocated
+     * @param mame the newly chosen MAME executable file
+     * @return the resulting MAME status, or {@link MameStatus#NOTFOUND} if the file does not exist
      */
     private MameStatus updateFromMameRelocate(final ProfileNFO nfo, File mame) {
         if (mame.exists())

@@ -5,6 +5,14 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 
+/**
+ * A table cell factory for displaying version strings.
+ * <p>
+ * Null versions are rendered as "???" in gray; non-null values are shown with a tooltip.
+ *
+ * @param <T> the type of the TableView items
+ * @since 2.5
+ */
 public final class VersionCellFactory<T> extends TableCell<T, String> {
     @Override
     protected void updateItem(String item, boolean empty) {

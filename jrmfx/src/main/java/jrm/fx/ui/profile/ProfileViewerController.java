@@ -79,6 +79,16 @@ import jrm.security.Session;
 import jrm.security.Sessions;
 import lombok.val;
 
+/**
+ * FXML controller for the profile viewer window.
+ * <p>
+ * Displays profile contents in three linked tables: software/machine lists,
+ * individual entries within a selected list, and entity details (ROMs, disks, samples).
+ * Supports filtering by status (unknown, missing, partial, complete), keyword search,
+ * and context menu actions for copying hashes, searching the web, and exporting.
+ *
+ * @since 2.5
+ */
 public class ProfileViewerController implements Initializable {
     private static final String FX_FONT_FAMILY_MONOSPACED = "-fx-font-family: monospaced;";
 

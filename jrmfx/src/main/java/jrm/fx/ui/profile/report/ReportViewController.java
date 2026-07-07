@@ -59,36 +59,60 @@ import jrm.profile.report.RomSuspiciousCRC;
 import jrm.profile.report.SubjectSet;
 import lombok.val;
 
+/**
+ * FXML controller for the report tree view.
+ * <p>
+ * Displays scan results in a hierarchical tree with context menu actions for
+ * viewing details, copying hashes, searching the web, downloading ROMs, and
+ * exporting profiles. Supports filtering by entry type (OK, missing, wrong, etc.).
+ *
+ * @since 2.5
+ */
 public class ReportViewController implements Initializable {
+    /** The report tree view. */
     @FXML
     protected TreeView<Object> treeview;
+    /** The context menu. */
     @FXML
     private ContextMenu menu;
+    /** The open all nodes menu item. */
     @FXML
     private MenuItem openAllNodes;
+    /** The close all nodes menu item. */
     @FXML
     private MenuItem closeAllNodes;
+    /** The show OK entries check menu item. */
     @FXML
     private CheckMenuItem showok;
+    /** The hide missing entries check menu item. */
     @FXML
     private CheckMenuItem hidemissing;
+    /** The detail menu item. */
     @FXML
     private MenuItem detail;
+    /** The copy CRC menu item. */
     @FXML
     private MenuItem copyCrc;
+    /** The copy SHA-1 menu item. */
     @FXML
     private MenuItem copySha1;
+    /** The copy name menu item. */
     @FXML
     private MenuItem copyName;
+    /** The search web menu item. */
     @FXML
     private MenuItem searchWeb;
+    /** The download button. */
     @FXML
     private Button download;
+    /** The export-as menu button. */
     @FXML
     private MenuButton exportAs;
 
+    /** The active filter options. */
     private static final Set<FilterOptions> filterOptions = new HashSet<>();
 
+    /** The report being displayed. */
     private Report report;
 
     @Override
@@ -108,11 +132,19 @@ public class ReportViewController implements Initializable {
         });
     }
 
+    /**
+     * Sets the report to display and rebuilds the tree.
+     *
+     * @param report the report
+     */
     public void setReport(Report report) {
         this.report = report;
         build();
     }
 
+    /**
+     * Builds the report tree from the current report and filter options.
+     */
     private void build() {
         final var root = new TreeItem<Object>(report);
         if (report != null) {
@@ -132,18 +164,33 @@ public class ReportViewController implements Initializable {
         treeview.setRoot(root);
     }
 
+    /**
+     * Shows the detail dialog for the selected note.
+     *
+     * @param e the action event
+     */
     @FXML
     private void detail(javafx.event.ActionEvent e) {
         if (treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note)
             detail(note);
     }
 
+    /**
+     * Shows a detail dialog for a note.
+     *
+     * @param note the note to display
+     */
     private static void detail(Note note) {
         final var node = new TextArea(note.getDetail());
         node.setEditable(false);
         Dialogs.showConfirmation("Detail", node, ButtonType.OK);
     }
 
+    /**
+     * Copies the CRC of the selected note to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     private void copyCrc(javafx.event.ActionEvent e) {
         if (treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note) {
@@ -153,6 +200,11 @@ public class ReportViewController implements Initializable {
         }
     }
 
+    /**
+     * Copies the SHA-1 hash of the selected note to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     private void copySha1(javafx.event.ActionEvent e) {
         if (treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note) {
@@ -162,6 +214,11 @@ public class ReportViewController implements Initializable {
         }
     }
 
+    /**
+     * Copies the name of the selected note to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     private void copyName(javafx.event.ActionEvent e) {
         if (treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note) {
@@ -171,6 +228,11 @@ public class ReportViewController implements Initializable {
         }
     }
 
+    /**
+     * Searches the web for the selected note using Google.
+     *
+     * @param e the action event
+     */
     @FXML
     private void searchWeb(javafx.event.ActionEvent e) {
         if (treeview.getSelectionModel().getSelectedItem() != null && treeview.getSelectionModel().getSelectedItem().getValue() instanceof Note note) {
@@ -187,6 +249,11 @@ public class ReportViewController implements Initializable {
         }
     }
 
+    /**
+     * Toggles the display of OK entries in the report.
+     *
+     * @param e the action event
+     */
     @FXML
     private void showok(javafx.event.ActionEvent e) {
         if (showok.isSelected())
@@ -196,6 +263,11 @@ public class ReportViewController implements Initializable {
         build();
     }
 
+    /**
+     * Toggles the display of missing entries in the report.
+     *
+     * @param e the action event
+     */
     @FXML
     private void hidemissing(javafx.event.ActionEvent e) {
         if (hidemissing.isSelected())
@@ -205,6 +277,11 @@ public class ReportViewController implements Initializable {
         build();
     }
 
+    /**
+     * Expands all nodes in the tree view.
+     *
+     * @param e the action event
+     */
     @FXML
     private void openAllNodes(javafx.event.ActionEvent e) {
         final var root = treeview.getRoot();
@@ -215,6 +292,11 @@ public class ReportViewController implements Initializable {
         treeview.setRoot(root);
     }
 
+    /**
+     * Collapses all nodes in the tree view.
+     *
+     * @param e the action event
+     */
     @FXML
     private void closeAllNodes(javafx.event.ActionEvent e) {
         final var root = treeview.getRoot();
@@ -225,6 +307,11 @@ public class ReportViewController implements Initializable {
         treeview.setRoot(root);
     }
 
+    /**
+     * Opens the report file in the default desktop application.
+     *
+     * @param e the action event
+     */
     @FXML
     private void download(javafx.event.ActionEvent e) {
         if (report == null)
@@ -236,16 +323,31 @@ public class ReportViewController implements Initializable {
         }
     }
 
+    /**
+     * Exports filtered entries as a Logiqx DAT file.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportFilteredAsLogiqxDat(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports filtered entries as a MAME DAT file.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportFilteredAsMameDat(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports filtered entries as software lists.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportFilteredAsSoftwareLists(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);

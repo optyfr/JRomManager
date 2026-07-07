@@ -13,9 +13,21 @@ import java.util.Enumeration;
 import javax.swing.tree.TreeNode;
 
 /**
- * The Class AbstractNGTreeNode.
+ * Abstract base implementation of {@link NGTreeNode} providing common tree node operations.
+ * <p>
+ * This class provides path computation, default leaf-node behavior, and recursive
+ * selection-state checking for tree nodes used in the JRomManager UI.
+ * </p>
+ *
+ * @see NGTreeNode
+ * @see javax.swing.tree.TreeNode
  */
 public abstract class AbstractNGTreeNode implements NGTreeNode {
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code true} if this node and all its descendants are selected
+     */
     @Override
     public boolean allChildrenSelected() {
         for (int i = 0; i < getChildCount(); i++) {
@@ -65,46 +77,120 @@ public abstract class AbstractNGTreeNode implements NGTreeNode {
         return retNodes;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code null}, indicating no children.
+     * </p>
+     *
+     * @param childIndex the index of the child node
+     * @return {@code null} in this default implementation
+     */
     @Override
     public TreeNode getChildAt(int childIndex) {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code 0}, indicating no children.
+     * </p>
+     *
+     * @return {@code 0} in this default implementation
+     */
     @Override
     public int getChildCount() {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code 0}.
+     * </p>
+     *
+     * @param node the child node to find the index of
+     * @return {@code 0} in this default implementation
+     */
     @Override
     public int getIndex(TreeNode node) {
         return 0;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code false}.
+     * </p>
+     *
+     * @return {@code false} in this default implementation
+     */
     @Override
     public boolean getAllowsChildren() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code true}.
+     * </p>
+     *
+     * @return {@code true} in this default implementation
+     */
     @Override
     public boolean isLeaf() {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code null}.
+     * </p>
+     *
+     * @return {@code null} in this default implementation
+     */
     @Override
     public Enumeration<? extends TreeNode> children() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code null}.
+     * </p>
+     *
+     * @return {@code null} in this default implementation
+     */
     @Override
     public Object getUserObject() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation is a no-op.
+     * </p>
+     *
+     * @param selected the selection state to set
+     */
     @Override
     public void setSelected(boolean selected) {
         // do nothing
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Default implementation returns {@code false}.
+     * </p>
+     *
+     * @return {@code false} in this default implementation
+     */
     @Override
     public boolean isSelected() {
         return false;

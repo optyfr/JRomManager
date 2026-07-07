@@ -74,6 +74,15 @@ import jrm.misc.ProfileSettings;
 import jrm.misc.SettingsEnum;
 import jrm.security.PathAbstractor;
 
+/**
+ * FXML controller for the batch tools panel.
+ * <p>
+ * Provides three batch operations: DAT to directory extraction, torrent checking,
+ * and archive compression. Each operation runs in a background task with progress
+ * reporting and supports drag-and-drop file input.
+ *
+ * @since 2.5
+ */
 public class BatchToolsPanelController extends BaseController {
     private static final String ICON_BULLET_GO = "/jrm/resicons/icons/bullet_go.png";
     private static final String CANCELLED = "Cancelled";
@@ -232,10 +241,11 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @return
-     * 
-     * @throws IOException
-     * @throws URISyntaxException
+     * Starts the compression task in a background thread.
+     *
+     * @return the progress task
+     * @throws IOException        if an I/O error occurs
+     * @throws URISyntaxException if the FXML resource URI is invalid
      */
     private ProgressTask<Void> startCompression() throws IOException, URISyntaxException {
         return new ProgressTask<Void>((Stage) btnBatchToolsCompressorStart.getScene().getWindow()) {
@@ -284,11 +294,12 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param cnt
-     * @param compressor
-     * @param fr
-     * 
-     * @throws IllegalArgumentException
+     * Compresses a single file using the selected format.
+     *
+     * @param cnt        the compression counter
+     * @param compressor the compressor instance
+     * @param fr         the file result to compress
+     * @throws IllegalArgumentException if the file cannot be compressed
      */
     private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException {
         var file = fr.getFile().toFile();
@@ -312,12 +323,13 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
-     * 
-     * @throws IllegalArgumentException
+     * Converts a file to 7-Zip format.
+     *
+     * @param compressor the compressor instance
+     * @param file       the file to convert
+     * @param cb         the result callback
+     * @param scb        the source callback
+     * @throws IllegalArgumentException if the file cannot be converted
      */
     private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
         switch (FilenameUtils.getExtension(file.getName())) {
@@ -465,7 +477,7 @@ public class BatchToolsPanelController extends BaseController {
             final var results = TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
             try {
                 new BatchTorrentResults((Stage) tvBatchToolsTorrent.getScene().getWindow(), results);
-            } catch (URISyntaxException | IOException e1) {
+            } catch (URISyntaxException | IOException e1) /* NOSONAR */ {
                 Log.err(e1.getMessage(), e1);
             }
         }));

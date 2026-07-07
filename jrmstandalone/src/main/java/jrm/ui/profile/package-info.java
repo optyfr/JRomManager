@@ -1,5 +1,5 @@
 /**
- * all the controls relative to profiles management
+ * All the controls related to profile management.
  * 
  * @author optyfr
  */

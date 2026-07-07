@@ -34,7 +34,9 @@ import jrm.ui.profile.report.ReportNode.SubjectNode;
 import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 
 /**
- * The Class ReportTreeCellRenderer.
+ * Tree cell renderer for scan report trees.
+ * <p>
+ * Displays report nodes with appropriate icons based on their status and type.
  *
  * @author optyfr
  */
@@ -42,7 +44,7 @@ import jrm.ui.profile.report.ReportNode.SubjectNode.NoteNode;
 public class ReportTreeCellRenderer extends DefaultTreeCellRenderer {
 
     /**
-     * Instantiates a new report tree cell renderer.
+     * Constructs a new report tree cell renderer.
      */
     public ReportTreeCellRenderer() {
         super();

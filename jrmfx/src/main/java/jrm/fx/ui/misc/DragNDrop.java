@@ -16,12 +16,29 @@ import javafx.scene.input.TransferMode;
 import jrm.security.PathAbstractor;
 import jrm.security.Sessions;
 
+/**
+ * Utility class for installing drag-and-drop handlers on JavaFX controls.
+ * <p>
+ * Provides methods to accept files, directories, or any dragged content with
+ * visual feedback (green for accept, red for reject). Supports both single-file
+ * and multi-file drop operations.
+ *
+ * @since 2.5
+ */
 public class DragNDrop {
+    /** The CSS style for accepting drops. */
     private final String styleAccept;
+    /** The CSS style for rejecting drops. */
     private final String styleReject;
 
+    /** The control to install handlers on. */
     private Control control;
 
+    /**
+     * Constructs a drag-and-drop handler.
+     *
+     * @param control the control to install handlers on
+     */
     public DragNDrop(Control control) {
         if (control instanceof Cell) {
             styleAccept = "-fx-background-color: #DDFFDD;";
@@ -33,31 +50,72 @@ public class DragNDrop {
         this.control = control;
     }
 
+    /**
+     * Callback interface for single-file drop operations.
+     */
     @FunctionalInterface
     public interface SetCallBack {
+        /**
+         * Invoked when a file is dropped.
+         *
+         * @param txt the file path as a string
+         */
         public void call(String txt);
     }
 
+    /**
+     * Callback interface for multi-file drop operations.
+     */
     public interface SetFilesCallBack {
+        /**
+         * Invoked when files are dropped.
+         *
+         * @param files the list of dropped files
+         */
         public void call(List<File> files);
     }
 
+    /**
+     * Installs handlers that accept a single regular file.
+     *
+     * @param cb the callback to invoke
+     */
     public void addFile(SetCallBack cb) {
         addFiltered(f -> Files.isRegularFile(f.toPath()), cb);
     }
 
+    /**
+     * Installs handlers that accept a new or existing regular file.
+     *
+     * @param cb the callback to invoke
+     */
     public void addNewFile(SetCallBack cb) {
         addFiltered(f -> (!Files.exists(f.toPath())) || Files.isRegularFile(f.toPath()), cb);
     }
 
+    /**
+     * Installs handlers that accept any dragged files.
+     *
+     * @param cb the callback to invoke
+     */
     public void addAny(SetFilesCallBack cb) {
         addFiltered(_ -> true, cb);
     }
 
+    /**
+     * Installs handlers that accept a single directory.
+     *
+     * @param cb the callback to invoke
+     */
     public void addDir(SetCallBack cb) {
         addFiltered(f -> Files.isDirectory(f.toPath()), cb);
     }
 
+    /**
+     * Installs handlers that accept multiple directories.
+     *
+     * @param cb the callback to invoke
+     */
     public void addDirs(SetFilesCallBack cb) {
         addFiltered(f -> Files.isDirectory(f.toPath()), cb);
     }

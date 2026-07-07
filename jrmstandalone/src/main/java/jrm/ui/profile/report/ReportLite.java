@@ -19,12 +19,22 @@ import jrm.misc.Log;
 import jrm.profile.report.Report;
 import jrm.security.Session;
 
+/**
+ * Lightweight dialog displaying a single report file.
+ * <p>
+ * Loads the report asynchronously and displays it in a simple dialog.
+ */
 @SuppressWarnings("serial")
 public class ReportLite extends JDialog {
+    /** The parent window that opened this dialog. */
     private Window parentWindow;
 
     /**
-     * Create the dialog.
+     * Constructs the lightweight report dialog.
+     *
+     * @param session the user session
+     * @param parent the parent window
+     * @param reportFile the report file to display
      */
     public ReportLite(final Session session, Window parent, File reportFile) {
         super(parent);

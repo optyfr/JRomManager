@@ -31,17 +31,27 @@ import jrm.ui.basic.JTextFieldHintUI;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Panel for general application settings.
+ * <p>
+ * Provides controls for configuring threading, work directory, and other global preferences.
+ */
 @SuppressWarnings("serial")
 public class SettingsGenPanel extends JPanel {
-    /** The cb log level. */
+    /** Combo box for selecting the threading mode. */
     private JComboBox<ThreadCnt> cbThreading;
 
-    /** The scheduler. */
+    /** Scheduler for periodic UI updates. */
     final transient ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Represents a threading configuration option.
+     */
     @RequiredArgsConstructor
     private static class ThreadCnt {
+        /** The thread count (-1 for adaptive, 0 for max available). */
         final @Getter int cnt;
+        /** The display name for this option. */
         final @Getter String name;
 
         public ThreadCnt(int cnt) {

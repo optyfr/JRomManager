@@ -7,7 +7,19 @@ import javafx.util.StringConverter;
 import jrm.locale.Messages;
 import jrm.profile.manager.ProfileNFO;
 
+/**
+ * A cell factory for profile names with MAME status color coding.
+ * <p>
+ * Extends {@link NameCellFactory} to add color-coded text based on the profile's
+ * MAME update status (up-to-date, needs update, not found) and shows a tooltip
+ * describing the status.
+ *
+ * @since 2.5
+ */
 public class ProfileCellFactory extends NameCellFactory<ProfileNFO> {
+    /**
+     * Constructs a profile cell factory.
+     */
     public ProfileCellFactory() {
         super(new StringConverter<>() {
 

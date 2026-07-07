@@ -11,42 +11,50 @@ package jrm.ui.basic;
 import javax.swing.tree.TreeNode;
 
 /**
- * The Interface NGTreeNode.
+ * Interface for tree nodes that support selection state and path operations.
+ * <p>
+ * Extends {@link TreeNode} to add selection management capabilities for tree-based UI components.
+ * Nodes can track their selection state and verify if all descendants are selected.
+ * </p>
+ *
+ * @see AbstractNGTreeNode
+ * @see TreeNode
  */
 public interface NGTreeNode extends TreeNode {
 
     /**
-     * Gets the path.
+     * Returns the path from the root to this node.
      *
-     * @return the path
+     * @return an array of {@link TreeNode} objects representing the path, where the first element is the root
+     *         and the last element is this node
      */
     public TreeNode[] getPath();
 
     /**
-     * Gets the user object.
+     * Returns the user object associated with this node.
      *
-     * @return the user object
+     * @return the user object, or {@code null} if none is set
      */
     public Object getUserObject();
 
     /**
-     * Checks if is selected.
+     * Checks whether this node is currently selected.
      *
-     * @return true, if is selected
+     * @return {@code true} if this node is selected, {@code false} otherwise
      */
     public boolean isSelected();
 
     /**
-     * Sets the selected.
+     * Sets the selection state of this node.
      *
-     * @param selected the new selected
+     * @param selected {@code true} to select this node, {@code false} to deselect it
      */
     public void setSelected(boolean selected);
 
     /**
-     * All children selected.
+     * Checks whether this node and all its descendants are selected.
      *
-     * @return true, if successful
+     * @return {@code true} if this node and all children are selected, {@code false} otherwise
      */
     public boolean allChildrenSelected();
 }

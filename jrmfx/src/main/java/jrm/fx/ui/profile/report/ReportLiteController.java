@@ -8,7 +8,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.stage.Stage;
 
+/**
+ * FXML controller for the lightweight report view.
+ * <p>
+ * Embeds a {@link ReportViewController} and provides a close button handler.
+ *
+ * @since 2.5
+ */
 public class ReportLiteController implements Initializable {
+    /** The embedded report view controller. */
     @FXML
     ReportViewController viewController;
 
@@ -18,6 +26,11 @@ public class ReportLiteController implements Initializable {
 
     }
 
+    /**
+     * Closes the report window.
+     *
+     * @param e the action event
+     */
     @FXML
     private void onClose(ActionEvent e) {
         ((Stage) viewController.treeview.getScene().getWindow()).close();

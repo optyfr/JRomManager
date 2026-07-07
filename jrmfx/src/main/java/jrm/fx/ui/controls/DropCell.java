@@ -13,16 +13,48 @@ import jrm.fx.ui.misc.DragNDrop;
 import jrm.fx.ui.misc.DragNDrop.SetFilesCallBack;
 import jrm.fx.ui.misc.SrcDstResult;
 
+/**
+ * A table cell that accepts drag-and-drop file operations.
+ * <p>
+ * When files are dropped onto the cell, the supplied callback is invoked with the
+ * list of affected {@link SrcDstResult} rows and the dropped files.
+ *
+ * @since 2.5
+ */
 public class DropCell extends TableCell<SrcDstResult, String> {
+    /**
+     * Callback interface for drop operations.
+     */
     public interface DropCellCallback {
+        /**
+         * Invoked when files are dropped.
+         *
+         * @param sdrlist the affected source/destination result rows
+         * @param files   the dropped files
+         */
         void call(List<SrcDstResult> sdrlist, List<File> files);
     }
 
+    /**
+     * Constructs a drop cell.
+     *
+     * @param view   the table view containing this cell
+     * @param cb     the callback to invoke on drop
+     * @param filter the predicate for accepting files
+     */
     public DropCell(TableView<SrcDstResult> view, DropCell.DropCellCallback cb, Predicate<File> filter) {
         final SetFilesCallBack drop = files -> process(view, getIndex(), files, cb);
         new DragNDrop(this).addFiltered(filter, drop);
     }
 
+    /**
+     * Processes a drop operation by mapping files to table rows and invoking the callback.
+     *
+     * @param view       the table view
+     * @param startIndex the starting row index
+     * @param files      the dropped files
+     * @param cb         the callback to invoke
+     */
     public static void process(TableView<SrcDstResult> view, int startIndex, List<File> files, DropCell.DropCellCallback cb) {
         int count = view.getItems().size();
         if (startIndex > count || startIndex < 0)

@@ -34,24 +34,27 @@ import jrm.security.Session;
 import jrm.ui.MainFrame;
 
 /**
- * The Class ReportFrame.
+ * Dialog displaying the scan report as a tree view.
+ * <p>
+ * Shows the hierarchical report structure with filtering options and status bar.
  *
  * @author optyfr
  */
 @SuppressWarnings("serial")
 public class ReportFrame extends JDialog implements StatusHandler {
 
-    /** The lbl status. */
+    /** Label displaying the current processing status. */
     private final JLabel lblStatus = new JLabel(""); //$NON-NLS-1$
 
+    /** The report view component. */
     private final ReportView view;
 
     /**
-     * Instantiates a new report frame.
+     * Constructs the report frame.
      *
-     * @param owner the owner
-     * 
-     * @throws HeadlessException the headless exception
+     * @param session the user session providing access to report data
+     * @param owner the parent window
+     * @throws HeadlessException if the environment does not support a display
      */
     public ReportFrame(final Session session, final Window owner) throws HeadlessException {
         super(); // $NON-NLS-1$
