@@ -33,8 +33,10 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build and analyze
+        uses: GabrielBB/xvfb-action@b706e4e27b14669b486812790492dc50ca16b465
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build codeCoverageReport jacocoTestReport sonar --stacktrace
+        with:
+          run: ./gradlew build codeCoverageReport jacocoTestReport sonar --stacktrace
         

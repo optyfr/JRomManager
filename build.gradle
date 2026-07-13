@@ -356,6 +356,56 @@ project(':jrmcli') {
         }
     }
 	apply plugin:'jacoco'
+	test {
+		useJUnitPlatform {
+			includeEngines 'junit-jupiter'
+		}
+		jacocoTestReport {
+			reports {
+				xml.required = true
+			}
+		}
+		finalizedBy jacocoTestReport
+	    testLogging {
+	        // set options for log level LIFECYCLE
+	        events TestLogEvent.FAILED,
+	               TestLogEvent.PASSED,
+	               TestLogEvent.SKIPPED,
+	               TestLogEvent.STANDARD_ERROR
+	        exceptionFormat = TestExceptionFormat.SHORT
+	        showExceptions = true
+	        showCauses = true
+	        showStackTraces = true
+	
+	        // set options for log level DEBUG and INFO
+	        debug {
+	            events TestLogEvent.STARTED,
+	                   TestLogEvent.FAILED,
+	                   TestLogEvent.PASSED,
+	                   TestLogEvent.SKIPPED,
+	                   TestLogEvent.STANDARD_ERROR,
+	                   TestLogEvent.STANDARD_OUT
+	            exceptionFormat = TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
+	        }
+	        info.events = debug.events
+	        info.exceptionFormat = debug.exceptionFormat
+	
+            addTestListener(new TestListener() {
+                void aftersuite(TestDescriptor desc, TestResult result) {
+                    if (!desc.parent) { // will match the outermost suite
+                        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                        def startItem = '|  ', endItem = '  |'
+                        def repeatLength = startItem.length() + output.length() + endItem.length()
+                        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+                    }
+                }
+            })
+	    }
+	    systemProperty "file.encoding", "utf-8"
+	}
 	
 }
 
@@ -408,6 +458,9 @@ project(':jrmstandalone') {
 	
 		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
 		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
+        testImplementation 'org.assertj:assertj-core:3.27.7'
+        testImplementation 'org.mockito:mockito-core:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
@@ -436,6 +489,56 @@ project(':jrmstandalone') {
         }
     }
 	apply plugin:'jacoco'
+	test {
+		useJUnitPlatform {
+			includeEngines 'junit-jupiter'
+		}
+		jacocoTestReport {
+			reports {
+				xml.required = true
+			}
+		}
+		finalizedBy jacocoTestReport
+	    testLogging {
+	        // set options for log level LIFECYCLE
+	        events TestLogEvent.FAILED,
+	               TestLogEvent.PASSED,
+	               TestLogEvent.SKIPPED,
+	               TestLogEvent.STANDARD_ERROR
+	        exceptionFormat = TestExceptionFormat.SHORT
+	        showExceptions = true
+	        showCauses = true
+	        showStackTraces = true
+	
+	        // set options for log level DEBUG and INFO
+	        debug {
+	            events TestLogEvent.STARTED,
+	                   TestLogEvent.FAILED,
+	                   TestLogEvent.PASSED,
+	                   TestLogEvent.SKIPPED,
+	                   TestLogEvent.STANDARD_ERROR,
+	                   TestLogEvent.STANDARD_OUT
+	            exceptionFormat = TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
+	        }
+	        info.events = debug.events
+	        info.exceptionFormat = debug.exceptionFormat
+	
+            addTestListener(new TestListener() {
+                void aftersuite(TestDescriptor desc, TestResult result) {
+                    if (!desc.parent) { // will match the outermost suite
+                        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                        def startItem = '|  ', endItem = '  |'
+                        def repeatLength = startItem.length() + output.length() + endItem.length()
+                        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+                    }
+                }
+            })
+	    }
+	    systemProperty "file.encoding", "utf-8"
+	}
 }
 
 project(':jrmfx') {
@@ -445,7 +548,7 @@ project(':jrmfx') {
 	
 	javafx {
 		version = '22'
-		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web' ]
+		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing' ]
 	}
 
 	apply plugin: "eclipse"
@@ -459,6 +562,15 @@ project(':jrmfx') {
 		implementation 'org.apache.commons:commons-lang3:3.+'
 		implementation 'com.google.code.gson:gson:latest.release'
 		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+
+		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
+        testImplementation 'org.assertj:assertj-core:3.27.7'
+        testImplementation 'org.mockito:mockito-core:latest.release'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
+		testImplementation 'io.gitlab.fx-labs:testfx-junit:0.2.0'
+		testImplementation 'io.gitlab.fx-labs:testfx-assertj:0.2.0'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.fx.JRomManagerMulti'
@@ -490,6 +602,56 @@ project(':jrmfx') {
         }
     }
 	apply plugin:'jacoco'
+	test {
+		useJUnitPlatform {
+			includeEngines 'junit-jupiter'
+		}
+		jacocoTestReport {
+			reports {
+				xml.required = true
+			}
+		}
+		finalizedBy jacocoTestReport
+	    testLogging {
+	        // set options for log level LIFECYCLE
+	        events TestLogEvent.FAILED,
+	               TestLogEvent.PASSED,
+	               TestLogEvent.SKIPPED,
+	               TestLogEvent.STANDARD_ERROR
+	        exceptionFormat = TestExceptionFormat.SHORT
+	        showExceptions = true
+	        showCauses = true
+	        showStackTraces = true
+	
+	        // set options for log level DEBUG and INFO
+	        debug {
+	            events TestLogEvent.STARTED,
+	                   TestLogEvent.FAILED,
+	                   TestLogEvent.PASSED,
+	                   TestLogEvent.SKIPPED,
+	                   TestLogEvent.STANDARD_ERROR,
+	                   TestLogEvent.STANDARD_OUT
+	            exceptionFormat = TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
+	        }
+	        info.events = debug.events
+	        info.exceptionFormat = debug.exceptionFormat
+	
+            addTestListener(new TestListener() {
+                void aftersuite(TestDescriptor desc, TestResult result) {
+                    if (!desc.parent) { // will match the outermost suite
+                        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+                        def startItem = '|  ', endItem = '  |'
+                        def repeatLength = startItem.length() + output.length() + endItem.length()
+                        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
+                    }
+                }
+            })
+	    }
+	    systemProperty "file.encoding", "utf-8"
+	}
 }
 
 project(':jrmserver') {
