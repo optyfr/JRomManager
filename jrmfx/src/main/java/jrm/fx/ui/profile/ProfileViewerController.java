@@ -1070,17 +1070,17 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    void diskMultipleFilter(ActionEvent e) {
+    public void diskMultipleFilter(ActionEvent e) {
         setFilterWL(toggleWLUnknown.isSelected(), toggleWLMissing.isSelected(), toggleWLPartial.isSelected(), toggleWLComplete.isSelected());
     }
 
     @FXML
-    void folderFilter(ActionEvent e) {
+    public void folderFilter(ActionEvent e) {
         setFilterW(toggleWUnknown.isSelected(), toggleWMissing.isSelected(), toggleWPartial.isSelected(), toggleWComplete.isSelected());
     }
 
     @FXML
-    void bulletFilter(ActionEvent e) {
+    public void bulletFilter(ActionEvent e) {
         setFilterE(toggleEntityUnknown.isSelected(), toggleEntityKO.isSelected(), toggleEntityOK.isSelected());
     }
 
@@ -1153,21 +1153,21 @@ public class ProfileViewerController implements Initializable {
         return text.getBoundsInLocal().getWidth();
     }
 
-    void clear() {
+    public void clear() {
         tableEntity.setItems(FXCollections.observableArrayList());
         tableW.setItems(FXCollections.observableArrayList());
         tableWL.setItems(FXCollections.observableArrayList());
         haveCache.clear();
     }
 
-    void reload() {
+    public void reload() {
         tableWL.refresh();
         haveCache.clear();
         tableW.refresh();
         tableEntity.refresh();
     }
 
-    void reset(Profile profile) {
+    public void reset(Profile profile) {
         final var selected = tableWL.getSelectionModel().getSelectedItem();
         clear();
         final var wl = FXCollections.<AnywareList<? extends Anyware>>observableArrayList();
@@ -1212,26 +1212,26 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void selectNone(ActionEvent e) {
+    public void selectNone(ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(false));
         tableW.refresh();
 
     }
 
     @FXML
-    private void selectAll(ActionEvent e) {
+    public void selectAll(ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(true));
         tableW.refresh();
     }
 
     @FXML
-    private void selectInvert(ActionEvent e) {
+    public void selectInvert(ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(!ware.isSelected()));
         tableW.refresh();
     }
 
     @FXML
-    private void copyCrc(javafx.event.ActionEvent e) {
+    public void copyCrc(javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getCrc());
@@ -1240,7 +1240,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void copySha1(javafx.event.ActionEvent e) {
+    public void copySha1(javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getSha1());
@@ -1249,7 +1249,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void copyName(javafx.event.ActionEvent e) {
+    public void copyName(javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getName());
@@ -1258,7 +1258,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void searchWeb(javafx.event.ActionEvent e) {
+    public void searchWeb(javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
             try {
                 val name = entity.getName();
@@ -1274,43 +1274,43 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void exportFilteredAsLogiqxDat(ActionEvent e) {
+    public void exportFilteredAsLogiqxDat(ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    private void exportFilteredAsMameDat(ActionEvent e) {
+    public void exportFilteredAsMameDat(ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    private void exportFilteredAsSoftwareLists(ActionEvent e) {
+    public void exportFilteredAsSoftwareLists(ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    private void exportAllAsLogiqxDat(ActionEvent e) {
+    public void exportAllAsLogiqxDat(ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    private void exportAllAsMameDat(ActionEvent e) {
+    public void exportAllAsMameDat(ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    private void exportAllAsSoftwareLists(ActionEvent e) {
+    public void exportAllAsSoftwareLists(ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    private void exportSelectedFilteredAsSoftwareLists(ActionEvent e) {
+    public void exportSelectedFilteredAsSoftwareLists(ActionEvent e) {
         if (tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), sl);
     }
 
     @FXML
-    private void exportSelectedAsSoftwareLists(ActionEvent e) {
+    public void exportSelectedAsSoftwareLists(ActionEvent e) {
         if (tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), sl);
     }

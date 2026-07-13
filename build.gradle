@@ -160,14 +160,24 @@ subprojects {
 		useJUnitPlatform {
 			includeEngines 'junit-jupiter'
 		}
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
+		jacoco {
+			enabled = true
 		}
 		finalizedBy jacocoTestReport
 		minHeapSize = "128m" // initial heap size
 		maxHeapSize = "2G" // maximum heap size
+		jvmArgs '-XX:+EnableDynamicAgentLoading',
+			'--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+			'--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+			'--add-opens', 'java.base/java.util=ALL-UNNAMED'
+	}
+	
+	jacocoTestReport {
+		dependsOn test
+		reports {
+			xml.required = true
+			html.required = true
+		}
 	}
 	
 	sonar {

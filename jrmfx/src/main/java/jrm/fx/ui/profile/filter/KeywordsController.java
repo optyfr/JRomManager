@@ -24,6 +24,7 @@ import jrm.profile.data.AnywareList;
 import jrm.profile.filter.Keywords.KFCallBack;
 import jrm.security.Session;
 import jrm.security.Sessions;
+import lombok.Getter;
 
 /**
  * FXML controller for the keywords filter dialog.
@@ -37,6 +38,7 @@ public class KeywordsController implements Initializable {
 
     /** The scene. */
     @FXML
+    @Getter
     Scene sceneKW;
     /** The list of available keywords. */
     @FXML

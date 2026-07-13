@@ -155,7 +155,7 @@ public class DragNDrop {
      * @param event  the drag-over event
      * @param filter the predicate every dragged file must satisfy
      */
-    private void handleDragOverFiles(DragEvent event, Predicate<File> filter) {
+    void handleDragOverFiles(DragEvent event, Predicate<File> filter) {
         if (event.getGestureSource() != control) {
             final var db = event.getDragboard();
             if (db.hasFiles() && db.getFiles().stream().allMatch(filter)) {
@@ -177,7 +177,7 @@ public class DragNDrop {
      * @param cb     the callback receiving the accepted files
      */
     @SuppressWarnings("unchecked")
-    private void handleDragDroppedFiles(DragEvent event, Predicate<File> filter, SetFilesCallBack cb) {
+    void handleDragDroppedFiles(DragEvent event, Predicate<File> filter, SetFilesCallBack cb) {
         final var db = event.getDragboard();
         var success = false;
         if (db.hasFiles() && db.getFiles().stream().allMatch(filter)) {
@@ -200,7 +200,7 @@ public class DragNDrop {
      * @param files the files to append
      */
     @SuppressWarnings("unchecked")
-    private void appendFilesToListView(List<File> files) {
+    void appendFilesToListView(List<File> files) {
         final var lv = (ListView<File>) control;
         final var set = new LinkedHashSet<>(lv.getItems());
         for (final var f : files) {
@@ -217,7 +217,7 @@ public class DragNDrop {
      * @param event  the drag-over event
      * @param filter the predicate the single dragged file must satisfy
      */
-    private void handleDragOverSingle(DragEvent event, Predicate<File> filter) {
+    void handleDragOverSingle(DragEvent event, Predicate<File> filter) {
         if (event.getGestureSource() != control) {
             final var db = event.getDragboard();
             if (db.hasFiles() && db.getFiles().size() == 1 && filter.test(db.getFiles().get(0))) {
@@ -238,7 +238,7 @@ public class DragNDrop {
      * @param filter the predicate the single dropped file must satisfy
      * @param cb     the callback receiving the accepted file path as a string
      */
-    private void handleDragDroppedSingle(DragEvent event, Predicate<File> filter, SetCallBack cb) {
+    void handleDragDroppedSingle(DragEvent event, Predicate<File> filter, SetCallBack cb) {
         final var db = event.getDragboard();
         var success = false;
         if (db.hasFiles() && db.getFiles().size() == 1 && filter.test(db.getFiles().get(0))) {
@@ -259,7 +259,7 @@ public class DragNDrop {
      * @param filter the predicate the resolved path must satisfy
      * @param cb     the callback invoked with valid text
      */
-    private void installTextValidator(TextField tf, Predicate<File> filter, SetCallBack cb) {
+    void installTextValidator(TextField tf, Predicate<File> filter, SetCallBack cb) {
         tf.textProperty().addListener((_, _, newValue) -> validateText(tf, newValue, filter, cb));
     }
 
@@ -272,7 +272,7 @@ public class DragNDrop {
      * @param filter the predicate the resolved path must satisfy
      * @param cb     the callback invoked with valid text
      */
-    private void validateText(TextField tf, String value, Predicate<File> filter, SetCallBack cb) {
+    void validateText(TextField tf, String value, Predicate<File> filter, SetCallBack cb) {
         if (value == null || value.isBlank() || tf.isDisabled()) {
             tf.setStyle(null);
         } else if (filter.test(PathAbstractor.getAbsolutePath(Sessions.getSingleSession(), value).toFile())) {

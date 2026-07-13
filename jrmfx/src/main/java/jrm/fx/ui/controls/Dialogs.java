@@ -34,6 +34,18 @@ public @UtilityClass class Dialogs {
      */
     public static void showError(Throwable e) {
         final var alert = new Alert(AlertType.ERROR);
+        configureErrorAlert(alert, e);
+        alert.showAndWait();
+    }
+
+    /**
+     * Configures an error alert with exception details.
+     * Package-private for testing.
+     *
+     * @param alert the alert to configure
+     * @param e the exception to display
+     */
+    static void configureErrorAlert(Alert alert, Throwable e) {
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
         JRMScene.applySheet(alert.getDialogPane().getScene());
         alert.setTitle("Error");
@@ -50,7 +62,6 @@ public @UtilityClass class Dialogs {
         dialogPaneContent.getChildren().addAll(label, textArea);
 
         alert.getDialogPane().setContent(dialogPaneContent);
-        alert.showAndWait();
     }
 
     /**
@@ -60,6 +71,18 @@ public @UtilityClass class Dialogs {
      */
     public static void showAlert(String message) {
         Alert alert = new Alert(AlertType.WARNING);
+        configureWarningAlert(alert, message);
+        alert.showAndWait();
+    }
+
+    /**
+     * Configures a warning alert with the given message.
+     * Package-private for testing.
+     *
+     * @param alert the alert to configure
+     * @param message the message to display
+     */
+    static void configureWarningAlert(Alert alert, String message) {
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
         JRMScene.applySheet(alert.getDialogPane().getScene());
         alert.setTitle("Warning");
@@ -67,8 +90,6 @@ public @UtilityClass class Dialogs {
         // Header Text: null
         alert.setHeaderText(null);
         alert.setContentText(message);
-
-        alert.showAndWait();
     }
 
     /**
@@ -81,6 +102,20 @@ public @UtilityClass class Dialogs {
      */
     public static Optional<ButtonType> showConfirmation(String title, String message, ButtonType... buttons) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
+        configureConfirmationAlert(alert, title, message, buttons);
+        return alert.showAndWait();
+    }
+
+    /**
+     * Configures a confirmation alert with title, message, and buttons.
+     * Package-private for testing.
+     *
+     * @param alert   the alert to configure
+     * @param title   the dialog title
+     * @param message the message to display
+     * @param buttons the button types to show, or {@code null} for defaults
+     */
+    static void configureConfirmationAlert(Alert alert, String title, String message, ButtonType... buttons) {
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
         JRMScene.applySheet(alert.getDialogPane().getScene());
         alert.setTitle(title);
@@ -90,7 +125,6 @@ public @UtilityClass class Dialogs {
             alert.getButtonTypes().clear();
             alert.getButtonTypes().addAll(buttons);
         }
-        return alert.showAndWait();
     }
 
     /**
@@ -103,6 +137,20 @@ public @UtilityClass class Dialogs {
      */
     public static Optional<ButtonType> showConfirmation(String title, Node message, ButtonType... buttons) {
         Alert alert = new Alert(AlertType.CONFIRMATION);
+        configureNodeConfirmationAlert(alert, title, message, buttons);
+        return alert.showAndWait();
+    }
+
+    /**
+     * Configures a confirmation alert with custom node content.
+     * Package-private for testing.
+     *
+     * @param alert   the alert to configure
+     * @param title   the dialog title
+     * @param message the custom node to display
+     * @param buttons the button types to show, or {@code null} for defaults
+     */
+    static void configureNodeConfirmationAlert(Alert alert, String title, Node message, ButtonType... buttons) {
         ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(MainFrame.getIcon(ICO));
         JRMScene.applySheet(alert.getDialogPane().getScene());
         alert.setTitle(title);
@@ -112,7 +160,6 @@ public @UtilityClass class Dialogs {
             alert.getButtonTypes().clear();
             alert.getButtonTypes().addAll(buttons);
         }
-        return alert.showAndWait();
     }
 
     /**

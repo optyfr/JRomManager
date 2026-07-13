@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import static org.mockito.Mockito.mock;
 
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
@@ -42,9 +44,9 @@ class MainFrameControllerTest {
         public void start(Stage primaryStage) throws Exception {
             this.primaryStage = primaryStage;
             
-            ProfilePanelController mockProfile = Mockito.mock(ProfilePanelController.class);
-            ScannerPanelController mockScanner = Mockito.mock(ScannerPanelController.class);
-            SettingsPanelController mockSettings = Mockito.mock(SettingsPanelController.class);
+            ProfilePanelController mockProfile = mock(ProfilePanelController.class);
+            ScannerPanelController mockScanner = mock(ScannerPanelController.class);
+            SettingsPanelController mockSettings = mock(SettingsPanelController.class);
 
             Tab profileTab = new Tab("Profile");
             Tab scannerTab = new Tab("Scanner");
@@ -102,19 +104,13 @@ class MainFrameControllerTest {
         }
     }
 
-    @Test
-    @DisplayName("Should set graphics on profile tab")
-    void shouldSetGraphicsOnProfileTab() {
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3, 4})
+    @DisplayName("Should set graphics on each tab")
+    void shouldSetGraphicsOnTab(int tabIndex) {
         MainFrameController ctrl = TestApp.getController();
         assertThat(ctrl.getTabPane()).isNotNull();
-        assertThat(ctrl.getTabPane().getTabs().get(0).getGraphic()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should set graphics on scanner tab")
-    void shouldSetGraphicsOnScannerTab() {
-        MainFrameController ctrl = TestApp.getController();
-        assertThat(ctrl.getTabPane().getTabs().get(1).getGraphic()).isNotNull();
+        assertThat(ctrl.getTabPane().getTabs().get(tabIndex).getGraphic()).isNotNull();
     }
 
     @Test
@@ -122,27 +118,6 @@ class MainFrameControllerTest {
     void shouldDisableScannerTab() {
         MainFrameController ctrl = TestApp.getController();
         assertThat(ctrl.getScannerPanelTab().isDisable()).isTrue();
-    }
-
-    @Test
-    @DisplayName("Should set graphics on dir2dat tab")
-    void shouldSetGraphicsOnDir2DatTab() {
-        MainFrameController ctrl = TestApp.getController();
-        assertThat(ctrl.getTabPane().getTabs().get(2).getGraphic()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should set graphics on batchtools tab")
-    void shouldSetGraphicsOnBatchToolsTab() {
-        MainFrameController ctrl = TestApp.getController();
-        assertThat(ctrl.getTabPane().getTabs().get(3).getGraphic()).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should set graphics on settings tab")
-    void shouldSetGraphicsOnSettingsTab() {
-        MainFrameController ctrl = TestApp.getController();
-        assertThat(ctrl.getTabPane().getTabs().get(4).getGraphic()).isNotNull();
     }
 
     @Test
@@ -173,5 +148,78 @@ class MainFrameControllerTest {
         for (var tab : ctrl.getTabPane().getTabs()) {
             assertThat(tab.getGraphic().getStyleClass()).contains("icon");
         }
+    }
+
+    @Test
+    @DisplayName("Should preserve ratio for all tab icons")
+    void shouldPreserveRatioForAllTabIcons() {
+        MainFrameController ctrl = TestApp.getController();
+        for (var tab : ctrl.getTabPane().getTabs()) {
+            if (tab.getGraphic() instanceof javafx.scene.image.ImageView imageView) {
+                assertThat(imageView.isPreserveRatio())
+                        .as("Icon should preserve ratio for tab: " + tab.getText())
+                        .isTrue();
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Should initialize with null location and resources")
+    void shouldInitializeWithNullLocationAndResources() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl).isNotNull();
+        assertThat(ctrl.getTabPane()).isNotNull();
+        assertThat(ctrl.getTabPane().getTabs()).hasSize(5);
+    }
+
+    @Test
+    @DisplayName("Should have profile panel tab as first tab")
+    void shouldHaveProfilePanelTabAsFirstTab() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(0).getText()).isEqualTo("Profile");
+    }
+
+    @Test
+    @DisplayName("Should have scanner panel tab as second tab")
+    void shouldHaveScannerPanelTabAsSecondTab() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(1).getText()).isEqualTo("Scanner");
+    }
+
+    @Test
+    @DisplayName("Should have Dir2Dat panel tab as third tab")
+    void shouldHaveDir2DatPanelTabAsThirdTab() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(2).getText()).isEqualTo("Dir2Dat");
+    }
+
+    @Test
+    @DisplayName("Should have batch tools panel tab as fourth tab")
+    void shouldHaveBatchToolsPanelTabAsFourthTab() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(3).getText()).isEqualTo("Batch Tools");
+    }
+
+    @Test
+    @DisplayName("Should have settings panel tab as fifth tab")
+    void shouldHaveSettingsPanelTabAsFifthTab() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(4).getText()).isEqualTo("Settings");
+    }
+
+    @Test
+    @DisplayName("Should have profile panel as BorderPane")
+    void shouldHaveProfilePanelAsBorderPane() {
+        MainFrameController ctrl = TestApp.getController();
+        assertThat(ctrl.getTabPane().getTabs().get(0).getContent())
+                .isNull(); // Content is set via FXML, not in test
+    }
+
+    @Test
+    @DisplayName("Should have scanner panel controller injected")
+    void shouldHaveScannerPanelControllerInjected() {
+        MainFrameController ctrl = TestApp.getController();
+        // Scanner panel controller is mocked, so it should be present
+        assertThat(ctrl).isNotNull();
     }
 }

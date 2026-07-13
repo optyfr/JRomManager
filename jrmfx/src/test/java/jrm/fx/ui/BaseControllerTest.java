@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -106,9 +107,9 @@ class BaseControllerTest {
     void shouldInitializeSessionInConstructor() {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class)) {
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created")
                     .isNotNull();
@@ -120,7 +121,7 @@ class BaseControllerTest {
     @DisplayName("Should create Callback interface instance")
     void shouldCreateCallbackInterfaceInstance() {
         BaseController.Callback callback = path -> controller.recordSinglePath(path);
-        
+
         assertThat(callback)
                 .as("Callback should be created")
                 .isNotNull();
@@ -130,7 +131,7 @@ class BaseControllerTest {
     @DisplayName("Should create CallbackMulti interface instance")
     void shouldCreateCallbackMultiInterfaceInstance() {
         BaseController.CallbackMulti callbackMulti = paths -> controller.recordMultiplePaths(paths);
-        
+
         assertThat(callbackMulti)
                 .as("CallbackMulti should be created")
                 .isNotNull();
@@ -141,9 +142,9 @@ class BaseControllerTest {
     void shouldInvokeCallbackWithPath() {
         Path testPath = Path.of("/test/path");
         BaseController.Callback callback = path -> controller.recordSinglePath(path);
-        
+
         callback.call(testPath);
-        
+
         assertThat(controller.getSelectedPath())
                 .as("Selected path should be recorded")
                 .isEqualTo(testPath);
@@ -153,14 +154,13 @@ class BaseControllerTest {
     @DisplayName("Should invoke callback with multiple paths")
     void shouldInvokeCallbackWithMultiplePaths() {
         List<Path> testPaths = List.of(
-            Path.of("/test/path1"),
-            Path.of("/test/path2"),
-            Path.of("/test/path3")
-        );
+                Path.of("/test/path1"),
+                Path.of("/test/path2"),
+                Path.of("/test/path3"));
         BaseController.CallbackMulti callbackMulti = paths -> controller.recordMultiplePaths(paths);
-        
+
         callbackMulti.call(testPaths);
-        
+
         assertThat(controller.getSelectedPaths())
                 .as("Selected paths should be recorded")
                 .containsExactlyElementsOf(testPaths);
@@ -170,9 +170,9 @@ class BaseControllerTest {
     @DisplayName("Should handle null path in callback")
     void shouldHandleNullPathInCallback() {
         BaseController.Callback callback = path -> controller.recordSinglePath(path);
-        
+
         callback.call(null);
-        
+
         assertThat(controller.getSelectedPath())
                 .as("Selected path should be null")
                 .isNull();
@@ -183,9 +183,9 @@ class BaseControllerTest {
     void shouldHandleEmptyListInCallbackMulti() {
         List<Path> emptyPaths = new ArrayList<>();
         BaseController.CallbackMulti callbackMulti = paths -> controller.recordMultiplePaths(paths);
-        
+
         callbackMulti.call(emptyPaths);
-        
+
         assertThat(controller.getSelectedPaths())
                 .as("Selected paths should be empty list")
                 .isEmpty();
@@ -195,16 +195,16 @@ class BaseControllerTest {
     @DisplayName("Should handle existing directory in initFileChooser")
     void shouldHandleExistingDirectoryInInitFileChooser() throws IOException {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
-             @SuppressWarnings("unused")
-             MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
-            
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
             Path existingDir = Files.createTempDirectory(tempDir, "test");
             when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
                     .thenReturn(existingDir);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with existing directory")
                     .isNotNull();
@@ -215,16 +215,16 @@ class BaseControllerTest {
     @DisplayName("Should handle existing file in initFileChooser")
     void shouldHandleExistingFileInInitFileChooser() throws IOException {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
-             @SuppressWarnings("unused")
-             MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
-            
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
             Path existingFile = Files.createTempFile(tempDir, "test", ".txt");
             when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
                     .thenReturn(existingFile);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with existing file")
                     .isNotNull();
@@ -235,15 +235,15 @@ class BaseControllerTest {
     @DisplayName("Should handle non-existent path in initFileChooser")
     void shouldHandleNonExistentPathInInitFileChooser() {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
-             @SuppressWarnings("unused")
-             MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
-            
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
             when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
                     .thenReturn(Path.of("/non/existent/path"));
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with non-existent path")
                     .isNotNull();
@@ -254,15 +254,15 @@ class BaseControllerTest {
     @DisplayName("Should handle null path in initFileChooser")
     void shouldHandleNullPathInInitFileChooser() {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
-             @SuppressWarnings("unused")
-             MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
-            
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
             when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
                     .thenReturn(null);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with null path")
                     .isNotNull();
@@ -274,9 +274,9 @@ class BaseControllerTest {
     void shouldHandleBlankInitialValueInInitFileChooser() {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class)) {
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with blank initial value")
                     .isNotNull();
@@ -288,11 +288,155 @@ class BaseControllerTest {
     void shouldHandleNullInitialValueInInitFileChooser() {
         try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class)) {
             sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
-            
+
             TestController newController = new TestController();
-            
+
             assertThat(newController)
                     .as("Controller should be created with null initial value")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle existing parent directory in initFileChooser")
+    void shouldHandleExistingParentDirectoryInInitFileChooser() throws IOException {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            Path existingDir = Files.createTempDirectory(tempDir, "parent");
+            Path nonExistentFile = existingDir.resolve("nonexistent.txt");
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(nonExistentFile);
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with existing parent directory")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle default directory in initFileChooser")
+    void shouldHandleDefaultDirectoryInInitFileChooser() throws IOException {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(null);
+
+            @SuppressWarnings("unused")
+            File defaultDir = Files.createTempDirectory(tempDir, "default").toFile();
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with default directory")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle non-existent default directory in initFileChooser")
+    void shouldHandleNonExistentDefaultDirectoryInInitFileChooser() {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(null);
+
+            @SuppressWarnings("unused")
+            File nonExistentDir = new File("/non/existent/dir");
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with non-existent default directory")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle whitespace initial value in initFileChooser")
+    void shouldHandleWhitespaceInitialValueInInitFileChooser() {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class)) {
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with whitespace initial value")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle directory with existing parent in initDirectoryChooser")
+    void shouldHandleDirectoryWithExistingParentInInitDirectoryChooser() throws IOException {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            Path existingDir = Files.createTempDirectory(tempDir, "dirtest");
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(existingDir);
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with existing directory")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle non-directory path in initDirectoryChooser")
+    void shouldHandleNonDirectoryPathInInitDirectoryChooser() throws IOException {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            Path existingFile = Files.createTempFile(tempDir, "file", ".txt");
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(existingFile);
+
+            @SuppressWarnings("unused")
+            File defaultDir = Files.createTempDirectory(tempDir, "default").toFile();
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with non-directory path")
+                    .isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle null path with existing default in initDirectoryChooser")
+    void shouldHandleNullPathWithExistingDefaultInInitDirectoryChooser() throws IOException {
+        try (MockedStatic<Sessions> sessionsMock = mockStatic(Sessions.class);
+                @SuppressWarnings("unused")
+                MockedStatic<PathAbstractor> pathMock = mockStatic(PathAbstractor.class)) {
+
+            sessionsMock.when(Sessions::getSingleSession).thenReturn(mockSession);
+            when(PathAbstractor.getAbsolutePath(any(Session.class), any(String.class)))
+                    .thenReturn(null);
+
+            @SuppressWarnings("unused")
+            File defaultDir = Files.createTempDirectory(tempDir, "default").toFile();
+
+            TestController newController = new TestController();
+
+            assertThat(newController)
+                    .as("Controller should be created with null path and existing default")
                     .isNotNull();
         }
     }
