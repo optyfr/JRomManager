@@ -962,7 +962,7 @@ public class ProfilePanelController implements Initializable {
      * @param mame the newly chosen MAME executable file
      * @return the resulting MAME status, or {@link MameStatus#NOTFOUND} if the file does not exist
      */
-    private MameStatus updateFromMameRelocate(final ProfileNFO nfo, File mame) {
+    MameStatus updateFromMameRelocate(final ProfileNFO nfo, File mame) {
         if (mame.exists())
             return nfo.getMame().relocate(mame);
         return MameStatus.NOTFOUND;

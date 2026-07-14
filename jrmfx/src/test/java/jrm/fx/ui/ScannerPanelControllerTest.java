@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -1148,7 +1149,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on source list")
     void shouldSetCellFactoryOnSourceList() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ListView<File> srcList = getField("srcList");
             assertThat(srcList.getCellFactory()).as("srcList cell factory").isNotNull();
         });
@@ -1158,7 +1158,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on systems filter list")
     void shouldSetCellFactoryOnSystemsFilter() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ListView<?> systemsFilter = getField("systemsFilter");
             assertThat(systemsFilter.getCellFactory()).as("systemsFilter cell factory").isNotNull();
         });
@@ -1168,7 +1167,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on sources filter list")
     void shouldSetCellFactoryOnSourcesFilter() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ListView<?> sourcesFilter = getField("sourcesFilter");
             assertThat(sourcesFilter.getCellFactory()).as("sourcesFilter cell factory").isNotNull();
         });
@@ -1178,7 +1176,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on nplayers list")
     void shouldSetCellFactoryOnNPlayersList() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ListView<?> listNPlayers = getField("listNPlayers");
             assertThat(listNPlayers.getCellFactory()).as("listNPlayers cell factory").isNotNull();
         });
@@ -1188,7 +1185,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on catver tree")
     void shouldSetCellFactoryOnCatVerTree() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             TreeView<?> treeCatVer = getField("treeCatVer");
             assertThat(treeCatVer.getCellFactory()).as("treeCatVer cell factory").isNotNull();
         });
@@ -1198,7 +1194,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should set cell factory on automation combo box")
     void shouldSetCellFactoryOnAutomationComboBox() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
             assertThat(cbAutomation.getCellFactory()).as("cbAutomation cell factory").isNotNull();
             assertThat(cbAutomation.getButtonCell()).as("cbAutomation button cell").isNotNull();
@@ -1211,7 +1206,6 @@ class ScannerPanelControllerTest {
     @DisplayName("Should update profile property when items are deleted from source list")
     void shouldUpdateProfilePropertyWhenItemsDeletedFromSourceList() throws Exception {
         runOnFxThread(() -> {
-            @SuppressWarnings("unchecked")
             ListView<File> srcList = getField("srcList");
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
 
@@ -1528,7 +1522,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "preliminary", "any", "any", "yes",
                     Arrays.asList("", "1980", "1990"), "1980", "1990");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<Driver.StatusType> cbbxDriverStatus = getField("cbbxDriverStatus");
             assertThat(cbbxDriverStatus.getValue()).as("driver status").isEqualTo(Driver.StatusType.preliminary);
         });
@@ -1541,7 +1534,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "upright", "any", "yes",
                     Arrays.asList("", "1980", "1990"), "1980", "1990");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<CabinetType> cbbxFilterCabinetType = getField("cbbxFilterCabinetType");
             assertThat(cbbxFilterCabinetType.getValue()).as("cabinet type").isEqualTo(CabinetType.upright);
         });
@@ -1554,7 +1546,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "vertical", "yes",
                     Arrays.asList("", "1980", "1990"), "1980", "1990");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<DisplayOrientation> cbbxFilterDisplayOrientation = getField("cbbxFilterDisplayOrientation");
             assertThat(cbbxFilterDisplayOrientation.getValue()).as("display orientation").isEqualTo(DisplayOrientation.vertical);
         });
@@ -1567,7 +1558,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "any", "partial",
                     Arrays.asList("", "1980", "1990"), "1980", "1990");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<Supported> cbbxSWMinSupportedLvl = getField("cbbxSWMinSupportedLvl");
             assertThat(cbbxSWMinSupportedLvl.getValue()).as("software support level").isEqualTo(Supported.partial);
         });
@@ -1581,7 +1571,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "any", "yes",
                     years, "1980", "2000");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<String> cbbxYearMin = getField("cbbxYearMin");
             assertThat(cbbxYearMin.getItems()).as("year min items").isNotEmpty();
             assertThat(cbbxYearMin.getItems()).as("year min items contain all years").containsExactlyElementsOf(years.stream().sorted().toList());
@@ -1595,7 +1584,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "any", "yes",
                     Arrays.asList("", "1980", "1990", "2000"), "1990", "2000");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<String> cbbxYearMin = getField("cbbxYearMin");
             assertThat(cbbxYearMin.getValue()).as("year min selected").isEqualTo("1990");
         });
@@ -1609,7 +1597,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "any", "yes",
                     years, "1980", "2000");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<String> cbbxYearMax = getField("cbbxYearMax");
             assertThat(cbbxYearMax.getItems()).as("year max items").isNotEmpty();
             assertThat(cbbxYearMax.getItems()).as("year max items contain all years").containsExactlyElementsOf(years.stream().sorted().toList());
@@ -1623,7 +1610,6 @@ class ScannerPanelControllerTest {
             stubFilterProperties(false, false, false, "good", "any", "any", "yes",
                     Arrays.asList("", "1980", "1990", "2000"), "1980", "2000");
             TestApp.controller.initFilterSettings(TestApp.controller.session);
-            @SuppressWarnings("unchecked")
             ComboBox<String> cbbxYearMax = getField("cbbxYearMax");
             assertThat(cbbxYearMax.getValue()).as("year max selected").isEqualTo("2000");
         });
@@ -1639,6 +1625,173 @@ class ScannerPanelControllerTest {
             assertThat(((CheckBox) getField("chckbxIncludeClones")).isSelected()).as("clones checked").isTrue();
             assertThat(((CheckBox) getField("chckbxIncludeDisks")).isSelected()).as("disks checked").isTrue();
             assertThat(((CheckBox) getField("chckbxIncludeSamples")).isSelected()).as("samples checked").isTrue();
+        });
+    }
+
+    // ==================== initSrcListSettings Tests ====================
+
+    @Test
+    @DisplayName("initSrcListSettings should populate source list from pipe-separated src_dir")
+    void initSrcListSettingsShouldPopulateFromSrcDir() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            when(mockProfile.getProperty(ProfileSettingsEnum.src_dir)).thenReturn("/roms/a|/roms/b|/roms/c");
+
+            TestApp.controller.initSrcListSettings(TestApp.controller.session);
+
+            ListView<File> srcList = getField("srcList");
+            assertThat(srcList.getItems())
+                .as("source list populated from src_dir")
+                .hasSize(3)
+                .containsExactly(new File("/roms/a"), new File("/roms/b"), new File("/roms/c"));
+        });
+    }
+
+    @Test
+    @DisplayName("initSrcListSettings should filter out blank entries")
+    void initSrcListSettingsShouldFilterBlankEntries() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            when(mockProfile.getProperty(ProfileSettingsEnum.src_dir)).thenReturn("/roms/a|||/roms/b|");
+
+            TestApp.controller.initSrcListSettings(TestApp.controller.session);
+
+            ListView<File> srcList = getField("srcList");
+            assertThat(srcList.getItems())
+                .as("blank entries filtered")
+                .hasSize(2)
+                .containsExactly(new File("/roms/a"), new File("/roms/b"));
+        });
+    }
+
+    @Test
+    @DisplayName("initSrcListSettings should produce empty list when src_dir is empty")
+    void initSrcListSettingsShouldProduceEmptyListWhenSrcDirIsEmpty() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            when(mockProfile.getProperty(ProfileSettingsEnum.src_dir)).thenReturn("");
+
+            TestApp.controller.initSrcListSettings(TestApp.controller.session);
+
+            ListView<File> srcList = getField("srcList");
+            assertThat(srcList.getItems()).as("source list empty for empty src_dir").isEmpty();
+        });
+    }
+
+    // ==================== initAutomationSettings Tests ====================
+
+    @Test
+    @DisplayName("initAutomationSettings should select the automation from profile")
+    void initAutomationSettingsShouldSelectAutomationFromProfile() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            when(mockProfile.getProperty(ProfileSettingsEnum.automation_scan)).thenReturn(ScanAutomation.SCAN_REPORT_FIX.name());
+            when(mockProfile.getSettings()).thenReturn(mock(jrm.misc.ProfileSettings.class));
+
+            TestApp.controller.initAutomationSettings(TestApp.controller.session);
+
+            ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
+            assertThat(cbAutomation.getValue())
+                .as("automation selected from profile")
+                .isEqualTo(ScanAutomation.SCAN_REPORT_FIX);
+        });
+    }
+
+    @Test
+    @DisplayName("initAutomationSettings should select SCAN automation")
+    void initAutomationSettingsShouldSelectScanAutomation() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            when(mockProfile.getProperty(ProfileSettingsEnum.automation_scan)).thenReturn(ScanAutomation.SCAN.name());
+            when(mockProfile.getSettings()).thenReturn(mock(jrm.misc.ProfileSettings.class));
+
+            TestApp.controller.initAutomationSettings(TestApp.controller.session);
+
+            ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
+            assertThat(cbAutomation.getValue()).isEqualTo(ScanAutomation.SCAN);
+        });
+    }
+
+    // ==================== saveSrcList Tests ====================
+
+    /**
+     * Invokes the private {@code saveSrcList()} method via reflection.
+     *
+     * @throws Exception if reflection fails
+     */
+    private void invokeSaveSrcList() throws Exception {
+        Method method = ScannerPanelController.class.getDeclaredMethod("saveSrcList");
+        method.setAccessible(true);
+        method.invoke(TestApp.controller);
+    }
+
+    @Test
+    @DisplayName("saveSrcList should write pipe-separated absolute paths to profile src_dir")
+    void saveSrcListShouldWritePipeSeparatedPathsToProfile() throws Exception {
+        runOnFxThread(() -> {
+            ListView<File> srcList = getField("srcList");
+            srcList.getItems().setAll(new File("/roms/a"), new File("/roms/b"));
+
+            invokeSaveSrcList();
+
+            verify(TestApp.controller.session.getCurrProfile())
+                .setProperty(eq(ProfileSettingsEnum.src_dir), anyString());
+        });
+    }
+
+    @Test
+    @DisplayName("saveSrcList should produce empty string when list is empty")
+    void saveSrcListShouldProduceEmptyStringWhenListEmpty() throws Exception {
+        runOnFxThread(() -> {
+            ListView<File> srcList = getField("srcList");
+            srcList.getItems().clear();
+
+            invokeSaveSrcList();
+
+            verify(TestApp.controller.session.getCurrProfile())
+                .setProperty(eq(ProfileSettingsEnum.src_dir), eq("")); /* NOSONAR */
+        });
+    }
+
+    // ==================== nPlayersListClear Tests ====================
+
+    @Test
+    @DisplayName("nPlayersListClear should clear the nplayers text field and list")
+    void nPlayersListClearShouldClearNPlayersFieldAndList() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            TextField tfNPlayers = getField("tfNPlayers");
+            tfNPlayers.setText("/path/to/nplayers.ini");
+
+            ListView<String> listNPlayers = getField("listNPlayers");
+            listNPlayers.setItems(javafx.collections.FXCollections.observableArrayList("entry"));
+
+            TestApp.controller.nPlayersListClear();
+
+            assertThat(tfNPlayers.getText()).as("nplayers text cleared").isNull();
+            assertThat(listNPlayers.getItems()).as("nplayers list cleared").isNull();
+            verify(mockProfile).setProperty(ProfileSettingsEnum.filter_nplayers_ini, null);
+        });
+    }
+
+    // ==================== catVerListClear Tests ====================
+
+    @Test
+    @DisplayName("catVerListClear should clear the catver text field and tree root")
+    void catVerListClearShouldClearCatVerFieldAndTreeRoot() throws Exception {
+        runOnFxThread(() -> {
+            Profile mockProfile = TestApp.controller.session.getCurrProfile();
+            TextField tfCatVer = getField("tfCatVer");
+            tfCatVer.setText("/path/to/catver.ini");
+
+            TreeView<String> treeCatVer = getField("treeCatVer");
+            treeCatVer.setRoot(new javafx.scene.control.TreeItem<>("root"));
+
+            TestApp.controller.catVerListClear();
+
+            assertThat(tfCatVer.getText()).as("catver text cleared").isNull();
+            assertThat(treeCatVer.getRoot()).as("catver tree root cleared").isNull();
+            verify(mockProfile).setProperty(ProfileSettingsEnum.filter_catver_ini, null);
         });
     }
 }

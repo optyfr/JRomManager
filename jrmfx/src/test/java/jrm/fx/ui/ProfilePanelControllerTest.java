@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
@@ -24,6 +27,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import jrm.profile.manager.ProfileNFO;
+import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Sessions;
 import jrm.security.Session;
 import jrm.security.User;
@@ -322,6 +327,7 @@ class ProfilePanelControllerTest {
 
     // ==================== Static Method Tests ====================
 
+    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("getTreeViewItem should find matching item at root level")
     void getTreeViewItemShouldFindItemAtRoot() {
@@ -403,5 +409,51 @@ class ProfilePanelControllerTest {
         controller.setProfileLoader(mockLoader);
         // Verify no exception - the loader is stored privately
         assertThat(controller).as("controller with loader").isNotNull();
+    }
+
+    // ==================== updateFromMameRelocate Tests ====================
+
+    @Test
+    @DisplayName("updateFromMameRelocate should return NOTFOUND when mame file does not exist")
+    void updateFromMameRelocateShouldReturnNotFoundWhenFileMissing(TestApp application) {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO mockNfo = mock(ProfileNFO.class);
+        File missingMame = new File("/nonexistent/mame.exe");
+
+        MameStatus status = controller.updateFromMameRelocate(mockNfo, missingMame);
+
+        assertThat(status).as("status for missing mame").isEqualTo(MameStatus.NOTFOUND);
+    }
+
+    @Test
+    @DisplayName("updateFromMameRelocate should delegate to nfo.mame.relocate when mame file exists")
+    void updateFromMameRelocateShouldDelegateToRelocateWhenFileExists(TestApp application, @TempDir Path tempDir) throws Exception {
+        ProfilePanelController controller = TestApp.getController();
+        File existingMame = Files.createFile(tempDir.resolve("mame.exe")).toFile();
+
+        ProfileNFO mockNfo = mock(ProfileNFO.class);
+        jrm.profile.manager.ProfileNFOMame mockMame = mock(jrm.profile.manager.ProfileNFOMame.class);
+        when(mockNfo.getMame()).thenReturn(mockMame);
+        when(mockMame.relocate(existingMame)).thenReturn(MameStatus.NEEDUPDATE);
+
+        MameStatus status = controller.updateFromMameRelocate(mockNfo, existingMame);
+
+        assertThat(status).as("status returned by relocate").isEqualTo(MameStatus.NEEDUPDATE);
+    }
+
+    @Test
+    @DisplayName("updateFromMameRelocate should propagate UPTODATE status from relocate")
+    void updateFromMameRelocateShouldPropagateUpToDateStatus(TestApp application, @TempDir Path tempDir) throws Exception {
+        ProfilePanelController controller = TestApp.getController();
+        File existingMame = Files.createFile(tempDir.resolve("mame")).toFile();
+
+        ProfileNFO mockNfo = mock(ProfileNFO.class);
+        jrm.profile.manager.ProfileNFOMame mockMame = mock(jrm.profile.manager.ProfileNFOMame.class);
+        when(mockNfo.getMame()).thenReturn(mockMame);
+        when(mockMame.relocate(existingMame)).thenReturn(MameStatus.UPTODATE);
+
+        MameStatus status = controller.updateFromMameRelocate(mockNfo, existingMame);
+
+        assertThat(status).isEqualTo(MameStatus.UPTODATE);
     }
 }

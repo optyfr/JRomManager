@@ -684,7 +684,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir));
     }
 
-    private void initSrcListSettings(Session session) {
+    void initSrcListSettings(Session session) {
         srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|'))
                 .filter(s -> !s.isEmpty())
                 .map(File::new)
@@ -710,7 +710,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax));
     }
 
-    private void initAutomationSettings(Session session) {
+    void initAutomationSettings(Session session) {
         cbAutomation.getSelectionModel().select(ScanAutomation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.automation_scan)));
     }
 
