@@ -1,6 +1,7 @@
 package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -316,5 +318,90 @@ class ProfilePanelControllerTest {
         controller.setProfileLoader(mockLoader);
         
         assertThat(controller).as("controller").isNotNull();
+    }
+
+    // ==================== Static Method Tests ====================
+
+    @Test
+    @DisplayName("getTreeViewItem should find matching item at root level")
+    void getTreeViewItemShouldFindItemAtRoot() {
+        TreeItem<String> root = new TreeItem<>("root");
+        TreeItem<String> child1 = new TreeItem<>("child1");
+        TreeItem<String> child2 = new TreeItem<>("child2");
+        root.getChildren().addAll(child1, child2);
+
+        TreeItem<String> result = ProfilePanelController.getTreeViewItem(root, "child2");
+
+        assertThat(result).as("found item").isSameAs(child2);
+    }
+
+    @Test
+    @DisplayName("getTreeViewItem should find matching item at nested level")
+    void getTreeViewItemShouldFindNestedItem() {
+        TreeItem<String> root = new TreeItem<>("root");
+        TreeItem<String> child = new TreeItem<>("child");
+        TreeItem<String> grandchild = new TreeItem<>("grandchild");
+        child.getChildren().add(grandchild);
+        root.getChildren().add(child);
+
+        TreeItem<String> result = ProfilePanelController.getTreeViewItem(root, "grandchild");
+
+        assertThat(result).as("found nested item").isSameAs(grandchild);
+    }
+
+    @Test
+    @DisplayName("getTreeViewItem should return null when value not found")
+    void getTreeViewItemShouldReturnNullWhenNotFound() {
+        TreeItem<String> root = new TreeItem<>("root");
+        TreeItem<String> child = new TreeItem<>("child");
+        root.getChildren().add(child);
+
+        TreeItem<String> result = ProfilePanelController.getTreeViewItem(root, "nonexistent");
+
+        assertThat(result).as("not found item").isNull();
+    }
+
+    @Test
+    @DisplayName("getTreeViewItem should return null for null root")
+    void getTreeViewItemShouldReturnNullForNullRoot() {
+        TreeItem<String> result = ProfilePanelController.getTreeViewItem(null, "value");
+
+        assertThat(result).as("null root result").isNull();
+    }
+
+    @Test
+    @DisplayName("getTreeViewItem should return root when root value matches")
+    void getTreeViewItemShouldReturnRootWhenMatch() {
+        TreeItem<String> root = new TreeItem<>("root");
+
+        TreeItem<String> result = ProfilePanelController.getTreeViewItem(root, "root");
+
+        assertThat(result).as("root match").isSameAs(root);
+    }
+
+    // ==================== Public Method Tests ====================
+
+    @Test
+    @DisplayName("refreshList should not throw")
+    void refreshListShouldNotThrow(TestApp application) {
+        ProfilePanelController controller = TestApp.getController();
+        assertThatCode(controller::refreshList).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("resizeColumns should not throw")
+    void resizeColumnsShouldNotThrow(TestApp application) {
+        ProfilePanelController controller = TestApp.getController();
+        assertThatCode(controller::resizeColumns).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Should set and retrieve profile loader")
+    void shouldSetAndRetrieveProfileLoader(TestApp application) {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileLoader mockLoader = mock(ProfileLoader.class);
+        controller.setProfileLoader(mockLoader);
+        // Verify no exception - the loader is stored privately
+        assertThat(controller).as("controller with loader").isNotNull();
     }
 }

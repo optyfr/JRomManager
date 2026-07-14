@@ -506,8 +506,12 @@ public class BatchToolsPanelController extends BaseController {
 
     /**
      * Checks if a file is a valid DAT/XML file or directory containing DAT/XML files.
+     *
+     * @param file the file or directory to check
+     * @return {@code true} if the file is a {@code .xml}/{@code .dat} file or a directory
+     *         containing at least one such file, {@code false} otherwise
      */
-    private boolean isValidDatFile(File file) {
+    boolean isValidDatFile(File file) {
         if (Files.isRegularFile(file.toPath()))
             return file.getName().endsWith(".xml") || file.getName().endsWith(".dat");
         if (file.isDirectory())

@@ -665,7 +665,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         initAutomationSettings(session);
     }
 
-    private void initDestSettings(Session session) {
+    /**
+     * Initializes destination text fields and checkboxes from the current profile settings.
+     *
+     * @param session the current user session
+     */
+    void initDestSettings(Session session) {
         romsDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.roms_dest_dir));
         disksDestCB.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class));
         disksDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.disks_dest_dir));
@@ -686,7 +691,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 .collect(Collectors.toList()))); //NOSONAR
     }
 
-    private void initFilterSettings(Session session) {
+    /**
+     * Initializes filter checkboxes and combo boxes from the current profile settings.
+     *
+     * @param session the current user session
+     */
+    void initFilterSettings(Session session) {
         chckbxIncludeClones.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class));
         chckbxIncludeDisks.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class));
         chckbxIncludeSamples.setSelected(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class));

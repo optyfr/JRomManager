@@ -2,9 +2,8 @@ package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
@@ -35,7 +33,8 @@ import jrm.misc.GlobalSettings;
 /**
  * Tests for {@link ProfileViewerController}.
  * <p>
- * Verifies initialization, filter methods, selection operations, search predicate logic, and table management.
+ * Verifies initialization, filter methods, selection operations,
+ * search predicate logic, and table management.
  *
  * @since 3.0.5
  */
@@ -44,8 +43,8 @@ import jrm.misc.GlobalSettings;
 class ProfileViewerControllerTest {
 
     /**
-     * Minimal application that creates a {@link ProfileViewerController} with all FXML fields injected via reflection and mocks for
-     * Session.
+     * Minimal application that creates a {@link ProfileViewerController}
+     * with all FXML fields injected via reflection and mocks for Session.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
@@ -212,34 +211,6 @@ class ProfileViewerControllerTest {
         public static ProfileViewerController getController() {
             return controller;
         }
-
-        /**
-         * Helper method to run operations on the JavaFX Application Thread and wait for completion.
-         */
-        public static void runOnFxThread(ThrowingRunnable operation) throws Exception {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                try {
-                    operation.run();
-                    future.complete(null);
-                } catch (Throwable t) {
-                    future.completeExceptionally(t);
-                }
-            });
-            future.get();
-        }
-    }
-
-    @FunctionalInterface
-    interface ThrowingRunnable {
-        void run() throws Exception;
-    }
-
-    /**
-     * Helper to run code on JavaFX thread and wait for completion.
-     */
-    private void runOnFxThread(ThrowingRunnable action) throws Exception {
-        TestApp.runOnFxThread(action);
     }
 
     @Test
@@ -365,71 +336,65 @@ class ProfileViewerControllerTest {
 
     @Test
     @DisplayName("Should select all items")
-    void shouldSelectAllItems() throws Exception {
-        runOnFxThread(() -> {
-            try {
-                ProfileViewerController controller = TestApp.getController();
+    void shouldSelectAllItems() {
+        ProfileViewerController controller = TestApp.getController();
 
-                // Add mock items via reflection
-                TableView<Anyware> tableW = getField(controller, "tableW");
-                Anyware mock1 = mock(Anyware.class);
-                Anyware mock2 = mock(Anyware.class);
-                tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
+        // Add mock items via reflection
+        TableView<Anyware> tableW = getField(controller, "tableW");
+        Anyware mock1 = mock(Anyware.class);
+        Anyware mock2 = mock(Anyware.class);
+        tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
 
-                // Select all
-                controller.selectAll(null);
+        // Select all - the controller marks every item's selected flag (the
+        // checkbox column), not the TableView selection model, so verify
+        // setSelected(true) was called on each item rather than the selection.
+        controller.selectAll(null);
 
-                assertThat(tableW.getSelectionModel().getSelectedItems()).hasSize(2);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        verify(mock1).setSelected(true);
+        verify(mock2).setSelected(true);
     }
 
     @Test
     @DisplayName("Should select no items")
-    void shouldSelectNoItems() throws Exception {
-        runOnFxThread(() -> {
-            try {
-                ProfileViewerController controller = TestApp.getController();
+    void shouldSelectNoItems() {
+        ProfileViewerController controller = TestApp.getController();
 
-                // Add mock items via reflection
-                TableView<Anyware> tableW = getField(controller, "tableW");
-                Anyware mock1 = mock(Anyware.class);
-                Anyware mock2 = mock(Anyware.class);
-                tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
+        // Add mock items via reflection
+        TableView<Anyware> tableW = getField(controller, "tableW");
+        Anyware mock1 = mock(Anyware.class);
+        Anyware mock2 = mock(Anyware.class);
+        tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
 
-                // Select none
-                controller.selectNone(null);
+        // Select none - the controller clears every item's selected flag (the
+        // checkbox column), not the TableView selection model, so verify
+        // setSelected(false) was called on each item rather than the selection.
+        controller.selectNone(null);
 
-                assertThat(tableW.getSelectionModel().getSelectedItems()).isEmpty();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        verify(mock1).setSelected(false);
+        verify(mock2).setSelected(false);
     }
 
     @Test
     @DisplayName("Should invert selection")
-    void shouldInvertSelection() throws Exception {
-        runOnFxThread(() -> {
-            try {
-                ProfileViewerController controller = TestApp.getController();
+    void shouldInvertSelection() {
+        ProfileViewerController controller = TestApp.getController();
 
-                // Add mock items via reflection
-                TableView<Anyware> tableW = getField(controller, "tableW");
-                Anyware mock1 = mock(Anyware.class);
-                Anyware mock2 = mock(Anyware.class);
-                tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
+        // Add mock items via reflection
+        TableView<Anyware> tableW = getField(controller, "tableW");
+        Anyware mock1 = mock(Anyware.class);
+        Anyware mock2 = mock(Anyware.class);
+        // mock1 is unselected -> should become selected; mock2 is selected -> should become unselected
+        when(mock1.isSelected()).thenReturn(false);
+        when(mock2.isSelected()).thenReturn(true);
+        tableW.setItems(FXCollections.observableArrayList(mock1, mock2));
 
-                // Invert selection
-                controller.selectInvert(null);
+        // Invert selection - the controller toggles every item's selected flag
+        // (the checkbox column), not the TableView selection model, so verify the
+        // inverted setSelected value was applied to each item.
+        controller.selectInvert(null);
 
-                assertThat(tableW.getSelectionModel().getSelectedItems()).hasSize(2);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        verify(mock1).setSelected(true);
+        verify(mock2).setSelected(false);
     }
 
     @Test

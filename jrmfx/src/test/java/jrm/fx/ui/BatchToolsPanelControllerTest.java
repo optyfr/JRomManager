@@ -3,14 +3,19 @@ package jrm.fx.ui;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
@@ -248,6 +253,31 @@ class BatchToolsPanelControllerTest {
 		}
 	}
 
+	/**
+	 * Helper to run code on the JavaFX thread and wait for completion.
+	 */
+	private void runOnFxThread(ThrowingRunnable action) throws Exception {
+		TestApp.runOnFxThread(action);
+	}
+
+	/**
+	 * Retrieves a private field value from the controller via reflection.
+	 *
+	 * @param fieldName the field name
+	 * @param <T>       the expected type
+	 * @return the field value
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> T getField(String fieldName) {
+		try {
+			Field field = BatchToolsPanelController.class.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return (T) field.get(TestApp.controller);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to get field " + fieldName, e);
+		}
+	}
+
 	@Test
 	@DisplayName("initialize should set up all tabs and controls")
 	void testInitialize() {
@@ -365,5 +395,497 @@ class BatchToolsPanelControllerTest {
 
 			assertThat(tv).isNotNull();
 		});
+	}
+
+	// ==================== Tab Icon Tests ====================
+
+	@Test
+	@DisplayName("should set icons on all tabs")
+	void shouldSetIconsOnTabs() throws Exception {
+		runOnFxThread(() -> {
+			assertThat(((Tab) getField("panelBatchToolsDat2Dir")).getGraphic()).as("dat2dir tab icon").isNotNull();
+			assertThat(((Tab) getField("panelBatchToolsDir2Torrent")).getGraphic()).as("dir2torrent tab icon").isNotNull();
+			assertThat(((Tab) getField("panelBatchToolsCompressor")).getGraphic()).as("compressor tab icon").isNotNull();
+		});
+	}
+
+	// ==================== Button Icon & Action Tests ====================
+
+	@Test
+	@DisplayName("should set icons on action buttons")
+	void shouldSetIconsOnActionButtons() throws Exception {
+		runOnFxThread(() -> {
+			assertThat(((Button) getField("btnBatchToolsDir2DatStart")).getGraphic()).as("dir2dat start icon").isNotNull();
+			assertThat(((Button) getField("btnBatchToolsTrntChkStart")).getGraphic()).as("trntchk start icon").isNotNull();
+			assertThat(((Button) getField("btnBatchToolsCompressorStart")).getGraphic()).as("compressor start icon").isNotNull();
+			assertThat(((Button) getField("btnBatchToolsCompressorClear")).getGraphic()).as("compressor clear icon").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should set action handlers on start buttons")
+	void shouldSetActionHandlersOnStartButtons() throws Exception {
+		runOnFxThread(() -> {
+			assertThat(((Button) getField("btnBatchToolsDir2DatStart")).getOnAction()).as("dir2dat start onAction").isNotNull();
+			assertThat(((Button) getField("btnBatchToolsTrntChkStart")).getOnAction()).as("trntchk start onAction").isNotNull();
+			assertThat(((Button) getField("btnBatchToolsCompressorStart")).getOnAction()).as("compressor start onAction").isNotNull();
+		});
+	}
+
+	// ==================== Choice Box Listener Tests ====================
+
+	@Test
+	@DisplayName("compressor format change should update settings")
+	void shouldUpdateSettingsWhenCompressorFormatChanges() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			ChoiceBox<CompressorFormat> cbx = getField("cbbxBatchToolsCompressorFormat");
+			cbx.getSelectionModel().select(CompressorFormat.SEVENZIP);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.compressor_format, CompressorFormat.SEVENZIP.name());
+		});
+	}
+
+	@Test
+	@DisplayName("torrent mode change should update settings")
+	void shouldUpdateSettingsWhenTorrentModeChanges() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			ChoiceBox<TrntChkMode> cbx = getField("cbbxBatchToolsTrntChk");
+			cbx.getSelectionModel().select(TrntChkMode.FILENAME);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.trntchk_mode, TrntChkMode.FILENAME.name());
+		});
+	}
+
+	@Test
+	@DisplayName("torrent mode FILENAME should disable remove wrong sized files checkbox")
+	void shouldDisableWrongSizedFilesCheckboxWhenModeIsFilename() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			ChoiceBox<TrntChkMode> cbx = getField("cbbxBatchToolsTrntChk");
+			CheckBox cb = getField("cbBatchToolsTrntChkRemoveWrongSizedFiles");
+			cbx.getSelectionModel().select(TrntChkMode.FILENAME);
+			assertThat(cb.isDisable()).as("remove wrong sized files disabled when mode is FILENAME").isTrue();
+		});
+	}
+
+	@Test
+	@DisplayName("torrent mode SHA1 should enable remove wrong sized files checkbox")
+	void shouldEnableWrongSizedFilesCheckboxWhenModeIsNotFilename() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			ChoiceBox<TrntChkMode> cbx = getField("cbbxBatchToolsTrntChk");
+			CheckBox cb = getField("cbBatchToolsTrntChkRemoveWrongSizedFiles");
+			cbx.getSelectionModel().select(TrntChkMode.FILENAME);
+			cbx.getSelectionModel().select(TrntChkMode.SHA1);
+			assertThat(cb.isDisable()).as("remove wrong sized files enabled when mode is SHA1").isFalse();
+		});
+	}
+
+	// ==================== Checkbox Listener Tests ====================
+
+	@Test
+	@DisplayName("dry run checkbox change should update settings")
+	void shouldUpdateSettingsWhenDryRunCheckboxToggled() throws Exception {
+		runOnFxThread(() -> {
+			CheckBox cb = getField("cbBatchToolsDat2DirDryRun");
+			cb.setSelected(true);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.dat2dir_dry_run, true);
+		});
+	}
+
+	@Test
+	@DisplayName("compressor force checkbox change should update settings")
+	void shouldUpdateSettingsWhenCompressorForceCheckboxToggled() throws Exception {
+		runOnFxThread(() -> {
+			CheckBox cb = getField("cbBatchToolsCompressorForce");
+			cb.setSelected(true);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.compressor_force, true);
+		});
+	}
+
+	@Test
+	@DisplayName("detect archived folder checkbox change should update settings")
+	void shouldUpdateSettingsWhenDetectArchivedFolderCheckboxToggled() throws Exception {
+		runOnFxThread(() -> {
+			CheckBox cb = getField("cbBatchToolsTrntChkDetectArchivedFolder");
+			cb.setSelected(true);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.trntchk_detect_archived_folders, true);
+		});
+	}
+
+	@Test
+	@DisplayName("remove unknown files checkbox change should update settings")
+	void shouldUpdateSettingsWhenRemoveUnknownFilesCheckboxToggled() throws Exception {
+		runOnFxThread(() -> {
+			CheckBox cb = getField("cbBatchToolsTrntChkRemoveUnknownFiles");
+			cb.setSelected(true);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.trntchk_remove_unknown_files, true);
+		});
+	}
+
+	@Test
+	@DisplayName("remove wrong sized files checkbox change should update settings")
+	void shouldUpdateSettingsWhenRemoveWrongSizedFilesCheckboxToggled() throws Exception {
+		runOnFxThread(() -> {
+			CheckBox cb = getField("cbBatchToolsTrntChkRemoveWrongSizedFiles");
+			cb.setSelected(true);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, true);
+		});
+	}
+
+	// ==================== Context Menu Handler Tests ====================
+
+	@Test
+	@DisplayName("should have onShowing handler on source popup menu")
+	void shouldHaveOnShowingHandlerOnSrcMenu() throws Exception {
+		runOnFxThread(() -> {
+			ContextMenu menu = getField("popupMenuSrc");
+			assertThat(menu.getOnShowing()).as("popupMenuSrc onShowing").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should have onShowing handler on destination popup menu")
+	void shouldHaveOnShowingHandlerOnDstMenu() throws Exception {
+		runOnFxThread(() -> {
+			ContextMenu menu = getField("popupMenuDst");
+			assertThat(menu.getOnShowing()).as("popupMenuDst onShowing").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should have onShowing handler on torrent popup menu")
+	void shouldHaveOnShowingHandlerOnTorrentMenu() throws Exception {
+		runOnFxThread(() -> {
+			ContextMenu menu = getField("popupMenuTorrent");
+			assertThat(menu.getOnShowing()).as("popupMenuTorrent onShowing").isNotNull();
+		});
+	}
+
+	// ==================== Menu Item Action Handler Tests ====================
+
+	@Test
+	@DisplayName("should have action handler on add source dir menu item")
+	void shouldHaveActionHandlerOnAddSrcDirMenuItem() throws Exception {
+		runOnFxThread(() -> {
+			MenuItem mi = getField("mnDat2DirAddSrcDir");
+			assertThat(mi.getOnAction()).as("mnDat2DirAddSrcDir onAction").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should have action handler on delete source dir menu item")
+	void shouldHaveActionHandlerOnDelSrcDirMenuItem() throws Exception {
+		runOnFxThread(() -> {
+			MenuItem mi = getField("mnDat2DirDelSrcDir");
+			assertThat(mi.getOnAction()).as("mnDat2DirDelSrcDir onAction").isNotNull();
+		});
+	}
+
+	// ==================== Context Menu Behavior Tests ====================
+
+	@Test
+	@DisplayName("should disable delete src dir menu item when no selection")
+	void shouldDisableDelSrcDirMenuItemWhenNoSelection() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<File> tv = getField("tvBatchToolsDat2DirSrc");
+			MenuItem mi = getField("mnDat2DirDelSrcDir");
+			tv.getItems().clear();
+			tv.getSelectionModel().clearSelection();
+			((ContextMenu) getField("popupMenuSrc")).getOnShowing().handle(null);
+			assertThat(mi.isDisable()).as("delete src dir disabled when no selection").isTrue();
+		});
+	}
+
+	@Test
+	@DisplayName("should enable delete src dir menu item when selection exists")
+	void shouldEnableDelSrcDirMenuItemWhenSelectionExists() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<File> tv = getField("tvBatchToolsDat2DirSrc");
+			MenuItem mi = getField("mnDat2DirDelSrcDir");
+			tv.getItems().add(new File("/test/src"));
+			tv.getSelectionModel().selectFirst();
+			((ContextMenu) getField("popupMenuSrc")).getOnShowing().handle(null);
+			assertThat(mi.isDisable()).as("delete src dir enabled when selection exists").isFalse();
+		});
+	}
+
+	@Test
+	@DisplayName("should disable destination popup items when no selection")
+	void shouldDisableDstPopupItemsWhenNoSelection() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<SrcDstResult> tv = getField("tvBatchToolsDat2DirDst");
+			MenuItem mnDelDstDat = getField("mnDat2DirDelDstDat");
+			Menu mntmPresets = getField("mntmDat2DirDstPresets");
+			tv.getSelectionModel().clearSelection();
+			((ContextMenu) getField("popupMenuDst")).getOnShowing().handle(null);
+			assertThat(mnDelDstDat.isDisable()).as("delete dst dat disabled when no selection").isTrue();
+			assertThat(mntmPresets.isDisable()).as("presets disabled when no selection").isTrue();
+		});
+	}
+
+	@Test
+	@DisplayName("should enable destination popup items when selection exists")
+	void shouldEnableDstPopupItemsWhenSelectionExists() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<SrcDstResult> tv = getField("tvBatchToolsDat2DirDst");
+			MenuItem mnDelDstDat = getField("mnDat2DirDelDstDat");
+			Menu mntmPresets = getField("mntmDat2DirDstPresets");
+			tv.getItems().add(new SrcDstResult());
+			tv.getSelectionModel().selectFirst();
+			((ContextMenu) getField("popupMenuDst")).getOnShowing().handle(null);
+			assertThat(mnDelDstDat.isDisable()).as("delete dst dat enabled when selection exists").isFalse();
+			assertThat(mntmPresets.isDisable()).as("presets enabled when selection exists").isFalse();
+		});
+	}
+
+	@Test
+	@DisplayName("should disable delete torrent menu item when no selection")
+	void shouldDisableDelTorrentMenuItemWhenNoSelection() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<SrcDstResult> tv = getField("tvBatchToolsTorrent");
+			MenuItem mi = getField("mnDelTorrent");
+			tv.getSelectionModel().clearSelection();
+			((ContextMenu) getField("popupMenuTorrent")).getOnShowing().handle(null);
+			assertThat(mi.isDisable()).as("delete torrent disabled when no selection").isTrue();
+		});
+	}
+
+	@Test
+	@DisplayName("should enable delete torrent menu item when selection exists")
+	void shouldEnableDelTorrentMenuItemWhenSelectionExists() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<SrcDstResult> tv = getField("tvBatchToolsTorrent");
+			MenuItem mi = getField("mnDelTorrent");
+			tv.getItems().add(new SrcDstResult());
+			tv.getSelectionModel().selectFirst();
+			((ContextMenu) getField("popupMenuTorrent")).getOnShowing().handle(null);
+			assertThat(mi.isDisable()).as("delete torrent enabled when selection exists").isFalse();
+		});
+	}
+
+	// ==================== Delete Action Behavior Tests ====================
+
+	@Test
+	@DisplayName("should remove selected items from dat2dir source list")
+	void shouldRemoveSelectedItemsFromDat2DirSrc() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableView<File> tv = getField("tvBatchToolsDat2DirSrc");
+			MenuItem mi = getField("mnDat2DirDelSrcDir");
+			File f1 = new File("/test/src1");
+			File f2 = new File("/test/src2");
+			tv.getItems().addAll(f1, f2);
+			tv.getSelectionModel().select(f1);
+			mi.getOnAction().handle(null);
+			assertThat(tv.getItems()).as("source list should contain only f2 after deletion").hasSize(1).containsExactly(f2);
+		});
+	}
+
+	// ==================== Table Column Setup Tests ====================
+
+	@Test
+	@DisplayName("should setup dat2dir source column with cell and value factories")
+	void shouldSetupDat2DirSrcColumn() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableColumn<File, File> col = getField("tvBatchToolsDat2DirSrcCol");
+			assertThat(col.getCellFactory()).as("src col cell factory").isNotNull();
+			assertThat(col.getCellValueFactory()).as("src col value factory").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should setup dat2dir destination columns with cell and value factories")
+	void shouldSetupDat2DirDstColumns() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> datsCol = getField("tvBatchToolsDat2DirDstDatsCol");
+			assertThat(datsCol.getCellFactory()).as("dats col cell factory").isNotNull();
+			assertThat(datsCol.getCellValueFactory()).as("dats col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> dirsCol = getField("tvBatchToolsDat2DirDstDirsCol");
+			assertThat(dirsCol.getCellFactory()).as("dirs col cell factory").isNotNull();
+			assertThat(dirsCol.getCellValueFactory()).as("dirs col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> resultCol = getField("tvBatchToolsDat2DirDstResultCol");
+			assertThat(resultCol.getCellFactory()).as("result col cell factory").isNotNull();
+			assertThat(resultCol.getCellValueFactory()).as("result col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, SrcDstResult> detailsCol = getField("tvBatchToolsDat2DirDstDetailsCol");
+			assertThat(detailsCol.getCellFactory()).as("details col cell factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, Boolean> selCol = getField("tvBatchToolsDat2DirDstSelCol");
+			assertThat(selCol.getCellFactory()).as("sel col cell factory").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should setup torrent columns with cell and value factories")
+	void shouldSetupTorrentColumns() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> filesCol = getField("tvBatchToolsTorrentFilesCol");
+			assertThat(filesCol.getCellFactory()).as("files col cell factory").isNotNull();
+			assertThat(filesCol.getCellValueFactory()).as("files col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> dstDirsCol = getField("tvBatchToolsTorrentDstDirsCol");
+			assertThat(dstDirsCol.getCellFactory()).as("dst dirs col cell factory").isNotNull();
+			assertThat(dstDirsCol.getCellValueFactory()).as("dst dirs col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, String> resultCol = getField("tvBatchToolsTorrentResultCol");
+			assertThat(resultCol.getCellFactory()).as("result col cell factory").isNotNull();
+			assertThat(resultCol.getCellValueFactory()).as("result col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, SrcDstResult> detailsCol = getField("tvBatchToolsTorrentDetailsCol");
+			assertThat(detailsCol.getCellFactory()).as("details col cell factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<SrcDstResult, Boolean> selCol = getField("tvBatchToolsTorrentSelCol");
+			assertThat(selCol.getCellFactory()).as("sel col cell factory").isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("should setup compressor columns with cell and value factories")
+	void shouldSetupCompressorColumns() throws Exception {
+		runOnFxThread(() -> {
+			@SuppressWarnings("unchecked")
+			TableColumn<FileResult, Path> fileCol = getField("tvBatchToolsCompressorFileCol");
+			assertThat(fileCol.getCellFactory()).as("file col cell factory").isNotNull();
+			assertThat(fileCol.getCellValueFactory()).as("file col value factory").isNotNull();
+
+			@SuppressWarnings("unchecked")
+			TableColumn<FileResult, String> statusCol = getField("tvBatchToolsCompressorStatusCol");
+			assertThat(statusCol.getCellFactory()).as("status col cell factory").isNotNull();
+			assertThat(statusCol.getCellValueFactory()).as("status col value factory").isNotNull();
+		});
+	}
+
+	// ==================== isValidDatFile Tests ====================
+
+	@Test
+	@DisplayName("isValidDatFile should accept .xml files")
+	void isValidDatFileShouldAcceptXmlFile(@TempDir Path tempDir) throws Exception {
+		File xmlFile = Files.createFile(tempDir.resolve("test.xml")).toFile();
+		assertThat(TestApp.controller.isValidDatFile(xmlFile)).as("xml file should be valid").isTrue();
+	}
+
+	@Test
+	@DisplayName("isValidDatFile should accept .dat files")
+	void isValidDatFileShouldAcceptDatFile(@TempDir Path tempDir) throws Exception {
+		File datFile = Files.createFile(tempDir.resolve("test.dat")).toFile();
+		assertThat(TestApp.controller.isValidDatFile(datFile)).as("dat file should be valid").isTrue();
+	}
+
+	@Test
+	@DisplayName("isValidDatFile should reject non-dat/xml files")
+	void isValidDatFileShouldRejectNonDatFile(@TempDir Path tempDir) throws Exception {
+		File txtFile = Files.createFile(tempDir.resolve("test.txt")).toFile();
+		assertThat(TestApp.controller.isValidDatFile(txtFile)).as("txt file should be invalid").isFalse();
+	}
+
+	@Test
+	@DisplayName("isValidDatFile should accept directory containing dat/xml files")
+	void isValidDatFileShouldAcceptDirectoryWithDatFiles(@TempDir Path tempDir) throws Exception {
+		Files.createFile(tempDir.resolve("inside.dat"));
+		assertThat(TestApp.controller.isValidDatFile(tempDir.toFile())).as("directory with dat file should be valid").isTrue();
+	}
+
+	@Test
+	@DisplayName("isValidDatFile should reject empty directory")
+	void isValidDatFileShouldRejectEmptyDirectory(@TempDir Path tempDir) throws Exception {
+		Path emptyDir = Files.createDirectory(tempDir.resolve("empty"));
+		assertThat(TestApp.controller.isValidDatFile(emptyDir.toFile())).as("empty directory should be invalid").isFalse();
+	}
+
+	@Test
+	@DisplayName("isValidDatFile should reject directory without dat/xml files")
+	void isValidDatFileShouldRejectDirectoryWithoutDatFiles(@TempDir Path tempDir) throws Exception {
+		Files.createFile(tempDir.resolve("notadat.txt"));
+		assertThat(TestApp.controller.isValidDatFile(tempDir.toFile())).as("directory without dat/xml should be invalid").isFalse();
+	}
+
+	// ==================== addFilesToCompressorList Tests ====================
+
+	@Test
+	@DisplayName("should add archive files to compressor list")
+	void shouldAddArchiveFilesToCompressorList(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			File zipFile = Files.createFile(tempDir.resolve("archive.zip")).toFile();
+			File sevenZipFile = Files.createFile(tempDir.resolve("archive.7z")).toFile();
+			invokeAddFilesToCompressorList(List.of(zipFile, sevenZipFile));
+			@SuppressWarnings("unchecked")
+			TableView<FileResult> tv = getField("tvBatchToolsCompressor");
+			assertThat(tv.getItems()).as("compressor list should contain both archives").hasSize(2);
+		});
+	}
+
+	@Test
+	@DisplayName("should add individual files to compressor list regardless of extension")
+	void shouldAddIndividualFilesToCompressorList(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			File zipFile = Files.createFile(tempDir.resolve("archive.zip")).toFile();
+			File txtFile = Files.createFile(tempDir.resolve("readme.txt")).toFile();
+			invokeAddFilesToCompressorList(List.of(zipFile, txtFile));
+			@SuppressWarnings("unchecked")
+			TableView<FileResult> tv = getField("tvBatchToolsCompressor");
+			assertThat(tv.getItems()).as("individual files added regardless of extension").hasSize(2);
+		});
+	}
+
+	@Test
+	@DisplayName("should add archive files from directory to compressor list")
+	void shouldAddArchiveFilesFromDirectoryToCompressorList(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			Path subDir = Files.createDirectory(tempDir.resolve("roms"));
+			Files.createFile(subDir.resolve("game1.zip"));
+			Files.createFile(subDir.resolve("game2.7z"));
+			Files.createFile(subDir.resolve("readme.txt"));
+			invokeAddFilesToCompressorList(List.of(subDir.toFile()));
+			@SuppressWarnings("unchecked")
+			TableView<FileResult> tv = getField("tvBatchToolsCompressor");
+			assertThat(tv.getItems()).as("compressor list should contain only archive files from directory").hasSize(2);
+		});
+	}
+
+	@Test
+	@DisplayName("should preserve existing files when adding new ones to compressor list")
+	void shouldPreserveExistingFilesWhenAddingToCompressorList(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			File zipFile = Files.createFile(tempDir.resolve("archive.zip")).toFile();
+			File sevenZipFile = Files.createFile(tempDir.resolve("archive.7z")).toFile();
+			invokeAddFilesToCompressorList(List.of(zipFile));
+			invokeAddFilesToCompressorList(List.of(sevenZipFile));
+			@SuppressWarnings("unchecked")
+			TableView<FileResult> tv = getField("tvBatchToolsCompressor");
+			assertThat(tv.getItems()).as("compressor list should contain both files").hasSize(2);
+		});
+	}
+
+	/**
+	 * Invokes the private {@code addFilesToCompressorList} method via reflection.
+	 *
+	 * @param files the files to add
+	 * @throws Exception if reflection fails
+	 */
+	@SuppressWarnings("unchecked")
+	private void invokeAddFilesToCompressorList(List<File> files) throws Exception {
+		java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("addFilesToCompressorList", List.class);
+		method.setAccessible(true);
+		method.invoke(TestApp.controller, files);
 	}
 }
