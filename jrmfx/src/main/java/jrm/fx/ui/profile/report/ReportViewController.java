@@ -406,33 +406,25 @@ public class ReportViewController implements Initializable {
             if (empty) {
                 setGraphic(null);
                 setText(null);
-            } else if (item instanceof SubjectSet s)
-                updateSubjectSet(s);
-            else if (item instanceof RomSuspiciousCRC s)
-                updateRomSuspiciousCRC(s);
-            else if (item instanceof ContainerTZip s)
-                updateContainerTZip(s);
-            else if (item instanceof ContainerUnknown s)
-                updateContainerUnknown(s);
-            else if (item instanceof ContainerUnneeded s)
-                updateContainerUnneeded(s);
-            else if (item instanceof EntryAdd s)
-                updateEntryAdd(s);
-            else if (item instanceof EntryMissing s)
-                updateEntryMissing(s);
-            else if (item instanceof EntryMissingDuplicate s)
-                updateEntryMissingDuplicate(s);
-            else if (item instanceof EntryOK s)
-                updateEntryOK(s);
-            else if (item instanceof EntryUnneeded s)
-                updateEntryUnneeded(s);
-            else if (item instanceof EntryWrongHash s)
-                updateEntryWrongHash(s);
-            else if (item instanceof EntryWrongName s)
-                updateEntryWrongName(s);
-            else {
-                setGraphic(null);
-                setText(item.toString());
+            } else {
+                switch (item) {
+                    case SubjectSet s -> updateSubjectSet(s);
+                    case RomSuspiciousCRC s -> updateRomSuspiciousCRC(s);
+                    case ContainerTZip s -> updateContainerTZip(s);
+                    case ContainerUnknown s -> updateContainerUnknown(s);
+                    case ContainerUnneeded s -> updateContainerUnneeded(s);
+                    case EntryAdd s -> updateEntryAdd(s);
+                    case EntryMissing s -> updateEntryMissing(s);
+                    case EntryMissingDuplicate s -> updateEntryMissingDuplicate(s);
+                    case EntryOK s -> updateEntryOK(s);
+                    case EntryUnneeded s -> updateEntryUnneeded(s);
+                    case EntryWrongHash s -> updateEntryWrongHash(s);
+                    case EntryWrongName s -> updateEntryWrongName(s);
+                    default -> {
+                        setGraphic(null);
+                        setText(item.toString());
+                    }
+                }
             }
             setAlignment(Pos.CENTER_LEFT);
         }

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -72,10 +73,9 @@ import jrm.security.Session;
 /**
  * FXML controller for the scanner panel.
  * <p>
- * Manages ROM scanning operations, profile selection, destination paths for ROMs/disks/
- * software/samples, and scan automation. Implements {@link ProfileLoader} to handle
- * profile loading callbacks. Provides buttons for scanning, reporting, fixing, importing,
- * and exporting profiles.
+ * Manages ROM scanning operations, profile selection, destination paths for ROMs/disks/ software/samples, and scan automation.
+ * Implements {@link ProfileLoader} to handle profile loading callbacks. Provides buttons for scanning, reporting, fixing,
+ * importing, and exporting profiles.
  *
  * @since 2.5
  */
@@ -285,7 +285,19 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     private void initSrcList() {
-        srcList.setCellFactory(_ -> new ListCell<File>() {
+        srcList.setCellFactory(_ -> srcListCellFactory());
+        srcListMenu.setOnShowing(_ -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
+        srcListDelMenuItem.setOnAction(_ -> removeSelectedSrcItems());
+        srcListAddMenuItem.setOnAction(_ -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
+    }
+
+    private void removeSelectedSrcItems() {
+        srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
+        saveSrcList();
+    }
+
+    private ListCell<File> srcListCellFactory() {
+        return new ListCell<File>() {
             @Override
             protected void updateItem(File item, boolean empty) {
                 super.updateItem(item, empty);
@@ -302,13 +314,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                     });
                 }
             }
-        });
-        srcListMenu.setOnShowing(_ -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
-        srcListDelMenuItem.setOnAction(_ -> {
-            srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
-            saveSrcList();
-        });
-        srcListAddMenuItem.setOnAction(_ -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
+        };
     }
 
     private void initDestDragNDrop() {
@@ -323,85 +329,109 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     private void initFilters() {
-        systemsFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
-            BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((_, _, isNowSelected) -> {
-                item.setSelected(session.getCurrProfile(), isNowSelected);
-                ProfileViewer.getResetCounter().incrementAndGet();
-            });
-            return observable;
-        }));
+        systemsFilter.setCellFactory(CheckBoxListCell.forListView(this::systemsFilterCellValue));
 
-        sourcesFilter.setCellFactory(CheckBoxListCell.forListView(item -> {
-            BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((_, _, isNowSelected) -> {
-                item.setSelected(session.getCurrProfile(), isNowSelected);
-                ProfileViewer.getResetCounter().incrementAndGet();
-            });
-            return observable;
-        }));
+        sourcesFilter.setCellFactory(CheckBoxListCell.forListView(this::sourcesFilterCellValue));
 
         cbbxDriverStatus.setItems(FXCollections.observableArrayList(Driver.StatusType.values()));
         cbbxFilterCabinetType.setItems(FXCollections.observableArrayList(CabinetType.values()));
         cbbxFilterDisplayOrientation.setItems(FXCollections.observableArrayList(DisplayOrientation.values()));
         cbbxSWMinSupportedLvl.setItems(FXCollections.observableArrayList(Supported.values()));
-        chckbxIncludeClones.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
+        chckbxIncludeClones.setOnAction(_ -> includeClones());
+        chckbxIncludeDisks.setOnAction(_ -> includeDisks());
+        chckbxIncludeSamples.setOnAction(_ -> includeSamples());
+        cbbxFilterCabinetType.setOnAction(_ -> filterCabinetType());
+        cbbxFilterDisplayOrientation.setOnAction(_ -> filterDisplayOrientation());
+        cbbxDriverStatus.setOnAction(_ -> driverStatus());
+        cbbxSWMinSupportedLvl.setOnAction(_ -> swMinSupportedLevel());
+        cbbxYearMin.setOnAction(_ -> yearMin());
+        cbbxYearMax.setOnAction(_ -> yearMax());
+    }
+
+    private void yearMax() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void yearMin() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void swMinSupportedLevel() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void driverStatus() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void filterDisplayOrientation() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void filterCabinetType() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void includeSamples() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void includeDisks() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private void includeClones() {
+        session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
+        ProfileViewer.getResetCounter().incrementAndGet();
+    }
+
+    private ObservableValue<Boolean> sourcesFilterCellValue(Source item) {
+        BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+        observable.addListener((_, _, isNowSelected) -> {
+            item.setSelected(session.getCurrProfile(), isNowSelected);
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        chckbxIncludeDisks.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
+        return observable;
+    }
+
+    private ObservableValue<Boolean> systemsFilterCellValue(Systm item) {
+        BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+        observable.addListener((_, _, isNowSelected) -> {
+            item.setSelected(session.getCurrProfile(), isNowSelected);
             ProfileViewer.getResetCounter().incrementAndGet();
         });
-        chckbxIncludeSamples.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxFilterCabinetType.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxFilterDisplayOrientation.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxDriverStatus.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxSWMinSupportedLvl.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxYearMin.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
-        cbbxYearMax.setOnAction(_ -> {
-            session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
-            ProfileViewer.getResetCounter().incrementAndGet();
-        });
+        return observable;
     }
 
     private void initNPlayers() {
         new DragNDrop(tfNPlayers).addFile(this::selectNPlayersFile);
-        listNPlayers.setCellFactory(CheckBoxListCell.forListView(item -> {
-            BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
-            observable.addListener((_, _, isNowSelected) -> {
-                item.setSelected(session.getCurrProfile(), isNowSelected);
-                ProfileViewer.getResetCounter().incrementAndGet();
-            });
-            return observable;
-        }));
+        listNPlayers.setCellFactory(CheckBoxListCell.forListView(this::nPlayersCellValue));
+    }
+
+    private ObservableValue<Boolean> nPlayersCellValue(NPlayer item) {
+        BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
+        observable.addListener((_, _, isNowSelected) -> {
+            item.setSelected(session.getCurrProfile(), isNowSelected);
+            ProfileViewer.getResetCounter().incrementAndGet();
+        });
+        return observable;
     }
 
     private void initCatVer() {
         new DragNDrop(tfCatVer).addFile(this::selectCatVerFile);
-        treeCatVer.setCellFactory(CheckBoxTreeCell.forTreeView(item -> {
-            if (item instanceof CheckBoxTreeItem<?> i)
-                return i.selectedProperty();
-            return null;
-        }, new StringConverter<TreeItem<PropertyStub>>() {
+        treeCatVer.setCellFactory(CheckBoxTreeCell.forTreeView(this::catVerCellValue, catVerStringConverter()));
+    }
+
+    private StringConverter<TreeItem<PropertyStub>> catVerStringConverter() {
+        return new StringConverter<TreeItem<PropertyStub>>() {
 
             @Override
             public String toString(TreeItem<PropertyStub> object) {
@@ -412,7 +442,13 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             public TreeItem<PropertyStub> fromString(String string) {
                 return null;
             }
-        }));
+        };
+    }
+
+    private ObservableValue<Boolean> catVerCellValue(TreeItem<PropertyStub> item) {
+        if (item instanceof CheckBoxTreeItem<?> i)
+            return i.selectedProperty();
+        return null;
     }
 
     private void initAutomation() {
@@ -423,27 +459,31 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     private void initImportExport() {
-        importBtn.setOnAction(_ -> {
-            final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
-            final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
-            chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
-                session.getCurrProfile().loadSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile());
-                session.getCurrProfile().loadCatVer(null);
-                session.getCurrProfile().loadNPlayers(null);
-                initProfileSettings(session);
-            });
-        });
+        importBtn.setOnAction(_ -> doImport());
 
-        exportBtn.setOnAction(_ -> {
-            final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
-            final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
-            try {
-                Files.createDirectories(presets);
-                chooseSaveFile(exportBtn, null, presets.toFile(), filters,
-                        file -> session.getCurrProfile().saveSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile()));
-            } catch (IOException e1) {
-                Log.err(e1.getMessage(), e1);
-            }
+        exportBtn.setOnAction(_ -> doExport());
+    }
+
+    private void doExport() {
+        final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
+        final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+        try {
+            Files.createDirectories(presets);
+            chooseSaveFile(exportBtn, null, presets.toFile(), filters,
+                    file -> session.getCurrProfile().saveSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile()));
+        } catch (IOException e1) {
+            Log.err(e1.getMessage(), e1);
+        }
+    }
+
+    private void doImport() {
+        final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
+        final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
+        chooseOpenFile(importBtn, null, presets.toFile(), filters, file -> {
+            session.getCurrProfile().loadSettings(PathAbstractor.getAbsolutePath(session, file.toString()).toFile());
+            session.getCurrProfile().loadCatVer(null);
+            session.getCurrProfile().loadNPlayers(null);
+            initProfileSettings(session);
         });
     }
 
@@ -455,7 +495,11 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         if (MainFrame.getProfileViewer() != null)
             MainFrame.getProfileViewer().clear();
 
-        ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> new ProgressTask<Profile>(stage) {
+        ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> loadProfileTask(session, profile, stage));
+    }
+
+    private ProgressTask<Profile> loadProfileTask(Session session, ProfileNFO profile, Stage stage) throws IOException, URISyntaxException {
+        return new ProgressTask<Profile>(stage) {
             @Override
             protected Profile call() throws Exception {
                 return Profile.load(session, profile, this);
@@ -464,23 +508,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             @Override
             protected void succeeded() {
                 try {
-                    final var profile = get();
-                    session.getReport().setProfile(session.getCurrProfile());
-                    MainFrame.getReportFrame().setNeedUpdate(true);
-
-                    ProfileViewer.getResetCounter().incrementAndGet();
-
-                    MainFrame.getController().getScannerPanelTab().setDisable(profile == null);
-                    scanBtn.setDisable(profile == null);
-                    fixBtn.setDisable(true);
-                    if (profile != null && session.getCurrProfile() != null) {
-                        profileinfoLbl.getChildren().setAll(NeutralToNodeFormatter.toNodes(session.getCurrProfile().getName()));
-                        systemsFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSystems().getSystems()));
-                        sourcesFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSources().getSrces()));
-                        initProfileSettings(session);
-                        MainFrame.getController().getTabPane().getSelectionModel().select(1);
-                        MainFrame.getController().getProfilePanelController().refreshList();
-                    }
+                    profileLoaded(session, get());
                     this.close();
                 } catch (InterruptedException e) // NOSONAR
                 {
@@ -490,11 +518,30 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 }
             }
 
+            private void profileLoaded(Session session, final Profile profile) {
+                session.getReport().setProfile(session.getCurrProfile());
+                MainFrame.getReportFrame().setNeedUpdate(true);
+
+                ProfileViewer.getResetCounter().incrementAndGet();
+
+                MainFrame.getController().getScannerPanelTab().setDisable(profile == null);
+                scanBtn.setDisable(profile == null);
+                fixBtn.setDisable(true);
+                if (profile != null && session.getCurrProfile() != null) {
+                    profileinfoLbl.getChildren().setAll(NeutralToNodeFormatter.toNodes(session.getCurrProfile().getName()));
+                    systemsFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSystems().getSystems()));
+                    sourcesFilter.setItems(FXCollections.observableList(session.getCurrProfile().getSources().getSrces()));
+                    initProfileSettings(session);
+                    MainFrame.getController().getTabPane().getSelectionModel().select(1);
+                    MainFrame.getController().getProfilePanelController().refreshList();
+                }
+            }
+
             @Override
             protected void failed() {
                 ProgressTaskRunner.handleFailedException(this, getException());
             }
-        });
+        };
     }
 
     @FXML
@@ -539,23 +586,24 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             protected void failed() {
                 ProgressTaskRunner.handleFailedException(this, getException());
             }
+
+            private void handleScanSuccess(final Session session, final boolean automate, final Scan scan, final ProgressTask<Scan> task) {
+                session.setCurrScan(scan);
+                updateFixButtonState(session);
+                task.close();
+                updateProfileViewer();
+                handleReportFrame(session);
+                if (automate && shouldAutoFix(session)) {
+                    fix(session);
+                }
+            }
+
         };
     }
 
-    private void handleScanSuccess(final Session session, final boolean automate, final Scan scan, final ProgressTask<Scan> task) {
-        session.setCurrScan(scan);
-        updateFixButtonState(session);
-        task.close();
-        updateProfileViewer();
-        handleReportFrame(session);
-        if (automate && shouldAutoFix(session)) {
-            fix(session);
-        }
-    }
-
     private void updateFixButtonState(final Session session) {
-        boolean hasActions = session.getCurrScan() != null 
-            && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
+        boolean hasActions = session.getCurrScan() != null
+                && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
         fixBtn.setDisable(!hasActions);
     }
 
@@ -563,7 +611,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         if (MainFrame.getReportFrame() == null)
             return;
         ScanAutomation automation = ScanAutomation.valueOf(
-            session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
+                session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
         if (automation.hasReport())
             MainFrame.getReportFrame().setVisible();
         MainFrame.getReportFrame().setNeedUpdate(true);
@@ -571,7 +619,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 
     private boolean shouldAutoFix(final Session session) {
         ScanAutomation automation = ScanAutomation.valueOf(
-            session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
+                session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
         return !fixBtn.isDisabled() && automation.hasFix();
     }
 
@@ -589,27 +637,28 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
      * Fix.
      */
     private void fix(final Session session) {
-        ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> new ProgressTask<Fix>(stage) {
-            private boolean toFix = false;
+        ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> getFixTask(session, stage));
+    }
+
+    private ProgressTask<Fix> getFixTask(final Session session, Stage stage) throws IOException, URISyntaxException {
+        return new ProgressTask<Fix>(stage) {
 
             @Override
             protected Fix call() throws Exception {
                 if (!confirmRescanIfNeeded(session, this))
                     return null;
-                final Fix fix = new Fix(session.getCurrProfile(), session.getCurrScan(), this);
-                toFix = fix.getActionsRemain() > 0;
-                return fix;
+                return new Fix(session.getCurrProfile(), session.getCurrScan(), this);
             }
 
             @Override
             protected void succeeded() {
                 try {
-                    get();
-                    fixBtn.setDisable(!toFix);
+                    final var fix = get();
+                    fixBtn.setDisable(fix.getActionsRemain() <= 0);
                     close();
                     updateProfileViewer();
                     runScanAutomation(session);
-                } catch (InterruptedException e) //NOSONAR
+                } catch (InterruptedException e) // NOSONAR
                 {
                     ProgressTaskRunner.handleInterruptedException(this, e);
                 } catch (Exception e) {
@@ -621,14 +670,15 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
             protected void failed() {
                 ProgressTaskRunner.handleFailedException(this, getException());
             }
-        });
+        };
     }
 
     /**
      * Ask user to rescan before fix if settings changed.
+     * 
      * @return true to proceed with fix, false to cancel
      */
-    private boolean confirmRescanIfNeeded(final Session session, final ProgressTask<?> task) throws Exception /*NOSONAR*/ {
+    private boolean confirmRescanIfNeeded(final Session session, final ProgressTask<?> task) throws Exception /* NOSONAR */ {
         if (!session.getCurrProfile().hasPropsChanged())
             return true;
         final var answer = Dialogs.showConfirmation(Messages.getString("MainFrame.WarnSettingsChanged"), Messages.getString("MainFrame.RescanBeforeFix"),
@@ -688,7 +738,7 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|'))
                 .filter(s -> !s.isEmpty())
                 .map(File::new)
-                .collect(Collectors.toList()))); //NOSONAR
+                .collect(Collectors.toList()))); // NOSONAR
     }
 
     /**
@@ -751,21 +801,25 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 
             rootitem.selectedProperty().addListener((_, _, newvalue) -> root.setSelected(newvalue));
             rootitem.getChildren().forEach(catitem -> {
-                ((CheckBoxTreeItem<PropertyStub>) catitem).selectedProperty()
-                        .addListener((_, _, newvalue) -> ((Category) catitem.getValue()).setSelected(newvalue));
+                if (catitem instanceof CheckBoxTreeItem<?> cbti && catitem.getValue() instanceof Category c)
+                    cbti.selectedProperty().addListener((_, _, newvalue) -> c.setSelected(newvalue));
                 catitem.getChildren().forEach(subcatitem -> {
-                    ((CheckBoxTreeItem<PropertyStub>) subcatitem).selectedProperty().addListener((_, _, newvalue) -> {
-                        ((SubCategory) subcatitem.getValue()).setSelected(newvalue);
-                        treeCatVer.refresh();
-                        ProfileViewer.getResetCounter().incrementAndGet();
-                    });
-                    ((CheckBoxTreeItem<PropertyStub>) subcatitem).setSelected(((SubCategory) subcatitem.getValue()).isSelected());
+                    if (subcatitem instanceof CheckBoxTreeItem<?> cbti && subcatitem.getValue() instanceof SubCategory sc) {
+                        cbti.selectedProperty().addListener((_, _, newvalue) -> updateSubCategorySelection(sc, newvalue));
+                        cbti.setSelected(sc.isSelected());
+                    }
                 });
             });
 
         } else
             treeCatVer.setRoot(null);
 
+    }
+
+    private void updateSubCategorySelection(SubCategory sc, Boolean newvalue) {
+        sc.setSelected(newvalue);
+        treeCatVer.refresh();
+        ProfileViewer.getResetCounter().incrementAndGet();
     }
 
     @FXML
@@ -801,35 +855,39 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     private void chooseAnyDest(TextField tf, ProfileSettingsEnum ppt, String defPptName) {
         final var workdir = session.getUser().getSettings().getWorkPath().toFile();
         final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
-        chooseDir(tf, tf.getText(), defdir, dir -> {
-            tf.setText(dir.toString());
-            session.getUser().getSettings().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
-            session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
-        });
+        chooseDir(tf, tf.getText(), defdir, dir -> applyChosenDir(tf, ppt, defPptName, dir));
     }
 
-    private void chooseSrc(File oldDir, ProfileSettingsEnum ppt, String defPptName) /*NOSONAR*/ {
+    private void applyChosenDir(TextField tf, ProfileSettingsEnum ppt, String defPptName, Path dir) {
+        tf.setText(dir.toString());
+        session.getUser().getSettings().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
+        session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
+    }
+
+    private void chooseSrc(File oldDir, ProfileSettingsEnum ppt, String defPptName) /* NOSONAR */ {
         final var workdir = session.getUser().getSettings().getWorkPath().toFile();
         final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
-        chooseDir(srcList, oldDir != null ? oldDir.toString() : null, defdir, dir -> {
-            var modified = false;
-            if (oldDir != null) {
-                if (!oldDir.equals(dir.toFile())) {
-                    final var i = srcList.getItems().indexOf(oldDir);
-                    srcList.getItems().set(i, dir.toFile());
-                    modified = true;
-                }
-            } else {
-                if (-1 == srcList.getItems().indexOf(dir.toFile())) {
-                    srcList.getItems().add(dir.toFile());
-                    modified = true;
-                }
+        chooseDir(srcList, oldDir != null ? oldDir.toString() : null, defdir, dir -> handleChosenSrcDir(oldDir, defPptName, dir));
+    }
+
+    private void handleChosenSrcDir(File oldDir, String defPptName, Path dir) {
+        var modified = false;
+        if (oldDir != null) {
+            if (!oldDir.equals(dir.toFile())) {
+                final var i = srcList.getItems().indexOf(oldDir);
+                srcList.getItems().set(i, dir.toFile());
+                modified = true;
             }
-            if (modified) {
-                saveSrcList();
-                session.getUser().getSettings().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
+        } else {
+            if (-1 == srcList.getItems().indexOf(dir.toFile())) {
+                srcList.getItems().add(dir.toFile());
+                modified = true;
             }
-        });
+        }
+        if (modified) {
+            saveSrcList();
+            session.getUser().getSettings().setProperty(defPptName, dir.toString()); // $NON-NLS-1$
+        }
     }
 
     private void saveSrcList() {
@@ -855,79 +913,79 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     @FXML
     private void systemsFilterSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, systemsFilter);
+                Systm::setSelected, systemsFilter);
     }
 
     @FXML
     private void systemsFilterSelectAllBios() {
         FilterSelectionHelper.selectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
+                Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
     }
 
     @FXML
     private void systemsFilterSelectAllSoftwares() {
         FilterSelectionHelper.selectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
+                Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
     }
 
     @FXML
     private void systemsFilterUnselectAll() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, systemsFilter);
+                Systm::setSelected, systemsFilter);
     }
 
     @FXML
     private void systemsFilterUnselectAllBios() {
         FilterSelectionHelper.unselectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
+                Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
     }
 
     @FXML
     private void systemsFilterUnselectAllSoftwares() {
         FilterSelectionHelper.unselectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
+                Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
     }
 
     @FXML
     private void systemsFilterInvertSelection() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getSystems(), session.getCurrProfile(),
-            Systm::setSelected, Systm::isSelected, systemsFilter);
+                Systm::setSelected, Systm::isSelected, systemsFilter);
     }
 
     @FXML
     private void sourcesFilterSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getSources(), session.getCurrProfile(),
-            Source::setSelected, sourcesFilter);
+                Source::setSelected, sourcesFilter);
     }
 
     @FXML
     private void sourcesFilterUnselectAll() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getSources(), session.getCurrProfile(),
-            Source::setSelected, sourcesFilter);
+                Source::setSelected, sourcesFilter);
     }
 
     @FXML
     private void sourcesFilterInvertSelection() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getSources(), session.getCurrProfile(),
-            Source::setSelected, Source::isSelected, sourcesFilter);
+                Source::setSelected, Source::isSelected, sourcesFilter);
     }
 
     @FXML
     void nPlayersListSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
-            NPlayer::setSelected, listNPlayers);
+                NPlayer::setSelected, listNPlayers);
     }
 
     @FXML
     void nPlayersListSelectNone() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
-            NPlayer::setSelected, listNPlayers);
+                NPlayer::setSelected, listNPlayers);
     }
 
     @FXML
     void nPlayersListSelectInvert() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
-            NPlayer::setSelected, NPlayer::isSelected, listNPlayers);
+                NPlayer::setSelected, NPlayer::isSelected, listNPlayers);
     }
 
     @FXML

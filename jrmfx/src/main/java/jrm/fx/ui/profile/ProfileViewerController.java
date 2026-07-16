@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -62,6 +63,7 @@ import jrm.profile.data.AnywareList;
 import jrm.profile.data.AnywareStatus;
 import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
+import jrm.profile.data.Entity.Status;
 import jrm.profile.data.EntityBase;
 import jrm.profile.data.EntityStatus;
 import jrm.profile.data.ExportMode;
@@ -216,10 +218,10 @@ public class ProfileViewerController implements Initializable {
 
     private final Map<String, String> haveCache = new HashMap<>();
 
-    private Session session = Sessions.getSingleSession();
+    private final Session session = Sessions.getSingleSession();
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
+    public void initialize(final URL location, final ResourceBundle resources) {
         initTableWL();
         initTableW();
         initTableE();
@@ -242,14 +244,28 @@ public class ProfileViewerController implements Initializable {
     }
 
     private void initTableEStatus() {
-        tableEntityStatus.setCellFactory(_ -> new TableCell<EntityBase, EntityBase>() {
+        tableEntityStatus.setCellFactory(_ -> createEntityStatusCell());
+        tableEntityStatus.setCellValueFactory(this::createEntityStatusValue);
+    }
+
+    private ObservableValueBase<EntityBase> createEntityStatusValue(final CellDataFeatures<EntityBase, EntityBase> p) {
+        return new ObservableValueBase<EntityBase>() {
             @Override
-            protected void updateItem(EntityBase item, boolean empty) {
+            public EntityBase getValue() {
+                return p.getValue();
+            }
+        };
+    }
+
+    private TableCell<EntityBase, EntityBase> createEntityStatusCell() {
+        return new TableCell<EntityBase, EntityBase>() {
+            @Override
+            protected void updateItem(final EntityBase item, final boolean empty) {
                 if (item == null || empty) {
                     setText("");
                     setGraphic(null);
                 } else {
-                    ImageView i = new ImageView(switch (item.getStatus()) {
+                    final var i = new ImageView(switch (item.getStatus()) {
                         case KO -> bulletRed;
                         case OK -> bulletGreen;
                         case UNKNOWN -> bulletBlack;
@@ -262,32 +278,31 @@ public class ProfileViewerController implements Initializable {
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setAlignment(Pos.CENTER);
             }
-        });
-        tableEntityStatus.setCellValueFactory(p -> new ObservableValueBase<EntityBase>() {
-            @Override
-            public EntityBase getValue() {
-                return p.getValue();
-            }
-        });
+        };
     }
 
     private void initTableEName() {
-        tableEntityName.setCellFactory(_ -> new TableCell<EntityBase, EntityBase>() {
+        tableEntityName.setCellFactory(_ -> entityNameCellFactory());
+        tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
+    }
+
+    private TableCell<EntityBase, EntityBase> entityNameCellFactory() {
+        return new TableCell<EntityBase, EntityBase>() {
             final Image romSmall = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
             final Image drive = MainFrame.getIcon("/jrm/resicons/icons/drive.png"); //$NON-NLS-1$
             final Image sound = MainFrame.getIcon("/jrm/resicons/icons/sound.png"); //$NON-NLS-1$
 
             @Override
-            protected void updateItem(EntityBase item, boolean empty) {
+            protected void updateItem(final EntityBase item, final boolean empty) {
                 if (item == null || empty) {
                     setText("");
                     setGraphic(null);
                 } else {
                     setText(item.getBaseName());
                     final var i = switch (item) {
-                        case Rom _ -> new ImageView(romSmall);
-                        case Disk _ -> new ImageView(drive);
-                        case Sample _ -> new ImageView(sound);
+                        case final Rom _ -> new ImageView(romSmall);
+                        case final Disk _ -> new ImageView(drive);
+                        case final Sample _ -> new ImageView(sound);
                         default -> null;
                     };
                     if (i != null) {
@@ -298,17 +313,32 @@ public class ProfileViewerController implements Initializable {
                 }
                 setAlignment(Pos.CENTER_LEFT);
             }
-        });
-        tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
+        };
     }
 
     private void initTableESize() {
         tableEntitySize.setMinWidth(getWidth(12));
         tableEntitySize.setPrefWidth(tableEntitySize.getMinWidth());
         tableEntitySize.setMaxWidth(tableEntitySize.getMinWidth() * 2);
-        tableEntitySize.setCellFactory(_ -> new TableCell<EntityBase, Long>() {
+        tableEntitySize.setCellFactory(_ -> createEntitySizeCell());
+        tableEntitySize.setCellValueFactory(this::createEntitySizeValue);
+    }
+
+    private ObservableValueBase<Long> createEntitySizeValue(final CellDataFeatures<EntityBase, Long> p) {
+        return new ObservableValueBase<Long>() {
             @Override
-            protected void updateItem(Long item, boolean empty) {
+            public Long getValue() {
+                if (p.getValue() instanceof final Rom r)
+                    return r.getSize();
+                return null;
+            }
+        };
+    }
+
+    private TableCell<EntityBase, Long> createEntitySizeCell() {
+        return new TableCell<EntityBase, Long>() {
+            @Override
+            protected void updateItem(final Long item, final boolean empty) {
                 if (item == null || empty)
                     setText("");
                 else
@@ -317,24 +347,34 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER_RIGHT);
                 setGraphic(null);
             }
-        });
-        tableEntitySize.setCellValueFactory(p -> new ObservableValueBase<Long>() {
-            @Override
-            public Long getValue() {
-                if (p.getValue() instanceof Rom r)
-                    return r.getSize();
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableECRC() {
         tableEntityCRC.setMinWidth(getWidth(10, MONOSPACED));
         tableEntityCRC.setPrefWidth(tableEntityCRC.getMinWidth());
         tableEntityCRC.setMaxWidth(tableEntityCRC.getMinWidth() * 2);
-        tableEntityCRC.setCellFactory(_ -> new TableCell<EntityBase, String>() {
+        tableEntityCRC.setCellFactory(_ -> createEntityCRCCell());
+        tableEntityCRC.setCellValueFactory(this::createEntityCRCValue);
+    }
+
+    private ObservableValueBase<String> createEntityCRCValue(final CellDataFeatures<EntityBase, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            public String getValue() {
+                if (p.getValue() instanceof final Rom r)
+                    return r.getCrc();
+                else if (p.getValue() instanceof final Disk d)
+                    return d.getCrc();
+                return null;
+            }
+        };
+    }
+
+    private TableCell<EntityBase, String> createEntityCRCCell() {
+        return new TableCell<EntityBase, String>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
                 if (item == null || empty)
                     setText("");
                 else
@@ -343,26 +383,34 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
-        });
-        tableEntityCRC.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                if (p.getValue() instanceof Rom r)
-                    return r.getCrc();
-                else if (p.getValue() instanceof Disk d)
-                    return d.getCrc();
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableEMD5() {
         tableEntityMD5.setMinWidth(getWidth(34, MONOSPACED));
         tableEntityMD5.setPrefWidth(tableEntityMD5.getMinWidth());
         tableEntityMD5.setMaxWidth(tableEntityMD5.getMinWidth() * 2);
-        tableEntityMD5.setCellFactory(_ -> new TableCell<EntityBase, String>() {
+        tableEntityMD5.setCellFactory(_ -> createEntityMD5Cell());
+        tableEntityMD5.setCellValueFactory(this::createEntityMD5Value);
+    }
+
+    private ObservableValueBase<String> createEntityMD5Value(final CellDataFeatures<EntityBase, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            public String getValue() {
+                if (p.getValue() instanceof final Rom r)
+                    return r.getMd5();
+                else if (p.getValue() instanceof final Disk d)
+                    return d.getMd5();
+                return null;
+            }
+        };
+    }
+
+    private TableCell<EntityBase, String> createEntityMD5Cell() {
+        return new TableCell<EntityBase, String>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
                 if (item == null || empty)
                     setText("");
                 else
@@ -371,26 +419,34 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
-        });
-        tableEntityMD5.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                if (p.getValue() instanceof Rom r)
-                    return r.getMd5();
-                else if (p.getValue() instanceof Disk d)
-                    return d.getMd5();
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableESHA1() {
         tableEntitySHA1.setMinWidth(getWidth(42, MONOSPACED));
         tableEntitySHA1.setPrefWidth(tableEntitySHA1.getMinWidth());
         tableEntitySHA1.setMaxWidth(tableEntitySHA1.getMinWidth() * 2);
-        tableEntitySHA1.setCellFactory(_ -> new TableCell<EntityBase, String>() {
+        tableEntitySHA1.setCellFactory(_ -> createEntitySHA1Cell());
+        tableEntitySHA1.setCellValueFactory(this::createEntitySHA1Value);
+    }
+
+    private ObservableValueBase<String> createEntitySHA1Value(final CellDataFeatures<EntityBase, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            public String getValue() {
+                if (p.getValue() instanceof final Rom r)
+                    return r.getSha1();
+                else if (p.getValue() instanceof final Disk d)
+                    return d.getSha1();
+                return null;
+            }
+        };
+    }
+
+    private TableCell<EntityBase, String> createEntitySHA1Cell() {
+        return new TableCell<EntityBase, String>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
                 if (item == null || empty)
                     setText("");
                 else
@@ -399,46 +455,58 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
-        });
-        tableEntitySHA1.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                if (p.getValue() instanceof Rom r)
-                    return r.getSha1();
-                else if (p.getValue() instanceof Disk d)
-                    return d.getSha1();
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableEMergeName() {
-        tableEntityMergeName.setCellValueFactory(p -> new ObservableValueBase<String>() {
+        tableEntityMergeName.setCellValueFactory(this::getEntityMergeName);
+    }
+
+    private ObservableValueBase<String> getEntityMergeName(final CellDataFeatures<EntityBase, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
             public String getValue() {
-                if (p.getValue() instanceof Rom r)
+                if (p.getValue() instanceof final Rom r)
                     return r.getMerge();
-                else if (p.getValue() instanceof Disk d)
+                else if (p.getValue() instanceof final Disk d)
                     return d.getMerge();
                 return null;
             }
-        });
+        };
     }
 
     private void initTableEDumpStatus() {
-        tableEntityDumpStatus.setCellFactory(_ -> new TableCell<EntityBase, Entity.Status>() {
+        tableEntityDumpStatus.setCellFactory(_ -> createEntityDumpStatusCell());
+        tableEntityDumpStatus.setCellValueFactory(this::getEntityDumpStatusValue);
+    }
+
+    private ObservableValueBase<Status> getEntityDumpStatusValue(final CellDataFeatures<EntityBase, Status> p) {
+        return new ObservableValueBase<Entity.Status>() {
+            @Override
+            public Entity.Status getValue() {
+                if (p.getValue() instanceof final Rom r)
+                    return r.getDumpStatus();
+                else if (p.getValue() instanceof final Disk d)
+                    return d.getDumpStatus();
+                return null;
+            }
+        };
+    }
+
+    private TableCell<EntityBase, Status> createEntityDumpStatusCell() {
+        return new TableCell<EntityBase, Entity.Status>() {
             private static final Image verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
             private static final Image good = MainFrame.getIcon("/jrm/resicons/icons/tick.png"); //$NON-NLS-1$
             private static final Image baddump = MainFrame.getIcon("/jrm/resicons/icons/delete.png"); //$NON-NLS-1$
             private static final Image nodump = MainFrame.getIcon("/jrm/resicons/icons/error.png"); //$NON-NLS-1$
 
             @Override
-            protected void updateItem(Entity.Status item, boolean empty) {
+            protected void updateItem(final Entity.Status item, final boolean empty) {
                 if (item == null || empty) {
                     setText("");
                     setGraphic(null);
                 } else {
-                    ImageView i = new ImageView(switch (item) {
+                    final ImageView i = new ImageView(switch (item) {
                         case baddump -> baddump;
                         case good -> good;
                         case nodump -> nodump;
@@ -452,42 +520,34 @@ public class ProfileViewerController implements Initializable {
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setAlignment(Pos.CENTER);
             }
-        });
-        tableEntityDumpStatus.setCellValueFactory(p -> new ObservableValueBase<Entity.Status>() {
-            @Override
-            public Entity.Status getValue() {
-                if (p.getValue() instanceof Rom r)
-                    return r.getDumpStatus();
-                else if (p.getValue() instanceof Disk d)
-                    return d.getDumpStatus();
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableEToggles() {
-        ImageView ibb = new ImageView(bulletBlack);
+        final ImageView ibb = new ImageView(bulletBlack);
         ibb.setPreserveRatio(true);
         ibb.getStyleClass().add("icon");
         toggleEntityUnknown.setGraphic(ibb);
-        ImageView ibr = new ImageView(bulletRed);
+        final ImageView ibr = new ImageView(bulletRed);
         ibr.setPreserveRatio(true);
         ibr.getStyleClass().add("icon");
         toggleEntityKO.setGraphic(ibr);
-        ImageView ibg = new ImageView(bulletGreen);
+        final ImageView ibg = new ImageView(bulletGreen);
         ibg.setPreserveRatio(true);
         ibg.getStyleClass().add("icon");
         toggleEntityOK.setGraphic(ibg);
     }
 
     private void initTableEMenu() {
-        menuEntity.setOnShowing(_ -> {
-            final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem() != null;
-            mntmCopyCrc.setDisable(!has_selected_entity);
-            mntmCopySha1.setDisable(!has_selected_entity);
-            mntmCopyName.setDisable(!has_selected_entity);
-            mntmSearchWeb.setDisable(!has_selected_entity);
-        });
+        menuEntity.setOnShowing(_ -> updateEMenuItemStates());
+    }
+
+    private void updateEMenuItemStates() {
+        final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem() != null;
+        mntmCopyCrc.setDisable(!has_selected_entity);
+        mntmCopySha1.setDisable(!has_selected_entity);
+        mntmCopyName.setDisable(!has_selected_entity);
+        mntmSearchWeb.setDisable(!has_selected_entity);
     }
 
     /**
@@ -497,7 +557,7 @@ public class ProfileViewerController implements Initializable {
      * 
      * @return
      */
-    private void getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args) {
+    private void getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame, final ArrayList<String> args) {
         final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
                                                                                                                                           // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.disks_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
@@ -520,7 +580,7 @@ public class ProfileViewerController implements Initializable {
      * 
      * @throws HeadlessException
      */
-    private void getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, ArrayList<String> args) throws HeadlessException {
+    private void getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, final ArrayList<String> args) throws HeadlessException {
         final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
                                                                                                                                           // //$NON-NLS-2$
         if (Boolean.TRUE.equals(profile.getProperty(ProfileSettingsEnum.swroms_dest_dir_enabled, Boolean.class))) // $NON-NLS-1$
@@ -572,9 +632,9 @@ public class ProfileViewerController implements Initializable {
                     .redirectOutput(new File(mame.getFile().getParentFile(), "JRomManager.log")); //$NON-NLS-1$
             try {
                 pb.start().waitFor();
-            } catch (IOException e1) {
+            } catch (final IOException e1) {
                 Dialogs.showError(e1);
-            } catch (InterruptedException e1) {
+            } catch (final InterruptedException e1) {
                 Dialogs.showError(e1);
                 Thread.currentThread().interrupt();
             }
@@ -604,13 +664,27 @@ public class ProfileViewerController implements Initializable {
         tableWMStatus.setResizable(false);
         tableWMStatus.setSortable(false);
         tableWMStatus.setPrefWidth(24);
-        tableWMStatus.setCellFactory(_ -> new TableCell<Anyware, Anyware>() {
+        tableWMStatus.setCellFactory(_ -> createWMStatusCell());
+        tableWMStatus.setCellValueFactory(this::getWMStatusValue);
+    }
+
+    private ObservableValueBase<Anyware> getWMStatusValue(final CellDataFeatures<Anyware, Anyware> p) {
+        return new ObservableValueBase<Anyware>() {
             @Override
-            protected void updateItem(Anyware item, boolean empty) {
+            public Anyware getValue() {
+                return p.getValue();
+            }
+        };
+    }
+
+    private TableCell<Anyware, Anyware> createWMStatusCell() {
+        return new TableCell<Anyware, Anyware>() {
+            @Override
+            protected void updateItem(final Anyware item, final boolean empty) {
                 if (item == null || empty)
                     setGraphic(null);
                 else {
-                    ImageView i = new ImageView(getStatusIcon(item.getStatus()));
+                    final ImageView i = new ImageView(getStatusIcon(item.getStatus()));
                     setGraphic(i);
                     i.setPreserveRatio(true);
                     i.getStyleClass().add("icon");
@@ -618,68 +692,68 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER);
                 setText("");
             }
-        });
-        tableWMStatus.setCellValueFactory(p -> new ObservableValueBase<Anyware>() {
-            @Override
-            public Anyware getValue() {
-                return p.getValue();
-            }
-        });
+        };
     }
 
     private void initTableWMName() {
         tableWMName.setMinWidth(50);
         tableWMName.setPrefWidth(100);
         tableWMName.setMaxWidth(200);
-        tableWMName.setCellFactory(_ -> {
-            final var cell = new TableCell<Anyware, Machine>() {
-                private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
-                private static final Image computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
-                private static final Image wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
-                private static final Image joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
-
-                @Override
-                protected void updateItem(Machine item, boolean empty) {
-                    if (empty) {
-                        setText("");
-                        setGraphic(null);
-                    } else {
-                        setText(item.getBaseName());
-                        setUserData(item);
-                        setTooltip(new Tooltip(item.getName()));
-                        final ImageView i;
-                        if (item.isIsbios())
-                            i = new ImageView(applicationOSXTerminal);
-                        else if (item.isIsdevice())
-                            i = new ImageView(computer);
-                        else if (item.isIsmechanical())
-                            i = new ImageView(wrench);
-                        else
-                            i = new ImageView(joystick);
-                        i.setPreserveRatio(true);
-                        i.getStyleClass().add("icon");
-                        setGraphic(i);
-                    }
-                    setAlignment(Pos.CENTER_LEFT);
-                }
-            };
-            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMachineDoubleClick);
-            return cell;
-        });
-        tableWMName.setCellValueFactory(p -> new ObservableValueBase<Machine>() {
-            @Override
-            public Machine getValue() {
-                if (p.getValue() instanceof Machine m)
-                    return m;
-                return null;
-            }
-        });
+        tableWMName.setCellFactory(_ -> createWMNameCell());
+        tableWMName.setCellValueFactory(this::getWMNameValue);
         tableWMName.setSortable(true);
     }
 
-    private void handleMachineDoubleClick(MouseEvent event) {
-        if (event.getClickCount() > 1 && (event.getSource() instanceof TableCell<?, ?> c
-                && (c.getUserData() instanceof Machine ware))) {
+    private ObservableValueBase<Machine> getWMNameValue(final CellDataFeatures<Anyware, Machine> p) {
+        return new ObservableValueBase<Machine>() {
+            @Override
+            public Machine getValue() {
+                if (p.getValue() instanceof final Machine m)
+                    return m;
+                return null;
+            }
+        };
+    }
+
+    private TableCell<Anyware, Machine> createWMNameCell() {
+        final var cell = new TableCell<Anyware, Machine>() {
+            private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
+            private static final Image computer = MainFrame.getIcon("/jrm/resicons/icons/computer.png"); //$NON-NLS-1$
+            private static final Image wrench = MainFrame.getIcon("/jrm/resicons/icons/wrench.png"); //$NON-NLS-1$
+            private static final Image joystick = MainFrame.getIcon("/jrm/resicons/icons/joystick.png"); //$NON-NLS-1$
+
+            @Override
+            protected void updateItem(final Machine item, final boolean empty) {
+                if (empty) {
+                    setText("");
+                    setGraphic(null);
+                } else {
+                    setText(item.getBaseName());
+                    setUserData(item);
+                    setTooltip(new Tooltip(item.getName()));
+                    final ImageView i;
+                    if (item.isIsbios())
+                        i = new ImageView(applicationOSXTerminal);
+                    else if (item.isIsdevice())
+                        i = new ImageView(computer);
+                    else if (item.isIsmechanical())
+                        i = new ImageView(wrench);
+                    else
+                        i = new ImageView(joystick);
+                    i.setPreserveRatio(true);
+                    i.getStyleClass().add("icon");
+                    setGraphic(i);
+                }
+                setAlignment(Pos.CENTER_LEFT);
+            }
+        };
+        cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMachineDoubleClick);
+        return cell;
+    }
+
+    private void handleMachineDoubleClick(final MouseEvent event) {
+        if (event.getClickCount() > 1 && (event.getSource() instanceof final TableCell<?, ?> c
+                && (c.getUserData() instanceof final Machine ware))) {
             if (ware.getStatus() == AnywareStatus.COMPLETE) {
                 if (session.getCurrProfile() != null) {
                     final var profile = session.getCurrProfile();
@@ -700,9 +774,24 @@ public class ProfileViewerController implements Initializable {
         tableWMDescription.setMinWidth(100);
         tableWMDescription.setPrefWidth(200);
         tableWMDescription.setMaxWidth(600);
-        tableWMDescription.setCellFactory(_ -> new TableCell<Anyware, String>() {
+        tableWMDescription.setCellFactory(_ -> createWMDescriptionCell());
+        tableWMDescription.setCellValueFactory(this::getWMDescriptionValue);
+        tableWMDescription.setSortable(true);
+    }
+
+    private ObservableValueBase<String> getWMDescriptionValue(final CellDataFeatures<Anyware, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            public String getValue() {
+                return p.getValue().getDescription().toString();
+            }
+        };
+    }
+
+    private TableCell<Anyware, String> createWMDescriptionCell() {
+        return new TableCell<Anyware, String>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
                 if (empty)
                     setText("");
                 else {
@@ -712,14 +801,7 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER_LEFT);
                 setGraphic(null);
             }
-        });
-        tableWMDescription.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                return p.getValue().getDescription().toString();
-            }
-        });
-        tableWMDescription.setSortable(true);
+        };
     }
 
     private void initTableWMHave() {
@@ -727,9 +809,25 @@ public class ProfileViewerController implements Initializable {
         tableWMHave.setSortable(false);
         tableWMHave.setPrefWidth(45);
         tableWMHave.setMaxWidth(90);
-        tableWMHave.setCellFactory(_ -> new TableCell<Anyware, String>() {
+        tableWMHave.setCellFactory(_ -> createWMHaveCell());
+        tableWMHave.setCellValueFactory(this::getWMHaveValue);
+    }
+
+    private ObservableValueBase<String> getWMHaveValue(final CellDataFeatures<Anyware, String> p) {
+        return new ObservableValueBase<String>() {
             @Override
-            protected void updateItem(String item, boolean empty) {
+            public String getValue() {
+                if (p.getValue() instanceof final Machine machine)
+                    return String.format(D_OF_D_FMT, machine.countHave(), machine.countAll());
+                return null;
+            }
+        };
+    }
+
+    private TableCell<Anyware, String> createWMHaveCell() {
+        return new TableCell<Anyware, String>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
                 if (empty)
                     setText("");
                 else
@@ -738,15 +836,7 @@ public class ProfileViewerController implements Initializable {
                 setAlignment(Pos.CENTER);
                 setGraphic(null);
             }
-        });
-        tableWMHave.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                if (p.getValue() instanceof Machine machine)
-                    return String.format(D_OF_D_FMT, machine.countHave(), machine.countAll());
-                return null;
-            }
-        });
+        };
     }
 
     private void initTableWMCloneOf() {
@@ -754,37 +844,43 @@ public class ProfileViewerController implements Initializable {
         tableWMCloneOf.setMinWidth(50);
         tableWMCloneOf.setPrefWidth(100);
         tableWMCloneOf.setMaxWidth(200);
-        tableWMCloneOf.setCellFactory(_ -> {
-            final var cell = new TableCell<Anyware, Object>() {
-                @Override
-                protected void updateItem(Object item, boolean empty) {
-                    updateCloneOfCell(this, item, empty);
-                }
-            };
-            cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleCloneOfDoubleClick);
-            return cell;
-        });
-        tableWMCloneOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
+        tableWMCloneOf.setCellFactory(_ -> createWMCloneOfCell());
+        tableWMCloneOf.setCellValueFactory(this::getWMCloneOfValue);
+    }
+
+    private ObservableValueBase<Object> getWMCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
+        return new ObservableValueBase<Object>() {
             @Override
             public Object getValue() {
                 return getCloneOfValue(p);
             }
-        });
+        };
     }
 
-    private void updateCloneOfCell(TableCell<Anyware, Object> cell, Object item, boolean empty) {
+    private TableCell<Anyware, Object> createWMCloneOfCell() {
+        final var cell = new TableCell<Anyware, Object>() {
+            @Override
+            protected void updateItem(final Object item, final boolean empty) {
+                updateCloneOfCell(this, item, empty);
+            }
+        };
+        cell.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleCloneOfDoubleClick);
+        return cell;
+    }
+
+    private void updateCloneOfCell(final TableCell<Anyware, Object> cell, final Object item, final boolean empty) {
         if (item == null || empty) {
             cell.setText("");
             cell.setGraphic(null);
-        } else if (item instanceof Anyware aw) {
-            ImageView i = new ImageView(getStatusIcon(aw.getStatus()));
+        } else if (item instanceof final Anyware aw) {
+            final ImageView i = new ImageView(getStatusIcon(aw.getStatus()));
             i.setPreserveRatio(true);
             i.getStyleClass().add("icon");
             cell.setGraphic(i);
             cell.setUserData(aw);
             cell.setText(aw.getBaseName());
         } else {
-            ImageView i = new ImageView(folderClosedGray);
+            final ImageView i = new ImageView(folderClosedGray);
             i.setPreserveRatio(true);
             i.getStyleClass().add("icon");
             cell.setGraphic(i);
@@ -793,8 +889,8 @@ public class ProfileViewerController implements Initializable {
         cell.setAlignment(Pos.CENTER_LEFT);
     }
 
-    private void handleCloneOfDoubleClick(MouseEvent event) {
-        if (event.getClickCount() > 1 && event.getSource() instanceof TableCell<?, ?> c && (c.getUserData() instanceof Anyware ware)) {
+    private void handleCloneOfDoubleClick(final MouseEvent event) {
+        if (event.getClickCount() > 1 && event.getSource() instanceof final TableCell<?, ?> c && (c.getUserData() instanceof final Anyware ware)) {
             final var sm = tableW.getSelectionModel();
             sm.clearSelection();
             sm.select(ware);
@@ -802,7 +898,7 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
-    private Object getCloneOfValue(CellDataFeatures<Anyware, Object> p) {
+    private Object getCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
         final AnywareList<? extends Anyware> machineList = tableWL.getSelectionModel().getSelectedItem();
         return Optional.ofNullable(p.getValue().getCloneof()).map(cloneof -> machineList.containsName(cloneof) ? machineList.getByName(cloneof) : cloneof).orElse(null);
     }
@@ -813,17 +909,21 @@ public class ProfileViewerController implements Initializable {
         tableWMRomOf.setPrefWidth(100);
         tableWMRomOf.setMaxWidth(200);
         tableWMRomOf.setCellFactory(tableWMCloneOf.getCellFactory());
-        tableWMRomOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
+        tableWMRomOf.setCellValueFactory(this::getWMRomOfValue);
+    }
+
+    private ObservableValueBase<Object> getWMRomOfValue(final CellDataFeatures<Anyware, Object> p) {
+        return new ObservableValueBase<Object>() {
             @Override
             public Object getValue() {
-                if (p.getValue() instanceof Machine m) {
+                if (p.getValue() instanceof final Machine m) {
                     final AnywareList<? extends Anyware> machineList = tableWL.getSelectionModel().getSelectedItem();
                     return Optional.ofNullable(m.getRomof()).filter(romof -> !romof.equals(m.getCloneof()))
                             .map(romof -> machineList.containsName(romof) ? machineList.getByName(romof) : romof).orElse(null);
                 }
                 return null;
             }
-        });
+        };
     }
 
     private void initTableWMSampleOf() {
@@ -831,32 +931,40 @@ public class ProfileViewerController implements Initializable {
         tableWMSampleOf.setMinWidth(50);
         tableWMSampleOf.setPrefWidth(100);
         tableWMSampleOf.setMaxWidth(200);
-        tableWMSampleOf.setCellFactory(_ -> new TableCell<Anyware, Object>() {
-            @Override
-            protected void updateItem(Object item, boolean empty) {
-                updateSampleOfCell(this, item, empty);
-            }
-        });
-        tableWMSampleOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
+        tableWMSampleOf.setCellFactory(_ -> createWMSampleOfCell());
+        tableWMSampleOf.setCellValueFactory(this::getWMSampleOfValue);
+    }
+
+    private ObservableValueBase<Object> getWMSampleOfValue(final CellDataFeatures<Anyware, Object> p) {
+        return new ObservableValueBase<Object>() {
             @Override
             public Object getValue() {
                 return getSampleOfValue(p.getValue());
             }
-        });
+        };
     }
 
-    private void updateSampleOfCell(TableCell<Anyware, Object> cell, Object item, boolean empty) {
+    private TableCell<Anyware, Object> createWMSampleOfCell() {
+        return new TableCell<Anyware, Object>() {
+            @Override
+            protected void updateItem(final Object item, final boolean empty) {
+                updateSampleOfCell(this, item, empty);
+            }
+        };
+    }
+
+    private void updateSampleOfCell(final TableCell<Anyware, Object> cell, final Object item, final boolean empty) {
         if (item == null || empty) {
             cell.setText("");
             cell.setGraphic(null);
-        } else if (item instanceof Samples s) {
-            ImageView i = new ImageView(getStatusIcon(s.getStatus()));
+        } else if (item instanceof final Samples s) {
+            final ImageView i = new ImageView(getStatusIcon(s.getStatus()));
             i.setPreserveRatio(true);
             i.getStyleClass().add("icon");
             cell.setGraphic(i);
             cell.setText(s.getBaseName());
         } else {
-            ImageView i = new ImageView(folderClosedGray);
+            final ImageView i = new ImageView(folderClosedGray);
             i.setPreserveRatio(true);
             i.getStyleClass().add("icon");
             cell.setGraphic(i);
@@ -865,12 +973,12 @@ public class ProfileViewerController implements Initializable {
         cell.setAlignment(Pos.CENTER_LEFT);
     }
 
-    private Object getSampleOfValue(Object value) {
-        if (!(value instanceof Machine m)) {
+    private Object getSampleOfValue(final Object value) {
+        if (!(value instanceof final Machine m)) {
             return null;
         }
         final AnywareList<? extends Anyware> awList = tableWL.getSelectionModel().getSelectedItem();
-        if (!(awList instanceof MachineList machineList)) {
+        if (!(awList instanceof final MachineList machineList)) {
             return null;
         }
         return Optional.ofNullable(m.getSampleof())
@@ -883,13 +991,15 @@ public class ProfileViewerController implements Initializable {
         tableWMSelected.setSortable(false);
         tableWMSelected.setPrefWidth(30);
         tableWMSelected.setMaxWidth(60);
-        tableWMSelected.setCellValueFactory(p -> {
-            final var aw = p.getValue();
-            final var checkBox = new CheckBox();
-            checkBox.selectedProperty().setValue(aw.isSelected());
-            checkBox.selectedProperty().addListener((_, _, newVal) -> aw.setSelected(newVal));
-            return new SimpleObjectProperty<>(checkBox);
-        });
+        tableWMSelected.setCellValueFactory(this::createWMSelectedCell);
+    }
+
+    private ObservableValue<CheckBox> createWMSelectedCell(final CellDataFeatures<Anyware, CheckBox> p) {
+        final var aw = p.getValue();
+        final var checkBox = new CheckBox();
+        checkBox.selectedProperty().setValue(aw.isSelected());
+        checkBox.selectedProperty().addListener((_, _, newVal) -> aw.setSelected(newVal));
+        return new SimpleObjectProperty<>(checkBox);
     }
 
     private void initTableWSColumns() {
@@ -902,12 +1012,7 @@ public class ProfileViewerController implements Initializable {
         tableWSName.setMinWidth(50);
         tableWSName.setPrefWidth(100);
         tableWSName.setCellFactory(tableWMDescription.getCellFactory());
-        tableWSName.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                return p.getValue().getBaseName();
-            }
-        });
+        tableWSName.setCellValueFactory(this::getWSNameValue);
         tableWSDescription.setSortable(true);
         tableWSDescription.setMinWidth(200);
         tableWSDescription.setPrefWidth(400);
@@ -917,45 +1022,62 @@ public class ProfileViewerController implements Initializable {
         tableWSHave.setSortable(false);
         tableWSHave.setPrefWidth(45);
         tableWSHave.setCellFactory(tableWMHave.getCellFactory());
-        tableWSHave.setCellValueFactory(p -> new ObservableValueBase<String>() {
-            @Override
-            public String getValue() {
-                if (p.getValue() instanceof Software software)
-                    return String.format(D_OF_D_FMT, software.countHave(), software.countAll());
-                return null;
-            }
-        });
+        tableWSHave.setCellValueFactory(this::getWSHaveValue);
         tableWSCloneOf.setSortable(false);
         tableWSCloneOf.setMinWidth(50);
         tableWSCloneOf.setPrefWidth(100);
         tableWSCloneOf.setCellFactory(tableWMCloneOf.getCellFactory());
-        tableWSCloneOf.setCellValueFactory(p -> new ObservableValueBase<Object>() {
-            @Override
-            public Object getValue() {
-                final AnywareList<? extends Anyware> softwareList = tableWL.getSelectionModel().getSelectedItem();
-                return p.getValue().getCloneof() != null ? softwareList.getByName(p.getValue().getCloneof()) : null;
-            }
-        });
+        tableWSCloneOf.setCellValueFactory(this::getWSCloneOfValue);
         tableWSSelected.setResizable(false);
         tableWSSelected.setSortable(false);
         tableWSSelected.setPrefWidth(30);
         tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
     }
 
+    private ObservableValueBase<Object> getWSCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
+        return new ObservableValueBase<Object>() {
+            @Override
+            public Object getValue() {
+                final AnywareList<? extends Anyware> softwareList = tableWL.getSelectionModel().getSelectedItem();
+                return p.getValue().getCloneof() != null ? softwareList.getByName(p.getValue().getCloneof()) : null;
+            }
+        };
+    }
+
+    private ObservableValueBase<String> getWSHaveValue(final CellDataFeatures<Anyware, String> p) {
+        return new ObservableValueBase<String>() {
+            @Override
+            public String getValue() {
+                if (p.getValue() instanceof final Software software)
+                    return String.format(D_OF_D_FMT, software.countHave(), software.countAll());
+                return null;
+            }
+        };
+    }
+
+    private ObservableValueBase<String> getWSNameValue(final CellDataFeatures<Anyware, String> p) {
+        return new ObservableValueBase<String>() {
+            @Override
+            public String getValue() {
+                return p.getValue().getBaseName();
+            }
+        };
+    }
+
     private void initToggleButtons() {
-        ImageView ifcgray = new ImageView(folderClosedGray);
+        final ImageView ifcgray = new ImageView(folderClosedGray);
         ifcgray.setPreserveRatio(true);
         ifcgray.getStyleClass().add("icon");
         toggleWUnknown.setGraphic(ifcgray);
-        ImageView ifcred = new ImageView(folderClosedRed);
+        final ImageView ifcred = new ImageView(folderClosedRed);
         ifcred.setPreserveRatio(true);
         ifcred.getStyleClass().add("icon");
         toggleWMissing.setGraphic(ifcred);
-        ImageView ifcorange = new ImageView(folderClosedOrange);
+        final ImageView ifcorange = new ImageView(folderClosedOrange);
         ifcorange.setPreserveRatio(true);
         ifcorange.getStyleClass().add("icon");
         toggleWPartial.setGraphic(ifcorange);
-        ImageView ifcgreen = new ImageView(folderClosedGreen);
+        final ImageView ifcgreen = new ImageView(folderClosedGreen);
         ifcgreen.setPreserveRatio(true);
         ifcgreen.getStyleClass().add("icon");
         toggleWComplete.setGraphic(ifcgreen);
@@ -966,7 +1088,7 @@ public class ProfileViewerController implements Initializable {
      * 
      * @return
      */
-    private Predicate<? super Anyware> searchPredicate(String newValue) {
+    private Predicate<? super Anyware> searchPredicate(final String newValue) {
         return t -> {
             if (newValue == null || newValue.isEmpty())
                 return true;
@@ -988,41 +1110,43 @@ public class ProfileViewerController implements Initializable {
         tableWLHave.setCellFactory(_ -> new TableCellWLHave());
         tableWLHave.setCellValueFactory(ValueWLHave::new);
         tableWL.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> reloadW(newValue));
-        ImageView idmgray = new ImageView(diskMultipleGray);
+        final ImageView idmgray = new ImageView(diskMultipleGray);
         idmgray.setPreserveRatio(true);
         idmgray.getStyleClass().add("icon");
         toggleWLUnknown.setGraphic(idmgray);
-        ImageView idmred = new ImageView(diskMultipleRed);
+        final ImageView idmred = new ImageView(diskMultipleRed);
         idmred.setPreserveRatio(true);
         idmred.getStyleClass().add("icon");
         toggleWLMissing.setGraphic(idmred);
-        ImageView idmorange = new ImageView(diskMultipleOrange);
+        final ImageView idmorange = new ImageView(diskMultipleOrange);
         idmorange.setPreserveRatio(true);
         idmorange.getStyleClass().add("icon");
         toggleWLPartial.setGraphic(idmorange);
-        ImageView idmgreen = new ImageView(diskMultipleGreen);
+        final ImageView idmgreen = new ImageView(diskMultipleGreen);
         idmgreen.setPreserveRatio(true);
         idmgreen.getStyleClass().add("icon");
         toggleWLComplete.setGraphic(idmgreen);
-        menuWL.setOnShowing(_ -> {
-            final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
-            final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
-            final boolean has_selected_swlist = tableWL.getSelectionModel().getSelectedItems().size() == 1 && tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList;
-            mntmAllAsMameDat.setDisable(!has_machines);
-            mntmAllAsLogiqxDat.setDisable(!has_machines);
-            mntmAllAsSoftwareLists.setDisable(session.getCurrProfile().getMachineListList().getSoftwareListList().isEmpty());
-            mntmFilteredAsMameDat.setDisable(!has_filtered_machines);
-            mntmFilteredAsLogiqxDat.setDisable(!has_filtered_machines);
-            mntmFilteredAsSoftwareLists.setDisable(session.getCurrProfile().getMachineListList().getSoftwareListList().getFilteredStream().count() == 0);
-            mntmSelectedAsSoftwareLists.setDisable(!has_selected_swlist);
-            mntmSelectedFilteredAsSoftwareLists.setDisable(!has_selected_swlist);
-        });
+        menuWL.setOnShowing(_ -> refreshMenuItemAvailability());
+    }
+
+    private void refreshMenuItemAvailability() {
+        final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
+        final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
+        final boolean has_selected_swlist = tableWL.getSelectionModel().getSelectedItems().size() == 1 && tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList;
+        mntmAllAsMameDat.setDisable(!has_machines);
+        mntmAllAsLogiqxDat.setDisable(!has_machines);
+        mntmAllAsSoftwareLists.setDisable(session.getCurrProfile().getMachineListList().getSoftwareListList().isEmpty());
+        mntmFilteredAsMameDat.setDisable(!has_filtered_machines);
+        mntmFilteredAsLogiqxDat.setDisable(!has_filtered_machines);
+        mntmFilteredAsSoftwareLists.setDisable(session.getCurrProfile().getMachineListList().getSoftwareListList().getFilteredStream().count() == 0);
+        mntmSelectedAsSoftwareLists.setDisable(!has_selected_swlist);
+        mntmSelectedFilteredAsSoftwareLists.setDisable(!has_selected_swlist);
     }
 
     /**
      * @param newValue
      */
-    private void reloadE(Anyware newValue) {
+    private void reloadE(final Anyware newValue) {
         final var list = FXCollections.<EntityBase>observableArrayList();
         if (newValue != null) {
             newValue.resetCache();
@@ -1037,12 +1161,12 @@ public class ProfileViewerController implements Initializable {
     /**
      * 
      */
-    private void reloadW(AnywareList<? extends Anyware> newValue) {
+    private void reloadW(final AnywareList<? extends Anyware> newValue) {
         tableW.getColumns().clear();
         final var list = FXCollections.<Anyware>observableArrayList();
         if (newValue != null) {
             newValue.resetCache();
-            if (newValue instanceof MachineList ml) {
+            if (newValue instanceof final MachineList ml) {
                 tableW.getColumns().add(tableWMStatus);
                 tableW.getColumns().add(tableWMName);
                 tableW.getColumns().add(tableWMDescription);
@@ -1053,7 +1177,7 @@ public class ProfileViewerController implements Initializable {
                 tableW.getColumns().add(tableWMSelected);
                 for (final var w : ml.getFilteredList())
                     list.add(w);
-            } else if (newValue instanceof SoftwareList sl) {
+            } else if (newValue instanceof final SoftwareList sl) {
                 tableW.getColumns().add(tableWSStatus);
                 tableW.getColumns().add(tableWSName);
                 tableW.getColumns().add(tableWSDescription);
@@ -1070,17 +1194,17 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    public void diskMultipleFilter(ActionEvent e) {
+    public void diskMultipleFilter(final ActionEvent e) {
         setFilterWL(toggleWLUnknown.isSelected(), toggleWLMissing.isSelected(), toggleWLPartial.isSelected(), toggleWLComplete.isSelected());
     }
 
     @FXML
-    public void folderFilter(ActionEvent e) {
+    public void folderFilter(final ActionEvent e) {
         setFilterW(toggleWUnknown.isSelected(), toggleWMissing.isSelected(), toggleWPartial.isSelected(), toggleWComplete.isSelected());
     }
 
     @FXML
-    public void bulletFilter(ActionEvent e) {
+    public void bulletFilter(final ActionEvent e) {
         setFilterE(toggleEntityUnknown.isSelected(), toggleEntityKO.isSelected(), toggleEntityOK.isSelected());
     }
 
@@ -1128,7 +1252,7 @@ public class ProfileViewerController implements Initializable {
             reloadE(item);
     }
 
-    private static Image getStatusIcon(AnywareStatus status) {
+    private static Image getStatusIcon(final AnywareStatus status) {
         return switch (status) {
             case COMPLETE -> folderClosedGreen;
             case PARTIAL -> folderClosedOrange;
@@ -1138,11 +1262,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
-    private double getWidth(int digits) {
+    private double getWidth(final int digits) {
         return getWidth(digits, null);
     }
 
-    private double getWidth(int digits, String font) {
+    private double getWidth(final int digits, final String font) {
         final var text = new Text(String.format("%%0%dd".formatted(digits), 0));
         @SuppressWarnings("unused")
         final var scn = new JRMScene(new Group(text));
@@ -1167,7 +1291,7 @@ public class ProfileViewerController implements Initializable {
         tableEntity.refresh();
     }
 
-    public void reset(Profile profile) {
+    public void reset(final Profile profile) {
         final var selected = tableWL.getSelectionModel().getSelectedItem();
         clear();
         final var wl = FXCollections.<AnywareList<? extends Anyware>>observableArrayList();
@@ -1179,7 +1303,7 @@ public class ProfileViewerController implements Initializable {
             wl.add(w);
         tableWL.setItems(wl);
         if (selected != null) {
-            int index = tableWL.getItems().indexOf(selected);
+            final int index = tableWL.getItems().indexOf(selected);
             if (index >= 0)
                 tableWL.getSelectionModel().select(index);
         } else
@@ -1190,7 +1314,7 @@ public class ProfileViewerController implements Initializable {
     private class KW extends jrm.profile.filter.Keywords {
 
         @Override
-        protected void showFilter(String[] keywords, KFCallBack callback) {
+        protected void showFilter(final String[] keywords, final KFCallBack callback) {
             try {
                 new Keywords((ProfileViewer) tableWL.getScene().getWindow(), keywords, tableWL.getSelectionModel().getSelectedItem(), callback);
             } catch (URISyntaxException | IOException e1) {
@@ -1206,33 +1330,33 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    private void selectByKeywords(ActionEvent e) {
+    private void selectByKeywords(final ActionEvent e) {
         final var lst = tableWL.getSelectionModel().getSelectedItem();
         new KW().filter(lst);
     }
 
     @FXML
-    public void selectNone(ActionEvent e) {
+    public void selectNone(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(false));
         tableW.refresh();
 
     }
 
     @FXML
-    public void selectAll(ActionEvent e) {
+    public void selectAll(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(true));
         tableW.refresh();
     }
 
     @FXML
-    public void selectInvert(ActionEvent e) {
+    public void selectInvert(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(!ware.isSelected()));
         tableW.refresh();
     }
 
     @FXML
-    public void copyCrc(javafx.event.ActionEvent e) {
-        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
+    public void copyCrc(final javafx.event.ActionEvent e) {
+        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getCrc());
             Clipboard.getSystemClipboard().setContent(content);
@@ -1240,8 +1364,8 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    public void copySha1(javafx.event.ActionEvent e) {
-        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
+    public void copySha1(final javafx.event.ActionEvent e) {
+        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getSha1());
             Clipboard.getSystemClipboard().setContent(content);
@@ -1249,8 +1373,8 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    public void copyName(javafx.event.ActionEvent e) {
-        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
+    public void copyName(final javafx.event.ActionEvent e) {
+        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
             final var content = new ClipboardContent();
             content.putString(entity.getName());
             Clipboard.getSystemClipboard().setContent(content);
@@ -1258,8 +1382,8 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    public void searchWeb(javafx.event.ActionEvent e) {
-        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof Entity entity) {
+    public void searchWeb(final javafx.event.ActionEvent e) {
+        if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
             try {
                 val name = entity.getName();
                 val crc = entity.getCrc();
@@ -1274,51 +1398,51 @@ public class ProfileViewerController implements Initializable {
     }
 
     @FXML
-    public void exportFilteredAsLogiqxDat(ActionEvent e) {
+    public void exportFilteredAsLogiqxDat(final ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    public void exportFilteredAsMameDat(ActionEvent e) {
+    public void exportFilteredAsMameDat(final ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    public void exportFilteredAsSoftwareLists(ActionEvent e) {
+    public void exportFilteredAsSoftwareLists(final ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
     }
 
     @FXML
-    public void exportAllAsLogiqxDat(ActionEvent e) {
+    public void exportAllAsLogiqxDat(final ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    public void exportAllAsMameDat(ActionEvent e) {
+    public void exportAllAsMameDat(final ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    public void exportAllAsSoftwareLists(ActionEvent e) {
+    public void exportAllAsSoftwareLists(final ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
     }
 
     @FXML
-    public void exportSelectedFilteredAsSoftwareLists(ActionEvent e) {
-        if (tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
+    public void exportSelectedFilteredAsSoftwareLists(final ActionEvent e) {
+        if (tableWL.getSelectionModel().getSelectedItem() instanceof final SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), sl);
     }
 
     @FXML
-    public void exportSelectedAsSoftwareLists(ActionEvent e) {
-        if (tableWL.getSelectionModel().getSelectedItem() instanceof SoftwareList sl)
+    public void exportSelectedAsSoftwareLists(final ActionEvent e) {
+        if (tableWL.getSelectionModel().getSelectedItem() instanceof final SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), sl);
     }
 
     private final class ValueWLHave extends ObservableValueBase<String> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, String> p;
 
-        private ValueWLHave(CellDataFeatures<AnywareList<? extends Anyware>, String> p) {
+        private ValueWLHave(final CellDataFeatures<AnywareList<? extends Anyware>, String> p) {
             this.p = p;
         }
 
@@ -1338,7 +1462,7 @@ public class ProfileViewerController implements Initializable {
 
     private static final class TableCellWLHave extends TableCell<AnywareList<? extends Anyware>, String> {
         @Override
-        protected void updateItem(String item, boolean empty) {
+        protected void updateItem(final String item, final boolean empty) {
             if (empty)
                 setText("");
             else
@@ -1352,13 +1476,13 @@ public class ProfileViewerController implements Initializable {
     private static final class ValueWLDesc extends ObservableValueBase<String> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, String> p;
 
-        private ValueWLDesc(CellDataFeatures<AnywareList<? extends Anyware>, String> p) {
+        private ValueWLDesc(final CellDataFeatures<AnywareList<? extends Anyware>, String> p) {
             this.p = p;
         }
 
         @Override
         public String getValue() {
-            if (p.getValue() instanceof SoftwareList sl)
+            if (p.getValue() instanceof final SoftwareList sl)
                 return sl.getDescription().toString();
             return Messages.getString("MachineListList.AllMachines");
         }
@@ -1366,7 +1490,7 @@ public class ProfileViewerController implements Initializable {
 
     private static final class TableCellWLDesc extends TableCell<AnywareList<? extends Anyware>, String> {
         @Override
-        protected void updateItem(String item, boolean empty) {
+        protected void updateItem(final String item, final boolean empty) {
             if (empty)
                 setText("");
             else
@@ -1380,7 +1504,7 @@ public class ProfileViewerController implements Initializable {
     private static final class ValueWLName extends ObservableValueBase<AnywareList<? extends Anyware>> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> p;
 
-        private ValueWLName(CellDataFeatures<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> p) {
+        private ValueWLName(final CellDataFeatures<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> p) {
             this.p = p;
         }
 
@@ -1392,12 +1516,12 @@ public class ProfileViewerController implements Initializable {
 
     private static final class TableCellWLName extends TableCell<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> {
         @Override
-        protected void updateItem(AnywareList<? extends Anyware> item, boolean empty) {
+        protected void updateItem(final AnywareList<? extends Anyware> item, final boolean empty) {
             if (empty) {
                 setText("");
                 setGraphic(null);
             } else {
-                ImageView i = new ImageView(switch (item.getStatus()) {
+                final var i = new ImageView(switch (item.getStatus()) {
                     case COMPLETE -> diskMultipleGreen;
                     case PARTIAL -> diskMultipleOrange;
                     case MISSING -> diskMultipleRed;
@@ -1408,7 +1532,7 @@ public class ProfileViewerController implements Initializable {
                 i.setPreserveRatio(true);
                 i.getStyleClass().add("icon");
                 setGraphic(i);
-                if (item instanceof SoftwareList sl)
+                if (item instanceof final SoftwareList sl)
                     setText(sl.getName());
                 else if (item instanceof MachineList)
                     setText(Messages.getString("MachineListListRenderer.*"));

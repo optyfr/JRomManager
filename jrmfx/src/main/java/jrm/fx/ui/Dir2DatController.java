@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
@@ -35,141 +36,288 @@ import jrm.security.Session;
 /**
  * FXML controller for the Dir2Dat panel.
  * <p>
- * Scans a source directory and generates a DAT file containing ROM information.
- * Supports multiple output formats (MAME, Logiqx, Software List), hash computation
- * (MD5, SHA1), and various scanning options (subfolders, deep scan, junk folders).
+ * Scans a source directory and generates a DAT file containing ROM information. Supports multiple output formats (MAME, Logiqx,
+ * Software List), hash computation (MD5, SHA1), and various scanning options (subfolders, deep scan, junk folders).
  *
  * @since 2.5
  */
 public class Dir2DatController extends BaseController {
+    /** FXML UI components for the Dir2Dat panel. */
     @FXML
     CheckBox includeEmptyDirs;
+    /** FXML UI component for the match current profile checkbox. */
     @FXML
     CheckBox matchCurrentProfile;
+    /** FXML UI component for the "do not scan archives" checkbox. */
     @FXML
     CheckBox doNotScan;
+    /** FXML UI component for the junk subfolders checkbox. */
     @FXML
     CheckBox junkSubfolders;
+    /** FXML UI component for the add SHA1 checkbox. */
     @FXML
     CheckBox addShamd;
+    /** FXML UI component for the add MD5 checkbox. */
     @FXML
     CheckBox addMd;
+    /** FXML UI component for the deep scan checkbox. */
     @FXML
     CheckBox deepScanFor;
+    /** FXML UI component for the scan subfolders checkbox. */
     @FXML
     CheckBox scanSubfolders;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField name;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField description;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField version;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField author;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField comment;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField category;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField date;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField email;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField homepage;
+    /** FXML UI components for the metadata text fields. */
     @FXML
     TextField url;
+    /** FXML UI components for the source directory and destination DAT file selection. */
     @FXML
     TextField srcDir;
+    /** FXML UI components for the source directory and destination DAT file selection. */
     @FXML
     TextField dstDat;
+    /** FXML UI components for the source directory and destination DAT file selection. */
     @FXML
     Button srcDirBtn;
+    /** FXML UI components for the source directory and destination DAT file selection. */
     @FXML
     Button dstDatBtn;
+    /** FXML UI components for the generate button and format selection. */
     @FXML
     Button generate;
+    /** FXML UI components for the format selection radio buttons. */
     @FXML
     ToggleGroup format;
+    /** FXML UI components for the format selection radio buttons. */
     @FXML
     RadioButton formatMame;
+    /** FXML UI components for the format selection radio buttons. */
     @FXML
     RadioButton formatLogiqxDat;
+    /** FXML UI components for the format selection radio buttons. */
     @FXML
     RadioButton formatSWList;
 
+    /**
+     * Initializes the Dir2Dat panel, setting up UI components and loading user preferences.
+     *
+     * @param location  the location used to resolve relative paths for the root object, or null if unknown
+     * @param resources the resources used to localize the root object, or null if not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         scanSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, Boolean.class));
-        scanSubfolders.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, newValue));
+        scanSubfolders.selectedProperty().addListener((_, _, newValue) -> applyScanSubfoldersSetting(newValue));
         deepScanFor.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, Boolean.class)); // $NON-NLS-1$
-        deepScanFor.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, newValue)); // $NON-NLS-1$
+        deepScanFor.selectedProperty().addListener((_, _, newValue) -> applyDeepScanSetting(newValue)); // $NON-NLS-1$
         addMd.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, Boolean.class)); // $NON-NLS-1$
-        addMd.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, newValue)); // $NON-NLS-1$
+        addMd.selectedProperty().addListener((_, _, newValue) -> applyMd5Setting(newValue)); // $NON-NLS-1$
         addShamd.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, Boolean.class)); // $NON-NLS-1$
-        addShamd.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, newValue)); // $NON-NLS-1$
+        addShamd.selectedProperty().addListener((_, _, newValue) -> applySha1Setting(newValue)); // $NON-NLS-1$
         junkSubfolders.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, Boolean.class)); // $NON-NLS-1$
-        junkSubfolders.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, newValue)); // $NON-NLS-1$
+        junkSubfolders.selectedProperty().addListener((_, _, newValue) -> applyJunkFoldersSetting(newValue)); // $NON-NLS-1$
         doNotScan.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, Boolean.class)); // $NON-NLS-1$
-        doNotScan.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, newValue)); // $NON-NLS-1$
+        doNotScan.selectedProperty().addListener((_, _, newValue) -> applyDoNotScanArchivesSetting(newValue)); // $NON-NLS-1$
         matchCurrentProfile.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, Boolean.class)); // $NON-NLS-1$
-        matchCurrentProfile.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, newValue)); // $NON-NLS-1$
+        matchCurrentProfile.selectedProperty().addListener((_, _, newValue) -> applyMatchProfileSetting(newValue)); // $NON-NLS-1$
         includeEmptyDirs.setSelected(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, Boolean.class)); // $NON-NLS-1$
-        includeEmptyDirs.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue)); // $NON-NLS-1$
-        new DragNDrop(srcDir).addDir(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt));
+        includeEmptyDirs.selectedProperty().addListener((_, _, newValue) -> applyEmptyDirSetting(newValue)); // $NON-NLS-1$
+        new DragNDrop(srcDir).addDir(this::saveSourceDirectory);
         srcDir.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir));
         ImageView srciv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
         srciv.setPreserveRatio(true);
         srciv.getStyleClass().add("icon");
         srcDirBtn.setGraphic(srciv);
-        srcDirBtn.setOnAction(_ -> {
-            final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-            final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastsrcdir)).map(File::new).filter(File::exists)
-                    .orElse(workdir.toFile());
-            chooseDir(srcDirBtn, srcDir.getText(), lastsrcdir, path -> {
-                session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", path.toString()); //$NON-NLS-1$
-                srcDir.setText(path.toString());
-                session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, srcDir.getText()); // $NON-NLS-1$
-                session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastsrcdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
-            });
-        });
-        new DragNDrop(dstDat).addNewFile(txt -> session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt));
+        srcDirBtn.setOnAction(_ -> chooseSourceDirectory());
+        new DragNDrop(dstDat).addNewFile(this::storeDestinationFile);
         dstDat.setText(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file));
         ImageView dstiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
         dstiv.setPreserveRatio(true);
         dstiv.getStyleClass().add("icon");
         dstDatBtn.setGraphic(dstiv);
-        dstDatBtn.setOnAction(_ -> {
-            final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
-            final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastdstdir)).map(File::new).filter(File::exists)
-                    .orElse(workdir.toFile());
-            chooseSaveFile(dstDatBtn, dstDat.getText(), lastdstdir, Collections.singletonList(new FileChooser.ExtensionFilter("Dat file", "*.xml", "*.dat")), path -> {
-                session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", path.toString()); //$NON-NLS-1$
-                dstDat.setText(path.toString());
-                session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, dstDat.getText()); // $NON-NLS-1$
-                session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastdstdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
-            });
-        });
+        dstDatBtn.setOnAction(_ -> saveDataFile());
         format.selectToggle(switch (ExportType.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format))) {
             case MAME -> formatMame;
             case DATAFILE -> formatLogiqxDat;
             case SOFTWARELIST -> formatSWList;
             default -> formatMame;
         });
-        format.selectedToggleProperty().addListener((_, _, newValue) -> {
-            if (newValue == formatMame)
-                session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString());
-            else if (newValue == formatLogiqxDat)
-                session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString());
-            else if (newValue == formatSWList)
-                session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString());
-        });
+        format.selectedToggleProperty().addListener((_, _, newValue) -> setFormatPreference(newValue));
         generate.setOnAction(_ -> dir2dat());
+    }
+
+    /**
+     * Sets the export format preference based on the selected toggle.
+     *
+     * @param newValue the newly selected toggle
+     */
+    private void setFormatPreference(Toggle newValue) {
+        if (newValue == formatMame)
+            session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.MAME.toString());
+        else if (newValue == formatLogiqxDat)
+            session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.DATAFILE.toString());
+        else if (newValue == formatSWList)
+            session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_format, ExportType.SOFTWARELIST.toString());
+    }
+
+    /**
+     * Opens a file chooser dialog to select the destination DAT file and saves the selected path in user settings.
+     */
+    private void saveDataFile() {
+        final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
+        final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastdstdir)).map(File::new).filter(File::exists)
+                .orElse(workdir.toFile());
+        chooseSaveFile(dstDatBtn, dstDat.getText(), lastdstdir, Collections.singletonList(new FileChooser.ExtensionFilter("Dat file", "*.xml", "*.dat")), this::storeFilePathDetails);
+    }
+
+    /**
+     * Stores the selected destination file path in user settings and updates the corresponding text field.
+     *
+     * @param path the selected file path
+     */
+    private void storeFilePathDetails(Path path) {
+        session.getUser().getSettings().setProperty("MainFrame.ChooseDatDst", path.toString()); //$NON-NLS-1$
+        dstDat.setText(path.toString());
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, dstDat.getText()); // $NON-NLS-1$
+        session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastdstdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
+    }
+
+    /**
+     * Stores the destination file path in user settings.
+     *
+     * @param txt the destination file path as a string
+     */
+    private void storeDestinationFile(String txt) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_dst_file, txt);
+    }
+
+    /**
+     * Opens a directory chooser dialog to select the source directory and updates the corresponding text field and user settings.
+     */
+    private void chooseSourceDirectory() {
+        final var workdir = session.getUser().getSettings().getWorkPath(); // $NON-NLS-1$
+        final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dir2dat_lastsrcdir)).map(File::new).filter(File::exists)
+                .orElse(workdir.toFile());
+        chooseDir(srcDirBtn, srcDir.getText(), lastsrcdir, this::updateSourceDirectory);
+    }
+
+    /**
+     * Updates the source directory path in user settings and the corresponding text field.
+     *
+     * @param path the selected source directory path
+     */
+    private void updateSourceDirectory(Path path) {
+        session.getUser().getSettings().setProperty("MainFrame.ChooseDatSrc", path.toString()); //$NON-NLS-1$
+        srcDir.setText(path.toString());
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, srcDir.getText()); // $NON-NLS-1$
+        session.getUser().getSettings().setProperty(SettingsEnum.dir2dat_lastsrcdir, Optional.ofNullable(path).map(Path::toFile).map(File::getParent).orElse(null));
+    }
+
+    /**
+     * Saves the source directory path in user settings.
+     *
+     * @param txt the source directory path as a string
+     */
+    private void saveSourceDirectory(String txt) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_src_dir, txt);
+    }
+
+    /**
+     * Applies the empty directory setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyEmptyDirSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_include_empty_dirs, newValue);
+    }
+
+    /**
+     * Applies the match profile setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyMatchProfileSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_match_profile, newValue);
+    }
+
+    /**
+     * Applies the "do not scan archives" setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyDoNotScanArchivesSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_do_not_scan_archives, newValue);
+    }
+
+    /**
+     * Applies the junk folders setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyJunkFoldersSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_junk_folders, newValue);
+    }
+
+    /**
+     * Applies the SHA1 setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applySha1Setting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_sha1, newValue);
+    }
+
+    /**
+     * Applies the MD5 setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyMd5Setting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_add_md5, newValue);
+    }
+
+    /**
+     * Applies the deep scan setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyDeepScanSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_deep_scan, newValue);
+    }
+
+    /**
+     * Applies the scan subfolders setting.
+     *
+     * @param newValue the new value for the setting
+     */
+    private void applyScanSubfoldersSetting(Boolean newValue) {
+        session.getUser().getSettings().setProperty(jrm.misc.SettingsEnum.dir2dat_scan_subfolders, newValue);
     }
 
     /**
@@ -188,7 +336,8 @@ public class Dir2DatController extends BaseController {
      * Creates the Dir2Dat background task.
      *
      * @return the progress task
-     * @throws IOException        if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws URISyntaxException if the FXML resource URI is invalid
      */
     private ProgressTask<Void> dir2DatTask() throws IOException, URISyntaxException {
@@ -239,6 +388,7 @@ public class Dir2DatController extends BaseController {
      * Initializes the directory scan options from settings.
      *
      * @param session the security session
+     * 
      * @return the scan options
      */
     private EnumSet<DirScan.Options> initOptions(final Session session) {

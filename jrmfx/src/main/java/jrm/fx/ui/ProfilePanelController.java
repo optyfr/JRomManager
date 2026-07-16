@@ -37,6 +37,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -207,19 +208,166 @@ public class ProfilePanelController implements Initializable {
         bin.setPreserveRatio(true);
         bin.getStyleClass().add("icon");
         dropCacheMenu.setGraphic(bin);
-        folderMenu.setOnShowing(_ -> {
-            final var selected = profilesTree.getSelectionModel().getSelectedItem();
-            deleteFolderMenu.setDisable(selected == null);
-            createFolderMenu.setDisable(selected == null);
+        folderMenu.setOnShowing(_ -> updateFolderMenuState());
+        profileMenu.setOnShowing(_ -> updateMenuStates());
+        profilesTree.setCellFactory(_ -> createProfileTreeCell());
+        profilesTree.setOnEditCommit(this::editCommitProfileDir);
+        profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
+        profilesTree.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> populate(newValue));
+        profilesTree.getSelectionModel().select(0);
+        profileCol.setEditable(true);
+        profileCol.setCellFactory(_ -> new ProfileCellFactory());
+        profileCol.setOnEditCommit(this::editCommitProfile);
+        profileCol.setCellValueFactory(this::getProfileNFOValue);
+        profileVersionCol.setCellFactory(_ -> new VersionCellFactory<>());
+        profileVersionCol.setCellValueFactory(this::getProfileVersion);
+        profileHaveSetsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
+        profileHaveSetsCol.setCellValueFactory(this::getProfileHaveSets);
+        profileHaveSetsCol.setComparator(haveNTotalComparator);
+        profileHaveRomsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
+        profileHaveRomsCol.setCellValueFactory(this::getProfileHaveRoms);
+        profileHaveRomsCol.setComparator(haveNTotalComparator);
+        profileHaveDisksCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
+        profileHaveDisksCol.setCellValueFactory(this::getProfileHaveDisks);
+        profileHaveDisksCol.setComparator(haveNTotalComparator);
+        profileCreatedCol.setCellFactory(_ -> new DateCellFactory());
+        profileCreatedCol.setCellValueFactory(this::getProfileCreated);
+        profileLastScanCol.setCellFactory(_ -> new DateCellFactory());
+        profileLastScanCol.setCellValueFactory(this::getProfileLastScan);
+        profileLastFixCol.setCellFactory(_ -> new DateCellFactory());
+        profileLastFixCol.setCellValueFactory(this::getProfileLastFix);
+        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> btnLoad.setDisable(newValue == null));
+        profilesList.setRowFactory(_ -> createProfileRow());
+        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> profilesList.refresh());
+        profilesList.setEditable(false);
+        profilesList.setFixedCellSize(Region.USE_COMPUTED_SIZE);
+        new DragNDrop(profilesList).addAny(files -> importDat(files, true));
+    }
+
+    /** Creates a row for the profiles list.
+     * @return a row for the profiles list
+     */
+    private TableRow<ProfileNFO> createProfileRow() {
+        final var row = new TableRow<ProfileNFO>();
+        row.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !row.isEmpty()) {
+                profileLoader.loadProfile(session, row.getItem());
+            }
         });
-        profileMenu.setOnShowing(_ -> {
-            final var selected = profilesList.getSelectionModel().getSelectedItem();
-            deleteProfileMenu.setDisable(selected == null);
-            renameProfileMenu.setDisable(selected == null);
-            dropCacheMenu.setDisable(selected == null);
-            updateFromMameMenu.setDisable(selected == null || !selected.isJRM());
-        });
-        profilesTree.setCellFactory(_ -> new TextFieldTreeCell<>(new StringConverter<>() {
+        return row;
+    }
+
+    /** Returns an observable value for the profile last fix date.
+     * @param param the cell data features
+     * @return an observable value for the profile last fix date
+     */
+    private ObservableValueBase<Instant> getProfileLastFix(CellDataFeatures<ProfileNFO, Instant> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public Instant getValue() {
+                return param.getValue().getStats().getFixed();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile last scan date.
+     * @param param the cell data features
+     * @return an observable value for the profile last scan date
+     */
+    private ObservableValueBase<Instant> getProfileLastScan(CellDataFeatures<ProfileNFO, Instant> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public Instant getValue() {
+                return param.getValue().getStats().getScanned();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile created date.
+     * @param param the cell data features
+     * @return an observable value for the profile created date
+     */
+    private ObservableValueBase<Instant> getProfileCreated(CellDataFeatures<ProfileNFO, Instant> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public Instant getValue() {
+                return param.getValue().getStats().getCreated();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile have/total disks count.
+     * @param param the cell data features
+     * @return an observable value for the profile have/total disks count
+     */
+    private ObservableValueBase<HaveNTotal> getProfileHaveDisks(CellDataFeatures<ProfileNFO, HaveNTotal> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public HaveNTotal getValue() {
+                return param.getValue().getStats().getDisks();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile have/total ROMs count.
+     * @param param the cell data features
+     * @return an observable value for the profile have/total ROMs count
+     */
+    private ObservableValueBase<HaveNTotal> getProfileHaveRoms(CellDataFeatures<ProfileNFO, HaveNTotal> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public HaveNTotal getValue() {
+                return param.getValue().getStats().getRoms();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile sets.
+     * @param param the cell data features
+     * @return an observable value for the profile sets
+     */
+    private ObservableValueBase<HaveNTotal> getProfileHaveSets(CellDataFeatures<ProfileNFO, HaveNTotal> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public HaveNTotal getValue() {
+                return param.getValue().getStats().getSets();
+            }
+        };
+    }
+
+    /** Returns an observable value for the profile version.
+     * @param param the cell data features
+     * @return an observable value for the profile version
+     */
+    private ObservableValueBase<String> getProfileVersion(CellDataFeatures<ProfileNFO, String> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public String getValue() {
+                return param.getValue().getStats().getVersion();
+            }
+        };
+    }
+
+    /**
+     * Returns an observable value for the profile NFO.
+     * @param param the cell data features
+     * @return an observable value for the profile NFO
+     */
+    private ObservableValueBase<ProfileNFO> getProfileNFOValue(CellDataFeatures<ProfileNFO, ProfileNFO> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public ProfileNFO getValue() {
+                return param.getValue();
+            }
+        };
+    }
+
+    /**
+     * Creates a tree cell for the profile directory tree view, with a string converter that renames the underlying directory when the cell is edited.
+     * @return a new tree cell for the profile directory tree view
+     */
+    private TextFieldTreeCell<Dir> createProfileTreeCell() {
+        return new TextFieldTreeCell<>(new StringConverter<>() {
             private Dir dir;
 
             @Override
@@ -232,86 +380,27 @@ public class ProfilePanelController implements Initializable {
             public Dir fromString(String string) {
                 return dir.renameTo(dir.getFile().toPath().getParent().resolve(string).toFile());
             }
-        }));
-        profilesTree.setOnEditCommit(this::editCommitProfileDir);
-        profilesTree.setRoot(new DirItem(session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize().toFile()));
-        profilesTree.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> populate(newValue));
-        profilesTree.getSelectionModel().select(0);
-        profileCol.setEditable(true);
-        profileCol.setCellFactory(_ -> new ProfileCellFactory());
-        profileCol.setOnEditCommit(this::editCommitProfile);
-        profileCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public ProfileNFO getValue() {
-                return param.getValue();
-            }
         });
-        profileVersionCol.setCellFactory(_ -> new VersionCellFactory<>());
-        profileVersionCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public String getValue() {
-                return param.getValue().getStats().getVersion();
-            }
-        });
-        profileHaveSetsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
-        profileHaveSetsCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public HaveNTotal getValue() {
-                return param.getValue().getStats().getSets();
-            }
-        });
-        profileHaveSetsCol.setComparator(haveNTotalComparator);
-        profileHaveRomsCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
-        profileHaveRomsCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public HaveNTotal getValue() {
-                return param.getValue().getStats().getRoms();
-            }
-        });
-        profileHaveRomsCol.setComparator(haveNTotalComparator);
-        profileHaveDisksCol.setCellFactory(_ -> new HaveNTotalCellFactory<>());
-        profileHaveDisksCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public HaveNTotal getValue() {
-                return param.getValue().getStats().getDisks();
-            }
-        });
-        profileHaveDisksCol.setComparator(haveNTotalComparator);
-        profileCreatedCol.setCellFactory(_ -> new DateCellFactory());
-        profileCreatedCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public Instant getValue() {
-                return param.getValue().getStats().getCreated();
-            }
-        });
-        profileLastScanCol.setCellFactory(_ -> new DateCellFactory());
-        profileLastScanCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public Instant getValue() {
-                return param.getValue().getStats().getScanned();
-            }
-        });
-        profileLastFixCol.setCellFactory(_ -> new DateCellFactory());
-        profileLastFixCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public Instant getValue() {
-                return param.getValue().getStats().getFixed();
-            }
-        });
-        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> btnLoad.setDisable(newValue == null));
-        profilesList.setRowFactory(_ -> {
-            final var row = new TableRow<ProfileNFO>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    profileLoader.loadProfile(session, row.getItem());
-                }
-            });
-            return row;
-        });
-        profilesList.getSelectionModel().selectedItemProperty().addListener((_, _, _) -> profilesList.refresh());
-        profilesList.setEditable(false);
-        profilesList.setFixedCellSize(Region.USE_COMPUTED_SIZE);
-        new DragNDrop(profilesList).addAny(files -> importDat(files, true));
+    }
+
+    /**
+     * Updates the state of the profile-related menu items based on the currently selected profile.
+     */
+    private void updateMenuStates() {
+        final var selected = profilesList.getSelectionModel().getSelectedItem();
+        deleteProfileMenu.setDisable(selected == null);
+        renameProfileMenu.setDisable(selected == null);
+        dropCacheMenu.setDisable(selected == null);
+        updateFromMameMenu.setDisable(selected == null || !selected.isJRM());
+    }
+
+    /**
+     * Updates the state of the folder-related menu items based on the currently selected folder.
+     */
+    private void updateFolderMenuState() {
+        final var selected = profilesTree.getSelectionModel().getSelectedItem();
+        deleteFolderMenu.setDisable(selected == null);
+        createFolderMenu.setDisable(selected == null);
     }
 
     /**
@@ -321,20 +410,25 @@ public class ProfilePanelController implements Initializable {
      * {@code TableColumnHeader.resizeColumnToFitContent} method on the JavaFX skin.
      */
     public void resizeColumns() {
-        Platform.runLater(() -> {
-            final var columns = profilesList.getColumns();
-            for (int i = 0; i < columns.size(); i++) {
-                try {
-                    final var th = (TableColumnHeader) profilesList.queryAccessibleAttribute(AccessibleAttribute.COLUMN_AT_INDEX, i);
-                    final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
-                    columnToFitMethod.setAccessible(true); // NOSONAR
-                    columnToFitMethod.invoke(th, -1);
-                } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException e) /* NOSONAR */ {
-                    Log.err("Failed to resize column " + columns.get(i).getText(), e);
-                }
+        Platform.runLater(this::resizeColumnsToFitContent);
+    }
 
+    /**
+     * Resizes all profile table columns to fit their content.
+     */
+    private void resizeColumnsToFitContent() {
+        final var columns = profilesList.getColumns();
+        for (int i = 0; i < columns.size(); i++) {
+            try {
+                final var th = (TableColumnHeader) profilesList.queryAccessibleAttribute(AccessibleAttribute.COLUMN_AT_INDEX, i);
+                final var columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", int.class);
+                columnToFitMethod.setAccessible(true); // NOSONAR
+                columnToFitMethod.invoke(th, -1);
+            } catch (final NoSuchMethodException | IllegalAccessException | InvocationTargetException e) /* NOSONAR */ {
+                Log.err("Failed to resize column " + columns.get(i).getText(), e);
             }
-        });
+
+        }
     }
 
     /**
@@ -343,10 +437,16 @@ public class ProfilePanelController implements Initializable {
      * @param e the tree edit event describing the renamed directory
      */
     private void editCommitProfileDir(TreeView.EditEvent<Dir> e) {
-        Platform.runLater(() -> {
-            if (getTreeViewItem(profilesTree.getRoot(), e.getNewValue()) instanceof DirItem newItem)
-                newItem.reload();
-        });
+        Platform.runLater(() -> refreshProfileItem(e));
+    }
+
+    /** Refreshes the profile item in the tree view.
+     * 
+     * @param e the tree edit event describing the renamed directory
+     */
+    private void refreshProfileItem(TreeView.EditEvent<Dir> e) {
+        if (getTreeViewItem(profilesTree.getRoot(), e.getNewValue()) instanceof DirItem newItem)
+            newItem.reload();
     }
 
     /**
@@ -359,14 +459,7 @@ public class ProfilePanelController implements Initializable {
     private void editCommitProfile(CellEditEvent<ProfileNFO, ProfileNFO> e) {
         final ProfileNFO pnfo = e.getRowValue();
         AtomicInteger err = new AtomicInteger();
-        Arrays.asList("", ".properties", ".cache").forEach(ext -> { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-            final var oldfile = new File(pnfo.getFile().getParentFile(), pnfo.getName() + ext);
-            final var newfile = new File(pnfo.getFile().getParentFile(), e.getNewValue().getNewName() + ext);
-            final var success = !oldfile.equals(newfile) && oldfile.renameTo(newfile);
-            err.set((err.get() << 1) | (success ? 0 : 1));
-            if (!success)
-                Log.warn(() -> "Can't rename " + oldfile.getName() + " to " + newfile.getName());
-        });
+        Arrays.asList("", ".properties", ".cache").forEach(ext -> renameProfileFile(e, pnfo, err, ext));
         if (err.get() != 0) {
             Dialogs.showAlert("Can't rename " + e.getOldValue().getName() + " to " + e.getNewValue().getNewName());
             e.getTableView().refresh();
@@ -376,6 +469,22 @@ public class ProfilePanelController implements Initializable {
                 session.getCurrProfile().getNfo().relocate(session, newNfoFile);
             pnfo.relocate(session, newNfoFile);
         }
+    }
+
+    /** Renames a profile file with the specified extension.
+     * 
+     * @param e the cell edit event carrying the old and new profile names
+     * @param pnfo the profile NFO being renamed
+     * @param err an atomic integer used to accumulate error flags for each rename operation
+     * @param ext the file extension to rename (e.g., "", ".properties", ".cache")
+     */
+    private void renameProfileFile(CellEditEvent<ProfileNFO, ProfileNFO> e, final ProfileNFO pnfo, AtomicInteger err, String ext) {
+        final var oldfile = new File(pnfo.getFile().getParentFile(), pnfo.getName() + ext);
+        final var newfile = new File(pnfo.getFile().getParentFile(), e.getNewValue().getNewName() + ext);
+        final var success = !oldfile.equals(newfile) && oldfile.renameTo(newfile);
+        err.set((err.get() << 1) | (success ? 0 : 1));
+        if (!success)
+            Log.warn(() -> "Can't rename " + oldfile.getName() + " to " + newfile.getName());
     }
 
     /**

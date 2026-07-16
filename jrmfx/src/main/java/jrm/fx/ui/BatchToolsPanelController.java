@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -38,6 +39,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -77,9 +79,8 @@ import jrm.security.PathAbstractor;
 /**
  * FXML controller for the batch tools panel.
  * <p>
- * Provides three batch operations: DAT to directory extraction, torrent checking,
- * and archive compression. Each operation runs in a background task with progress
- * reporting and supports drag-and-drop file input.
+ * Provides three batch operations: DAT to directory extraction, torrent checking, and archive compression. Each operation runs in a
+ * background task with progress reporting and supports drag-and-drop file input.
  *
  * @since 2.5
  */
@@ -167,6 +168,12 @@ public class BatchToolsPanelController extends BaseController {
     @FXML
     private TableColumn<FileResult, String> tvBatchToolsCompressorStatusCol;
 
+    /**
+     * Initializes the controller after the FXML fields have been injected.
+     *
+     * @param location the location used to resolve relative paths for the root object, or {@code null} if the location is not known
+     * @param resources the resources used to localize the root object, or {@code null} if the root object was not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initDat2Dir();
@@ -175,7 +182,7 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the compressor panel.
      */
     private void initCompressor() {
         ImageView compressoriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
@@ -184,41 +191,17 @@ public class BatchToolsPanelController extends BaseController {
         panelBatchToolsCompressor.setGraphic(compressoriv);
 
         new DragNDrop(tvBatchToolsCompressor).addAny(this::addFilesToCompressorList);
-        tvBatchToolsCompressorFileCol.setCellFactory(_ -> new TableCell<FileResult, Path>() {
-            @Override
-            protected void updateItem(Path item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty)
-                    setText("");
-                else {
-                    setText(item.toString());
-                    setTooltip(new Tooltip(getText()));
-                }
-            }
-        });
+        tvBatchToolsCompressorFileCol.setCellFactory(_ -> createBatchToolsCompressorFileCell());
         tvBatchToolsCompressorFileCol.setCellValueFactory(param -> param.getValue().fileProperty());
-        tvBatchToolsCompressorStatusCol.setCellFactory(_ -> new TableCell<FileResult, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty)
-                    setText("");
-                else {
-                    setText(item);
-                    setTooltip(new Tooltip(item));
-                }
-            }
-        });
+        tvBatchToolsCompressorStatusCol.setCellFactory(_ -> createBatchToolsCompressorStatusCell());
         tvBatchToolsCompressorStatusCol.setCellValueFactory(param -> param.getValue().resultProperty());
 
         cbbxBatchToolsCompressorFormat.setItems(FXCollections.observableArrayList(CompressorFormat.values()));
         cbbxBatchToolsCompressorFormat.getSelectionModel().select(CompressorFormat.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.compressor_format))); // $NON-NLS-1$
-        cbbxBatchToolsCompressorFormat.getSelectionModel().selectedItemProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_format, newValue.toString()));
+        cbbxBatchToolsCompressorFormat.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> configureCompressorFormat(newValue));
 
         cbBatchToolsCompressorForce.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class));
-        cbBatchToolsCompressorForce.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.compressor_force, newValue));
+        cbBatchToolsCompressorForce.selectedProperty().addListener((_, _, newValue) -> configureCompressorForce(newValue));
 
         ImageView compressorcleariv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bin.png"));
         compressorcleariv.setPreserveRatio(true);
@@ -229,22 +212,86 @@ public class BatchToolsPanelController extends BaseController {
         compressorgoiv.setPreserveRatio(true);
         compressorgoiv.getStyleClass().add("icon");
         btnBatchToolsCompressorStart.setGraphic(compressorgoiv);
-        btnBatchToolsCompressorStart.setOnAction(_ -> {
-            try {
-                final var thread = new Thread(startCompression());
-                thread.setDaemon(true);
-                thread.start();
-            } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
-                Log.err(e1.getMessage(), e1);
+        btnBatchToolsCompressorStart.setOnAction(_ -> startCompressionProcess());
+    }
+
+    /**
+     * Starts the compression process in a background thread.
+     */
+    private void startCompressionProcess() {
+        try {
+            final var thread = new Thread(startCompression());
+            thread.setDaemon(true);
+            thread.start();
+        } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
+            Log.err(e1.getMessage(), e1);
+        }
+    }
+
+    /**
+     * Configures the compressor force setting.
+     *
+     * @param newValue the new value for the compressor force setting
+     */
+    private void configureCompressorForce(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.compressor_force, newValue);
+    }
+
+    /**
+     * Configures the compressor format setting.
+     *
+     * @param newValue the new value for the compressor format setting
+     */
+    private void configureCompressorFormat(CompressorFormat newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.compressor_format, newValue.toString());
+    }
+
+    /**
+     * Creates a custom table cell for displaying the compressor status.
+     *
+     * @return the custom table cell
+     */
+    private TableCell<FileResult, String> createBatchToolsCompressorStatusCell() {
+        return new TableCell<FileResult, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty)
+                    setText("");
+                else {
+                    setText(item);
+                    setTooltip(new Tooltip(item));
+                }
             }
-        });
+        };
+    }
+
+    /**
+     * Creates a custom table cell for displaying the compressor file path.
+     *
+     * @return the custom table cell
+     */
+    private TableCell<FileResult, Path> createBatchToolsCompressorFileCell() {
+        return new TableCell<FileResult, Path>() {
+            @Override
+            protected void updateItem(Path item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty)
+                    setText("");
+                else {
+                    setText(item.toString());
+                    setTooltip(new Tooltip(getText()));
+                }
+            }
+        };
     }
 
     /**
      * Starts the compression task in a background thread.
      *
      * @return the progress task
-     * @throws IOException        if an I/O error occurs
+     * 
+     * @throws IOException if an I/O error occurs
      * @throws URISyntaxException if the FXML resource URI is invalid
      */
     private ProgressTask<Void> startCompression() throws IOException, URISyntaxException {
@@ -296,9 +343,10 @@ public class BatchToolsPanelController extends BaseController {
     /**
      * Compresses a single file using the selected format.
      *
-     * @param cnt        the compression counter
+     * @param cnt the compression counter
      * @param compressor the compressor instance
-     * @param fr         the file result to compress
+     * @param fr the file result to compress
+     * 
      * @throws IllegalArgumentException if the file cannot be compressed
      */
     private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException {
@@ -307,18 +355,9 @@ public class BatchToolsPanelController extends BaseController {
         Compressor.UpdResultCallBack cb = fr::setResult;
         Compressor.UpdSrcCallBack scb = src -> fr.setFile(src.toPath());
         switch (cbbxBatchToolsCompressorFormat.getSelectionModel().getSelectedItem()) {
-            case SEVENZIP: {
-                toSevenZip(compressor, file, cb, scb);
-                break;
-            }
-            case ZIP: {
-                toZip(compressor, file, cb, scb);
-                break;
-            }
-            case TZIP: {
-                toTZip(compressor, file, cb, scb);
-                break;
-            }
+            case SEVENZIP -> toSevenZip(compressor, file, cb, scb);
+            case ZIP -> toZip(compressor, file, cb, scb);
+            case TZIP -> toTZip(compressor, file, cb, scb);
         }
     }
 
@@ -326,35 +365,34 @@ public class BatchToolsPanelController extends BaseController {
      * Converts a file to 7-Zip format.
      *
      * @param compressor the compressor instance
-     * @param file       the file to convert
-     * @param cb         the result callback
-     * @param scb        the source callback
+     * @param file the file to convert
+     * @param cb the result callback
+     * @param scb the source callback
+     * 
      * @throws IllegalArgumentException if the file cannot be converted
      */
     private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
         switch (FilenameUtils.getExtension(file.getName())) {
-            case "zip":
-                compressor.zip2SevenZip(file, cb, scb);
-                break;
-            case "7z":
+            case "zip" -> compressor.zip2SevenZip(file, cb, scb);
+            case "7z" -> {
                 if (cbBatchToolsCompressorForce.isSelected())
                     compressor.sevenZip2SevenZip(file, cb, scb);
                 else
                     cb.apply("Skipped");
-                break;
-            default:
-                compressor.sevenZip2SevenZip(file, cb, scb);
-                break;
+            }
+            default -> compressor.sevenZip2SevenZip(file, cb, scb);
         }
     }
 
     /**
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
+     * Converts a file to Zip format.
+     *
+     * @param compressor the compressor instance
+     * @param file the file to convert
+     * @param cb the result callback
+     * @param scb the source callback
      * 
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the file cannot be converted
      */
     private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
         if ("zip".equals(FilenameUtils.getExtension(file.getName()))) {
@@ -367,12 +405,14 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param compressor
-     * @param file
-     * @param cb
-     * @param scb
+     * Converts a file to TZip format.
+     *
+     * @param compressor the compressor instance
+     * @param file the file to convert
+     * @param cb the result callback
+     * @param scb the source callback
      * 
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the file cannot be converted
      */
     private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
         if ("zip".equals(FilenameUtils.getExtension(file.getName())))
@@ -385,7 +425,9 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param files
+     * Adds files to the compressor list.
+     *
+     * @param files the list of files to add
      */
     private void addFilesToCompressorList(List<File> files) {
         final var extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
@@ -404,7 +446,7 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the torrent check panel.
      */
     private void initTorrent() {
         ImageView torrentiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/drive_web.png"));
@@ -416,22 +458,16 @@ public class BatchToolsPanelController extends BaseController {
 
         cbbxBatchToolsTrntChk.setItems(FXCollections.observableArrayList(TrntChkMode.values()));
         cbbxBatchToolsTrntChk.getSelectionModel().select(TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode)));
-        cbbxBatchToolsTrntChk.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-            session.getUser().getSettings().setProperty(SettingsEnum.trntchk_mode, newValue.toString());
-            cbBatchToolsTrntChkRemoveWrongSizedFiles.setDisable(newValue == TrntChkMode.FILENAME);
-        });
+        cbbxBatchToolsTrntChk.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> handleTrntChkModeChange(newValue));
 
         cbBatchToolsTrntChkDetectArchivedFolder.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class));
-        cbBatchToolsTrntChkDetectArchivedFolder.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_detect_archived_folders, newValue));
+        cbBatchToolsTrntChkDetectArchivedFolder.selectedProperty().addListener((_, _, newValue) -> handleDetectArchivedFolderChange(newValue));
 
         cbBatchToolsTrntChkRemoveWrongSizedFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class));
-        cbBatchToolsTrntChkRemoveWrongSizedFiles.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, newValue));
+        cbBatchToolsTrntChkRemoveWrongSizedFiles.selectedProperty().addListener((_, _, newValue) -> handleRemoveWrongSizedFilesChange(newValue));
 
         cbBatchToolsTrntChkRemoveUnknownFiles.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class));
-        cbBatchToolsTrntChkRemoveUnknownFiles.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, newValue));
+        cbBatchToolsTrntChkRemoveUnknownFiles.selectedProperty().addListener((_, _, newValue) -> handleRemoveUnknownFilesChange(newValue));
 
         btnBatchToolsTrntChkStart.setOnAction(_ -> startTorrent());
         ImageView torrentgoiv = new ImageView(MainFrame.getIcon(ICON_BULLET_GO));
@@ -441,38 +477,65 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Handles changes to the "Remove Unknown Files" checkbox.
+     *
+     * @param newValue the new value of the checkbox
+     */
+    private void handleRemoveUnknownFilesChange(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_unknown_files, newValue);
+    }
+
+    /**
+     * Handles changes to the "Remove Wrong Sized Files" checkbox.
+     *
+     * @param newValue the new value of the checkbox
+     */
+    private void handleRemoveWrongSizedFilesChange(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_remove_wrong_sized_files, newValue);
+    }
+
+    /**
+     * Handles changes to the "Detect Archived Folders" checkbox.
+     *
+     * @param newValue the new value of the checkbox
+     */
+    private void handleDetectArchivedFolderChange(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_detect_archived_folders, newValue);
+    }
+
+    /**
+     * Handles changes to the torrent check mode selection.
+     *
+     * @param newValue the new value of the torrent check mode
+     */
+    private void handleTrntChkModeChange(TrntChkMode newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_mode, newValue.toString());
+        cbBatchToolsTrntChkRemoveWrongSizedFiles.setDisable(newValue == TrntChkMode.FILENAME);
+    }
+
+    /**
+     * Initializes the torrent list.
      */
     private void initTorrentList() {
         tvBatchToolsTorrent.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr)));
-        tvBatchToolsTorrentFilesCol.setCellFactory(_ -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
-            for (int i = 0; i < files.size(); i++)
-                sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-            saveTorrentDst();
-        }, file -> {
-            if (Files.isRegularFile(file.toPath()))
-                return file.getName().endsWith(".torrent");
-            return false;
-        }));
+        tvBatchToolsTorrentFilesCol.setCellFactory(_ -> createTorrentDropCell());
         tvBatchToolsTorrentFilesCol.setCellValueFactory(param -> param.getValue().srcProperty());
-        tvBatchToolsTorrentDstDirsCol.setCellFactory(_ -> new DropCell(tvBatchToolsTorrent, (sdrlist, files) -> {
-            for (int i = 0; i < files.size(); i++)
-                sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-            saveTorrentDst();
-        }, File::isDirectory));
+        tvBatchToolsTorrentDstDirsCol.setCellFactory(_ -> createTorrentDstDropCell());
         tvBatchToolsTorrentDstDirsCol.setCellValueFactory(param -> param.getValue().dstProperty());
         tvBatchToolsTorrentResultCol.setCellFactory(_ -> new NodeCellFactory<>());
         tvBatchToolsTorrentResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
-        tvBatchToolsTorrentSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
-            final var sdr = tvBatchToolsTorrent.getItems().get(param);
-            BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
-            observable.addListener((_, _, isNowSelected) -> {
-                sdr.setSelected(isNowSelected);
-                saveTorrentDst();
-            });
-            return observable;
-        }));
-        tvBatchToolsTorrentDetailsCol.setCellFactory(_ -> new ButtonCellFactory<>("Detail", cell -> {
+        tvBatchToolsTorrentSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(this::createSelectionObservable));
+        tvBatchToolsTorrentDetailsCol.setCellFactory(_ -> createTorrentDetailsCellFactory());
+        popupMenuTorrent.setOnShowing(_ -> mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty()));
+    }
+
+    /**
+     * Creates a button cell factory for the "Detail" button in the torrent list.
+     *
+     * @return the button cell factory
+     */
+    private ButtonCellFactory<SrcDstResult, SrcDstResult> createTorrentDetailsCellFactory() {
+        return new ButtonCellFactory<>("Detail", cell -> {
             final AbstractSrcDstResult sdr = tvBatchToolsTorrent.getItems().get(cell.getIndex());
             final var results = TrntChkReport.load(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
             try {
@@ -480,12 +543,85 @@ public class BatchToolsPanelController extends BaseController {
             } catch (URISyntaxException | IOException e1) /* NOSONAR */ {
                 Log.err(e1.getMessage(), e1);
             }
-        }));
-        popupMenuTorrent.setOnShowing(_ -> mnDelTorrent.setDisable(tvBatchToolsTorrent.getSelectionModel().isEmpty()));
+        });
     }
 
     /**
+     * Creates an observable value for the selection state of a torrent list item.
+     *
+     * @param param the index of the item in the torrent list
      * 
+     * @return the observable value representing the selection state
+     */
+    private ObservableValue<Boolean> createSelectionObservable(Integer param) {
+        final var sdr = tvBatchToolsTorrent.getItems().get(param);
+        BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
+        observable.addListener((_, _, isNowSelected) -> handleSelectionChange(sdr, isNowSelected));
+        return observable;
+    }
+
+    /**
+     * Handles changes to the selection state of a torrent list item.
+     *
+     * @param sdr the selected/deselected item
+     * @param isNowSelected the new selection state
+     */
+    private void handleSelectionChange(final SrcDstResult sdr, Boolean isNowSelected) {
+        sdr.setSelected(isNowSelected);
+        saveTorrentDst();
+    }
+
+    /**
+     * Creates a drop cell for the torrent destination column.
+     *
+     * @return the drop cell
+     */
+    private DropCell createTorrentDstDropCell() {
+        return new DropCell(tvBatchToolsTorrent, this::handleTorrentDstDrop, File::isDirectory);
+    }
+
+    private void handleTorrentDstDrop(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        saveTorrentDst();
+    }
+
+    /**
+     * Creates a drop cell for the torrent source column.
+     *
+     * @return the drop cell
+     */
+    private DropCell createTorrentDropCell() {
+        return new DropCell(tvBatchToolsTorrent, this::handleDroppedTorrentFiles, this::isTorrentFile);
+    }
+
+    /**
+     * Checks if a file is a valid torrent file.
+     *
+     * @param file the file to check
+     * 
+     * @return {@code true} if the file is a {@code .torrent} file, {@code false} otherwise
+     */
+    private boolean isTorrentFile(File file) {
+        if (Files.isRegularFile(file.toPath()))
+            return file.getName().endsWith(".torrent");
+        return false;
+    }
+
+    /**
+     * Handles dropped torrent files by updating the source paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped torrent files
+     */
+    private void handleDroppedTorrentFiles(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        saveTorrentDst();
+    }
+
+    /**
+     * Initializes the directory to DAT conversion panel.
      */
     private void initDat2Dir() {
         ImageView dat2diriv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/application_cascade.png"));
@@ -495,8 +631,7 @@ public class BatchToolsPanelController extends BaseController {
         initDat2DirSrc();
         initDat2DirDst();
         cbBatchToolsDat2DirDryRun.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class));
-        cbBatchToolsDat2DirDryRun.selectedProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue));
+        cbBatchToolsDat2DirDryRun.selectedProperty().addListener((_, _, newValue) -> handleDat2DirDryRunChange(newValue));
         ImageView dat2dirgoiv = new ImageView(MainFrame.getIcon(ICON_BULLET_GO));
         dat2dirgoiv.setPreserveRatio(true);
         dat2dirgoiv.getStyleClass().add("icon");
@@ -504,12 +639,17 @@ public class BatchToolsPanelController extends BaseController {
         btnBatchToolsDir2DatStart.setOnAction(_ -> startDir2Dat());
     }
 
+    private void handleDat2DirDryRunChange(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue);
+    }
+
     /**
      * Checks if a file is a valid DAT/XML file or directory containing DAT/XML files.
      *
      * @param file the file or directory to check
-     * @return {@code true} if the file is a {@code .xml}/{@code .dat} file or a directory
-     *         containing at least one such file, {@code false} otherwise
+     * 
+     * @return {@code true} if the file is a {@code .xml}/{@code .dat} file or a directory containing at least one such file,
+     *         {@code false} otherwise
      */
     boolean isValidDatFile(File file) {
         if (Files.isRegularFile(file.toPath()))
@@ -524,24 +664,62 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the destination table for the directory to DAT conversion.
      */
     private void initDat2DirDst() {
         tvBatchToolsDat2DirDst.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         tvBatchToolsDat2DirDst.getItems().setAll(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr)));
-        tvBatchToolsDat2DirDstDatsCol.setCellFactory(_ -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
-            for (int i = 0; i < files.size(); i++)
-                sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-            saveDat2DirDst();
-        }, this::isValidDatFile));
+        tvBatchToolsDat2DirDstDatsCol.setCellFactory(_ -> createDat2DirDstDatsDropCell());
         tvBatchToolsDat2DirDstDatsCol.setCellValueFactory(param -> param.getValue().srcProperty());
-        tvBatchToolsDat2DirDstDirsCol.setCellFactory(_ -> new DropCell(tvBatchToolsDat2DirDst, (sdrlist, files) -> {
-            for (int i = 0; i < files.size(); i++)
-                sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-            saveDat2DirDst();
-        }, File::isDirectory));
+        tvBatchToolsDat2DirDstDirsCol.setCellFactory(_ -> createDat2DirDstDirsDropCell());
         tvBatchToolsDat2DirDstDirsCol.setCellValueFactory(param -> param.getValue().dstProperty());
-        tvBatchToolsDat2DirDstResultCol.setCellFactory(_ -> new TableCell<SrcDstResult, String>() {
+        tvBatchToolsDat2DirDstResultCol.setCellFactory(_ -> createDat2DirDstResultCell());
+        tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
+        tvBatchToolsDat2DirDstDetailsCol.setCellFactory(_ -> getDat2DirDetailButtonCellFactory());
+        tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(this::createDat2DirDstSelectedObservable));
+        popupMenuDst.setOnShowing(_ -> updateDstMenuItemsState());
+    }
+
+    /**
+     * Updates the state of the destination menu items based on the selection in the destination table.
+     */
+    private void updateDstMenuItemsState() {
+        mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+        mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
+    }
+
+    /**
+     * Creates an observable value for the selection state of a destination table item.
+     *
+     * @param param the index of the item in the destination table
+     * 
+     * @return the observable value representing the selection state
+     */
+    private ObservableValue<Boolean> createDat2DirDstSelectedObservable(Integer param) {
+        final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
+        BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
+        observable.addListener((_, _, isNowSelected) -> onDat2DirDstSelectionChanged(sdr, isNowSelected));
+        return observable;
+    }
+
+    /**
+     * Handles changes to the selection state of a destination table item.
+     *
+     * @param sdr the selected/deselected item
+     * @param isNowSelected the new selection state
+     */
+    private void onDat2DirDstSelectionChanged(final SrcDstResult sdr, Boolean isNowSelected) {
+        sdr.setSelected(isNowSelected);
+        saveDat2DirDst();
+    }
+
+    /**
+     * Creates a cell for displaying the result of a DAT to directory conversion.
+     *
+     * @return the cell for displaying the result
+     */
+    private TableCell<SrcDstResult, String> createDat2DirDstResultCell() {
+        return new TableCell<SrcDstResult, String>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -552,26 +730,55 @@ public class BatchToolsPanelController extends BaseController {
                     setTooltip(new Tooltip(item));
                 }
             }
-        });
-        tvBatchToolsDat2DirDstResultCol.setCellValueFactory(param -> param.getValue().resultProperty());
-        tvBatchToolsDat2DirDstDetailsCol.setCellFactory(_ -> getDat2DirDetailButtonCellFactory());
-        tvBatchToolsDat2DirDstSelCol.setCellFactory(CheckBoxTableCell.forTableColumn(param -> {
-            final var sdr = tvBatchToolsDat2DirDst.getItems().get(param);
-            BooleanProperty observable = new SimpleBooleanProperty(sdr.isSelected());
-            observable.addListener((_, _, isNowSelected) -> {
-                sdr.setSelected(isNowSelected);
-                saveDat2DirDst();
-            });
-            return observable;
-        }));
-        popupMenuDst.setOnShowing(_ -> {
-            mntmDat2DirDstPresets.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
-            mnDat2DirDelDstDat.setDisable(tvBatchToolsDat2DirDst.getSelectionModel().isEmpty());
-        });
+        };
     }
 
     /**
-     * @return
+     * Creates a drop cell for handling directory drops in the DAT to directory destination table.
+     *
+     * @return the drop cell for handling directory drops
+     */
+    private DropCell createDat2DirDstDirsDropCell() {
+        return new DropCell(tvBatchToolsDat2DirDst, this::handleDat2DirDstDrop, File::isDirectory);
+    }
+
+    /**
+     * Handles dropped directories by updating the destination paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped directories
+     */
+    private void handleDat2DirDstDrop(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        saveDat2DirDst();
+    }
+
+    /**
+     * Creates a drop cell for handling DAT file drops in the DAT to directory destination table.
+     *
+     * @return the drop cell for handling DAT file drops
+     */
+    private DropCell createDat2DirDstDatsDropCell() {
+        return new DropCell(tvBatchToolsDat2DirDst, this::handleDroppedDat2DirDstFiles, this::isValidDatFile);
+    }
+
+    /**
+     * Handles dropped DAT files by updating the source paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped DAT files
+     */
+    private void handleDroppedDat2DirDstFiles(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        saveDat2DirDst();
+    }
+
+    /**
+     * Returns a button cell factory for the "Detail" button in the DAT to directory destination table.
+     *
+     * @return the button cell factory
      */
     private ButtonCellFactory<SrcDstResult, SrcDstResult> getDat2DirDetailButtonCellFactory() {
         return new ButtonCellFactory<>("Detail", cell -> {
@@ -586,44 +793,83 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * 
+     * Initializes the source directory list for the directory to DAT conversion.
      */
     private void initDat2DirSrc() {
-        new DragNDrop(tvBatchToolsDat2DirSrc).addDirs(dirs -> {
-            tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
-            saveDat2DirSrc();
-        });
+        new DragNDrop(tvBatchToolsDat2DirSrc).addDirs(this::handleDat2DirSrcDrop);
         tvBatchToolsDat2DirSrc.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         tvBatchToolsDat2DirSrc.getItems().setAll(
                 Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|')).filter(s -> !s.isBlank()).map(File::new).toList());
-        tvBatchToolsDat2DirSrcCol.setCellFactory(_ -> new TableCell<File, File>() {
+        tvBatchToolsDat2DirSrcCol.setCellFactory(_ -> createFileDisplayCell());
+        tvBatchToolsDat2DirSrcCol.setCellValueFactory(this::createFileCellValueFactory);
+        popupMenuSrc.setOnShowing(_ -> mnDat2DirDelSrcDir.setDisable(tvBatchToolsDat2DirSrc.getSelectionModel().isEmpty()));
+        mnDat2DirDelSrcDir.setOnAction(_ -> handleDat2DirDelSrcDir());
+        final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastsrcdir)).map(File::new).filter(File::exists).orElse(null);
+        mnDat2DirAddSrcDir.setOnAction(_ -> chooseDir(tvBatchToolsDat2DirSrc, null, lastsrcdir, this::onDat2DirSrcDirChosen));
+    }
+
+    /**
+     * Handles the event when a source directory is chosen for the directory to DAT conversion.
+     *
+     * @param dir the chosen source directory
+     */
+    private void onDat2DirSrcDirChosen(Path dir) {
+        tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
+        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastsrcdir, dir.toFile().getParent());
+        saveDat2DirSrc();
+    }
+
+    /**
+     * Handles the deletion of selected source directories from the directory to DAT conversion source list.
+     */
+    private void handleDat2DirDelSrcDir() {
+        tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
+        saveDat2DirSrc();
+    }
+
+    /**
+     * Creates an observable value for a file in the source directory list.
+     *
+     * @param param the cell data features containing the file
+     * 
+     * @return the observable value representing the file
+     */
+    private ObservableValueBase<File> createFileCellValueFactory(CellDataFeatures<File, File> param) {
+        return new ObservableValueBase<>() {
+            @Override
+            public File getValue() {
+                return param.getValue();
+            }
+        };
+    }
+
+    /**
+     * Creates a table cell for displaying a file in the source directory list.
+     *
+     * @return the table cell for displaying a file
+     */
+    private TableCell<File, File> createFileDisplayCell() {
+        return new TableCell<File, File>() {
             @Override
             protected void updateItem(File item, boolean empty) {
                 super.updateItem(item, empty);
                 setText(empty ? "" : item.toString());
             }
-        });
-        tvBatchToolsDat2DirSrcCol.setCellValueFactory(param -> new ObservableValueBase<>() {
-            @Override
-            public File getValue() {
-                return param.getValue();
-            }
-        });
-        popupMenuSrc.setOnShowing(_ -> mnDat2DirDelSrcDir.setDisable(tvBatchToolsDat2DirSrc.getSelectionModel().isEmpty()));
-        mnDat2DirDelSrcDir.setOnAction(_ -> {
-            tvBatchToolsDat2DirSrc.getItems().removeAll(tvBatchToolsDat2DirSrc.getSelectionModel().getSelectedItems());
-            saveDat2DirSrc();
-        });
-        final var lastsrcdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastsrcdir)).map(File::new).filter(File::exists).orElse(null);
-        mnDat2DirAddSrcDir.setOnAction(_ -> chooseDir(tvBatchToolsDat2DirSrc, null, lastsrcdir, dir -> {
-            tvBatchToolsDat2DirSrc.getItems().add(dir.toFile());
-            session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastsrcdir, dir.toFile().getParent());
-            saveDat2DirSrc();
-        }));
+        };
     }
 
     /**
-     * 
+     * Handles the event when directories are dropped onto the source directory list for the directory to DAT conversion.
+     *
+     * @param dirs the list of dropped directories
+     */
+    private void handleDat2DirSrcDrop(List<File> dirs) {
+        tvBatchToolsDat2DirSrc.getItems().addAll(dirs);
+        saveDat2DirSrc();
+    }
+
+    /**
+     * Starts the directory to DAT conversion task in a background thread.
      */
     private void startDir2Dat() {
         if (!tvBatchToolsDat2DirSrc.getItems().isEmpty()) {
@@ -633,19 +879,7 @@ public class BatchToolsPanelController extends BaseController {
                 Dialogs.showAlert(Messages.getString("MainFrame.AllDatsPresetsAssigned"));
             else {
                 try {
-                    final var updater = new ResultColUpdater() {
-                        @Override
-                        public void updateResult(int row, String result) {
-                            tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
-                        }
-
-                        @Override
-                        public void clearResults() {
-                            for (final AbstractSrcDstResult item : tvBatchToolsDat2DirDst.getItems())
-                                item.setResult("");
-                        }
-                    };
-                    Thread.startVirtualThread(buildDir2DatTask(sdrl, updater));
+                    Thread.startVirtualThread(buildDir2DatTask(sdrl, createResultColUpdater()));
                 } catch (URISyntaxException | IOException ex) {
                     Log.err(ex.getMessage(), ex);
                 }
@@ -654,26 +888,29 @@ public class BatchToolsPanelController extends BaseController {
             Dialogs.showAlert(Messages.getString("MainFrame.AtLeastOneSrcDir"));
     }
 
+    private ResultColUpdater createResultColUpdater() {
+        return new ResultColUpdater() {
+            @Override
+            public void updateResult(int row, String result) {
+                tvBatchToolsDat2DirDst.getItems().get(row).setResult(result);
+            }
+
+            @Override
+            public void clearResults() {
+                for (final AbstractSrcDstResult item : tvBatchToolsDat2DirDst.getItems())
+                    item.setResult("");
+            }
+        };
+    }
+
     /**
-     * 
+     * Starts the torrent check task in a background thread.
      */
     private void startTorrent() {
         if (!tvBatchToolsTorrent.getItems().isEmpty()) {
             final List<SrcDstResult> sdrl = tvBatchToolsTorrent.getItems();
 
             final TrntChkMode mode = cbbxBatchToolsTrntChk.getSelectionModel().getSelectedItem();
-            final ResultColUpdater updater = new ResultColUpdater() {
-                @Override
-                public void updateResult(int row, String result) {
-                    tvBatchToolsTorrent.getItems().get(row).setResult(result);
-                }
-
-                @Override
-                public void clearResults() {
-                    for (final AbstractSrcDstResult item : tvBatchToolsTorrent.getItems())
-                        item.setResult("");
-                }
-            };
             final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
             if (cbBatchToolsTrntChkRemoveUnknownFiles.isSelected())
                 opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
@@ -683,7 +920,7 @@ public class BatchToolsPanelController extends BaseController {
                 opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
             try {
-                Thread.startVirtualThread(buildTorrentTask(sdrl, mode, updater, opts));
+                Thread.startVirtualThread(buildTorrentTask(sdrl, mode, createTorrentResultUpdater(), opts));
             } catch (URISyntaxException | IOException ex) {
                 Log.err(ex.getMessage(), ex);
                 Dialogs.showError(ex);
@@ -693,12 +930,35 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param sdrl
+     * Creates a result column updater for the torrent check task.
+     *
+     * @return the result column updater
+     */
+    private ResultColUpdater createTorrentResultUpdater() {
+        return new ResultColUpdater() {
+            @Override
+            public void updateResult(int row, String result) {
+                tvBatchToolsTorrent.getItems().get(row).setResult(result);
+            }
+
+            @Override
+            public void clearResults() {
+                for (final AbstractSrcDstResult item : tvBatchToolsTorrent.getItems())
+                    item.setResult("");
+            }
+        };
+    }
+
+    /**
+     * Builds a directory to DAT conversion task.
      * 
-     * @return
+     * @param sdrl the list of source-destination results
+     * @param updater the result column updater
      * 
-     * @throws IOException
-     * @throws URISyntaxException
+     * @return the built progress task
+     * 
+     * @throws IOException if an I/O error occurs
+     * @throws URISyntaxException if the URI syntax is invalid
      */
     private ProgressTask<DirUpdater> buildDir2DatTask(final List<SrcDstResult> sdrl, ResultColUpdater updater) throws IOException, URISyntaxException {
         return new ProgressTask<DirUpdater>((Stage) tvBatchToolsDat2DirDst.getScene().getWindow()) {
@@ -745,12 +1005,17 @@ public class BatchToolsPanelController extends BaseController {
     }
 
     /**
-     * @param sdrl
+     * Builds a torrent check task.
      * 
-     * @return
+     * @param sdrl the list of source-destination results
+     * @param mode the torrent check mode
+     * @param updater the result column updater
+     * @param opts the options
      * 
-     * @throws IOException
-     * @throws URISyntaxException
+     * @return the built progress task
+     * 
+     * @throws IOException if an I/O error occurs
+     * @throws URISyntaxException if the URI syntax is invalid
      */
     private ProgressTask<TorrentChecker<SrcDstResult>> buildTorrentTask(final List<SrcDstResult> sdrl, TrntChkMode mode, ResultColUpdater updater, EnumSet<Options> opts)
             throws IOException, URISyntaxException {
@@ -785,18 +1050,32 @@ public class BatchToolsPanelController extends BaseController {
         };
     }
 
+    /**
+     * Saves the DAT to directory destination items.
+     */
     private void saveDat2DirDst() {
         session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(tvBatchToolsDat2DirDst.getItems()));
     }
 
+    /**
+     * Saves the torrent destination directories.
+     */
     private void saveTorrentDst() {
         session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(tvBatchToolsTorrent.getItems()));
     }
 
+    /**
+     * Saves the source directories for the DAT to directory conversion.
+     */
     private void saveDat2DirSrc() {
         session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_srcdirs, String.join("|", tvBatchToolsDat2DirSrc.getItems().stream().map(File::getAbsolutePath).toList()));
     }
 
+    /**
+     * Handles the "Custom Presets" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onCustomPresets(ActionEvent e) {
         try {
@@ -807,114 +1086,213 @@ public class BatchToolsPanelController extends BaseController {
         }
     }
 
+    /**
+     * Handles the "Delete Dat2DirDst" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onDelDat2DirDst(ActionEvent e) {
         tvBatchToolsDat2DirDst.getItems().removeAll(tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems());
         saveDat2DirDst();
     }
 
+    /**
+     * Handles the "Add Dat2DirDst DAT File" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddDat2DirDstDat(ActionEvent e) {
         final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, lastdstdatdir, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell
-                .process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
-                    for (int i = 0; i < files.size(); i++)
-                        sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-                    session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdatdir, files.stream().map(File::getParent).findFirst().orElse(null));
-                    saveDat2DirDst();
-                }));
+                .process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), this::processDat2DirDstFiles));
     }
 
+    /**
+     * Processes the dropped DAT files and updates the source paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped DAT files
+     */
+    private void processDat2DirDstFiles(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdatdir, files.stream().map(File::getParent).findFirst().orElse(null));
+        saveDat2DirDst();
+    }
+
+    /**
+     * Handles the "Add Dat2DirDst DAT Directory" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddDat2DirDstDatDir(ActionEvent e) {
         final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsDat2DirDst, null, lastdstdatdir,
-                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-                    for (int i = 0; i < files.size(); i++)
-                        sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-                    session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdatdir, files.stream().map(File::getParent).findFirst().orElse(null));
-                    saveDat2DirDst();
-                }));
+                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::processDat2DirDstFiles));
     }
 
+    /**
+     * Handles the "Add Dat2DirDst Directory" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddDat2DirDstDir(ActionEvent e) {
         final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsDat2DirDst, null, lastdstdir,
-                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-                    for (int i = 0; i < files.size(); i++)
-                        sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-                    session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
-                    saveDat2DirDst();
-                }));
+                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::processDat2DirDst));
     }
 
+    /**
+     * Processes the dropped directories for the DAT to directory destination table.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped directories
+     */
+    private void processDat2DirDst(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
+        saveDat2DirDst();
+    }
+
+    /**
+     * Handles the "TZIP Presets" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onTZIPPresets(ActionEvent e) {
         for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
             ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
     }
 
+    /**
+     * Handles the "DIR Presets" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onDIRPresets(ActionEvent e) {
         for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
             ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile());
     }
 
+    /**
+     * Handles the "Add Torrent" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddTorrent(ActionEvent e) {
         final var lasttrntdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_lasttrntdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseOpenFileMulti(tvBatchToolsTorrent, null, lasttrntdir, Arrays.asList(new FileChooser.ExtensionFilter("Torrent files", "*.torrent")), paths -> DropCell
-                .process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), (sdrlist, files) -> {
-                    for (int i = 0; i < files.size(); i++)
-                        sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-                    session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lasttrntdir, files.stream().map(File::getParent).findFirst().orElse(null));
-                    saveTorrentDst();
-                }));
+                .process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), this::handleAddedTorrents));
     }
 
+    /**
+     * Handles the added torrent files by updating the source paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of added torrent files
+     */
+    private void handleAddedTorrents(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setSrc(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lasttrntdir, files.stream().map(File::getParent).findFirst().orElse(null));
+        saveTorrentDst();
+    }
+
+    /**
+     * Handles the "Add Torrent Destination Directory" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddTorrentDstDir(ActionEvent e) {
         final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_lastdstdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsTorrent, null, lastdstdir,
-                path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), (sdrlist, files) -> {
-                    for (int i = 0; i < files.size(); i++)
-                        sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
-                    session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
-                    saveTorrentDst();
-                }));
+                path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::handleTorrentDstSelection));
     }
 
+    /**
+     * Handles the selection of a torrent destination directory by updating the destination paths in the given list of {@code SrcDstResult} objects.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of selected torrent destination directories
+     */
+    private void handleTorrentDstSelection(List<SrcDstResult> sdrlist, List<File> files) {
+        for (int i = 0; i < files.size(); i++)
+            sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
+        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_lastdstdir, files.stream().map(File::getParent).findFirst().orElse(null));
+        saveTorrentDst();
+    }
+
+    /**
+     * Handles the "Delete Torrent" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onDelTorrent(ActionEvent e) {
         tvBatchToolsTorrent.getItems().removeAll(tvBatchToolsTorrent.getSelectionModel().getSelectedItems());
         saveTorrentDst();
     }
 
+    /**
+     * Handles the "Add Archive" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onAddArchive(ActionEvent e) {
         final var lastdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.compressor_lastdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseOpenFileMulti(tvBatchToolsCompressor, null, lastdir, Arrays.asList(new FileChooser.ExtensionFilter("Archive files", "*.zip", "*.7z", "*.rar", "*.arj", "*.tar",
-                "*.lzh", "*.lha", "*.tgz", "*.tbz", "*.tbz2", "*.rpm", "*.iso", "*.deb", "*.cab")), paths -> {
-                    paths.stream().map(FileResult::new).forEachOrdered(tvBatchToolsCompressor.getItems()::add);
-                    session.getUser().getSettings().setProperty(SettingsEnum.compressor_lastdir, paths.stream().map(Path::toFile).map(File::getParent).findFirst().orElse(null));
-                });
+                "*.lzh", "*.lha", "*.tgz", "*.tbz", "*.tbz2", "*.rpm", "*.iso", "*.deb", "*.cab")), this::processSelectedArchives);
     }
 
+    /**
+     * Processes the selected archive files by creating {@code FileResult} objects and adding them to the compressor table.
+     *
+     * @param paths the list of selected archive file paths
+     */
+    private void processSelectedArchives(List<Path> paths) {
+        paths.stream().map(FileResult::new).forEachOrdered(tvBatchToolsCompressor.getItems()::add);
+        session.getUser().getSettings().setProperty(SettingsEnum.compressor_lastdir, paths.stream().map(Path::toFile).map(File::getParent).findFirst().orElse(null));
+    }
+
+    /**
+     * Handles the "Delete Archive" button action.
+     * 
+     * @param e the action event
+     */
     @FXML
     void onDelArchive(ActionEvent e) {
         tvBatchToolsCompressor.getItems().removeAll(tvBatchToolsCompressor.getSelectionModel().getSelectedItems());
     }
 
+    /** Custom presets stage. */
     public class CustomPresets extends Stage {
+        /** The controller for the scanner panel settings. */
         ScannerPanelSettingsController controller;
 
+        /**
+         * Initializes a new instance of the CustomPresets class.
+         * 
+         * @param parent the parent stage
+         * 
+         * @throws IOException if an I/O error occurs
+         * @throws URISyntaxException if the URI syntax is invalid
+         */
         public CustomPresets(Stage parent) throws IOException, URISyntaxException {
             super();
             initOwner(parent);
@@ -945,6 +1323,9 @@ public class BatchToolsPanelController extends BaseController {
             show();
         }
 
+        /**
+         * Saves the profile settings.
+         */
         private void save() {
             for (final AbstractSrcDstResult sdr : tvBatchToolsDat2DirDst.getSelectionModel().getSelectedItems())
                 session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile(), controller.getSettings());

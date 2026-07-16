@@ -58,6 +58,10 @@ public class BatchTorrentResultsController implements Initializable {
     /** The torrent check report. */
     private TrntChkReport report;
 
+    /** Initializes the controller.
+     * @param location the location of the FXML file
+     * @param resources the resources for the FXML file
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         treeview.setCellFactory(_ -> new TreeCell<>() {
@@ -90,24 +94,20 @@ public class BatchTorrentResultsController implements Initializable {
      * @return the color suffix string (e.g., "_green", "_red")
      */
     protected String statusColor(final Status status) {
-        switch (status) {
-            case OK:
-                return "_green";
-            case MISSING:
-                return "_red";
-            case SHA1:
-                return "_purple";
-            case SIZE:
-                return "_blue";
-            case SKIPPED:
-                return "_orange";
-            case UNKNOWN:
-                return "_gray";
-            default:
-                return "";
-        }
+        return switch (status) {
+            case OK -> "_green";
+            case MISSING -> "_red";
+            case SHA1 -> "_purple";
+            case SIZE -> "_blue";
+            case SKIPPED -> "_orange";
+            case UNKNOWN -> "_gray";
+            default -> "";
+        };
     }
 
+    /** Handles the "OK" button action.
+     * @param e the action event
+     */
     @FXML
     private void onOK(ActionEvent e) {
         treeview.getScene().getWindow().hide();
@@ -123,10 +123,17 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
+    /** Builds the tree structure for the given parent and children.
+     */
     private void build() {
         treeview.setRoot(buildTree(null, report.filter(filterOptions)));
     }
 
+    /** Builds the tree structure for the given parent and children.
+     * @param parent the parent tree item
+     * @param children the list of child items
+     * @return the built tree item
+     */
     private TreeItem<Child> buildTree(TreeItem<Child> parent, List<Child> children) {
         final var p = parent == null ? new TreeItem<Child>() : parent;
         if (children != null)
@@ -135,6 +142,9 @@ public class BatchTorrentResultsController implements Initializable {
         return p;
     }
 
+    /** Handles the "Show OK" checkbox action.
+     * @param e the action event
+     */
     @FXML
     private void showok(javafx.event.ActionEvent e) {
         if (showok.isSelected())
@@ -144,6 +154,9 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
+    /** Handles the "Hide Missing" checkbox action.
+     * @param e the action event
+     */
     @FXML
     private void hidemissing(javafx.event.ActionEvent e) {
         if (hidemissing.isSelected())
@@ -153,6 +166,9 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
+    /** Opens all nodes in the tree view.
+     * @param e the action event
+     */
     @FXML
     private void openAllNodes(javafx.event.ActionEvent e) {
         final var root = treeview.getRoot();
@@ -163,6 +179,9 @@ public class BatchTorrentResultsController implements Initializable {
         treeview.setRoot(root);
     }
 
+    /** Closes all nodes in the tree view.
+     * @param e the action event
+     */
     @FXML
     private void closeAllNodes(javafx.event.ActionEvent e) {
         final var root = treeview.getRoot();

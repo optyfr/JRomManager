@@ -1,6 +1,7 @@
 package jrm.fx.ui;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
@@ -22,6 +23,7 @@ import javafx.util.StringConverter;
 import jrm.compressors.SevenZipOptions;
 import jrm.compressors.ZipLevel;
 import jrm.compressors.ZipTempThreshold;
+import jrm.fx.ui.JRMScene.StyleSheet;
 import jrm.fx.ui.misc.DragNDrop;
 import jrm.locale.Messages;
 import jrm.misc.Log;
@@ -33,8 +35,8 @@ import lombok.RequiredArgsConstructor;
 /**
  * FXML controller for the settings panel.
  * <p>
- * Manages application-wide settings including threading, style sheet, backup
- * destination, compressor options (ZIP level, 7z options), and debug log level.
+ * Manages application-wide settings including threading, style sheet, backup destination, compressor options (ZIP level, 7z
+ * options), and debug log level.
  *
  * @since 2.5
  */
@@ -112,30 +114,43 @@ public class SettingsPanelController extends BaseController {
         paneGeneral.setGraphic(generaliv);
         cbThreading.getItems().setAll(ThreadCnt.build());
         cbThreading.getSelectionModel().select(new ThreadCnt(session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class)));
-        cbThreading.getSelectionModel().selectedItemProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt()));
-        ckbBackupDst.selectedProperty().addListener((_, _, newValue) -> {
-            tfBackupDst.setDisable(!newValue);
-            btBackupDst.setDisable(!newValue);
-            session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue); // $NON-NLS-1$
-        });
+        cbThreading.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> configureThreadCount(newValue));
+        ckbBackupDst.selectedProperty().addListener((_, _, newValue) -> configureBackupDestinationAvailability(newValue));
         ckbBackupDst.setSelected(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir_enabled, Boolean.class));
         ImageView backupdstiv = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/disk.png"));
         backupdstiv.setPreserveRatio(true);
         backupdstiv.getStyleClass().add("icon");
         btBackupDst.setGraphic(backupdstiv);
         tfBackupDst.setText(session.getUser().getSettings().getProperty(ProfileSettingsEnum.backup_dest_dir)); // $NON-NLS-1$
-        new DragNDrop(btBackupDst).addDir(txt -> session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt));
-        btBackupDst.setOnAction(_ -> chooseDir(btBackupDst, tfBackupDst.getText(), null, path -> {
-            session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, path.toString());
-            tfBackupDst.setText(path.toString());
-        }));
+        new DragNDrop(btBackupDst).addDir(this::configureBackupDirectory);
+        btBackupDst.setOnAction(_ -> chooseDir(btBackupDst, tfBackupDst.getText(), null, this::configureBackupPath));
         cbStyleSheet.getItems().setAll(JRMScene.StyleSheet.values());
         cbStyleSheet.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(JRMScene.ScenePrefs.style_sheet, JRMScene.StyleSheet.class));
-        cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> {
-            session.getUser().getSettings().setEnumProperty(JRMScene.ScenePrefs.style_sheet, newValue);
-            MainFrame.applyCSS();
-        });
+        cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> changeStyleSheet(newValue));
+    }
+
+    private void configureBackupPath(Path path) {
+        session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, path.toString());
+        tfBackupDst.setText(path.toString());
+    }
+
+    private void configureBackupDirectory(String txt) {
+        session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt);
+    }
+
+    private void configureBackupDestinationAvailability(Boolean newValue) {
+        tfBackupDst.setDisable(!newValue);
+        btBackupDst.setDisable(!newValue);
+        session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue); // $NON-NLS-1$
+    }
+
+    private void configureThreadCount(ThreadCnt newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt());
+    }
+
+    private void changeStyleSheet(StyleSheet newValue) {
+        session.getUser().getSettings().setEnumProperty(JRMScene.ScenePrefs.style_sheet, newValue);
+        MainFrame.applyCSS();
     }
 
     /**
@@ -147,40 +162,48 @@ public class SettingsPanelController extends BaseController {
         compressoriv.getStyleClass().add("icon");
         paneCompressors.setGraphic(compressoriv);
         cbZipTempThreshold.getItems().setAll(ZipTempThreshold.values());
-        cbZipTempThreshold.setConverter(new StringConverter<>() {
-
-            @Override
-            public String toString(ZipTempThreshold object) {
-                return object.getDesc();
-            }
-
-            @Override
-            public ZipTempThreshold fromString(String string) {
-                return null;
-            }
-        });
+        cbZipTempThreshold.setConverter(zipTempThresholdStringConverter());
         cbZipTempThreshold.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.zip_temp_threshold, ZipTempThreshold.class));
-        cbZipTempThreshold.getSelectionModel().selectedItemProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_temp_threshold, newValue));
+        cbZipTempThreshold.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> configureZipTempThreshold(newValue));
         cbZipLevel.getItems().setAll(ZipLevel.values());
-        cbZipLevel.setConverter(new StringConverter<>() {
-
-            @Override
-            public String toString(ZipLevel object) {
-                return object.getName();
-            }
-
-            @Override
-            public ZipLevel fromString(String string) {
-                return null;
-            }
-        });
+        cbZipLevel.setConverter(zipLevelStringConverter());
         cbZipLevel.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.zip_compression_level, ZipLevel.class));
-        cbZipLevel.getSelectionModel().selectedItemProperty()
-                .addListener((_, _, newValue) -> session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, newValue));
+        cbZipLevel.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> configureZipCompressionLevel(newValue));
 
         cb7zArgs.getItems().setAll(SevenZipOptions.values());
-        cb7zArgs.setConverter(new StringConverter<>() {
+        cb7zArgs.setConverter(sevenZipOptionsStringConverter());
+        cb7zArgs.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.sevenzip_level, SevenZipOptions.class));
+        tf7zThreads.setValueFactory(get7zThreadsSpinner());
+        tf7zThreads.getValueFactory().setValue(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class));
+        tf7zThreads.valueProperty().addListener((_, _, newValue) -> configureSevenZipThreads(newValue));
+        ckb7ZSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class));
+        ckb7ZSolid.selectedProperty().addListener((_, _, newValue) -> configureSevenZipSolidOption(newValue));
+    }
+
+    private void configureSevenZipSolidOption(Boolean newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, newValue);
+    }
+
+    private void configureSevenZipThreads(Integer newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, newValue);
+    }
+
+    private SpinnerValueFactory<Integer> get7zThreadsSpinner() {
+        return new SpinnerValueFactory<Integer>() {
+            @Override
+            public void decrement(int steps) {
+                setValue(Math.max(-1, getValue() - steps));
+            }
+
+            @Override
+            public void increment(int steps) {
+                setValue(getValue() + steps);
+            }
+        };
+    }
+
+    private StringConverter<SevenZipOptions> sevenZipOptionsStringConverter() {
+        return new StringConverter<>() {
 
             @Override
             public String toString(SevenZipOptions object) {
@@ -191,23 +214,45 @@ public class SettingsPanelController extends BaseController {
             public SevenZipOptions fromString(String string) {
                 return null;
             }
-        });
-        cb7zArgs.getSelectionModel().select(session.getUser().getSettings().getEnumProperty(SettingsEnum.sevenzip_level, SevenZipOptions.class));
-        tf7zThreads.setValueFactory(new SpinnerValueFactory<Integer>() {
+        };
+    }
+
+    private void configureZipCompressionLevel(ZipLevel newValue) {
+        session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, newValue);
+    }
+
+    private StringConverter<ZipLevel> zipLevelStringConverter() {
+        return new StringConverter<>() {
+
             @Override
-            public void decrement(int steps) {
-                setValue(Math.max(-1, getValue() - steps));
+            public String toString(ZipLevel object) {
+                return object.getName();
             }
 
             @Override
-            public void increment(int steps) {
-                setValue(getValue() + steps);
+            public ZipLevel fromString(String string) {
+                return null;
             }
-        });
-        tf7zThreads.getValueFactory().setValue(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_threads, Integer.class));
-        tf7zThreads.valueProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, newValue));
-        ckb7ZSolid.setSelected(session.getUser().getSettings().getProperty(SettingsEnum.sevenzip_solid, Boolean.class));
-        ckb7ZSolid.selectedProperty().addListener((_, _, newValue) -> session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, newValue));
+        };
+    }
+
+    private void configureZipTempThreshold(ZipTempThreshold newValue) {
+        session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_temp_threshold, newValue);
+    }
+
+    private StringConverter<ZipTempThreshold> zipTempThresholdStringConverter() {
+        return new StringConverter<>() {
+
+            @Override
+            public String toString(ZipTempThreshold object) {
+                return object.getDesc();
+            }
+
+            @Override
+            public ZipTempThreshold fromString(String string) {
+                return null;
+            }
+        };
     }
 
     /**
@@ -220,15 +265,19 @@ public class SettingsPanelController extends BaseController {
         paneDebug.setGraphic(debugiv);
         cbDbgLevel.getItems().setAll(levels);
         cbDbgLevel.getSelectionModel().select(Level.parse(session.getUser().getSettings().getProperty(SettingsEnum.debug_level)));
-        cbDbgLevel.getSelectionModel().selectedItemProperty().addListener((ChangeListener<Level>) (_, _, newValue) -> {
-            session.getUser().getSettings().setProperty(SettingsEnum.debug_level, newValue.toString());
-            Log.setLevel(newValue);
-        });
-        gc.setOnAction(_ -> {
-            System.gc(); // NOSONAR
-            updateMemory();
-        });
+        cbDbgLevel.getSelectionModel().selectedItemProperty().addListener((ChangeListener<Level>) (_, _, newValue) -> changeDebugLevel(newValue));
+        gc.setOnAction(_ -> performGarbageCollection());
         scheduler.scheduleAtFixedRate(this::updateMemory, 0, 20, TimeUnit.SECONDS);
+    }
+
+    private void performGarbageCollection() {
+        System.gc(); // NOSONAR
+        updateMemory();
+    }
+
+    private void changeDebugLevel(Level newValue) {
+        session.getUser().getSettings().setProperty(SettingsEnum.debug_level, newValue.toString());
+        Log.setLevel(newValue);
     }
 
     private static final String XX_MIB = "%.2f MiB";
