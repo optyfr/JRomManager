@@ -1,15 +1,19 @@
 package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,6 +27,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
@@ -39,7 +44,12 @@ import jrm.profile.Profile;
 import jrm.profile.data.Driver;
 import jrm.profile.data.Machine.CabinetType;
 import jrm.profile.data.Machine.DisplayOrientation;
+import jrm.profile.data.PropertyStub;
 import jrm.profile.data.Software.Supported;
+import jrm.profile.data.Source;
+import jrm.profile.data.Systm;
+import jrm.profile.filter.CatVer.Category.SubCategory;
+import jrm.profile.filter.NPlayer;
 import jrm.profile.scan.options.ScanAutomation;
 import jrm.security.Session;
 import jrm.security.Sessions;
@@ -90,6 +100,9 @@ class ScannerPanelControllerTest {
             when(mockUser.getSettings()).thenReturn(mockSettings);
 
             Profile mockProfile = mock(Profile.class);
+            // Empty filter collections so the filter selection helpers can iterate safely
+            when(mockProfile.getSystems()).thenReturn(new jrm.profile.data.Systms());
+            when(mockProfile.getSources()).thenReturn(new jrm.profile.data.Sources());
 
             Session mockSession = mock(Session.class);
             when(mockSession.getUser()).thenReturn(mockUser);
@@ -1792,6 +1805,374 @@ class ScannerPanelControllerTest {
             assertThat(tfCatVer.getText()).as("catver text cleared").isNull();
             assertThat(treeCatVer.getRoot()).as("catver tree root cleared").isNull();
             verify(mockProfile).setProperty(ProfileSettingsEnum.filter_catver_ini, null);
+        });
+    }
+
+    // ==================== Filter Selection Helper Method Tests ====================
+
+    /**
+     * Invokes a package-private FXML handler method on the controller via reflection.
+     *
+     * @param name the method name
+     */
+    private void invokeFxml(String name) throws Exception {
+        Method method = ScannerPanelController.class.getDeclaredMethod(name);
+        method.setAccessible(true);
+        method.invoke(TestApp.controller);
+    }
+
+    @Test
+    @DisplayName("systemsFilterSelectAll should run without throwing on empty systems")
+    void systemsFilterSelectAllShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterSelectAll")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterSelectAllBios should run without throwing on empty systems")
+    void systemsFilterSelectAllBiosShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterSelectAllBios")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterSelectAllSoftwares should run without throwing on empty systems")
+    void systemsFilterSelectAllSoftwaresShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterSelectAllSoftwares")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterUnselectAll should run without throwing on empty systems")
+    void systemsFilterUnselectAllShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterUnselectAll")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterUnselectAllBios should run without throwing on empty systems")
+    void systemsFilterUnselectAllBiosShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterUnselectAllBios")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterUnselectAllSoftwares should run without throwing on empty systems")
+    void systemsFilterUnselectAllSoftwaresShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterUnselectAllSoftwares")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("systemsFilterInvertSelection should run without throwing on empty systems")
+    void systemsFilterInvertSelectionShouldNotThrowOnEmptySystems() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("systemsFilterInvertSelection")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("sourcesFilterSelectAll should run without throwing on empty sources")
+    void sourcesFilterSelectAllShouldNotThrowOnEmptySources() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("sourcesFilterSelectAll")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("sourcesFilterUnselectAll should run without throwing on empty sources")
+    void sourcesFilterUnselectAllShouldNotThrowOnEmptySources() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("sourcesFilterUnselectAll")).doesNotThrowAnyException());
+    }
+
+    @Test
+    @DisplayName("sourcesFilterInvertSelection should run without throwing on empty sources")
+    void sourcesFilterInvertSelectionShouldNotThrowOnEmptySources() throws Exception {
+        runOnFxThread(() -> assertThatCode(() -> invokeFxml("sourcesFilterInvertSelection")).doesNotThrowAnyException());
+    }
+
+    // ==================== systemsFilterCellValue Tests ====================
+
+    /**
+     * Invokes a private cell-value factory method on the controller via reflection.
+     *
+     * @param name     the method name
+     * @param itemType the item parameter type
+     * @param item     the item argument
+     * @return the observable value produced by the factory
+     */
+    @SuppressWarnings("unchecked")
+    private javafx.beans.value.ObservableValue<Boolean> invokeCellValue(String name, Class<?> itemType, Object item) throws Exception {
+        Method method = ScannerPanelController.class.getDeclaredMethod(name, itemType);
+        method.setAccessible(true);
+        return (javafx.beans.value.ObservableValue<Boolean>) method.invoke(TestApp.controller, item);
+    }
+
+    @Test
+    @DisplayName("systemsFilterCellValue should reflect the item selection state")
+    void systemsFilterCellValueShouldReflectSelection() throws Exception {
+        runOnFxThread(() -> {
+            Systm item = mock(Systm.class);
+            when(item.isSelected(TestApp.controller.session.getCurrProfile())).thenReturn(true);
+
+            javafx.beans.value.ObservableValue<Boolean> observable = invokeCellValue("systemsFilterCellValue", Systm.class, item);
+
+            assertThat(observable.getValue()).isTrue();
+        });
+    }
+
+    @Test
+    @DisplayName("sourcesFilterCellValue should reflect the item selection state")
+    void sourcesFilterCellValueShouldReflectSelection() throws Exception {
+        runOnFxThread(() -> {
+            Source item = mock(Source.class);
+            when(item.isSelected(TestApp.controller.session.getCurrProfile())).thenReturn(false);
+
+            javafx.beans.value.ObservableValue<Boolean> observable = invokeCellValue("sourcesFilterCellValue", Source.class, item);
+
+            assertThat(observable.getValue()).isFalse();
+        });
+    }
+
+    @Test
+    @DisplayName("nPlayersCellValue should reflect the item selection state")
+    void nPlayersCellValueShouldReflectSelection() throws Exception {
+        runOnFxThread(() -> {
+            NPlayer item = mock(NPlayer.class);
+            when(item.isSelected(TestApp.controller.session.getCurrProfile())).thenReturn(true);
+
+            javafx.beans.value.ObservableValue<Boolean> observable = invokeCellValue("nPlayersCellValue", NPlayer.class, item);
+
+            assertThat(observable.getValue()).isTrue();
+        });
+    }
+
+    // ==================== catVer list selection Tests ====================
+
+    /**
+     * Builds a catver tree with one category and two subcategory items.
+     *
+     * @param root the root tree item
+     */
+    private void populateCatVerTree(CheckBoxTreeItem<PropertyStub> root) {
+        CheckBoxTreeItem<PropertyStub> cat = new CheckBoxTreeItem<>(mock(PropertyStub.class));
+        root.getChildren().add(cat);
+        cat.getChildren().add(new CheckBoxTreeItem<>(mock(PropertyStub.class)));
+        cat.getChildren().add(new CheckBoxTreeItem<>(mock(PropertyStub.class)));
+    }
+
+    @Test
+    @DisplayName("catVerListSelectAll should select all subcategory items")
+    void catVerListSelectAllShouldSelectAllSubcategories() throws Exception {
+        runOnFxThread(() -> {
+            TreeView<PropertyStub> treeCatVer = getField("treeCatVer");
+            CheckBoxTreeItem<PropertyStub> root = new CheckBoxTreeItem<>(mock(PropertyStub.class));
+            populateCatVerTree(root);
+            treeCatVer.setRoot(root);
+
+            invokeFxml("catVerListSelectAll");
+
+            CheckBoxTreeItem<PropertyStub> cat = (CheckBoxTreeItem<PropertyStub>) root.getChildren().get(0);
+            assertThat(cat.getChildren().stream().allMatch(i -> ((CheckBoxTreeItem<PropertyStub>) i).isSelected())).isTrue();
+        });
+    }
+
+    @Test
+    @DisplayName("catVerListUnselectAll should unselect all subcategory items")
+    void catVerListUnselectAllShouldUnselectSubcategories() throws Exception {
+        runOnFxThread(() -> {
+            TreeView<PropertyStub> treeCatVer = getField("treeCatVer");
+            CheckBoxTreeItem<PropertyStub> root = new CheckBoxTreeItem<>(mock(PropertyStub.class));
+            populateCatVerTree(root);
+            treeCatVer.setRoot(root);
+            invokeFxml("catVerListSelectAll");
+
+            invokeFxml("catVerListUnselectAll");
+
+            CheckBoxTreeItem<PropertyStub> cat = (CheckBoxTreeItem<PropertyStub>) root.getChildren().get(0);
+            assertThat(cat.getChildren().stream().noneMatch(i -> ((CheckBoxTreeItem<PropertyStub>) i).isSelected())).isTrue();
+        });
+    }
+
+    @Test
+    @DisplayName("catVerListSelectMature should run without throwing when no mature items")
+    void catVerListSelectMatureShouldNotThrowWithoutMatureItems() throws Exception {
+        runOnFxThread(() -> {
+            TreeView<PropertyStub> treeCatVer = getField("treeCatVer");
+            CheckBoxTreeItem<PropertyStub> root = new CheckBoxTreeItem<>(mock(PropertyStub.class));
+            populateCatVerTree(root);
+            treeCatVer.setRoot(root);
+
+            assertThatCode(() -> invokeFxml("catVerListSelectMature")).doesNotThrowAnyException();
+        });
+    }
+
+    @Test
+    @DisplayName("catVerListUnselectMature should run without throwing when no mature items")
+    void catVerListUnselectMatureShouldNotThrowWithoutMatureItems() throws Exception {
+        runOnFxThread(() -> {
+            TreeView<PropertyStub> treeCatVer = getField("treeCatVer");
+            CheckBoxTreeItem<PropertyStub> root = new CheckBoxTreeItem<>(mock(PropertyStub.class));
+            populateCatVerTree(root);
+            treeCatVer.setRoot(root);
+
+            assertThatCode(() -> invokeFxml("catVerListUnselectMature")).doesNotThrowAnyException();
+        });
+    }
+
+    @Test
+    @DisplayName("updateSubCategorySelection should set the subcategory selected state and refresh")
+    void updateSubCategorySelectionShouldSetSelectedState() throws Exception {
+        runOnFxThread(() -> {
+            TreeView<PropertyStub> treeCatVer = getField("treeCatVer");
+            treeCatVer.setRoot(new CheckBoxTreeItem<>(mock(PropertyStub.class)));
+            SubCategory sc = mock(SubCategory.class);
+
+            Method method = ScannerPanelController.class.getDeclaredMethod("updateSubCategorySelection", SubCategory.class, Boolean.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, sc, true);
+
+            verify(sc).setSelected(true);
+        });
+    }
+
+    // ==================== handleChosenSrcDir Tests ====================
+
+    @Test
+    @DisplayName("handleChosenSrcDir should add a new directory when oldDir is null")
+    void handleChosenSrcDirShouldAddNewDirectory() throws Exception {
+        runOnFxThread(() -> {
+            ListView<File> srcList = getField("srcList");
+            srcList.getItems().clear();
+            Path dir = Paths.get("/new/roms");
+
+            invokeHandleChosenSrcDir(null, dir);
+
+            assertThat(srcList.getItems()).containsExactly(dir.toFile());
+            verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq("MainFrame.ChooseRomsSource"), anyString());
+        });
+    }
+
+    @Test
+    @DisplayName("handleChosenSrcDir should replace the directory when oldDir is provided")
+    void handleChosenSrcDirShouldReplaceDirectory() throws Exception {
+        runOnFxThread(() -> {
+            ListView<File> srcList = getField("srcList");
+            File oldDir = new File("/old/roms");
+            srcList.getItems().setAll(oldDir);
+            Path newDir = Paths.get("/new/roms");
+
+            invokeHandleChosenSrcDir(oldDir, newDir);
+
+            assertThat(srcList.getItems()).containsExactly(newDir.toFile());
+        });
+    }
+
+    @Test
+    @DisplayName("handleChosenSrcDir should not duplicate an existing directory")
+    void handleChosenSrcDirShouldNotDuplicateExistingDirectory() throws Exception {
+        runOnFxThread(() -> {
+            ListView<File> srcList = getField("srcList");
+            File existing = new File("/existing/roms");
+            srcList.getItems().setAll(existing);
+
+            invokeHandleChosenSrcDir(null, existing.toPath());
+
+            assertThat(srcList.getItems()).containsExactly(existing);
+        });
+    }
+
+    /**
+     * Invokes the private {@code handleChosenSrcDir} method via reflection.
+     *
+     * @param oldDir the old directory (or null)
+     * @param dir    the chosen directory
+     */
+    private void invokeHandleChosenSrcDir(File oldDir, Path dir) throws Exception {
+        Method method = ScannerPanelController.class.getDeclaredMethod("handleChosenSrcDir", File.class, String.class, Path.class);
+        method.setAccessible(true);
+        method.invoke(TestApp.controller, oldDir, "MainFrame.ChooseRomsSource", dir);
+    }
+
+    // ==================== applyChosenDir Tests ====================
+
+    @Test
+    @DisplayName("applyChosenDir should update the text field and persist to settings and profile")
+    void applyChosenDirShouldUpdateTextFieldAndPersist() throws Exception {
+        runOnFxThread(() -> {
+            TextField romsDest = getField("romsDest");
+            romsDest.setText("");
+            Path dir = Paths.get("/chosen/roms");
+
+            Method method = ScannerPanelController.class.getDeclaredMethod("applyChosenDir", TextField.class, ProfileSettingsEnum.class, String.class, Path.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, romsDest, ProfileSettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination", dir);
+
+            assertThat(romsDest.getText()).isEqualTo(dir.toString());
+            verify(TestApp.controller.session.getCurrProfile()).setProperty(ProfileSettingsEnum.roms_dest_dir, dir.toString());
+        });
+    }
+
+    // ==================== selectNPlayersFile / showNPlayers Tests ====================
+
+    @Test
+    @DisplayName("selectNPlayersFile should ignore a non-existent file")
+    void selectNPlayersFileShouldIgnoreNonExistentFile() throws Exception {
+        runOnFxThread(() -> {
+            Method method = ScannerPanelController.class.getDeclaredMethod("selectNPlayersFile", String.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, "/nonexistent/nplayers.ini");
+
+            // No property should be set for a non-regular file
+            verify(TestApp.controller.session.getCurrProfile(), never())
+                .setProperty(eq(ProfileSettingsEnum.filter_nplayers_ini), anyString());
+        });
+    }
+
+    @Test
+    @DisplayName("selectNPlayersFile should load the nplayers file when it is a regular file")
+    void selectNPlayersFileShouldLoadRegularFile(@org.junit.jupiter.api.io.TempDir Path tempDir) throws Exception {
+        runOnFxThread(() -> {
+            java.io.File nplayers = java.nio.file.Files.createFile(tempDir.resolve("nplayers.ini")).toFile();
+            Method method = ScannerPanelController.class.getDeclaredMethod("selectNPlayersFile", String.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, nplayers.getAbsolutePath());
+
+            verify(TestApp.controller.session.getCurrProfile()).setProperty(ProfileSettingsEnum.filter_nplayers_ini, nplayers.getAbsolutePath());
+        });
+    }
+
+    @Test
+    @DisplayName("showNPlayers should clear the text field and list when no nplayers is loaded")
+    void showNPlayersShouldClearWhenNoNplayers() throws Exception {
+        runOnFxThread(() -> {
+            when(TestApp.controller.session.getCurrProfile().getNplayers()).thenReturn(null);
+            TextField tfNPlayers = getField("tfNPlayers");
+            tfNPlayers.setText("previous");
+
+            Method method = ScannerPanelController.class.getDeclaredMethod("showNPlayers");
+            method.setAccessible(true);
+            method.invoke(TestApp.controller);
+
+            assertThat(tfNPlayers.getText()).isNull();
+        });
+    }
+
+    // ==================== selectCatVerFile Tests ====================
+
+    @Test
+    @DisplayName("selectCatVerFile should ignore a non-existent file")
+    void selectCatVerFileShouldIgnoreNonExistentFile() throws Exception {
+        runOnFxThread(() -> {
+            Method method = ScannerPanelController.class.getDeclaredMethod("selectCatVerFile", String.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, "/nonexistent/catver.ini");
+
+            verify(TestApp.controller.session.getCurrProfile(), never())
+                .setProperty(eq(ProfileSettingsEnum.filter_catver_ini), anyString());
+        });
+    }
+
+    @Test
+    @DisplayName("selectCatVerFile should load the catver file when it is a regular file")
+    void selectCatVerFileShouldLoadRegularFile(@org.junit.jupiter.api.io.TempDir Path tempDir) throws Exception {
+        runOnFxThread(() -> {
+            java.io.File catver = java.nio.file.Files.createFile(tempDir.resolve("catver.ini")).toFile();
+            Method method = ScannerPanelController.class.getDeclaredMethod("selectCatVerFile", String.class);
+            method.setAccessible(true);
+            method.invoke(TestApp.controller, catver.getAbsolutePath());
+
+            verify(TestApp.controller.session.getCurrProfile()).setProperty(ProfileSettingsEnum.filter_catver_ini, catver.getAbsolutePath());
         });
     }
 }

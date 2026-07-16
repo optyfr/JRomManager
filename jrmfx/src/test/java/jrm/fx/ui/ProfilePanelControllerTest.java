@@ -2,12 +2,16 @@ package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,17 +21,21 @@ import org.mockito.MockedStatic;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import jrm.profile.manager.ProfileNFO;
+import jrm.profile.manager.ProfileNFOStats;
+import jrm.profile.manager.ProfileNFOStats.HaveNTotal;
 import jrm.profile.manager.ProfileNFOMame.MameStatus;
 import jrm.security.Sessions;
 import jrm.security.Session;
@@ -455,5 +463,327 @@ class ProfilePanelControllerTest {
         MameStatus status = controller.updateFromMameRelocate(mockNfo, existingMame);
 
         assertThat(status).isEqualTo(MameStatus.UPTODATE);
+    }
+
+    // ==================== Cell Value Factory Tests ====================
+
+    /**
+     * Builds a mock {@link ProfileNFO} whose stats return the given values.
+     *
+     * @param version  the catalog version
+     * @param created  the creation instant
+     * @param scanned  the last scan instant
+     * @param fixed    the last fix instant
+     * @param sets     the sets have/total
+     * @param roms     the roms have/total
+     * @param disks    the disks have/total
+     * @return a mock profile NFO
+     */
+    private ProfileNFO mockNfo(String version, Instant created, Instant scanned, Instant fixed, HaveNTotal sets, HaveNTotal roms, HaveNTotal disks) {
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        ProfileNFOStats stats = mock(ProfileNFOStats.class);
+        when(nfo.getStats()).thenReturn(stats);
+        when(stats.getVersion()).thenReturn(version);
+        when(stats.getCreated()).thenReturn(created);
+        when(stats.getScanned()).thenReturn(scanned);
+        when(stats.getFixed()).thenReturn(fixed);
+        when(stats.getSets()).thenReturn(sets);
+        when(stats.getRoms()).thenReturn(roms);
+        when(stats.getDisks()).thenReturn(disks);
+        return nfo;
+    }
+
+    /**
+     * Calls a column's cell value factory for the given profile NFO row.
+     *
+     * @param colName the column field name
+     * @param nfo     the row value
+     * @param <T>     the value type
+     * @return the produced value
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T callProfileValueFactory(String colName, ProfileNFO nfo) {
+        ProfilePanelController controller = TestApp.getController();
+        TableView<ProfileNFO> table = controller.profilesList;
+        TableColumn<ProfileNFO, T> col;
+        try {
+            var field = ProfilePanelController.class.getDeclaredField(colName);
+            field.setAccessible(true);
+            col = (TableColumn<ProfileNFO, T>) field.get(controller);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        CellDataFeatures<ProfileNFO, T> features = new CellDataFeatures<>(table, col, nfo);
+        ObservableValue<T> observable = col.getCellValueFactory().call(features);
+        return observable == null ? null : observable.getValue();
+    }
+
+    @Test
+    @DisplayName("profile column value factory should return the profile NFO itself")
+    void profileColValueFactoryShouldReturnNfo() {
+        ProfileNFO nfo = mockNfo("1.0", null, null, null, null, null, null);
+        ProfileNFO value = callProfileValueFactory("profileCol", nfo);
+        assertThat(value).isSameAs(nfo);
+    }
+
+    @Test
+    @DisplayName("profile version column value factory should return the stats version")
+    void profileVersionColValueFactoryShouldReturnVersion() {
+        ProfileNFO nfo = mockNfo("0.250", null, null, null, null, null, null);
+        String value = callProfileValueFactory("profileVersionCol", nfo);
+        assertThat(value).isEqualTo("0.250");
+    }
+
+    @Test
+    @DisplayName("profile created column value factory should return the creation instant")
+    void profileCreatedColValueFactoryShouldReturnCreated() {
+        Instant now = Instant.now();
+        ProfileNFO nfo = mockNfo(null, now, null, null, null, null, null);
+        Instant value = callProfileValueFactory("profileCreatedCol", nfo);
+        assertThat(value).isEqualTo(now);
+    }
+
+    @Test
+    @DisplayName("profile last scan column value factory should return the scan instant")
+    void profileLastScanColValueFactoryShouldReturnScanned() {
+        Instant now = Instant.now();
+        ProfileNFO nfo = mockNfo(null, null, now, null, null, null, null);
+        Instant value = callProfileValueFactory("profileLastScanCol", nfo);
+        assertThat(value).isEqualTo(now);
+    }
+
+    @Test
+    @DisplayName("profile last fix column value factory should return the fix instant")
+    void profileLastFixColValueFactoryShouldReturnFixed() {
+        Instant now = Instant.now();
+        ProfileNFO nfo = mockNfo(null, null, null, now, null, null, null);
+        Instant value = callProfileValueFactory("profileLastFixCol", nfo);
+        assertThat(value).isEqualTo(now);
+    }
+
+    @Test
+    @DisplayName("profile have sets column value factory should return the sets have/total")
+    void profileHaveSetsColValueFactoryShouldReturnSets() {
+        HaveNTotal sets = mock(HaveNTotal.class);
+        ProfileNFO nfo = mockNfo(null, null, null, null, sets, null, null);
+        HaveNTotal value = callProfileValueFactory("profileHaveSetsCol", nfo);
+        assertThat(value).isSameAs(sets);
+    }
+
+    @Test
+    @DisplayName("profile have roms column value factory should return the roms have/total")
+    void profileHaveRomsColValueFactoryShouldReturnRoms() {
+        HaveNTotal roms = mock(HaveNTotal.class);
+        ProfileNFO nfo = mockNfo(null, null, null, null, null, roms, null);
+        HaveNTotal value = callProfileValueFactory("profileHaveRomsCol", nfo);
+        assertThat(value).isSameAs(roms);
+    }
+
+    @Test
+    @DisplayName("profile have disks column value factory should return the disks have/total")
+    void profileHaveDisksColValueFactoryShouldReturnDisks() {
+        HaveNTotal disks = mock(HaveNTotal.class);
+        ProfileNFO nfo = mockNfo(null, null, null, null, null, null, disks);
+        HaveNTotal value = callProfileValueFactory("profileHaveDisksCol", nfo);
+        assertThat(value).isSameAs(disks);
+    }
+
+    // ==================== Menu State Tests ====================
+
+    @Test
+    @DisplayName("profileMenu onShowing should disable profile actions when nothing is selected")
+    void profileMenuOnShowingShouldDisableActionsWhenNoSelection() {
+        ProfilePanelController controller = TestApp.getController();
+        controller.profilesList.getSelectionModel().clearSelection();
+
+        controller.profileMenu.getOnShowing().handle(null);
+
+        assertThat(controller.deleteProfileMenu.isDisable()).as("deleteProfile disabled").isTrue();
+        assertThat(controller.renameProfileMenu.isDisable()).as("renameProfile disabled").isTrue();
+        assertThat(controller.dropCacheMenu.isDisable()).as("dropCache disabled").isTrue();
+        assertThat(controller.updateFromMameMenu.isDisable()).as("updateFromMame disabled").isTrue();
+    }
+
+    @Test
+    @DisplayName("profileMenu onShowing should enable actions and disable update for non-JRM profile when selected")
+    void profileMenuOnShowingShouldEnableActionsForSelectedNonJrmProfile() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        when(nfo.isJRM()).thenReturn(false);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        controller.profileMenu.getOnShowing().handle(null);
+
+        assertThat(controller.deleteProfileMenu.isDisable()).as("deleteProfile enabled").isFalse();
+        assertThat(controller.renameProfileMenu.isDisable()).as("renameProfile enabled").isFalse();
+        assertThat(controller.dropCacheMenu.isDisable()).as("dropCache enabled").isFalse();
+        assertThat(controller.updateFromMameMenu.isDisable()).as("updateFromMame disabled for non-JRM").isTrue();
+    }
+
+    @Test
+    @DisplayName("profileMenu onShowing should enable update for JRM profile when selected")
+    void profileMenuOnShowingShouldEnableUpdateForJrmProfile() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        when(nfo.isJRM()).thenReturn(true);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        controller.profileMenu.getOnShowing().handle(null);
+
+        assertThat(controller.updateFromMameMenu.isDisable()).as("updateFromMame enabled for JRM").isFalse();
+    }
+
+    @Test
+    @DisplayName("folderMenu onShowing should disable folder actions when nothing is selected")
+    void folderMenuOnShowingShouldDisableActionsWhenNoSelection() {
+        ProfilePanelController controller = TestApp.getController();
+        controller.profilesTree.getSelectionModel().clearSelection();
+
+        controller.folderMenu.getOnShowing().handle(null);
+
+        assertThat(controller.deleteFolderMenu.isDisable()).as("deleteFolder disabled").isTrue();
+        assertThat(controller.createFolderMenu.isDisable()).as("createFolder disabled").isTrue();
+    }
+
+    @Test
+    @DisplayName("folderMenu onShowing should enable folder actions when a folder is selected")
+    void folderMenuOnShowingShouldEnableActionsWhenFolderSelected() {
+        ProfilePanelController controller = TestApp.getController();
+        TreeItem<jrm.profile.manager.Dir> item = new TreeItem<>(mock(jrm.profile.manager.Dir.class));
+        controller.profilesTree.setRoot(item);
+        controller.profilesTree.getSelectionModel().select(item);
+
+        controller.folderMenu.getOnShowing().handle(null);
+
+        assertThat(controller.deleteFolderMenu.isDisable()).as("deleteFolder enabled").isFalse();
+        assertThat(controller.createFolderMenu.isDisable()).as("createFolder enabled").isFalse();
+    }
+
+    // ==================== Row / Tree Cell Factory Tests ====================
+
+    @Test
+    @DisplayName("profilesList row factory should build a row with a click handler")
+    void profilesListRowFactoryShouldBuildRowWithClickHandler() {
+        ProfilePanelController controller = TestApp.getController();
+        assertThat(controller.profilesList.getRowFactory().call(controller.profilesList)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("profilesTree cell factory should build an editable tree cell")
+    void profilesTreeCellFactoryShouldBuildTreeCell() {
+        ProfilePanelController controller = TestApp.getController();
+        assertThat(controller.profilesTree.getCellFactory().call(controller.profilesTree)).isNotNull();
+    }
+
+    // ==================== deleteProfile Tests ====================
+
+    @Test
+    @DisplayName("deleteProfile should remove the selected profile when it is not the current profile")
+    void deleteProfileShouldRemoveSelectedWhenNotCurrent() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        when(nfo.delete()).thenReturn(true);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        controller.deleteProfile(null);
+
+        assertThat(controller.profilesList.getItems()).doesNotContain(nfo);
+    }
+
+    @Test
+    @DisplayName("deleteProfile should not remove the currently loaded profile")
+    void deleteProfileShouldNotRemoveCurrentProfile() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        // Make nfo the current profile: getCurrProfile().getNfo() returns the same instance
+        jrm.profile.Profile currProfile = mock(jrm.profile.Profile.class);
+        when(currProfile.getNfo()).thenReturn(nfo);
+        when(TestApp.controller.session.getCurrProfile()).thenReturn(currProfile);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        controller.deleteProfile(null);
+
+        assertThat(controller.profilesList.getItems()).contains(nfo);
+        verify(nfo, never()).delete();
+    }
+
+    // ==================== dropCache Tests ====================
+
+    @Test
+    @DisplayName("dropCache should delete the .cache file for the selected profile")
+    void dropCacheShouldDeleteCacheFile(@TempDir Path tempDir) throws Exception {
+        ProfilePanelController controller = TestApp.getController();
+        File profileFile = Files.createFile(tempDir.resolve("profile.jrm")).toFile();
+        Files.createFile(tempDir.resolve("profile.jrm.cache"));
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        when(nfo.getFile()).thenReturn(profileFile);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        controller.dropCache(null);
+
+        assertThat(new File(profileFile.getAbsolutePath() + ".cache")).doesNotExist();
+    }
+
+    @Test
+    @DisplayName("dropCache should not throw when the cache file does not exist")
+    void dropCacheShouldNotThrowWhenCacheMissing(@TempDir Path tempDir) {
+        ProfilePanelController controller = TestApp.getController();
+        File profileFile = new File(tempDir.toFile(), "nocache.jrm");
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        when(nfo.getFile()).thenReturn(profileFile);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        assertThatCode(() -> controller.dropCache(null)).doesNotThrowAnyException();
+    }
+
+    // ==================== renameProfile Tests ====================
+
+    @Test
+    @DisplayName("renameProfile should enter edit mode on the profile column")
+    void renameProfileShouldEnterEditMode() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+
+        // renameProfile toggles editable and calls edit; verify no exception and editable flag reset
+        assertThatCode(() -> controller.renameProfile(null)).doesNotThrowAnyException();
+        assertThat(controller.profilesList.isEditable()).isFalse();
+    }
+
+    // ==================== actionLoad Tests ====================
+
+    @Test
+    @DisplayName("actionLoad should delegate to the profile loader when a profile is selected")
+    void actionLoadShouldDelegateToProfileLoader() {
+        ProfilePanelController controller = TestApp.getController();
+        ProfileNFO nfo = mock(ProfileNFO.class);
+        controller.profilesList.setItems(javafx.collections.FXCollections.observableArrayList(nfo));
+        controller.profilesList.getSelectionModel().select(nfo);
+        ProfileLoader loader = mock(ProfileLoader.class);
+        controller.setProfileLoader(loader);
+
+        controller.actionLoad(null);
+
+        verify(loader).loadProfile(controller.session, nfo);
+    }
+
+    @Test
+    @DisplayName("actionLoad should do nothing when no profile is selected")
+    void actionLoadShouldDoNothingWhenNoSelection() {
+        ProfilePanelController controller = TestApp.getController();
+        controller.profilesList.getSelectionModel().clearSelection();
+        ProfileLoader loader = mock(ProfileLoader.class);
+        controller.setProfileLoader(loader);
+
+        controller.actionLoad(null);
+
+        verify(loader, never()).loadProfile(eq(controller.session), org.mockito.ArgumentMatchers.any());
     }
 }

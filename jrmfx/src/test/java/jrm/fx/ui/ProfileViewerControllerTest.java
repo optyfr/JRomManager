@@ -1,9 +1,12 @@
 package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,10 +14,14 @@ import org.junit.jupiter.api.Test;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -25,8 +32,15 @@ import jrm.profile.Profile;
 import jrm.profile.data.Anyware;
 import jrm.profile.data.AnywareList;
 import jrm.profile.data.AnywareStatus;
+import jrm.profile.data.Disk;
 import jrm.profile.data.Entity;
 import jrm.profile.data.EntityBase;
+import jrm.profile.data.Machine;
+import jrm.profile.data.MachineList;
+import jrm.profile.data.Rom;
+import jrm.profile.data.Sample;
+import jrm.profile.data.Software;
+import jrm.profile.data.SoftwareList;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import jrm.security.User;
@@ -738,5 +752,557 @@ class ProfileViewerControllerTest {
         controller.copyCrc(null);
 
         assertThat(controller).isNotNull();
+    }
+
+    // ==================== Entity Cell Value Factory Tests ====================
+
+    /**
+     * Calls a column's cell value factory for the given entity row.
+     *
+     * @param colName the column field name
+     * @param row     the row value
+     * @param <T>     the value type
+     * @return the produced value
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T callEntityValueFactory(String colName, EntityBase row) {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<EntityBase, T> col = getField(controller, colName);
+        TableView<EntityBase> table = getField(controller, "tableEntity");
+        CellDataFeatures<EntityBase, T> features = new CellDataFeatures<>(table, col, row);
+        ObservableValue<T> observable = col.getCellValueFactory().call(features);
+        return observable == null ? null : observable.getValue();
+    }
+
+    @Test
+    @DisplayName("entity status value factory should return the entity base itself")
+    void entityStatusValueFactoryShouldReturnEntityBase() {
+        Rom rom = mock(Rom.class);
+        EntityBase value = callEntityValueFactory("tableEntityStatus", rom);
+        assertThat(value).isSameAs(rom);
+    }
+
+    @Test
+    @DisplayName("entity CRC value factory should return the ROM CRC")
+    void entityCrcValueFactoryShouldReturnRomCrc() {
+        Rom rom = mock(Rom.class);
+        when(rom.getCrc()).thenReturn("AABBCCDD");
+        String value = callEntityValueFactory("tableEntityCRC", rom);
+        assertThat(value).isEqualTo("AABBCCDD");
+    }
+
+    @Test
+    @DisplayName("entity CRC value factory should return the disk CRC")
+    void entityCrcValueFactoryShouldReturnDiskCrc() {
+        Disk disk = mock(Disk.class);
+        when(disk.getCrc()).thenReturn("11223344");
+        String value = callEntityValueFactory("tableEntityCRC", disk);
+        assertThat(value).isEqualTo("11223344");
+    }
+
+    @Test
+    @DisplayName("entity CRC value factory should return null for a sample")
+    void entityCrcValueFactoryShouldReturnNullForSample() {
+        Sample sample = mock(Sample.class);
+        String value = callEntityValueFactory("tableEntityCRC", sample);
+        assertThat(value).isNull();
+    }
+
+    @Test
+    @DisplayName("entity MD5 value factory should return the ROM MD5")
+    void entityMd5ValueFactoryShouldReturnRomMd5() {
+        Rom rom = mock(Rom.class);
+        when(rom.getMd5()).thenReturn("md5hash");
+        String value = callEntityValueFactory("tableEntityMD5", rom);
+        assertThat(value).isEqualTo("md5hash");
+    }
+
+    @Test
+    @DisplayName("entity SHA1 value factory should return the disk SHA1")
+    void entitySha1ValueFactoryShouldReturnDiskSha1() {
+        Disk disk = mock(Disk.class);
+        when(disk.getSha1()).thenReturn("sha1hash");
+        String value = callEntityValueFactory("tableEntitySHA1", disk);
+        assertThat(value).isEqualTo("sha1hash");
+    }
+
+    @Test
+    @DisplayName("entity size value factory should return the ROM size")
+    void entitySizeValueFactoryShouldReturnRomSize() {
+        Rom rom = mock(Rom.class);
+        when(rom.getSize()).thenReturn(4096L);
+        Long value = callEntityValueFactory("tableEntitySize", rom);
+        assertThat(value).isEqualTo(4096L);
+    }
+
+    @Test
+    @DisplayName("entity size value factory should return null for a disk")
+    void entitySizeValueFactoryShouldReturnNullForDisk() {
+        Disk disk = mock(Disk.class);
+        Long value = callEntityValueFactory("tableEntitySize", disk);
+        assertThat(value).isNull();
+    }
+
+    @Test
+    @DisplayName("entity merge name value factory should return the ROM merge")
+    void entityMergeNameValueFactoryShouldReturnRomMerge() {
+        Rom rom = mock(Rom.class);
+        when(rom.getMerge()).thenReturn("parent.rom");
+        String value = callEntityValueFactory("tableEntityMergeName", rom);
+        assertThat(value).isEqualTo("parent.rom");
+    }
+
+    @Test
+    @DisplayName("entity dump status value factory should return the ROM dump status")
+    void entityDumpStatusValueFactoryShouldReturnRomDumpStatus() {
+        Rom rom = mock(Rom.class);
+        when(rom.getDumpStatus()).thenReturn(Entity.Status.good);
+        Entity.Status value = callEntityValueFactory("tableEntityDumpStatus", rom);
+        assertThat(value).isEqualTo(Entity.Status.good);
+    }
+
+    // ==================== Machine/Software Cell Value Factory Tests ====================
+
+    /**
+     * Calls a column's cell value factory for the given anyware row.
+     *
+     * @param colName the column field name
+     * @param row     the row value
+     * @param <T>     the value type
+     * @return the produced value
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T callWValueFactory(String colName, Anyware row) {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<Anyware, T> col = getField(controller, colName);
+        TableView<Anyware> table = getField(controller, "tableW");
+        CellDataFeatures<Anyware, T> features = new CellDataFeatures<>(table, col, row);
+        ObservableValue<T> observable = col.getCellValueFactory().call(features);
+        return observable == null ? null : observable.getValue();
+    }
+
+    @Test
+    @DisplayName("WM status value factory should return the machine itself")
+    void wmStatusValueFactoryShouldReturnMachine() {
+        Machine machine = mock(Machine.class);
+        Anyware value = callWValueFactory("tableWMStatus", machine);
+        assertThat(value).isSameAs(machine);
+    }
+
+    @Test
+    @DisplayName("WM name value factory should return the machine")
+    void wmNameValueFactoryShouldReturnMachine() {
+        Machine machine = mock(Machine.class);
+        Machine value = callWValueFactory("tableWMName", machine);
+        assertThat(value).isSameAs(machine);
+    }
+
+    @Test
+    @DisplayName("WM description value factory should return the machine description")
+    void wmDescriptionValueFactoryShouldReturnMachineDescription() {
+        Machine machine = mock(Machine.class);
+        when(machine.getDescription()).thenReturn("Pac-Man");
+        String value = callWValueFactory("tableWMDescription", machine);
+        assertThat(value).isEqualTo("Pac-Man");
+    }
+
+    @Test
+    @DisplayName("WM have value factory should format have/total for a machine")
+    void wmHaveValueFactoryShouldFormatHaveTotalForMachine() {
+        Machine machine = mock(Machine.class);
+        when(machine.countHave()).thenReturn(3);
+        when(machine.countAll()).thenReturn(5);
+        String value = callWValueFactory("tableWMHave", machine);
+        assertThat(value).isEqualTo("3/5");
+    }
+
+    @Test
+    @DisplayName("WS name value factory should return the software base name")
+    void wsNameValueFactoryShouldReturnSoftwareBaseName() {
+        Software software = mock(Software.class);
+        when(software.getBaseName()).thenReturn("pacman");
+        String value = callWValueFactory("tableWSName", software);
+        assertThat(value).isEqualTo("pacman");
+    }
+
+    @Test
+    @DisplayName("WS have value factory should format have/total for a software")
+    void wsHaveValueFactoryShouldFormatHaveTotalForSoftware() {
+        Software software = mock(Software.class);
+        when(software.countHave()).thenReturn(1);
+        when(software.countAll()).thenReturn(2);
+        String value = callWValueFactory("tableWSHave", software);
+        assertThat(value).isEqualTo("1/2");
+    }
+
+    // ==================== AnywareList Cell Value Factory Tests ====================
+
+    /**
+     * Calls a column's cell value factory for the given anyware list row.
+     *
+     * @param colName the column field name
+     * @param row     the row value
+     * @param <T>     the value type
+     * @return the produced value
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T callWLValueFactory(String colName, AnywareList<? extends Anyware> row) {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<AnywareList<? extends Anyware>, T> col = getField(controller, colName);
+        TableView<AnywareList<? extends Anyware>> table = getField(controller, "tableWL");
+        CellDataFeatures<AnywareList<? extends Anyware>, T> features = new CellDataFeatures<>(table, col, row);
+        ObservableValue<T> observable = col.getCellValueFactory().call(features);
+        return observable == null ? null : observable.getValue();
+    }
+
+    @Test
+    @DisplayName("WL name value factory should return the anyware list itself")
+    void wlNameValueFactoryShouldReturnAnywareList() {
+        MachineList ml = mock(MachineList.class);
+        AnywareList<? extends Anyware> value = callWLValueFactory("tableWLName", ml);
+        assertThat((Object) value).isSameAs(ml);
+    }
+
+    @Test
+    @DisplayName("WL have value factory should compute have/total from the filtered stream")
+    void wlHaveValueFactoryShouldComputeHaveTotal() {
+        MachineList ml = mock(MachineList.class);
+        Anyware complete = mock(Anyware.class);
+        when(complete.getStatus()).thenReturn(AnywareStatus.COMPLETE);
+        Anyware partial = mock(Anyware.class);
+        when(partial.getStatus()).thenReturn(AnywareStatus.PARTIAL);
+        when(ml.getFilteredStream()).thenAnswer(inv -> Stream.of(complete, partial));
+        when(ml.getName()).thenReturn("machines");
+        String value = callWLValueFactory("tableWLHave", ml);
+        assertThat(value).isEqualTo("1/2");
+    }
+
+    @Test
+    @DisplayName("WL description value factory should return the software list description")
+    void wlDescValueFactoryShouldReturnSoftwareListDescription() {
+        SoftwareList sl = mock(SoftwareList.class);
+        when(sl.getDescription()).thenReturn(new StringBuilder("A software list"));
+        String value = callWLValueFactory("tableWLDesc", sl);
+        assertThat(value).isEqualTo("A software list");
+    }
+
+    // ==================== searchPredicate Tests ====================
+
+    /**
+     * Invokes the private {@code searchPredicate} method via reflection.
+     *
+     * @param newValue the search text
+     * @return the resulting predicate
+     */
+    @SuppressWarnings("unchecked")
+    private java.util.function.Predicate<? super Anyware> invokeSearchPredicate(String newValue) throws Exception {
+        Method method = ProfileViewerController.class.getDeclaredMethod("searchPredicate", String.class);
+        method.setAccessible(true);
+        return (java.util.function.Predicate<? super Anyware>) method.invoke(TestApp.getController(), newValue);
+    }
+
+    @Test
+    @DisplayName("searchPredicate should match all when the search text is empty")
+    void searchPredicateShouldMatchAllWhenEmpty() throws Exception {
+        Anyware ware = mock(Anyware.class);
+        when(ware.getBaseName()).thenReturn("game");
+        when(ware.getDescription()).thenReturn("desc");
+
+        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("");
+
+        assertThat(predicate.test(ware)).isTrue();
+    }
+
+    @Test
+    @DisplayName("searchPredicate should match by base name case-insensitively")
+    void searchPredicateShouldMatchByBaseName() throws Exception {
+        Anyware ware = mock(Anyware.class);
+        when(ware.getBaseName()).thenReturn("PacMan");
+        when(ware.getDescription()).thenReturn("desc");
+
+        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("pacman");
+
+        assertThat(predicate.test(ware)).isTrue();
+    }
+
+    @Test
+    @DisplayName("searchPredicate should match by description")
+    void searchPredicateShouldMatchByDescription() throws Exception {
+        Anyware ware = mock(Anyware.class);
+        when(ware.getBaseName()).thenReturn("game");
+        when(ware.getDescription()).thenReturn("A Pac-Man clone");
+
+        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("pac-man");
+
+        assertThat(predicate.test(ware)).isTrue();
+    }
+
+    @Test
+    @DisplayName("searchPredicate should not match when neither name nor description contains the text")
+    void searchPredicateShouldNotMatchWhenNoOverlap() throws Exception {
+        Anyware ware = mock(Anyware.class);
+        when(ware.getBaseName()).thenReturn("game");
+        when(ware.getDescription()).thenReturn("desc");
+
+        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("zzz");
+
+        assertThat(predicate.test(ware)).isFalse();
+    }
+
+    // ==================== reloadE Tests ====================
+
+    @Test
+    @DisplayName("reloadE should populate the entity table from the anyware entities")
+    void reloadEShouldPopulateEntityTableFromAnyware() {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+
+        Rom rom1 = mock(Rom.class);
+        Rom rom2 = mock(Rom.class);
+        Anyware ware = mock(Anyware.class);
+        when(ware.getEntities()).thenAnswer(inv -> java.util.Arrays.asList(rom1, rom2));
+
+        try {
+            Method reloadE = ProfileViewerController.class.getDeclaredMethod("reloadE", Anyware.class);
+            reloadE.setAccessible(true);
+            reloadE.invoke(controller, ware);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        assertThat(tableEntity.getItems()).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("reloadE should clear the entity table when the anyware is null")
+    void reloadEShouldClearEntityTableWhenNull() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+        tableEntity.setItems(FXCollections.observableArrayList(mock(EntityBase.class)));
+
+        Method reloadE = ProfileViewerController.class.getDeclaredMethod("reloadE", Anyware.class);
+        reloadE.setAccessible(true);
+        reloadE.invoke(controller, (Anyware) null);
+
+        assertThat(tableEntity.getItems()).isEmpty();
+    }
+
+    // ==================== Additional W Value Factory Tests ====================
+
+    @Test
+    @DisplayName("WS cloneOf value factory should return null when cloneof is null")
+    void wsCloneOfValueFactoryShouldReturnNullWhenCloneofNull() {
+        Software software = mock(Software.class);
+        when(software.getCloneof()).thenReturn(null);
+        Object value = callWValueFactory("tableWSCloneOf", software);
+        assertThat(value).isNull();
+    }
+
+    // ==================== Cell Factory Invocation Tests ====================
+
+    @Test
+    @DisplayName("entity status column cell factory should build a cell")
+    void entityStatusColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<EntityBase, EntityBase> col = getField(controller, "tableEntityStatus");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("entity name column cell factory should build a cell")
+    void entityNameColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<EntityBase, EntityBase> col = getField(controller, "tableEntityName");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("entity size column cell factory should build a cell")
+    void entitySizeColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<EntityBase, Long> col = getField(controller, "tableEntitySize");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("entity dump status column cell factory should build a cell")
+    void entityDumpStatusColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<EntityBase, Entity.Status> col = getField(controller, "tableEntityDumpStatus");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WM status column cell factory should build a cell")
+    void wmStatusColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<Anyware, Anyware> col = getField(controller, "tableWMStatus");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WM name column cell factory should build a cell")
+    void wmNameColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<Anyware, Machine> col = getField(controller, "tableWMName");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WM have column cell factory should build a cell")
+    void wmHaveColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<Anyware, String> col = getField(controller, "tableWMHave");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WM selected column cell factory should build a checkbox cell")
+    void wmSelectedColCellFactoryShouldBuildCheckboxCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<Anyware, CheckBox> col = getField(controller, "tableWMSelected");
+        assertThat(col.getCellValueFactory()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WL name column cell factory should build a cell")
+    void wlNameColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> col = getField(controller, "tableWLName");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    @Test
+    @DisplayName("WL have column cell factory should build a cell")
+    void wlHaveColCellFactoryShouldBuildCell() {
+        ProfileViewerController controller = TestApp.getController();
+        TableColumn<AnywareList<? extends Anyware>, String> col = getField(controller, "tableWLHave");
+        assertThat(col.getCellFactory().call(col)).isNotNull();
+    }
+
+    // ==================== reloadW Tests ====================
+
+    @Test
+    @DisplayName("reloadW should populate the machine table with WM columns for a MachineList")
+    void reloadWShouldPopulateMachineTableForMachineList() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<Anyware> tableW = getField(controller, "tableW");
+
+        Machine machine = mock(Machine.class);
+        MachineList ml = mock(MachineList.class);
+        when(ml.getFilteredList()).thenAnswer(inv -> java.util.Collections.singletonList(machine));
+
+        Method reloadW = ProfileViewerController.class.getDeclaredMethod("reloadW", AnywareList.class);
+        reloadW.setAccessible(true);
+        reloadW.invoke(controller, ml);
+
+        assertThat(tableW.getItems()).contains(machine);
+        assertThat(tableW.getColumns()).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("reloadW should populate the software table with WS columns for a SoftwareList")
+    void reloadWShouldPopulateSoftwareTableForSoftwareList() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<Anyware> tableW = getField(controller, "tableW");
+
+        Software software = mock(Software.class);
+        SoftwareList sl = mock(SoftwareList.class);
+        when(sl.getFilteredList()).thenAnswer(inv -> java.util.Collections.singletonList(software));
+
+        Method reloadW = ProfileViewerController.class.getDeclaredMethod("reloadW", AnywareList.class);
+        reloadW.setAccessible(true);
+        reloadW.invoke(controller, sl);
+
+        assertThat(tableW.getItems()).contains(software);
+    }
+
+    @Test
+    @DisplayName("reloadW should clear the table when the anyware list is null")
+    void reloadWShouldClearTableWhenNull() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<Anyware> tableW = getField(controller, "tableW");
+        tableW.setItems(FXCollections.observableArrayList(mock(Anyware.class)));
+
+        Method reloadW = ProfileViewerController.class.getDeclaredMethod("reloadW", AnywareList.class);
+        reloadW.setAccessible(true);
+        reloadW.invoke(controller, (AnywareList<?>) null);
+
+        assertThat(tableW.getItems()).isEmpty();
+    }
+
+    // ==================== refreshMenuItemAvailability Tests ====================
+
+    @Test
+    @DisplayName("refreshMenuItemAvailability should enable machine export items when machines exist")
+    void refreshMenuItemAvailabilityShouldEnableMachineExportItems() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        Session session = getControllerSession(controller);
+        jrm.profile.data.MachineListList mll = session.getCurrProfile().getMachineListList();
+        jrm.profile.data.SoftwareListList sll = mll.getSoftwareListList();
+        jrm.profile.data.MachineList mockML = mock(jrm.profile.data.MachineList.class);
+        when(mockML.getList()).thenAnswer(inv -> java.util.Collections.singletonList(mock(Machine.class)));
+        when(mll.getList()).thenAnswer(inv -> java.util.Collections.singletonList(mockML));
+        when(mll.getFilteredStream()).thenAnswer(inv -> Stream.of(mockML));
+        when(mockML.countAll()).thenReturn(1L);
+        when(sll.isEmpty()).thenReturn(true);
+        when(sll.getFilteredStream()).thenAnswer(inv -> Stream.empty());
+
+        Method method = ProfileViewerController.class.getDeclaredMethod("refreshMenuItemAvailability");
+        method.setAccessible(true);
+        method.invoke(controller);
+
+        MenuItem mntmAllAsMameDat = getField(controller, "mntmAllAsMameDat");
+        assertThat(mntmAllAsMameDat.isDisable()).as("all-as-mame enabled when machines exist").isFalse();
+    }
+
+    @Test
+    @DisplayName("refreshMenuItemAvailability should disable machine export items when no machines exist")
+    void refreshMenuItemAvailabilityShouldDisableMachineExportItemsWhenNoMachines() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+        Session session = getControllerSession(controller);
+        jrm.profile.data.MachineListList mll = session.getCurrProfile().getMachineListList();
+        jrm.profile.data.SoftwareListList sll = mll.getSoftwareListList();
+        when(mll.getList()).thenAnswer(inv -> java.util.Collections.emptyList());
+        when(mll.getFilteredStream()).thenAnswer(inv -> Stream.empty());
+        when(sll.isEmpty()).thenReturn(true);
+        when(sll.getFilteredStream()).thenAnswer(inv -> Stream.empty());
+
+        Method method = ProfileViewerController.class.getDeclaredMethod("refreshMenuItemAvailability");
+        method.setAccessible(true);
+        method.invoke(controller);
+
+        MenuItem mntmAllAsMameDat = getField(controller, "mntmAllAsMameDat");
+        assertThat(mntmAllAsMameDat.isDisable()).as("all-as-mame disabled when no machines").isTrue();
+    }
+
+    /**
+     * Retrieves the controller's private {@code session} field via reflection.
+     *
+     * @param controller the controller
+     * @return the session
+     */
+    private Session getControllerSession(ProfileViewerController controller) {
+        try {
+            var field = ProfileViewerController.class.getDeclaredField("session");
+            field.setAccessible(true);
+            return (Session) field.get(controller);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // ==================== searchWeb Tests ====================
+
+    @Test
+    @DisplayName("searchWeb should not throw when a non-Entity is selected")
+    void searchWebShouldNotThrowWhenNonEntitySelected() {
+        ProfileViewerController controller = TestApp.getController();
+        TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+        EntityBase notAnEntity = mock(EntityBase.class);
+        tableEntity.setItems(FXCollections.observableArrayList(notAnEntity));
+        tableEntity.getSelectionModel().select(notAnEntity);
+
+        assertThatCode(() -> controller.searchWeb(null)).doesNotThrowAnyException();
     }
 }

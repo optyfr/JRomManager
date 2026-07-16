@@ -3,12 +3,17 @@ package jrm.fx.ui;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -59,6 +64,8 @@ class SettingsPanelControllerTest {
         private Stage primaryStage;
         private static SettingsPanelController controller;
         private static MockedStatic<Sessions> sessionsMock;
+        /** The mocked settings instance, exposed for verification in tests. */
+        static GlobalSettings settingsMock;
         private static Map<Object, Object> settingsMap = new HashMap<>();
 
         @Override
@@ -68,7 +75,8 @@ class SettingsPanelControllerTest {
             // Mock Sessions.getSingleSession() with proper method stubs
             Session mockSession = mock(Session.class);
             User mockUser = mock(User.class);
-            GlobalSettings mockSettings = mock(GlobalSettings.class);
+            TestApp.settingsMock = mock(GlobalSettings.class);
+            final GlobalSettings mockSettings = TestApp.settingsMock;
             
             // Mock the session methods that GlobalSettings depends on
             when(mockSession.isServer()).thenReturn(false);
@@ -117,6 +125,18 @@ class SettingsPanelControllerTest {
                 settingsMap.put(inv.getArgument(0), inv.getArgument(1));
                 return null;
             }).when(mockSettings).setProperty(any(SettingsEnum.class), any());
+            doAnswer(inv -> {
+                settingsMap.put(inv.getArgument(0), inv.getArgument(1));
+                return null;
+            }).when(mockSettings).setProperty(any(SettingsEnum.class), anyBoolean());
+            doAnswer(inv -> {
+                settingsMap.put(inv.getArgument(0), inv.getArgument(1));
+                return null;
+            }).when(mockSettings).setProperty(any(SettingsEnum.class), anyInt());
+            doAnswer(inv -> {
+                settingsMap.put(inv.getArgument(0), inv.getArgument(1));
+                return null;
+            }).when(mockSettings).setProperty(any(SettingsEnum.class), anyString());
             doAnswer(inv -> {
                 settingsMap.put(inv.getArgument(0), inv.getArgument(1));
                 return null;
@@ -396,5 +416,136 @@ class SettingsPanelControllerTest {
         // Verify controls are disabled
         assertThat(controller.tfBackupDst.isDisable()).as("tfBackupDst disabled").isTrue();
         assertThat(controller.btBackupDst.isDisable()).as("btBackupDst disabled").isTrue();
+    }
+
+    // ==================== Listener / configure* Tests ====================
+
+    /**
+     * Retrieves the shared settings map captured by the {@link TestApp} mock.
+     *
+     * @return the settings map
+     */
+    @SuppressWarnings("unchecked")
+    private Map<Object, Object> settingsMap() throws Exception {
+        Field field = TestApp.class.getDeclaredField("settingsMap");
+        field.setAccessible(true);
+        return (Map<Object, Object>) field.get(null);
+    }
+
+    /**
+     * Invokes a private method on the controller via reflection.
+     *
+     * @param name        the method name
+     * @param paramTypes  the parameter types
+     * @param args        the arguments
+     * @return the method result
+     */
+    private Object invoke(String name, Class<?>[] paramTypes, Object[] args) throws Exception {
+        Method method = SettingsPanelController.class.getDeclaredMethod(name, paramTypes);
+        method.setAccessible(true);
+        return method.invoke(TestApp.getController(), args);
+    }
+
+    @Test
+    @DisplayName("Threading choice change should persist the thread count")
+    void threadingChoiceChangeShouldPersistThreadCount() throws Exception {
+        SettingsPanelController controller = TestApp.getController();
+
+        controller.cbThreading.getSelectionModel().select(0); // Adaptive (-1)
+
+        assertThat(settingsMap()).containsEntry(SettingsEnum.thread_count, -1);
+    }
+
+    @Test
+    @DisplayName("7z solid checkbox toggle should persist the solid option")
+    void sevenZipSolidToggleShouldPersistSolidOption() throws Exception {
+        SettingsPanelController controller = TestApp.getController();
+
+        controller.ckb7ZSolid.setSelected(true);
+
+        assertThat(settingsMap()).containsEntry(SettingsEnum.sevenzip_solid, true);
+    }
+
+    @Test
+    @DisplayName("ZIP level choice change should not throw")
+    void zipLevelChoiceChangeShouldNotThrow() {
+        SettingsPanelController controller = TestApp.getController();
+
+        // Select a different level to fire the listener -> configureZipCompressionLevel
+        controller.cbZipLevel.getSelectionModel().select(ZipLevel.STORE);
+
+        assertThat(controller.cbZipLevel.getSelectionModel().getSelectedItem()).isEqualTo(ZipLevel.STORE);
+    }
+
+    @Test
+    @DisplayName("ZIP temp threshold choice change should not throw")
+    void zipTempThresholdChoiceChangeShouldNotThrow() {
+        SettingsPanelController controller = TestApp.getController();
+
+        controller.cbZipTempThreshold.getSelectionModel().select(ZipTempThreshold._1MB);
+
+        assertThat(controller.cbZipTempThreshold.getSelectionModel().getSelectedItem()).isEqualTo(ZipTempThreshold._1MB);
+    }
+
+    @Test
+    @DisplayName("configureBackupPath should update the text field and settings")
+    void configureBackupPathShouldUpdateTextFieldAndSettings() throws Exception {
+        SettingsPanelController controller = TestApp.getController();
+        Path backup = Paths.get("/tmp/backup2");
+
+        invoke("configureBackupPath", new Class<?>[] { Path.class }, new Object[] { backup });
+
+        assertThat(controller.tfBackupDst.getText()).isEqualTo(backup.toString());
+        assertThat(settingsMap()).containsEntry(ProfileSettingsEnum.backup_dest_dir, backup.toString());
+    }
+
+    @Test
+    @DisplayName("configureBackupDirectory should write the directory to settings")
+    void configureBackupDirectoryShouldWriteDirectory() throws Exception {
+        invoke("configureBackupDirectory", new Class<?>[] { String.class }, new Object[] { "/tmp/backup3" });
+
+        assertThat(settingsMap()).containsEntry(ProfileSettingsEnum.backup_dest_dir, "/tmp/backup3");
+    }
+
+    @Test
+    @DisplayName("performGarbageCollection should refresh the memory status")
+    void performGarbageCollectionShouldRefreshMemoryStatus() throws Exception {
+        SettingsPanelController controller = TestApp.getController();
+        controller.status.setText("");
+
+        invoke("performGarbageCollection", new Class<?>[0], new Object[0]);
+
+        assertThat(controller.status.getText()).as("status after GC").contains("MiB");
+    }
+
+    @Test
+    @DisplayName("changeDebugLevel should persist the level and update the logger")
+    void changeDebugLevelShouldPersistLevel() throws Exception {
+        invoke("changeDebugLevel", new Class<?>[] { Level.class }, new Object[] { Level.WARNING });
+
+        assertThat(settingsMap()).containsEntry(SettingsEnum.debug_level, Level.WARNING.toString());
+    }
+
+    @Test
+    @DisplayName("String converters fromString should return null for all compressor converters")
+    void stringConvertersFromStringShouldReturnNull() {
+        SettingsPanelController controller = TestApp.getController();
+        javafx.util.StringConverter<ZipLevel> zipLevelConverter = (javafx.util.StringConverter<ZipLevel>) controller.cbZipLevel.getConverter();
+        javafx.util.StringConverter<ZipTempThreshold> zipTempConverter = (javafx.util.StringConverter<ZipTempThreshold>) controller.cbZipTempThreshold.getConverter();
+        javafx.util.StringConverter<SevenZipOptions> sevenZipConverter = (javafx.util.StringConverter<SevenZipOptions>) controller.cb7zArgs.getConverter();
+
+        assertThat(zipLevelConverter.fromString("anything")).isNull();
+        assertThat(zipTempConverter.fromString("anything")).isNull();
+        assertThat(sevenZipConverter.fromString("anything")).isNull();
+    }
+
+    @Test
+    @DisplayName("String converters toString should return the option name")
+    void stringConvertersToStringShouldReturnName() {
+        SettingsPanelController controller = TestApp.getController();
+
+        assertThat(((javafx.util.StringConverter<ZipLevel>) controller.cbZipLevel.getConverter()).toString(ZipLevel.NORMAL)).isNotNull();
+        assertThat(((javafx.util.StringConverter<ZipTempThreshold>) controller.cbZipTempThreshold.getConverter()).toString(ZipTempThreshold._5MB)).isNotNull();
+        assertThat(((javafx.util.StringConverter<SevenZipOptions>) controller.cb7zArgs.getConverter()).toString(SevenZipOptions.NORMAL)).isNotNull();
     }
 }

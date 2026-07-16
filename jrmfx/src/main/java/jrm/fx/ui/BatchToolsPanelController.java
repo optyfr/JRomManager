@@ -602,7 +602,7 @@ public class BatchToolsPanelController extends BaseController {
      * 
      * @return {@code true} if the file is a {@code .torrent} file, {@code false} otherwise
      */
-    private boolean isTorrentFile(File file) {
+    boolean isTorrentFile(File file) {
         if (Files.isRegularFile(file.toPath()))
             return file.getName().endsWith(".torrent");
         return false;

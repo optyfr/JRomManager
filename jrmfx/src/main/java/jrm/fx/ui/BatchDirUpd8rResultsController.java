@@ -12,7 +12,9 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -23,13 +25,14 @@ import jrm.fx.ui.controls.EllipsisStringCellFactory;
 import jrm.fx.ui.profile.report.ReportLite;
 import jrm.misc.Log;
 import jrm.profile.report.Report;
+import jrm.profile.report.Report.Stats;
 import lombok.Getter;
 
 /**
  * FXML controller for the batch directory update results dialog.
  * <p>
- * Populates a table with per-DAT statistics (have, create, fix, miss, total) and
- * provides a button to open the detailed report for each entry.
+ * Populates a table with per-DAT statistics (have, create, fix, miss, total) and provides a button to open the detailed report for
+ * each entry.
  *
  * @since 2.5
  */
@@ -71,51 +74,72 @@ public class BatchDirUpd8rResultsController extends BaseController {
         setupIntegerColumn(haveCol, Color.GREEN, Report.Stats::getSetFoundOk);
         setupIntegerColumn(createCol, Color.BLUE, Report.Stats::getSetCreateComplete);
         setupIntegerColumn(fixCol, Color.DARKVIOLET, Report.Stats::getSetFoundFixComplete);
-        setupIntegerColumn(missCol, Color.RED, stats -> stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing()
-                - (stats.getSetCreateComplete() + stats.getSetFoundFixComplete() + stats.getSetFoundOk()));
-        setupIntegerColumn(totalCol, null, stats -> stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing());
+        setupIntegerColumn(missCol, Color.RED, this::getSetMissed);
+        setupIntegerColumn(totalCol, null, this::getSetTotal);
 
-        reportCol.setCellFactory(_ -> new ButtonCellFactory<>("Report", cell -> {
-            final var result = resultList.getItems().get(cell.getIndex());
-            try {
-                new ReportLite((Stage) resultList.getScene().getWindow(), Report.load(session, result.getDat()));
-            } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
-                Log.err("Failed to load report for " + result.getDat(), e1);
-            }
-        }));
+        reportCol.setCellFactory(_ -> createReportCellFactory());
+    }
+
+    private int getSetTotal(Stats stats) {
+        return stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing();
+    }
+
+    private int getSetMissed(Stats stats) {
+        return getSetTotal(stats) - (stats.getSetCreateComplete() + stats.getSetFoundFixComplete() + stats.getSetFoundOk());
+    }
+
+    private ButtonCellFactory<DirUpdaterResult, DirUpdaterResult> createReportCellFactory() {
+        return new ButtonCellFactory<>("Report", this::showReport);
+    }
+
+    private void showReport(TableCell<DirUpdaterResult, DirUpdaterResult> cell) {
+        final var result = resultList.getItems().get(cell.getIndex());
+        try {
+            new ReportLite((Stage) resultList.getScene().getWindow(), Report.load(session, result.getDat()));
+        } catch (IOException | URISyntaxException e1) /* NOSONAR */ {
+            Log.err("Failed to load report for " + result.getDat(), e1);
+        }
     }
 
     /**
      * Configures a table column to display integer values with custom color and right alignment.
      *
-     * @param col       the table column to configure
-     * @param color     the text color, or {@code null} for default color
+     * @param col the table column to configure
+     * @param color the text color, or {@code null} for default color
      * @param extractor function to extract the integer value from the stats object
      */
     private void setupIntegerColumn(TableColumn<DirUpdaterResult, Integer> col, Color color, ToIntFunction<Report.Stats> extractor) {
         col.setCellFactory(_ -> new ColoredIntegerCellFactory<>(color, Pos.CENTER_RIGHT));
-        col.setCellValueFactory(param -> new ObservableValueBase<>() {
+        col.setCellValueFactory(param -> observableValueFromStats(extractor, param));
+    }
+
+    private ObservableValueBase<Integer> observableValueFromStats(ToIntFunction<Report.Stats> extractor, CellDataFeatures<DirUpdaterResult, Integer> param) {
+        return new ObservableValueBase<>() {
             @Override
             public Integer getValue() {
                 return extractor.applyAsInt(param.getValue().getStats());
             }
-        });
+        };
     }
 
     /**
      * Configures a table column to display string values with leading ellipsis and tooltip.
      *
-     * @param col       the table column to configure
+     * @param col the table column to configure
      * @param extractor function to extract the string value from the result object
      */
     private void setupStringColumn(TableColumn<DirUpdaterResult, String> col, Function<DirUpdaterResult, String> extractor) {
         col.setCellFactory(_ -> new EllipsisStringCellFactory<>(OverrunStyle.LEADING_ELLIPSIS));
-        col.setCellValueFactory(param -> new ObservableValueBase<>() {
+        col.setCellValueFactory(param -> createObservableValue(extractor, param));
+    }
+
+    private ObservableValueBase<String> createObservableValue(Function<DirUpdaterResult, String> extractor, CellDataFeatures<DirUpdaterResult, String> param) {
+        return new ObservableValueBase<>() {
             @Override
             public String getValue() {
                 return extractor.apply(param.getValue());
             }
-        });
+        };
     }
 
 }

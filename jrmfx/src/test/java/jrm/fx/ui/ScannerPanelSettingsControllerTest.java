@@ -1,8 +1,10 @@
 package jrm.fx.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
@@ -21,6 +23,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ListView.EditEvent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -415,6 +418,125 @@ class ScannerPanelSettingsControllerTest {
 			assertThat(TestApp.controller.getSettings()).isNotNull();
 			// The listener is set up to call settings.setProperty when combo box changes
 			// We can't easily verify the mock call, but we verified the listener doesn't throw
+		});
+	}
+
+	// ==================== Glob List Tests ====================
+
+	/**
+	 * Invokes a private method on the controller via reflection.
+	 *
+	 * @param name       the method name
+	 * @param paramTypes the parameter types
+	 * @param args       the arguments
+	 * @throws Exception if reflection fails
+	 */
+	private void invokePrivate(String name, Class<?>[] paramTypes, Object[] args) throws Exception {
+		Method method = ScannerPanelSettingsController.class.getDeclaredMethod(name, paramTypes);
+		method.setAccessible(true);
+		method.invoke(TestApp.controller, args);
+	}
+
+	/**
+	 * Builds a mocked {@link ListView.EditEvent} for testing the {@code commitGlob} handler.
+	 *
+	 * @param newValue the new value
+	 * @param index    the edited index
+	 * @return a mocked edit event
+	 */
+	@SuppressWarnings("unchecked")
+	private EditEvent<String> buildEditEvent(String newValue, int index) {
+		EditEvent<String> event = mock(EditEvent.class);
+		when(event.getNewValue()).thenReturn(newValue);
+		when(event.getIndex()).thenReturn(index);
+		return event;
+	}
+
+	@Test
+	@DisplayName("loadGlob should split and populate the exclude list from settings")
+	void loadGlobShouldPopulateExcludeListFromSettings() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			when(TestApp.mockSettings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|")).thenReturn("a|b|c");
+
+			invokePrivate("loadGlob", new Class<?>[0], new Object[0]);
+
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			assertThat(dstExcludeGlob.getItems()).containsExactly("a", "b", "c");
+		});
+	}
+
+	@Test
+	@DisplayName("loadGlob should filter out empty entries")
+	void loadGlobShouldFilterEmptyEntries() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			when(TestApp.mockSettings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|")).thenReturn("a||c|");
+
+			invokePrivate("loadGlob", new Class<?>[0], new Object[0]);
+
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			assertThat(dstExcludeGlob.getItems()).containsExactly("a", "c");
+		});
+	}
+
+	@Test
+	@DisplayName("saveGlob should join items and persist them to settings")
+	void saveGlobShouldJoinAndPersistItems() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			dstExcludeGlob.getItems().setAll("x", "y", "z");
+
+			invokePrivate("saveGlob", new Class<?>[0], new Object[0]);
+
+			verify(TestApp.mockSettings).setProperty(ProfileSettingsEnum.exclusion_glob_list, "x|y|z");
+		});
+	}
+
+	@Test
+	@DisplayName("commitGlob should replace the edited item with the new value")
+	void commitGlobShouldReplaceItemWithNewValue() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			dstExcludeGlob.getItems().setAll("old");
+
+			invokePrivate("commitGlob", new Class<?>[] { EditEvent.class }, new Object[] { buildEditEvent("new", 0) });
+
+			assertThat(dstExcludeGlob.getItems()).containsExactly("new");
+			verify(TestApp.mockSettings).setProperty(eq(ProfileSettingsEnum.exclusion_glob_list), anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("commitGlob should remove the item when the new value is blank")
+	void commitGlobShouldRemoveItemWhenBlank() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			dstExcludeGlob.getItems().setAll("keep", "remove");
+
+			invokePrivate("commitGlob", new Class<?>[] { EditEvent.class }, new Object[] { buildEditEvent("   ", 1) });
+
+			assertThat(dstExcludeGlob.getItems()).containsExactly("keep");
+			verify(TestApp.mockSettings).setProperty(eq(ProfileSettingsEnum.exclusion_glob_list), anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("delGlob should remove the selected item and persist")
+	void delGlobShouldRemoveSelectedItem() throws Exception {
+		TestApp.runOnFxThread(() -> {
+			TestApp.controller.initProfileSettings(TestApp.mockSettings);
+			ListView<String> dstExcludeGlob = getField("dstExcludeGlob");
+			dstExcludeGlob.getItems().setAll("a", "b");
+			dstExcludeGlob.getSelectionModel().select(0);
+
+			invokePrivate("delGlob", new Class<?>[0], new Object[0]);
+
+			assertThat(dstExcludeGlob.getItems()).containsExactly("b");
+			verify(TestApp.mockSettings).setProperty(eq(ProfileSettingsEnum.exclusion_glob_list), anyString());
 		});
 	}
 }

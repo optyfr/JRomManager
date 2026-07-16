@@ -3,6 +3,7 @@ package jrm.fx.ui;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1052,6 +1053,404 @@ class BatchToolsPanelControllerTest {
 
 			verify(compressor).zip2TZip(org.mockito.ArgumentMatchers.eq(zipFile),
 					org.mockito.ArgumentMatchers.anyBoolean(), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	// ==================== Drop Handler Tests ====================
+
+	/**
+	 * Invokes a private drop-handler method taking {@code (List<SrcDstResult>, List<File>)} via reflection.
+	 *
+	 * @param name the method name
+	 * @param sdrs the source/destination results
+	 * @param files the dropped files
+	 * @throws Exception if reflection fails
+	 */
+	private void invokeDropHandler(String name, List<SrcDstResult> sdrs, List<File> files) throws Exception {
+		java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod(name, List.class, List.class);
+		method.setAccessible(true);
+		method.invoke(TestApp.controller, sdrs, files);
+	}
+
+	@Test
+	@DisplayName("handleTorrentDstDrop should set the destination on each result and persist")
+	void handleTorrentDstDropShouldSetDestinationAndPersist() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleTorrentDstDrop", List.of(sdr), List.of(new File("/dst/dir")));
+
+			assertThat(sdr.getDst()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.trntchk_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("handleDroppedTorrentFiles should set the source on each result and persist")
+	void handleDroppedTorrentFilesShouldSetSourceAndPersist() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleDroppedTorrentFiles", List.of(sdr), List.of(new File("/src/file.torrent")));
+
+			assertThat(sdr.getSrc()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.trntchk_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("handleDat2DirDstDrop should set the destination and persist")
+	void handleDat2DirDstDropShouldSetDestinationAndPersist() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleDat2DirDstDrop", List.of(sdr), List.of(new File("/dst/dir")));
+
+			assertThat(sdr.getDst()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("handleDroppedDat2DirDstFiles should set the source and persist")
+	void handleDroppedDat2DirDstFilesShouldSetSourceAndPersist() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleDroppedDat2DirDstFiles", List.of(sdr), List.of(new File("/src/file.dat")));
+
+			assertThat(sdr.getSrc()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("handleAddedTorrents should set the source and remember the last directory")
+	void handleAddedTorrentsShouldSetSourceAndRememberLastDir() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleAddedTorrents", List.of(sdr), List.of(new File("/torrents/file.torrent")));
+
+			assertThat(sdr.getSrc()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.trntchk_lasttrntdir), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("handleTorrentDstSelection should set the destination and remember the last directory")
+	void handleTorrentDstSelectionShouldSetDestinationAndRememberLastDir() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("handleTorrentDstSelection", List.of(sdr), List.of(new File("/dst/dir")));
+
+			assertThat(sdr.getDst()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.trntchk_lastdstdir), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("processDat2DirDst should set the destination and remember the last directory")
+	void processDat2DirDstShouldSetDestinationAndRememberLastDir() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("processDat2DirDst", List.of(sdr), List.of(new File("/dst/dir")));
+
+			assertThat(sdr.getDst()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_lastdstdir), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("processDat2DirDstFiles should set the source and remember the last dat directory")
+	void processDat2DirDstFilesShouldSetSourceAndRememberLastDatDir() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			invokeDropHandler("processDat2DirDstFiles", List.of(sdr), List.of(new File("/dats/file.dat")));
+
+			assertThat(sdr.getSrc()).isNotNull();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_lastdstdatdir), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("handleDat2DirSrcDrop should add directories to the source list and persist")
+	void handleDat2DirSrcDropShouldAddAndPersist() throws Exception {
+		runOnFxThread(() -> {
+			TableView<File> tv = getField("tvBatchToolsDat2DirSrc");
+			tv.getItems().clear();
+			java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("handleDat2DirSrcDrop", List.class);
+			method.setAccessible(true);
+			method.invoke(TestApp.controller, List.of(new File("/src1"), new File("/src2")));
+
+			assertThat(tv.getItems()).hasSize(2);
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_srcdirs), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	// ==================== isTorrentFile Tests ====================
+
+	@Test
+	@DisplayName("isTorrentFile should return true for a .torrent file")
+	void isTorrentFileShouldReturnTrueForTorrentFile(@TempDir Path tempDir) throws Exception {
+		File torrent = Files.createFile(tempDir.resolve("game.torrent")).toFile();
+		assertThat(TestApp.controller.isTorrentFile(torrent)).isTrue();
+	}
+
+	@Test
+	@DisplayName("isTorrentFile should return false for a non-torrent file")
+	void isTorrentFileShouldReturnFalseForNonTorrentFile(@TempDir Path tempDir) throws Exception {
+		File dat = Files.createFile(tempDir.resolve("game.dat")).toFile();
+		assertThat(TestApp.controller.isTorrentFile(dat)).isFalse();
+	}
+
+	@Test
+	@DisplayName("isTorrentFile should return false for a directory")
+void isTorrentFileShouldReturnFalseForDirectory(@TempDir Path tempDir) {
+		assertThat(TestApp.controller.isTorrentFile(tempDir.toFile())).isFalse();
+	}
+
+	// ==================== Selection Observable Tests ====================
+
+	@Test
+	@DisplayName("createSelectionObservable should expose the current torrent selection state")
+	void createSelectionObservableShouldExposeTorrentSelection() throws Exception {
+		runOnFxThread(() -> {
+			TableView<SrcDstResult> tv = getField("tvBatchToolsTorrent");
+			SrcDstResult sdr = new SrcDstResult();
+			sdr.setSelected(true);
+			tv.getItems().setAll(sdr);
+
+			java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("createSelectionObservable", Integer.class);
+			method.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			javafx.beans.value.ObservableValue<Boolean> observable = (javafx.beans.value.ObservableValue<Boolean>) method.invoke(TestApp.controller, 0);
+
+			assertThat(observable.getValue()).isTrue();
+		});
+	}
+
+	@Test
+	@DisplayName("createDat2DirDstSelectedObservable should expose the current dst selection state")
+	void createDat2DirDstSelectedObservableShouldExposeDstSelection() throws Exception {
+		runOnFxThread(() -> {
+			TableView<SrcDstResult> tv = getField("tvBatchToolsDat2DirDst");
+			SrcDstResult sdr = new SrcDstResult();
+			sdr.setSelected(false);
+			tv.getItems().setAll(sdr);
+
+			java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("createDat2DirDstSelectedObservable", Integer.class);
+			method.setAccessible(true);
+			@SuppressWarnings("unchecked")
+			javafx.beans.value.ObservableValue<Boolean> observable = (javafx.beans.value.ObservableValue<Boolean>) method.invoke(TestApp.controller, 0);
+
+			assertThat(observable.getValue()).isFalse();
+		});
+	}
+
+	@Test
+	@DisplayName("handleSelectionChange should update the selection and persist torrent list")
+	void handleSelectionChangeShouldUpdateAndPersistTorrentList() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("handleSelectionChange", SrcDstResult.class, Boolean.class);
+			method.setAccessible(true);
+			method.invoke(TestApp.controller, sdr, true);
+
+			assertThat(sdr.isSelected()).isTrue();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.trntchk_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	@Test
+	@DisplayName("onDat2DirDstSelectionChanged should update the selection and persist dat2dir list")
+	void onDat2DirDstSelectionChangedShouldUpdateAndPersistDat2DirList() throws Exception {
+		runOnFxThread(() -> {
+			SrcDstResult sdr = new SrcDstResult();
+			java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod("onDat2DirDstSelectionChanged", SrcDstResult.class, Boolean.class);
+			method.setAccessible(true);
+			method.invoke(TestApp.controller, sdr, true);
+
+			assertThat(sdr.isSelected()).isTrue();
+			verify(TestApp.controller.session.getUser().getSettings()).setProperty(eq(SettingsEnum.dat2dir_sdr), org.mockito.ArgumentMatchers.anyString());
+		});
+	}
+
+	// ==================== Cell Factory Invocation Tests ====================
+
+	@Test
+	@DisplayName("torrent files column cell factory should build a drop cell")
+	void torrentFilesColCellFactoryShouldBuildDropCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, String> col = getField("tvBatchToolsTorrentFilesCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("torrent dst dirs column cell factory should build a drop cell")
+	void torrentDstDirsColCellFactoryShouldBuildDropCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, String> col = getField("tvBatchToolsTorrentDstDirsCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir dst dats column cell factory should build a drop cell")
+	void dat2DirDstDatsColCellFactoryShouldBuildDropCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, String> col = getField("tvBatchToolsDat2DirDstDatsCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir dst dirs column cell factory should build a drop cell")
+	void dat2DirDstDirsColCellFactoryShouldBuildDropCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, String> col = getField("tvBatchToolsDat2DirDstDirsCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir dst result column cell factory should build a cell")
+	void dat2DirDstResultColCellFactoryShouldBuildCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, String> col = getField("tvBatchToolsDat2DirDstResultCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("torrent details column cell factory should build a button cell")
+	void torrentDetailsColCellFactoryShouldBuildButtonCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, SrcDstResult> col = getField("tvBatchToolsTorrentDetailsCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir dst details column cell factory should build a button cell")
+	void dat2DirDstDetailsColCellFactoryShouldBuildButtonCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<SrcDstResult, SrcDstResult> col = getField("tvBatchToolsDat2DirDstDetailsCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir source column cell factory should build a file display cell")
+	void dat2DirSrcColCellFactoryShouldBuildFileDisplayCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<File, File> col = getField("tvBatchToolsDat2DirSrcCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("compressor file column cell factory should build a cell")
+	void compressorFileColCellFactoryShouldBuildCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<FileResult, Path> col = getField("tvBatchToolsCompressorFileCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("compressor status column cell factory should build a cell")
+	void compressorStatusColCellFactoryShouldBuildCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<FileResult, String> col = getField("tvBatchToolsCompressorStatusCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
+	}
+
+	@Test
+	@DisplayName("dat2dir source column value factory should return the file")
+	void dat2DirSrcColValueFactoryShouldReturnFile() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<File, File> col = getField("tvBatchToolsDat2DirSrcCol");
+			TableView<File> tv = getField("tvBatchToolsDat2DirSrc");
+			File file = new File("/src/value");
+			javafx.scene.control.TableColumn.CellDataFeatures<File, File> features = new javafx.scene.control.TableColumn.CellDataFeatures<>(tv, col, file);
+			assertThat(col.getCellValueFactory().call(features).getValue()).isEqualTo(file);
+		});
+	}
+
+	// ==================== toSevenZip / toZip / toTZip dispatch Tests ====================
+
+	@Test
+	@DisplayName("toSevenZip should convert a 7z file when force is enabled")
+	void toSevenZipShouldConvertSevenZipWhenForced(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			CheckBox force = getField("cbBatchToolsCompressorForce");
+			force.setSelected(true);
+			File sevenZip = Files.createFile(tempDir.resolve("archive.7z")).toFile();
+			jrm.batch.Compressor compressor = mock(jrm.batch.Compressor.class);
+
+			invokeToFormat("toSevenZip", sevenZip, compressor);
+
+			verify(compressor).sevenZip2SevenZip(org.mockito.ArgumentMatchers.eq(sevenZip),
+					org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("toSevenZip should skip a 7z file when force is disabled")
+	void toSevenZipShouldSkipSevenZipWhenNotForced(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			CheckBox force = getField("cbBatchToolsCompressorForce");
+			force.setSelected(false);
+			File sevenZip = Files.createFile(tempDir.resolve("archive.7z")).toFile();
+			jrm.batch.Compressor compressor = mock(jrm.batch.Compressor.class);
+
+			invokeToFormat("toSevenZip", sevenZip, compressor);
+
+			verify(compressor, never()).sevenZip2SevenZip(
+					org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("toZip should convert a non-zip archive")
+	void toZipShouldConvertNonZipArchive(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			File sevenZip = Files.createFile(tempDir.resolve("archive.7z")).toFile();
+			jrm.batch.Compressor compressor = mock(jrm.batch.Compressor.class);
+
+			invokeToFormat("toZip", sevenZip, compressor);
+
+			verify(compressor).sevenZip2Zip(org.mockito.ArgumentMatchers.eq(sevenZip),
+					org.mockito.ArgumentMatchers.anyBoolean(), org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	@Test
+	@DisplayName("toTZip should convert a zip file directly")
+	void toTZipShouldConvertZipDirectly(@TempDir Path tempDir) throws Exception {
+		runOnFxThread(() -> {
+			File zip = Files.createFile(tempDir.resolve("archive.zip")).toFile();
+			jrm.batch.Compressor compressor = mock(jrm.batch.Compressor.class);
+
+			invokeToFormat("toTZip", zip, compressor);
+
+			verify(compressor).zip2TZip(org.mockito.ArgumentMatchers.eq(zip),
+					org.mockito.ArgumentMatchers.anyBoolean(), org.mockito.ArgumentMatchers.any());
+		});
+	}
+
+	/**
+	 * Invokes a private {@code toXxx(File, Compressor, UpdResultCallBack, UpdSrcCallBack)} method via reflection.
+	 *
+	 * @param name       the method name
+	 * @param file       the file to convert
+	 * @param compressor the compressor mock
+	 * @throws Exception if reflection fails
+	 */
+	private void invokeToFormat(String name, File file, jrm.batch.Compressor compressor) throws Exception {
+		java.lang.reflect.Method method = BatchToolsPanelController.class.getDeclaredMethod(name,
+				jrm.batch.Compressor.class, File.class, jrm.batch.Compressor.UpdResultCallBack.class, jrm.batch.Compressor.UpdSrcCallBack.class);
+		method.setAccessible(true);
+		method.invoke(TestApp.controller, compressor, file, (jrm.batch.Compressor.UpdResultCallBack) _ -> {
+		}, (jrm.batch.Compressor.UpdSrcCallBack) _ -> {
 		});
 	}
 }

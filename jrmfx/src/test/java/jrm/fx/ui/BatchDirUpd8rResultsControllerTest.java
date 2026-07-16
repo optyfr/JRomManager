@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.DisplayName;
@@ -13,13 +15,16 @@ import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import jrm.batch.DirUpdaterResults.DirUpdaterResult;
+import jrm.profile.report.Report.Stats;
 import jrm.security.Session;
 import jrm.security.Sessions;
 import jrm.security.User;
@@ -324,5 +329,148 @@ class BatchDirUpd8rResultsControllerTest {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to get field: " + fieldName, e);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <S, T> TableColumn<S, T> getColumn(String name) {
+		return (TableColumn<S, T>) getField(TestApp.controller, name);
+	}
+
+	/**
+	 * Builds a mock {@link DirUpdaterResult} whose {@link Stats} return the given counts.
+	 *
+	 * @param foundOk      sets found OK
+	 * @param createComp   sets created complete
+	 * @param foundFixComp sets found then fixed complete
+	 * @param create       sets created total
+	 * @param found        sets found total
+	 * @param missing      sets missing total
+	 * @return a mock result
+	 */
+	private DirUpdaterResult mockResult(int foundOk, int createComp, int foundFixComp, int create, int found, int missing) {
+		DirUpdaterResult result = mock(DirUpdaterResult.class);
+		Stats stats = mock(Stats.class);
+		when(stats.getSetFoundOk()).thenReturn(foundOk);
+		when(stats.getSetCreateComplete()).thenReturn(createComp);
+		when(stats.getSetFoundFixComplete()).thenReturn(foundFixComp);
+		when(stats.getSetCreate()).thenReturn(create);
+		when(stats.getSetFound()).thenReturn(found);
+		when(stats.getSetMissing()).thenReturn(missing);
+		when(result.getStats()).thenReturn(stats);
+		when(result.getDat()).thenReturn(new File("/test/sample.dat"));
+		return result;
+	}
+
+	/**
+	 * Invokes a column's cell value factory and returns the resulting value.
+	 *
+	 * @param colName the column field name
+	 * @param result  the result row
+	 * @param <T>     the value type
+	 * @return the value produced by the factory
+	 */
+	private <T> T callValueFactory(String colName, DirUpdaterResult result) {
+		TableColumn<DirUpdaterResult, T> col = getColumn(colName);
+		TableView<DirUpdaterResult> table = TestApp.controller.getResultList();
+		CellDataFeatures<DirUpdaterResult, T> features = new CellDataFeatures<>(table, col, result);
+		ObservableValue<T> observable = col.getCellValueFactory().call(features);
+		return observable == null ? null : observable.getValue();
+	}
+
+	@Test
+	@DisplayName("dat column value factory should return the DAT file string")
+	void datColValueFactoryShouldReturnDatString() throws Exception {
+		runOnFxThread(() -> {
+			DirUpdaterResult result = mockResult(0, 0, 0, 0, 0, 0);
+			String value = callValueFactory("datCol", result);
+			assertThat(value).isEqualTo(new File("/test/sample.dat").toString());
+		});
+	}
+
+	@Test
+	@DisplayName("have column value factory should return the found-OK count")
+	void haveColValueFactoryShouldReturnFoundOk() throws Exception {
+		runOnFxThread(() -> {
+			DirUpdaterResult result = mockResult(5, 0, 0, 0, 0, 0);
+			Integer value = callValueFactory("haveCol", result);
+			assertThat(value).isEqualTo(5);
+		});
+	}
+
+	@Test
+	@DisplayName("create column value factory should return the create-complete count")
+	void createColValueFactoryShouldReturnCreateComplete() throws Exception {
+		runOnFxThread(() -> {
+			DirUpdaterResult result = mockResult(0, 3, 0, 0, 0, 0);
+			Integer value = callValueFactory("createCol", result);
+			assertThat(value).isEqualTo(3);
+		});
+	}
+
+	@Test
+	@DisplayName("fix column value factory should return the found-fix-complete count")
+	void fixColValueFactoryShouldReturnFoundFixComplete() throws Exception {
+		runOnFxThread(() -> {
+			DirUpdaterResult result = mockResult(0, 0, 7, 0, 0, 0);
+			Integer value = callValueFactory("fixCol", result);
+			assertThat(value).isEqualTo(7);
+		});
+	}
+
+	@Test
+	@DisplayName("total column value factory should sum create, found and missing")
+	void totalColValueFactoryShouldSumAllSets() throws Exception {
+		runOnFxThread(() -> {
+			DirUpdaterResult result = mockResult(0, 0, 0, 2, 4, 6);
+			Integer value = callValueFactory("totalCol", result);
+			assertThat(value).isEqualTo(12);
+		});
+	}
+
+	@Test
+	@DisplayName("miss column value factory should compute total minus completed sets")
+	void missColValueFactoryShouldComputeMissed() throws Exception {
+		runOnFxThread(() -> {
+			// total = 2 + 4 + 6 = 12 ; completed = 1 + 2 + 3 = 6 ; missed = 6
+			DirUpdaterResult result = mockResult(1, 2, 3, 2, 4, 6);
+			Integer value = callValueFactory("missCol", result);
+			assertThat(value).isEqualTo(6);
+		});
+	}
+
+	@Test
+	@DisplayName("getSetTotal should compute create + found + missing via reflection")
+	void getSetTotalShouldComputeSum() throws Exception {
+		Stats stats = mock(Stats.class);
+		when(stats.getSetCreate()).thenReturn(2);
+		when(stats.getSetFound()).thenReturn(4);
+		when(stats.getSetMissing()).thenReturn(6);
+		Method method = BatchDirUpd8rResultsController.class.getDeclaredMethod("getSetTotal", Stats.class);
+		method.setAccessible(true);
+		assertThat((int) method.invoke(TestApp.controller, stats)).isEqualTo(12);
+	}
+
+	@Test
+	@DisplayName("getSetMissed should compute total minus completed sets via reflection")
+	void getSetMissedShouldComputeMissed() throws Exception {
+		Stats stats = mock(Stats.class);
+		when(stats.getSetCreate()).thenReturn(2);
+		when(stats.getSetFound()).thenReturn(4);
+		when(stats.getSetMissing()).thenReturn(6);
+		when(stats.getSetFoundOk()).thenReturn(1);
+		when(stats.getSetCreateComplete()).thenReturn(2);
+		when(stats.getSetFoundFixComplete()).thenReturn(3);
+		Method method = BatchDirUpd8rResultsController.class.getDeclaredMethod("getSetMissed", Stats.class);
+		method.setAccessible(true);
+		assertThat((int) method.invoke(TestApp.controller, stats)).isEqualTo(6);
+	}
+
+	@Test
+	@DisplayName("report column cell factory should build a button cell")
+	void reportColCellFactoryShouldBuildButtonCell() throws Exception {
+		runOnFxThread(() -> {
+			TableColumn<DirUpdaterResult, DirUpdaterResult> col = getColumn("reportCol");
+			assertThat(col.getCellFactory().call(col)).isNotNull();
+		});
 	}
 }

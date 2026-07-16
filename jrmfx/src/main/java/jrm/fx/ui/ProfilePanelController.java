@@ -1004,7 +1004,7 @@ public class ProfilePanelController implements Initializable {
      * @param e the action event triggering the deletion
      */
     @FXML
-    private void deleteProfile(ActionEvent e) {
+    void deleteProfile(ActionEvent e) {
         final var nfo = profilesList.getSelectionModel().getSelectedItem();
         if (nfo != null && (session.getCurrProfile() == null || !session.getCurrProfile().getNfo().equals(nfo)) && nfo.delete())
             profilesList.getItems().remove(nfo);
@@ -1016,7 +1016,7 @@ public class ProfilePanelController implements Initializable {
      * @param e the action event triggering the rename
      */
     @FXML
-    private void renameProfile(ActionEvent e) {
+    void renameProfile(ActionEvent e) {
         profilesList.setEditable(true);
         profilesList.edit(profilesList.getSelectionModel().getSelectedIndex(), profileCol);
         profilesList.setEditable(false);
@@ -1028,7 +1028,7 @@ public class ProfilePanelController implements Initializable {
      * @param e the action event triggering the cache drop
      */
     @FXML
-    private void dropCache(ActionEvent e) {
+    void dropCache(ActionEvent e) {
         final var nfo = profilesList.getSelectionModel().getSelectedItem();
         if (nfo != null)
             try {
