@@ -764,7 +764,6 @@ class ProfileViewerControllerTest {
      * @param <T>     the value type
      * @return the produced value
      */
-    @SuppressWarnings("unchecked")
     private <T> T callEntityValueFactory(String colName, EntityBase row) {
         ProfileViewerController controller = TestApp.getController();
         TableColumn<EntityBase, T> col = getField(controller, colName);
@@ -871,7 +870,6 @@ class ProfileViewerControllerTest {
      * @param <T>     the value type
      * @return the produced value
      */
-    @SuppressWarnings("unchecked")
     private <T> T callWValueFactory(String colName, Anyware row) {
         ProfileViewerController controller = TestApp.getController();
         TableColumn<Anyware, T> col = getField(controller, colName);
@@ -945,7 +943,6 @@ class ProfileViewerControllerTest {
      * @param <T>     the value type
      * @return the produced value
      */
-    @SuppressWarnings("unchecked")
     private <T> T callWLValueFactory(String colName, AnywareList<? extends Anyware> row) {
         ProfileViewerController controller = TestApp.getController();
         TableColumn<AnywareList<? extends Anyware>, T> col = getField(controller, colName);

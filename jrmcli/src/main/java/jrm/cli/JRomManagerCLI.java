@@ -76,36 +76,93 @@ import jrm.security.Sessions;
 import lombok.Setter;
 import lombok.val;
 
+/**
+ * Command line interface for JRomManager.
+ */
 public class JRomManagerCLI {
     private static final String CLI_ERR_UNKNOWN_COMMAND = "CLI_ERR_UnknownCommand";
     private static final String CLI_ERR_WRONG_ARGS = "CLI_ERR_WrongArgs";
+    /**
+     * Red bold style for error messages.
+     */
     private static final AttributedStyle STYLE_RED_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.RED).bold();
+    /**
+     * Yellow bold style for warning messages.
+     */
     private static final AttributedStyle STYLE_YELLOW_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW).bold();
+    /**
+     * Green bold style for success messages.
+     */
     private static final AttributedStyle STYLE_GREEN_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN).bold();
+    /**
+     * Cyan bold style for key=value pairs.
+     */
     private static final AttributedStyle STYLE_CYAN_BOLD = AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN).bold();
+    /**
+     * Dim style for less important text, using bright color and italic.
+     */
     @SuppressWarnings("unused")
     private static final AttributedStyle STYLE_DIM = AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT).italic();
+
+    /**
+     * Session object for managing user sessions and profiles.
+     * @param session The session object to be set.
+     */
     @Setter
     static Session session;
+
+    /**
+     * Current working directory and root directory for file operations.
+     */
     Path cwdir = null;
+    /**
+     * Root directory for file operations.
+     */
     Path rootdir = null;
 
+    /**
+     * Progress handler for displaying progress of operations.
+     */
     Progress handler = null;
+    /**
+     * Terminal object for interacting with the command line interface.
+     */
     Terminal terminal;
+    /**
+     * PrintWriter for outputting messages to the terminal.
+     */
     PrintWriter out;
 
+    /**
+     * Command line arguments for the JRomManagerCLI.
+     */
     @Parameters(separators = " =")
     private static class Args {
+        /**
+         * Flag to indicate if help message should be displayed.
+         */
         @Parameter(names = { "--help", "-h" }, help = true)
         private boolean help = false;
 
+        /**
+         * Flag to indicate if the interactive shell should be started.
+         */
         @Parameter(names = { "--interactive", "-i" }, description = "Interactive shell")
         private boolean interactive = false;
 
+        /**
+         * Input file for reading commands. If not provided, commands will be read from standard input.
+         */
         @Parameter(names = { "--file", "-f" }, description = "Input file", arity = 1)
         private String file = null;
     }
 
+    /**
+     * Constructs a new JRomManagerCLI instance with the provided command line arguments.
+     *
+     * @param cmd The command line arguments.
+     * @throws IOException If an I/O error occurs during initialization.
+     */
     public JRomManagerCLI(Args cmd) throws IOException {
         terminal = TerminalBuilder.builder()
                 .system(true)
@@ -127,6 +184,7 @@ public class JRomManagerCLI {
 
     /**
      * Print error message in red bold
+     * @param msg The error message to be printed
      */
     private void printError(String msg) {
         out.println(new AttributedString(msg, STYLE_RED_BOLD).toAnsi());
@@ -134,6 +192,7 @@ public class JRomManagerCLI {
 
     /**
      * Print warning message in yellow bold
+     * @param msg The warning message to be printed
      */
     private void printWarning(String msg) {
         out.println(new AttributedString(msg, STYLE_YELLOW_BOLD).toAnsi());
@@ -141,6 +200,7 @@ public class JRomManagerCLI {
 
     /**
      * Print info message in green bold
+     * @param msg The info message to be printed
      */
     private void printInfo(String msg) {
         out.println(new AttributedString(msg, STYLE_GREEN_BOLD).toAnsi());
@@ -148,6 +208,8 @@ public class JRomManagerCLI {
 
     /**
      * Print key=value pair with cyan key and default value
+     * @param key The key to be printed
+     * @param value The value to be printed
      */
     private void printKeyValue(String key, String value) {
         AttributedStringBuilder sb = new AttributedStringBuilder();
@@ -161,6 +223,9 @@ public class JRomManagerCLI {
 
     /**
      * Print label:value with colored label
+     * @param label The label to be printed
+     * @param value The value to be printed
+     * @param labelStyle The style for the label
      */
     @SuppressWarnings("unused")
     private void printLabel(String label, String value, AttributedStyle labelStyle) {
@@ -172,10 +237,12 @@ public class JRomManagerCLI {
         out.println(sb.toAnsi());
     }
 
+
     /**
-     * @param cmd
-     * 
-     * @throws FileNotFoundException
+     * Reads commands from a file or standard input and analyzes them.
+     *
+     * @param cmd The command line arguments containing the input file or standard input.
+     * @throws FileNotFoundException If the specified input file is not found.
      */
     private void stream(Args cmd) throws FileNotFoundException {
         Reader reader = cmd.file != null ? new FileReader(cmd.file) : new InputStreamReader(System.in);
@@ -194,6 +261,8 @@ public class JRomManagerCLI {
     /**
      * Creates a JLine completer that provides tab completion for all commands. Uses ArgumentCompleter for positional completion
      * (command + subcommand).
+     * 
+     * @return A JLine Completer that provides tab completion for all commands.
      */
     private Completer createCompleter() {
         // Collect all command aliases from CMD enum
@@ -233,6 +302,8 @@ public class JRomManagerCLI {
     /**
      * Builds a colored prompt string using JLine's AttributedStringBuilder. Shows "jrm [profile]> " with green "jrm" and yellow
      * profile name.
+     * 
+     * @return A string representing the prompt to be displayed in the interactive shell.
      */
     private String buildPrompt() {
         AttributedStringBuilder sb = new AttributedStringBuilder();
@@ -252,7 +323,8 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @throws IOException
+     * Initializes the interactive shell and starts the command processing loop.
+     * @throws IOException If an I/O error occurs during initialization.
      */
     private void interactive() throws IOException {
         terminal = TerminalBuilder.builder()
@@ -281,9 +353,21 @@ public class JRomManagerCLI {
         } while (true);
     }
 
+    /**
+     * Pattern to split a command line into arguments, considering quoted strings and whitespace.
+     */
     private final Pattern splitLinePattern = Pattern.compile("\"([^\"]*)\"|(\\S+)"); //$NON-NLS-1$
+    /**
+     * Pattern to match environment variable references in the form of $VAR or ${VAR}.
+     */
     private final Pattern envPattern = Pattern.compile("\\$(?:([\\w\\.]+)|\\{([\\w\\.]+)\\})"); //$NON-NLS-1$
 
+    /**
+     * Retrieves the value of an environment variable or system property by name.
+     * 
+     * @param name The name of the environment variable or system property.
+     * @return An Optional containing the value if present, or an empty Optional if not found.
+     */
     private Optional<String> getEnv(String name) {
         Optional<String> ret = Optional.ofNullable(System.getProperty(name));
         if (!ret.isPresent())
@@ -291,6 +375,12 @@ public class JRomManagerCLI {
         return ret;
     }
 
+    /**
+     * Splits a command line string into an array of arguments, handling quoted strings and environment variable substitution.
+     * 
+     * @param line The command line string to be split.
+     * @return An array of strings representing the individual arguments.
+     */
     private String[] splitLine(String line) {
         List<String> list = new ArrayList<>();
         final var m = splitLinePattern.matcher(line);
@@ -305,64 +395,39 @@ public class JRomManagerCLI {
         return list.stream().toArray(String[]::new);
     }
 
+    /**
+     * Analyzes the provided command line arguments and executes the corresponding command.
+     * 
+     * @param args The command line arguments to be analyzed.
+     * @return An integer status code indicating the result of the command execution.
+     */
     protected int analyze(String... args) {
         if (args.length == 0)
             return 0;
         try {
-            switch (CMD.of(args[0])) {
-                case LS:
-                    return list();
-                case PWD:
-                    return pwd();
-                case QUIET:
-                    handler.quiet(true);
-                    return 0;
-                case VERBOSE:
-                    handler.quiet(false);
-                    return 0;
-                case SET:
-                    return set(args);
-                case CD:
-                    return cd(args);
-                case RM:
-                    return rm(args);
-                case MD:
-                    return md(args);
-                case PREFS:
-                    return prefs(args);
-                case LOAD:
-                    return load(args);
-                case SETTINGS:
-                    return settings(args);
-                case SCAN:
-                    return scan();
-                case SCANRESULT:
-                    return scanResult();
-                case FIX:
-                    return fix();
-                case DIRUPD8R:
-                    if (args.length == 1)
-                        return error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing")); //$NON-NLS-1$
-                    return dirupd8r(args[1], Arrays.copyOfRange(args, 2, args.length));
-                case TRNTCHK:
-                    if (args.length == 1)
-                        return error(CLIMessages.getString("CLI_ERR_TRNTCHK_SubCmdMissing")); //$NON-NLS-1$
-                    return trntchk(args[1], Arrays.copyOfRange(args, 2, args.length));
-                case COMPRESSOR:
-                    if (args.length < 3)
-                        return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
-                    return compressor(Arrays.copyOfRange(args, 1, args.length));
-                case HELP:
-                    return help();
-                case EXIT:
-                    return exit(0);
-                case EMPTY:
-                    return 0;
-                case UNKNOWN:
-                    return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND)
-                            + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "))); //$NON-NLS-1$ //$NON-NLS-2$
-                                                                                                                                 // //$NON-NLS-3$
-            }
+            return switch (CMD.of(args[0])) {
+                case LS -> list();
+                case PWD -> pwd();
+                case QUIET -> setQuietMode(true);
+                case VERBOSE -> setQuietMode(false);
+                case SET -> set(args);
+                case CD -> cd(args);
+                case RM -> rm(args);
+                case MD -> md(args);
+                case PREFS -> prefs(args);
+                case LOAD -> load(args);
+                case SETTINGS -> settings(args);
+                case SCAN -> scan();
+                case SCANRESULT -> scanResult();
+                case FIX -> fix();
+                case DIRUPD8R -> processDirectoryUpdater(args);
+                case TRNTCHK -> processTorrentCheck(args);
+                case COMPRESSOR -> processCompressor(args);
+                case HELP -> help();
+                case EXIT -> exit(0);
+                case EMPTY -> 0;
+                case UNKNOWN -> unknownCmd(args[0], Arrays.copyOfRange(args, 1, args.length));
+            };
         } catch (IOException e) {
             Log.err(e.getMessage(), e);
         } catch (ScanException | ParameterException e) {
@@ -373,7 +438,57 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @return
+     * Processes the "compressor" command with the provided arguments.
+     * 
+     * @param args The command line arguments for the "compressor" command.
+     * @return An integer status code indicating the result of the command execution.
+     * @throws IOException If an I/O error occurs during processing.
+     */
+    private int processCompressor(String... args) throws IOException {
+        if (args.length < 3)
+            return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS));
+        return compressor(Arrays.copyOfRange(args, 1, args.length));
+    }
+
+    /**
+     * Processes the "torrentcheck" command with the provided arguments.
+     * 
+     * @param args The command line arguments for the "torrentcheck" command.
+     * @return An integer status code indicating the result of the command execution.
+     */
+    private int processTorrentCheck(String... args) {
+        if (args.length == 1)
+            return error(CLIMessages.getString("CLI_ERR_TRNTCHK_SubCmdMissing"));
+        return trntchk(args[1], Arrays.copyOfRange(args, 2, args.length));
+    }
+
+    /**
+     * Processes the "dirupd8r" command with the provided arguments.
+     * 
+     * @param args The command line arguments for the "dirupd8r" command.
+     * @return An integer status code indicating the result of the command execution.
+     */
+    private int processDirectoryUpdater(String... args) {
+        if (args.length == 1)
+            return error(CLIMessages.getString("CLI_ERR_DIRUPD8R_SubCmdMissing"));
+        return dirupd8r(args[1], Arrays.copyOfRange(args, 2, args.length));
+    }
+
+    /**
+     * Sets the quiet mode for the CLI, controlling the verbosity of output.
+     * 
+     * @param quiet A boolean indicating whether to enable (true) or disable (false) quiet mode.
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int setQuietMode(boolean quiet) {
+        handler.quiet(quiet);
+        return 0;
+    }
+
+    /**
+     * Displays help information for the CLI commands.
+     * 
+     * @return An integer status code indicating the result of the operation.
      */
     private int help() {
         for (val cmd : CMD.values()) {
@@ -388,9 +503,10 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
+     * Changes the current working directory based on the provided arguments.
      * 
-     * @return
+     * @param args The command line arguments for the "cd" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int cd(String... args) {
         if (args.length == 1)
@@ -401,9 +517,10 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
+     * Displays or modifies the application preferences based on the provided arguments.
      * 
-     * @return
+     * @param args The command line arguments for the "prefs" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int prefs(String... args) {
         if (args.length == 1)
@@ -416,9 +533,9 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
-     * 
-     * @return
+     * Loads a profile or configuration based on the provided arguments.
+     * @param args The command line arguments for the "load" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int load(String... args) {
         if (args.length == 2)
@@ -427,9 +544,9 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
-     * 
-     * @return
+     * Displays or modifies the application settings based on the provided arguments.
+     * @param args The command line arguments for the "settings" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int settings(String... args) {
         if (session.getCurrProfile() == null)
@@ -443,22 +560,30 @@ public class JRomManagerCLI {
         return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
     }
 
+    /**
+     * Command line arguments for the "rm" command, supporting recursive deletion and file list.
+     */
     @Parameters(separators = " =")
     private static class RmArgs {
+        /**
+         * Flag to indicate if recursive deletion should be performed.
+         */
         @Parameter(names = { "--recursive", "-r" }, description = "Recursive delete")
         private boolean recurisve;
 
+        /**
+         * List of files or directories to be deleted.
+         */
         @Parameter(description = "Files")
         private List<String> files = new ArrayList<>();
     }
 
     /**
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws ParseException
-     * @throws IOException
+     * Deletes files or directories based on the provided arguments.
+     * @param args The command line arguments for the "rm" command.
+     * @return An integer status code indicating the result of the operation.
+     * @throws ParseException If there is an error parsing the command line arguments.
+     * @throws IOException If there is an error accessing the file system.
      */
     private int rm(String... args) throws ParameterException, IOException {
         final var jArgs = new RmArgs();
@@ -469,7 +594,8 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @return
+     * Fixes issues in the current scan based on the loaded profile.
+     * @return An integer status code indicating the result of the operation.
      */
     private int fix() {
         if (session.getCurrScan() == null)
@@ -484,7 +610,8 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @return
+     * Displays the results of the current scan.
+     * @return An integer status code indicating the result of the operation.
      */
     private int scanResult() {
         if (session.getCurrScan() == null)
@@ -498,10 +625,10 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @return
-     * 
-     * @throws BreakException
-     * @throws ScanException
+     * Scans the specified directories and files.
+     * @return An integer status code indicating the result of the operation.
+     * @throws BreakException If the scan is interrupted.
+     * @throws ScanException If there is an error during the scan.
      */
     private int scan() throws BreakException, ScanException {
         if (session.getCurrProfile() == null)
@@ -510,22 +637,30 @@ public class JRomManagerCLI {
         return session.getCurrScan().actions.stream().mapToInt(Collection::size).sum();
     }
 
+    /**
+     * Command line arguments for the "md" command, supporting parent directory creation and file list.
+     */
     @Parameters(separators = " =")
     private static class MdArgs {
+        /**
+         * Flag to indicate if parent directories should be created up to the specified directory.
+         */
         @Parameter(names = { "--parents", "-p" }, description = "Create parents up to this directory")
         private boolean parents;
 
+        /**
+         * List of directories to be created.
+         */
         @Parameter(description = "Files")
         private List<String> files = new ArrayList<>();
     }
 
     /**
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws ParseException
-     * @throws IOException
+     * Creates directories based on the provided arguments.
+     * @param args The command line arguments for the "md" command.
+     * @return An integer status code indicating the result of the operation.
+     * @throws ParseException If there is an error parsing the command line arguments.
+     * @throws IOException If there is an error accessing the file system.
      */
     private int md(String... args) throws ParameterException, IOException {
         final var jArgs = new MdArgs();
@@ -543,9 +678,9 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
-     * 
-     * @return
+     * Sets system properties or environment variables based on the provided arguments.
+     * @param args The command line arguments for the "set" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int set(String... args) {
         if (args.length == 1) {
@@ -568,75 +703,138 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param cmdline
-     * @param path
-     * 
-     * @throws IOException
+     * Recursively deletes a directory and its contents.
+     * @param path The path of the directory to delete.
+     * @param recurse Flag indicating whether to delete contents recursively.
+     * @throws IOException If there is an error accessing the file system.
      */
     private void recursiveDelete(final Path path, final boolean recurse) throws IOException {
-        if (Files.exists(path)) {
-            if (Files.isDirectory(path)) {
-                try {
-                    Files.delete(path);
-                } catch (DirectoryNotEmptyException _) {
-                    if (recurse) // recursively delete from bottom to top
-                        try (final var stream = Files.walk(path)) {
-                            stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-                        }
+        if (!Files.exists(path))
+            return;
+        if (!Files.isDirectory(path)) {
+            Files.delete(path);
+            return;
+        }
+        try {
+            Files.delete(path);
+        } catch (DirectoryNotEmptyException _) {
+            if (recurse) // recursively delete from bottom to top
+                try (final var stream = Files.walk(path)) {
+                    stream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
                 }
-            } else
-                Files.delete(path);
         }
     }
 
+    /**
+     * Processes the "dirupd8r" command with the provided arguments.
+     * 
+     * @param cmd The subcommand for the "dirupd8r" command.
+     * @param args The command line arguments for the "dirupd8r" command.
+     * @return An integer status code indicating the result of the command execution.
+     * @throws ParameterException If there is an error parsing the command line arguments.
+     */
     private int dirupd8r(String cmd, String... args) throws ParameterException {
-        switch (CMD_DIRUPD8R.of(cmd)) {
-            case LSSRC:
-                out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|'))
-                        .map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); // //NOSONAR
-                return 0;
-            case LSSDR:
-                out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)).stream()
-                        .map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); // NOSONAR
-                return 0;
-            case CLEARSRC:
-                prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, "");
-                break;
-            case CLEARSDR:
-                prefs(jrm.misc.SettingsEnum.dat2dir_sdr, "[]");
-                break;
-            case PRESETS:
-                return dirupd8rPresets(args);
-            case SETTINGS:
-                return dirupd8rSettings(args);
-            case ADDSRC: {
-                val list = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|'))
-                        .collect(Collectors.toCollection(ArrayList::new));
-                list.add(args[0]);
-                prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, list.stream().collect(Collectors.joining("|")));
-                break;
-            }
-            case ADDSDR: {
-                val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr));
-                list.add(new SrcDstResult(args[0], args[1]));
-                prefs(jrm.misc.SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(list));
-                break;
-            }
-            case START:
-                return dirupd8rStart(args);
-            case HELP:
-                return dirupd8rHelp();
-            case EMPTY:
-                break;
-            case UNKNOWN:
-                return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + cmd + " "
-                        + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" ")));
-        }
+        return switch (CMD_DIRUPD8R.of(cmd)) {
+            case LSSRC -> listSourceDirectories();
+            case LSSDR -> listSourceDestinationResults();
+            case CLEARSRC -> clearSourceDirectories();
+            case CLEARSDR -> clearSourceDestinationResults();
+            case PRESETS -> dirupd8rPresets(args);
+            case SETTINGS -> dirupd8rSettings(args);
+            case ADDSRC -> addSourceDirectory(args);
+            case ADDSDR -> addSourceDestinationResult(args);
+            case START -> dirupd8rStart(args);
+            case HELP -> dirupd8rHelp();
+            case EMPTY -> 0;
+            case UNKNOWN -> unknownCmd(cmd, args);
+        };
+    }
+
+    /**
+     * Handles unknown commands by displaying an error message.
+     * 
+     * @param cmd The unknown command.
+     * @param args The command line arguments associated with the unknown command.
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int unknownCmd(String cmd, String... args) {
+        return error(() -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + cmd + " "
+                + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" ")));
+    }
+
+    /**
+     * Adds a source-destination result to the settings based on the provided arguments.
+     * 
+     * @param args The command line arguments containing the source and destination.
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int addSourceDestinationResult(String... args) {
+        val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr));
+        list.add(new SrcDstResult(args[0], args[1]));
+        prefs(jrm.misc.SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(list));
         return 0;
     }
 
     /**
-     * @return
+     * Adds a source directory to the settings based on the provided arguments.
+     * 
+     * @param args The command line arguments containing the source directory path.
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int addSourceDirectory(String... args) {
+        val list = Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|'))
+                .collect(Collectors.toCollection(ArrayList::new));
+        list.add(args[0]);
+        prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, list.stream().collect(Collectors.joining("|")));
+        return 0;
+    }
+
+    /**
+     * Clears all source-destination results from the settings.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int clearSourceDestinationResults() {
+        prefs(jrm.misc.SettingsEnum.dat2dir_sdr, "[]");
+        return 0;
+    }
+
+    /**
+     * Clears all source directories from the settings.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int clearSourceDirectories() {
+        prefs(jrm.misc.SettingsEnum.dat2dir_srcdirs, "");
+        return 0;
+    }
+
+    /**
+     * Lists all source-destination results from the settings and outputs them in JSON format.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int listSourceDestinationResults() {
+        out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)).stream()
+                .map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); // NOSONAR
+        return 0;
+    }
+
+    /**
+     * Lists all source directories from the settings and outputs them in JSON format.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
+    private int listSourceDirectories() {
+        out.append("srcdirs = [\n").append(Stream.of(StringUtils.split(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_srcdirs), '|'))
+                .map(s -> "\t" + Json.value(s).toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); // //NOSONAR
+        return 0;
+    }
+
+    /**
+     * Displays help information for the "dirupd8r" command.
+     * 
+     * @return An integer status code indicating the result of the operation.
      */
     private int dirupd8rHelp() {
         for (val ducmd : CMD_DIRUPD8R.values()) {
@@ -650,18 +848,24 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Command line arguments for the "dirupd8r" command, supporting dry run mode.
+     */
     @Parameters(separators = " =")
     private static class DirUpdaterArgs {
+        /**
+         * Flag to indicate if the directory update should be performed in dry run mode.
+         */
         @Parameter(names = { "--dryrun", "-d" }, description = "Dry run")
         private boolean dryrun;
     }
 
     /**
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws ParseException
+     * Starts the directory updater with the provided command line arguments.
+     *
+     * @param args The command line arguments for the directory updater.
+     * @return An integer status code indicating the result of the operation.
+     * @throws ParseException If there is an error parsing the command line arguments.
      */
     private int dirupd8rStart(String... args) throws ParameterException {
         final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
@@ -691,70 +895,73 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws NumberFormatException
-     * @throws SecurityException
+     * Updates the settings for a specific source-destination result based on the provided arguments.
+     *
+     * @param args The command line arguments containing the index and setting information.
+     * @return An integer status code indicating the result of the operation.
+     * @throws NumberFormatException If the index is not a valid integer.
+     * @throws SecurityException If there is a security violation while accessing the settings.
      */
     private int dirupd8rSettings(String... args) throws NumberFormatException, SecurityException {
-        if (args.length > 0) {
-            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
-                                                                                                                              // //$NON-NLS-2$
-            final var index = Integer.parseInt(args[0]);
-            if (index < list.size()) {
-                ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
-                if (args.length == 3) {
-                    settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
-                    session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
-                } else if (args.length == 2)
-                    out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]))); //$NON-NLS-1$ //$NON-NLS-2$
-                else
-                    for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
-                        printKeyValue(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
-            }
-            return 0;
-        } else
+        if (args.length <= 0)
             return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
+
+        val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr));
+        final var index = Integer.parseInt(args[0]);
+        if (index < list.size()) {
+            ProfileSettings settings = session.getUser().getSettings().loadProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), null);
+            if (args.length == 3) {
+                settings.setProperty(jrm.misc.SettingsEnum.from(args[1]), args[2]);
+                session.getUser().getSettings().saveProfileSettings(PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile(), settings);
+            } else if (args.length == 2)
+                out.format("%s%n", settings.getProperty(jrm.misc.SettingsEnum.from(args[1]))); //$NON-NLS-1$ //$NON-NLS-2$
+            else
+                for (Map.Entry<Object, Object> entry : settings.getProperties().entrySet())
+                    printKeyValue(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
+        }
+        return 0;
     }
 
     /**
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws NumberFormatException
-     * @throws SecurityException
+     * Updates the presets for a specific source-destination result based on the provided arguments.
+     *
+     * @param args The command line arguments containing the index and preset information.
+     * @return An integer status code indicating the result of the operation.
+     * @throws NumberFormatException If the index is not a valid integer.
+     * @throws SecurityException If there is a security violation while accessing the settings.
      */
     private int dirupd8rPresets(String... args) throws NumberFormatException, SecurityException {
-        if (args.length == 0) {
-            printInfo("TZIP");
-            printInfo("DIR");
-            return 0;
-        } else if (args.length == 2) {
-            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
-                                                                                                                              // //$NON-NLS-2$
-            final var index = Integer.parseInt(args[0]);
-            if (index < list.size()) {
-                switch (args[1]) {
-                    case "TZIP": //$NON-NLS-1$
-                        ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
-                        break;
-                    case "DIR": //$NON-NLS-1$
-                        ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
-                        break;
-                    default:
-                        break;
-                }
+        return switch (args.length) {
+            case 0 -> {
+                printInfo("TZIP");
+                printInfo("DIR");
+                yield 0;
             }
-            return 0;
-        } else
-            return error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
+            case 2 -> {
+                val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dat2dir_sdr)); // $NON-NLS-1$
+                val index = Integer.parseInt(args[0]);
+                if (index >= list.size())
+                    yield error(CLIMessages.getString(CLI_ERR_WRONG_ARGS));
+                switch (args[1]) {
+                    case "TZIP" -> ProfileSettings.TZIP(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
+                    case "DIR" -> ProfileSettings.DIR(session, PathAbstractor.getAbsolutePath(session, list.get(index).getSrc()).toFile());
+                    default -> { /* unknown preset — no-op */ }
+                }
+                yield 0;
+            }
+            default -> error(CLIMessages.getString(CLI_ERR_WRONG_ARGS)); // $NON-NLS-1$
+        };
     }
 
+    /**
+     * Processes the "trntchk" command with the provided arguments.
+     * 
+     * @param cmd The subcommand for the "trntchk" command.
+     * @param args The command line arguments for the "trntchk" command.
+     * @return An integer status code indicating the result of the command execution.
+     * @throws ParameterException If there is an error parsing the command line arguments.
+     */
     private int trntchk(String cmd, String... args) throws ParameterException {
-        final Supplier<String> errSupplier = () -> CLIMessages.getString(CLI_ERR_UNKNOWN_COMMAND) + cmd + " " + Stream.of(args).map(s -> s.contains(" ") ? ('"' + s + '"') : s).collect(Collectors.joining(" "));
         return switch (CMD_TRNTCHK.of(cmd)) {
             case LSSDR -> trntchkLsSDR();
             case CLEARSDR -> prefs(jrm.misc.SettingsEnum.trntchk_sdr);
@@ -762,20 +969,30 @@ public class JRomManagerCLI {
             case START -> trntchkStart(args);
             case HELP -> trntchkHelp();
             case EMPTY -> 0;
-            case UNKNOWN -> error(errSupplier);
+            case UNKNOWN -> unknownCmd(cmd, args);
         };
     }
 
+    /**
+     * Lists all source-destination results for the "trntchk" command and outputs them in JSON format.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
     private int trntchkLsSDR() {
         out.append("sdr = [\n").append(SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)).stream()
                 .map(sdr -> "\t" + sdr.toJSONObject().toString()).collect(Collectors.joining(",\n"))).append("\n];\n"); // //NOSONAR
         return 0;
     }
 
+    /**
+     * Adds a source-destination result for the "trntchk" command based on the provided arguments.
+     * 
+     * @param args The command line arguments containing the source and destination.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int trntchkAddSDR(String... args) {
         if (args.length == 2) {
-            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$
-                                                                                                                              // //$NON-NLS-2$
+            val list = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr));
             list.add(new SrcDstResult(args[0], args[1]));
             prefs(jrm.misc.SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(list)); // $NON-NLS-1$
         } else
@@ -784,7 +1001,8 @@ public class JRomManagerCLI {
     }
 
     /**
-     * @return
+     * Displays help information for the "trntchk" command.
+     * @return An integer status code indicating the result of the operation.
      */
     private int trntchkHelp() {
         for (val ducmd : CMD_TRNTCHK.values()) {
@@ -798,27 +1016,42 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Command line arguments for the "trntchk" command, supporting check mode and various options.
+     */
     @Parameters(separators = " =")
     private static class TrntchkArgs {
+        /**
+         * The check mode for the torrent check operation.
+         */
         @Parameter(names = { "--checkmode", "-m" }, arity = 1, description = "Check mode")
         private String checkmode = null;
 
+        /**
+         * Flag to indicate if unknown files should be removed during the torrent check.
+         */
         @Parameter(names = { "--removeunknown", "-u" }, description = "Remove unknown files")
         private boolean removeunknown = false;
 
+        /**
+         * Flag to indicate if wrong sized files should be removed during the torrent check.
+         */
         @Parameter(names = { "--removewrongsized", "-w" }, description = "Remove wrong sized files")
         private boolean removewrongsized = false;
 
+        /**
+         * Flag to indicate if archived folders should be detected during the torrent check.
+         */
         @Parameter(names = { "--detectarchives", "-a" }, description = "Detect archived folders")
         private boolean detectarchives = false;
     }
 
     /**
-     * @param args
+     * Starts the torrent check operation with the provided command line arguments.
      * 
-     * @return
-     * 
-     * @throws ParseException
+     * @param args The command line arguments for the torrent check operation.
+     * @return An integer status code indicating the result of the operation.
+     * @throws ParameterException If there is an error parsing the command line arguments.
      */
     private int trntchkStart(String... args) throws ParameterException {
         final var sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.trntchk_sdr)); // $NON-NLS-1$
@@ -850,18 +1083,38 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Command line arguments for the "trntchk" command, supporting check mode and various options.
+     */
     @Parameters(separators = " =")
     private static class CompressorArgs {
+        /**
+         * The compression format to be used for the compression operation.
+         */
         @Parameter(names = { "--compressor", "-c" }, arity = 1, required = true, description = "Compression format")
         private String compressor;
 
+        /**
+         * Flag to indicate if the compression operation should be forced, even if the target file already exists.
+         */
         @Parameter(names = { "--force", "-f" }, description = "Force compression")
         private boolean force;
 
+        /**
+         * List of files to be compressed.
+         */
         @Parameter(description = "Files")
         private List<String> files = new ArrayList<>();
     }
 
+    /**
+     * Compresses files based on the provided command line arguments.
+     * 
+     * @param args The command line arguments for the compression operation.
+     * @return An integer status code indicating the result of the operation.
+     * @throws IOException If there is an error accessing the file system.
+     * @throws ParameterException If there is an error parsing the command line arguments.
+     */
     private int compressor(String... args) throws IOException, ParameterException {
         final var jArgs = new CompressorArgs();
         final var cmd = JCommander.newBuilder().addObject(jArgs).build();
@@ -896,12 +1149,23 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Displays or modifies the application preferences based on the provided arguments.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
     private int prefs() {
         for (final var e : SettingsEnum.values())
             printKeyValue(e.toString(), session.getUser().getSettings().getProperty(e));
         return 0;
     }
 
+    /**
+     * Displays or modifies a specific application preference based on the provided name.
+     * 
+     * @param name The name of the preference to display or modify.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int prefs(final Enum<?> name) {
         if (!session.getUser().getSettings().hasProperty(name))
             printWarning(String.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name));
@@ -910,18 +1174,36 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Modifies a specific application preference based on the provided name and value.
+     * 
+     * @param name The name of the preference to modify.
+     * @param value The new value for the preference.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int prefs(final Enum<?> name, final String value) {
         session.getUser().getSettings().setProperty(name, value);
         session.getUser().getSettings().saveSettings();
         return 0;
     }
 
+    /**
+     * Displays all profile settings.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
     private int settings() {
         for (final var e : ProfileSettingsEnum.values())
             printKeyValue(e.toString(), session.getCurrProfile().getSettings().getProperty(e));
         return 0;
     }
 
+    /**
+     * Displays or modifies a specific profile setting based on the provided name.
+     * 
+     * @param name The name of the profile setting to display or modify.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int settings(final Enum<?> name) {
         if (!session.getCurrProfile().getSettings().hasProperty(name))
             printWarning(String.format(CLIMessages.getString("CLI_MSG_PropIsNotSet"), name));
@@ -930,27 +1212,58 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Modifies a specific profile setting based on the provided name and value.
+     * 
+     * @param name The name of the profile setting to modify.
+     * @param value The new value for the profile setting.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int settings(final Enum<?> name, final String value) {
         session.getCurrProfile().getSettings().setProperty(name, value);
         session.getCurrProfile().saveSettings();
         return 0;
     }
 
+    /**
+     * Exits the application with the specified status code.
+     * 
+     * @param status The exit status code.
+     * @return The exit status code.
+     */
     private int exit(int status) {
         System.exit(status);
         return status;
     }
 
+    /**
+     * Displays an error message and returns a status code indicating an error.
+     * 
+     * @param msg The error message to display.
+     * @return An integer status code indicating an error.
+     */
     private int error(String msg) {
         printError(msg);
         return -1;
     }
 
+    /**
+     * Displays an error message generated by the provided supplier and returns a status code indicating an error.
+     * 
+     * @param supplier A supplier that generates the error message to display.
+     * @return An integer status code indicating an error.
+     */
     private int error(Supplier<String> supplier) {
         printError(supplier.get());
         return -1;
     }
 
+    /**
+     * Loads a profile from the specified file path.
+     * 
+     * @param profile The file path of the profile to load.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int load(String profile) {
         Path candidate = cwdir.resolve(profile);
         if (Files.isRegularFile(candidate))
@@ -960,32 +1273,50 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * Changes the current working directory to the specified directory.
+     * 
+     * @param dir The directory to change to.
+     * @return An integer status code indicating the result of the operation.
+     */
     private int cd(String dir) {
-        if (dir.equals(File.separator))
+        if (dir.equals(File.separator)) {
             cwdir = rootdir;
-        else {
-            if (dir.startsWith("~")) //$NON-NLS-1$
-                dir = dir.replace("~", rootdir.toString()); //$NON-NLS-1$
-            Path candidate = cwdir.resolve(dir).normalize();
+        } else {
+            var resolvedDir = dir.startsWith("~") ? dir.replace("~", rootdir.toString()) : dir;
+            var candidate = cwdir.resolve(resolvedDir).normalize();
             if (rootdir.startsWith(candidate) && !rootdir.equals(candidate)) {
                 cwdir = rootdir;
-                printError(String.format(CLIMessages.getString("CLI_ERR_CantGoUpDir"), dir));
+                printError(String.format(CLIMessages.getString("CLI_ERR_CantGoUpDir"), resolvedDir));
             } else if (Files.isDirectory(candidate)) {
-                if (candidate.startsWith(rootdir))
+                if (candidate.startsWith(rootdir)) {
                     cwdir = candidate;
-                else
-                    printError(String.format(CLIMessages.getString("CLI_ERR_CantChangeDir"), dir));
-            } else
-                printError(String.format(CLIMessages.getString("CLI_ERR_UnknownDir"), dir));
+                } else {
+                    printError(String.format(CLIMessages.getString("CLI_ERR_CantChangeDir"), resolvedDir));
+                }
+            } else {
+                printError(String.format(CLIMessages.getString("CLI_ERR_UnknownDir"), resolvedDir));
+            }
         }
         return 0;
     }
 
+    /**
+     * Displays the current working directory relative to the root directory.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     */
     private int pwd() {
         printInfo("~/" + rootdir.relativize(cwdir)); //$NON-NLS-1$
         return 0;
     }
 
+    /**
+     * Lists the directories and data files in the current working directory.
+     * 
+     * @return An integer status code indicating the result of the operation.
+     * @throws IOException If there is an error accessing the file system.
+     */
     private int list() throws IOException {
         try (final var stream = Files.walk(cwdir, 1)) {
             stream.filter(p -> Files.isDirectory(p) && !p.equals(cwdir)).sorted(Path::compareTo).map(cwdir::relativize)
@@ -1005,6 +1336,11 @@ public class JRomManagerCLI {
         return 0;
     }
 
+    /**
+     * The main entry point of the JRomManagerCLI application.
+     * 
+     * @param args The command line arguments passed to the application.
+     */
     public static void main(String[] args) {
         final var jArgs = new Args();
         final var cmd = JCommander.newBuilder().addObject(jArgs).build();
