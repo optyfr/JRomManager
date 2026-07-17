@@ -42,13 +42,14 @@ import net.lingala.zip4j.model.enums.CompressionMethod;
 public class Compressor implements StatusRendererFactory {
     /**
      * Status message constants used for progress updates during compression operations. These constants represent common status
-     * messages such as "OK", "Failed", "Crunching", "Extracting", and "Processing", which are used to indicate the current state of
+     * messages such as "OK", "Failed", "Crunching", "Extracting", "Creating", and "Processing", which are used to indicate the current state of
      * the compression process in progress updates.
      */
     private static final String OK = "OK";
     private static final String FAILED = "Failed";
     private static final String CRUNCHING = "Crunching ";
     private static final String EXTRACTING = "extracting ";
+    private static final String CREATING = "creating ";
     private static final String PROCESSING = "Processing ";
 
     /**
@@ -82,7 +83,7 @@ public class Compressor implements StatusRendererFactory {
      * 
      * @return the array of supported file extensions for compression operations
      */
-    protected static final @Getter String[] extensions = new String[] { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
+    protected static final @Getter String[] extensions = { "zip", "7z", "rar", "arj", "tar", "lzh", "lha", "tgz", "tbz", "tbz2", "rpm", "iso", "deb", "cab" };
 
     /**
      * A data class representing the result of a file compression operation. This class contains a Path object representing the file
@@ -190,7 +191,7 @@ public class Compressor implements StatusRendererFactory {
          * 
          * @param txt the result update text
          */
-        public abstract void apply(String txt);
+        void apply(String txt);
     }
 
     /**
@@ -208,7 +209,77 @@ public class Compressor implements StatusRendererFactory {
          * 
          * @param file the File object representing the updated source file after a successful compression operation
          */
-        public abstract void apply(File file);
+        void apply(File file);
+    }
+
+    /**
+     * Functional interface for the actual archive conversion logic, used by {@link #convertArchive} as a strategy callback.
+     */
+    @FunctionalInterface
+    interface ArchiveConverter {
+        /**
+         * Performs the archive conversion from the source file to the temporary file.
+         *
+         * @param file the source archive file
+         * @param tmpfile the temporary path where the new archive is written
+         * @param newfile the final destination file, used for progress reporting
+         * 
+         * @return {@code true} if the conversion succeeded; {@code false} otherwise
+         * 
+         * @throws IOException if an I/O error occurs during conversion
+         */
+        boolean convert(File file, Path tmpfile, File newfile) throws IOException;
+    }
+
+    /**
+     * Template method that encapsulates the common archive conversion workflow: create a temporary file, invoke the supplied
+     * conversion strategy, and finalize by replacing the original file.
+     * <p>
+     * This eliminates duplicated boilerplate across the various {@code *2*} public methods.
+     *
+     * @param file the source archive file to convert
+     * @param extension the target file extension (without the dot), e.g. {@code "7z"} or {@code "zip"}
+     * @param cb the callback to report status updates or operation results
+     * @param scb the callback to update the reference to the newly created source file
+     * @param converter the strategy that performs the actual conversion
+     * 
+     * @return the new {@link File} if the conversion is successful; {@code null} otherwise
+     */
+    private File convertArchive(final File file, final String extension, final UpdResultCallBack cb, final UpdSrcCallBack scb, final ArchiveConverter converter) {
+        try {
+            cb.apply(PROCESSING + file.getName());
+            var tmpfile = IOUtils.createTempFile("JRM", "." + extension);
+            Files.delete(tmpfile);
+            var newfile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + "." + extension);
+            if (converter.convert(file, tmpfile, newfile) && Files.exists(tmpfile)) {
+                return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
+            }
+        } catch (IOException _) {
+            cb.apply(FAILED);
+        } finally {
+            progress.setProgress("", null, null, "");
+        }
+        return null;
+    }
+
+    /**
+     * Creates and configures {@link ZipParameters} based on the user's configured ZIP compression level.
+     *
+     * @return a new {@link ZipParameters} instance with the compression method and level set according to user settings
+     */
+    private ZipParameters configureZipParameters() {
+        var zipp = new ZipParameters();
+        var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
+        switch (level) {
+            case STORE -> zipp.setCompressionMethod(CompressionMethod.STORE);
+            case FASTEST -> zipp.setCompressionLevel(CompressionLevel.FASTEST);
+            case FAST -> zipp.setCompressionLevel(CompressionLevel.FAST);
+            case NORMAL -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+            case MAXIMUM -> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
+            case ULTRA -> zipp.setCompressionLevel(CompressionLevel.ULTRA);
+            default -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+        }
+        return zipp;
     }
 
     /**
@@ -225,20 +296,7 @@ public class Compressor implements StatusRendererFactory {
      * @return a File object representing the new 7-Zip archive if the conversion is successful, or null if it fails
      */
     public File sevenZip2SevenZip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb) {
-        try {
-            cb.apply(PROCESSING + file.getName());
-            final Path tmpfile = IOUtils.createTempFile("JRM", ".7z");
-            Files.delete(tmpfile);
-            final var newfile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + ".7z");
-            if (sevenZip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
-                return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
-            }
-        } catch (IOException _) {
-            cb.apply(FAILED);
-        } finally {
-            // do nothing
-        }
-        return null;
+        return convertArchive(file, "7z", cb, scb, (f, t, n) -> sevenZip2SevenZip(f, cb, t, n));
     }
 
     /**
@@ -334,20 +392,7 @@ public class Compressor implements StatusRendererFactory {
      * @return a File object representing the new ZIP archive if the conversion is successful, or null if it fails
      */
     public File sevenZip2Zip(final File file, final boolean tzip, final UpdResultCallBack cb, final UpdSrcCallBack scb) {
-        try {
-            cb.apply(PROCESSING + file.getName());
-            final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
-            Files.delete(tmpfile);
-            final var newfile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + ".zip");
-            if (sevenZip2Zip(file, tzip, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
-                return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
-            }
-        } catch (final IOException _) {
-            cb.apply(FAILED);
-        } finally {
-            progress.setProgress("", null, null, "");
-        }
-        return null;
+        return convertArchive(file, "zip", cb, scb, (f, t, n) -> sevenZip2Zip(f, tzip, cb, t, n));
     }
 
     /**
@@ -357,7 +402,7 @@ public class Compressor implements StatusRendererFactory {
      * settings, and compresses the extracted files into the specified temporary ZIP path.
      *
      * @param file the source 7-Zip archive file to be converted
-     * @param tzip a flag indicating whether to apply TorrentZip constraints (reserved for future use)
+     * @param tzip a flag indicating whether to apply Torrentzip constraints (reserved for future use)
      * @param cb the callback used to report status or conversion errors
      * @param tmpfile the path to the temporary file where the ZIP archive is constructed
      * @param newfile the final target ZIP file, used for progress reporting
@@ -372,19 +417,9 @@ public class Compressor implements StatusRendererFactory {
             if (archive.extract() == 0) {
                 final File basedir = archive.getTempDir();
 
-                final var zipp = new ZipParameters();
-                final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
-                switch (level) {
-                    case STORE -> zipp.setCompressionMethod(CompressionMethod.STORE);
-                    case FASTEST -> zipp.setCompressionLevel(CompressionLevel.FASTEST);
-                    case FAST -> zipp.setCompressionLevel(CompressionLevel.FAST);
-                    case NORMAL -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
-                    case MAXIMUM -> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
-                    case ULTRA -> zipp.setCompressionLevel(CompressionLevel.ULTRA);
-                    default -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
-                }
+                final var zipp = configureZipParameters();
                 FileUtils.forceMkdirParent(tmpfile.toFile());
-                progress.setProgress(toDocument("creating " + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
+                progress.setProgress(toDocument(CREATING + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
                 try (final var dstzipf = new ZipFile(tmpfile.toFile())) {
                     Files.walkFileTree(basedir.toPath(), new SimpleFileVisitor<Path>() {
                         @Override
@@ -424,43 +459,42 @@ public class Compressor implements StatusRendererFactory {
      * @return the updated {@link File} representing the new ZIP archive if successful; {@code null} otherwise
      */
     public File zip2Zip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb) {
-        try {
-            cb.apply(PROCESSING + file.getName());
-            final var tmpfile = IOUtils.createTempFile("JRM", ".zip");
-            Files.delete(tmpfile);
-            final var newfile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + ".zip");
-            try (final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)); final var dstzipf = new ZipFile(tmpfile.toFile())) {
-                final var zipp = new ZipParameters();
-                final var level = ZipLevel.valueOf(session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.zip_compression_level));
-                switch (level) {
-                    case STORE -> zipp.setCompressionMethod(CompressionMethod.STORE);
-                    case FASTEST -> zipp.setCompressionLevel(CompressionLevel.FASTEST);
-                    case FAST -> zipp.setCompressionLevel(CompressionLevel.FAST);
-                    case NORMAL -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
-                    case MAXIMUM -> zipp.setCompressionLevel(CompressionLevel.MAXIMUM);
-                    case ULTRA -> zipp.setCompressionLevel(CompressionLevel.ULTRA);
-                    default -> zipp.setCompressionLevel(CompressionLevel.NORMAL);
+        return convertArchive(file, "zip", cb, scb, (f, t, n) -> zip2ZipHelper(f, cb, t, n));
+    }
+
+    /**
+     * Helper method that extracts entries from the source ZIP archive and re-compresses them into a new temporary ZIP file
+     * using the user-configured compression level.
+     *
+     * @param file the source ZIP archive to be re-compressed
+     * @param cb the callback used to report status or compression errors
+     * @param tmpfile the path to the temporary file where the new ZIP archive is constructed
+     * @param newfile the final target ZIP file, used for progress reporting
+     * 
+     * @return {@code true} if the re-compression succeeded; {@code false} otherwise
+     * 
+     * @throws IOException if an I/O error occurs during extraction or ZIP creation
+     */
+    private boolean zip2ZipHelper(final File file, final UpdResultCallBack cb, final Path tmpfile, final File newfile) throws IOException {
+        try (final var srcarchive = new ZipArchive(session, file, true, new ProgressNarchiveCallBack(progress)); final var dstzipf = new ZipFile(tmpfile.toFile())) {
+            final var zipp = configureZipParameters();
+            progress.setProgress(toDocument(CRUNCHING + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
+            srcarchive.extractCustom(new CustomVisitor() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
+                    final var zippf = new ZipParameters(zipp);
+                    zippf.setFileNameInZip(getSourcePath().relativize(file).toString());
+                    dstzipf.addStream(Files.newInputStream(file), zippf);
+                    return FileVisitResult.CONTINUE;
                 }
-                progress.setProgress(toDocument(CRUNCHING + toItalicBlack(escape(newfile.getName()))), cnt.get(), total);
-                srcarchive.extractCustom(new CustomVisitor() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
-                        final var zippf = new ZipParameters(zipp);
-                        zippf.setFileNameInZip(getSourcePath().relativize(file).toString());
-                        dstzipf.addStream(Files.newInputStream(file), zippf);
-                        return FileVisitResult.CONTINUE;
-                    }
-                });
-            }
-            if (Files.exists(tmpfile)) {
-                return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
-            }
-        } catch (IOException _) {
-            cb.apply(FAILED);
-        } finally {
-            progress.setProgress("", null, null, "");
+            });
+        } catch (Exception e) {
+            Log.err(e.getMessage(), e);
+            Files.deleteIfExists(tmpfile);
+            cb.apply("zip creation failed");
+            return false;
         }
-        return null;
+        return true;
     }
 
     /**
@@ -476,21 +510,7 @@ public class Compressor implements StatusRendererFactory {
      * @return the updated {@link File} representing the new 7-Zip archive if successful; {@code null} otherwise
      */
     public File zip2SevenZip(final File file, final UpdResultCallBack cb, final UpdSrcCallBack scb) {
-        try {
-            cb.apply(PROCESSING + file.getName());
-            final var tmpfile = IOUtils.createTempFile("JRM", ".7z");
-            Files.delete(tmpfile);
-            final var newfile = new File(file.getParentFile(), FilenameUtils.getBaseName(file.getName()) + ".7z");
-
-            if (zip2SevenZip(file, cb, tmpfile, newfile) && Files.exists(tmpfile)) {
-                return finalizeTmpFile(file, cb, scb, tmpfile, newfile);
-            }
-        } catch (IOException _) {
-            cb.apply("failed");
-        } finally {
-            progress.setProgress("", null, null, "");
-        }
-        return null;
+        return convertArchive(file, "7z", cb, scb, (f, t, n) -> zip2SevenZip(f, cb, t, n));
     }
 
     /**
@@ -551,7 +571,7 @@ public class Compressor implements StatusRendererFactory {
             }
             cb.apply(status.toString());
         } catch (IOException _) {
-            cb.apply("failed");
+            cb.apply(FAILED);
         } finally {
             progress.setProgress("", null, null, "");
         }
@@ -572,18 +592,9 @@ public class Compressor implements StatusRendererFactory {
      */
     public void compress(final CompressorFormat format, final File file, final boolean force, final UpdResultCallBack cb, final UpdSrcCallBack scb) {
         switch (format) {
-            case SEVENZIP: {
-                compressToSevenZip(file, force, cb, scb);
-                break;
-            }
-            case ZIP: {
-                compressToZip(file, force, cb, scb);
-                break;
-            }
-            case TZIP: {
-                compressToTZip(file, force, cb, scb);
-                break;
-            }
+            case SEVENZIP -> compressToSevenZip(file, force, cb, scb);
+            case ZIP -> compressToZip(file, force, cb, scb);
+            case TZIP -> compressToTZip(file, force, cb, scb);
         }
     }
 
@@ -645,18 +656,14 @@ public class Compressor implements StatusRendererFactory {
      */
     private void compressToSevenZip(final File file, final boolean force, final UpdResultCallBack cb, final UpdSrcCallBack scb) throws IllegalArgumentException {
         switch (FilenameUtils.getExtension(file.getName())) {
-            case "zip":
-                zip2SevenZip(file, cb, scb);
-                break;
-            case "7z":
+            case "zip" -> zip2SevenZip(file, cb, scb);
+            case "7z" -> {
                 if (force)
                     sevenZip2SevenZip(file, cb, scb);
                 else
                     cb.apply("Skipped");
-                break;
-            default:
-                sevenZip2SevenZip(file, cb, scb);
-                break;
+            }
+            default -> sevenZip2SevenZip(file, cb, scb);
         }
     }
 }
