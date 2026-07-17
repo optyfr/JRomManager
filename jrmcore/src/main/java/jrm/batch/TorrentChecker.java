@@ -112,7 +112,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
                 final String result = check(progress, sdr);
                 updater.updateResult(row, result);
                 progress.setProgress(null, -1, null, "");
-            } catch (IOException e) {
+            } catch (IOException | TorrentException e) {
                 Log.err(e.getMessage(), e);
             }
         })) {
@@ -132,7 +132,7 @@ public class TorrentChecker<T extends AbstractSrcDstResult> implements UnitRende
      * @throws IOException if an I/O error occurs during file checking or reading
      * @throws TorrentException if an error occurs while parsing the torrent file
      */
-    private String check(final ProgressHandler progress, final T sdr) throws IOException, TorrentException {
+    String check(final ProgressHandler progress, final T sdr) throws IOException, TorrentException {
         if (sdr.getSrc() == null || sdr.getDst() == null)
             return sdr.getSrc() == null ? session.getMsgs().getString("TorrentChecker.SrcNotDefined") : session.getMsgs().getString("TorrentChecker.DstNotDefined"); //$NON-NLS-1$ //$NON-NLS-2$
         var result = ""; //$NON-NLS-1$

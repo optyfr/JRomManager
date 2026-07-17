@@ -64,7 +64,10 @@ public class DirUpdaterResults implements Serializable {
      * the DAT file used for the update operation
      * 
      * @param dat the DAT file used for the update operation
+     * 
+     * @return the DAT file used for the update operation
      */
+    @Getter
     @Setter
     private File dat;
     /**
