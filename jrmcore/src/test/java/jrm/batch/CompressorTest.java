@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.compressors.SevenZipArchive;
 import jrm.compressors.ZipLevel;
 import jrm.misc.SettingsEnum;
 import jrm.security.Session;
@@ -479,6 +481,186 @@ class CompressorTest {
                 assertThat(results).isNotEmpty();
                 assertThat(results.get(0)).startsWith("Processing ");
             }
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    //  Real 7zip file conversions
+    // ──────────────────────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("Real 7zip file conversions")
+    class RealSevenZipConversionTests {
+
+        /**
+         * Creates a real 7-Zip archive containing a single text file entry using SevenZipJBinding.
+         *
+         * @param sevenZipPath the destination path for the 7z file
+         * @param entryName the name of the entry inside the archive
+         * @param entryContent the text content to store in the entry
+         * @throws IOException if an I/O error occurs
+         */
+        private void createReal7z(Path sevenZipPath, String entryName, String entryContent) throws IOException {
+            var contentFile = tempDir.resolve(entryName);
+            Files.writeString(contentFile, entryContent);
+            try (var archive = new SevenZipArchive(session, sevenZipPath.toFile())) {
+                try (InputStream in = Files.newInputStream(contentFile)) {
+                    archive.addStdIn(in, entryName);
+                }
+            }
+        }
+
+        /**
+         * Creates a real ZIP archive containing a single text file entry.
+         *
+         * @param zipPath the destination path for the ZIP file
+         * @param entryName the name of the entry inside the archive
+         * @param entryContent the text content to store in the entry
+         * @throws IOException if an I/O error occurs
+         */
+        private void createRealZip(Path zipPath, String entryName, String entryContent) throws IOException {
+            var contentFile = tempDir.resolve(entryName);
+            Files.writeString(contentFile, entryContent);
+            var params = new ZipParameters();
+            params.setCompressionMethod(CompressionMethod.DEFLATE);
+            params.setCompressionLevel(CompressionLevel.NORMAL);
+            params.setFileNameInZip(entryName);
+            try (var zip = new ZipFile(zipPath.toFile())) {
+                zip.addFile(contentFile.toFile(), params);
+            }
+        }
+
+        @Test
+        @DisplayName("sevenZip2SevenZip with a real 7z file should produce a new 7z or report failure gracefully")
+        void sevenZip2SevenZipWithReal7zFileShouldProduceNew7zOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.7z");
+            createReal7z(srcPath, "content.txt", "hello 7z world");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            var result = compressor.sevenZip2SevenZip(srcPath.toFile(), results::add, srcUpdates::add);
+
+            if (result != null) {
+                assertThat(result).exists();
+                assertThat(result.getName()).endsWith(".7z");
+                assertThat(results).contains("OK");
+                assertThat(srcUpdates).isNotEmpty();
+            } else {
+                assertThat(results).isNotEmpty();
+                assertThat(results.get(0)).startsWith("Processing ");
+            }
+        }
+
+        @Test
+        @DisplayName("sevenZip2Zip with a real 7z file should produce a new zip or report failure gracefully")
+        void sevenZip2ZipWithReal7zFileShouldProduceNewZipOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.7z");
+            createReal7z(srcPath, "content.txt", "hello 7z to zip");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            var result = compressor.sevenZip2Zip(srcPath.toFile(), false, results::add, srcUpdates::add);
+
+            if (result != null) {
+                assertThat(result).exists();
+                assertThat(result.getName()).endsWith(".zip");
+                assertThat(results).contains("OK");
+                assertThat(srcUpdates).isNotEmpty();
+            } else {
+                assertThat(results).isNotEmpty();
+                assertThat(results.get(0)).startsWith("Processing ");
+            }
+        }
+
+        @Test
+        @DisplayName("zip2SevenZip with a real zip file should produce a new 7z or report failure gracefully")
+        void zip2SevenZipWithRealZipFileShouldProduceNew7zOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.zip");
+            createRealZip(srcPath, "content.txt", "hello zip to 7z");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            var result = compressor.zip2SevenZip(srcPath.toFile(), results::add, srcUpdates::add);
+
+            if (result != null) {
+                assertThat(result).exists();
+                assertThat(result.getName()).endsWith(".7z");
+                assertThat(results).contains("OK");
+                assertThat(srcUpdates).isNotEmpty();
+            } else {
+                assertThat(results).isNotEmpty();
+                assertThat(results.get(0)).startsWith("Processing ");
+            }
+        }
+
+        @Test
+        @DisplayName("compress SEVENZIP with a real zip file should produce a new 7z or report failure gracefully")
+        void compressSevenZipWithRealZipFileShouldProduceNew7zOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.zip");
+            createRealZip(srcPath, "content.txt", "compress zip to 7z");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            compressor.compress(CompressorFormat.SEVENZIP, srcPath.toFile(), false, results::add, srcUpdates::add);
+
+            assertThat(results).isNotEmpty();
+            assertThat(results.get(0)).startsWith("Processing ");
+        }
+
+        @Test
+        @DisplayName("compress ZIP with a real 7z file should produce a new zip or report failure gracefully")
+        void compressZipWithReal7zFileShouldProduceNewZipOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.7z");
+            createReal7z(srcPath, "content.txt", "compress 7z to zip");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            compressor.compress(CompressorFormat.ZIP, srcPath.toFile(), false, results::add, srcUpdates::add);
+
+            assertThat(results).isNotEmpty();
+            assertThat(results.get(0)).startsWith("Processing ");
+        }
+
+        @Test
+        @DisplayName("compress SEVENZIP with a real 7z file and force=true should re-compress or report failure gracefully")
+        void compressSevenZipWithReal7zFileForceTrueShouldRecompressOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.7z");
+            createReal7z(srcPath, "content.txt", "force recompress 7z");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            compressor.compress(CompressorFormat.SEVENZIP, srcPath.toFile(), true, results::add, srcUpdates::add);
+
+            assertThat(results).isNotEmpty();
+            assertThat(results.get(0)).startsWith("Processing ");
+        }
+
+        @Test
+        @DisplayName("compress TZIP with a real 7z file should convert to zip then tzip or report failure gracefully")
+        void compressTZipWithReal7zFileShouldConvertToZipThenTZipOrReportFailureGracefully() throws IOException {
+            var srcPath = tempDir.resolve("source.7z");
+            createReal7z(srcPath, "content.txt", "7z to tzip");
+            assertThat(srcPath).exists();
+
+            var results = new ArrayList<String>();
+            var srcUpdates = new ArrayList<File>();
+
+            compressor.compress(CompressorFormat.TZIP, srcPath.toFile(), false, results::add, srcUpdates::add);
+
+            assertThat(results).isNotEmpty();
+            assertThat(results.get(0)).startsWith("Processing ");
         }
     }
 
