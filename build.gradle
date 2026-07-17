@@ -370,6 +370,7 @@ project(':jrmcli') {
 		useJUnitPlatform {
 			includeEngines 'junit-jupiter'
 		}
+		jvmArgs '--add-opens', 'jdk.unsupported/sun.misc=ALL-UNNAMED'
 		jacocoTestReport {
 			reports {
 				xml.required = true
