@@ -25,9 +25,10 @@ public class Progress implements ProgressHandler {
     private boolean quiet = false;
 
     /**
-     * Constructs a Progress instance with the specified quiet mode.
+     * Sets the progress information, including the number of threads and whether multiple sub-infos are present.
      *
-     * @param quiet A boolean indicating whether to suppress progress output.
+     * @param threadCnt         The number of threads involved in the process.
+     * @param multipleSubInfos  A boolean indicating if there are multiple sub-infos.
      */
     @Override
     public void setInfos(int threadCnt, Boolean multipleSubInfos) {
@@ -126,40 +127,44 @@ public class Progress implements ProgressHandler {
         return false;
     }
 
+    
     /**
-     * Retrieves the maximum progress value.
-     *
-     * @return The maximum progress value, or 0 if not set.
+     * Cancels the progress operation. This method is not implemented in this class.
      */
     @Override
     public void doCancel() {
         // not implemented
     }
 
+    
     /**
-     * Retrieves the maximum progress value.
+     * Sets whether the progress operation can be canceled. This method is not implemented in this class.
      *
-     * @return The maximum progress value, or 0 if not set.
+     * @param canCancel A boolean indicating whether the operation can be canceled.
      */
     @Override
     public void canCancel(boolean canCancel) {
         // not implemented
     }
 
+    
     /**
-     * Retrieves the maximum progress value.
+     * Checks if the progress operation can be canceled.
      *
-     * @return The maximum progress value, or 0 if not set.
+     * @return false, indicating that canceling is not supported in this implementation.
      */
     @Override
     public boolean canCancel() {
         return false;
     }
 
+    
     /**
-     * Retrieves the maximum progress value.
+     * Retrieves an InputStream for reading data, given an existing InputStream and a specified length.
      *
-     * @return The maximum progress value, or 0 if not set.
+     * @param in  The existing InputStream to read from.
+     * @param len The length of data to read from the InputStream.
+     * @return The provided InputStream, unchanged.
      */
     @Override
     public InputStream getInputStream(InputStream in, Integer len) {
@@ -190,10 +195,11 @@ public class Progress implements ProgressHandler {
         this.quiet = !this.quiet;
     }
 
+    
     /**
-     * Checks if the progress output is in quiet mode.
+     * Adds an error message to the list of errors encountered during processing.
      *
-     * @return true if quiet mode is enabled, false otherwise.
+     * @param error The error message to add.
      */
     @Override
     public void addError(String error) {
