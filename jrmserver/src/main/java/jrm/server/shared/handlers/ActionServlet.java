@@ -179,9 +179,6 @@ public class ActionServlet extends HttpServlet {
      * 
      * @param resp the HTTP servlet response for sending notifications
      * @param sess the web session containing the message queue
-     * 
-     * @throws InterruptedException if the thread is interrupted while waiting for messages
-     * @throws IOException if an I/O error occurs while sending the response
      */
     void doLPR(HttpServletResponse resp, WebSession sess) {
         if (WebSession.isTerminate()) {
