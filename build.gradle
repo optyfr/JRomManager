@@ -704,6 +704,8 @@ project(':jrmserver') {
 		testImplementation 'org.awaitility:awaitility:4.+'
     	testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
     	testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
+		testImplementation 'org.assertj:assertj-core:3.27.7'
+		testImplementation 'org.mockito:mockito-core:latest.release'
 //		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
 //		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
 	}

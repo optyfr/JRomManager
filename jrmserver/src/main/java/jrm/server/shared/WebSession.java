@@ -61,6 +61,7 @@ public class WebSession extends Session implements Closeable, Serializable {
      * creation/destruction), worker threads (message generation), and the shutdown hook (bulk close).
      * </p>
      */
+    @Getter(lombok.AccessLevel.PACKAGE)
     private static Map<String, WebSession> allSessions = new ConcurrentHashMap<>();
 
     /**
@@ -69,7 +70,7 @@ public class WebSession extends Session implements Closeable, Serializable {
      *
      * @return {@code true} if the server is terminating, {@code false} otherwise
      */
-    private static @Getter boolean terminate = false;
+    private static @Getter @Setter(lombok.AccessLevel.PACKAGE) boolean terminate = false;
 
     /**
      * Blocking deque for delivering messages to the client via long-polling.

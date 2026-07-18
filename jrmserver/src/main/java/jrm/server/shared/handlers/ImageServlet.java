@@ -120,7 +120,7 @@ public class ImageServlet extends HttpServlet {
      * @throws URISyntaxException if the request URI is null, too short, contains disallowed patterns, or resolves outside the base
      *         URI
      */
-    private static URI resolveRequestedResourceUri(String requestUri) throws URISyntaxException {
+    static URI resolveRequestedResourceUri(String requestUri) throws URISyntaxException {
         if (requestUri == null || requestUri.length() <= 8) {
             throw new URISyntaxException(String.valueOf(requestUri), "Invalid request URI");
         }

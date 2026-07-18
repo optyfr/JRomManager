@@ -126,7 +126,7 @@ class H2 extends DB {
      * 
      * @return The Path object representing the file path to the H2 database.
      */
-    private Path getDBPath(String name, final boolean full) {
+    Path getDBPath(String name, final boolean full) {
         if (name.contains("%w"))
             name = name.replace("%w", getSettings().getWorkPath().toString());
         if (!Paths.get(name).isAbsolute()) {
@@ -155,7 +155,7 @@ class H2 extends DB {
      * 
      * @return The Path object representing the resolved database name.
      */
-    private Path resolveName(String name, final boolean full) {
+    Path resolveName(String name, final boolean full) {
         if (full && !name.endsWith(".db"))
             return Paths.get(name + ".mv.db");
         else if (!full && name.endsWith(".db"))
@@ -174,7 +174,7 @@ class H2 extends DB {
      * 
      * @return The Path object representing the file path to the H2 database.
      */
-    private Path getDBPath(final String name) {
+    Path getDBPath(final String name) {
         return getDBPath(name, false);
     }
 

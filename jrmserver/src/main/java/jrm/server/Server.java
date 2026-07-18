@@ -103,6 +103,32 @@ public class Server extends AbstractServer {
     private static final DefaultEnvironmentProperties env = DefaultEnvironmentProperties.getInstance(Server.class);
 
     /**
+     * Sets the HTTP port for the server. Intended for test use to bind to an ephemeral port (port 0).
+     *
+     * @param port the HTTP port to set
+     */
+    static void setHttpPort(final int port) {
+        httpPort = port;
+    }
+
+    /**
+     * Retrieves the actual local port the HTTP connector is listening on after the server has been started. Returns -1 if the
+     * server is not started or no connector is available.
+     *
+     * @return the local port, or -1 if not available
+     */
+    static int getLocalPort() {
+        if (jettyserver != null && jettyserver.isStarted()) {
+            for (final var connector : jettyserver.getConnectors()) {
+                if (connector instanceof ServerConnector sc) {
+                    return sc.getLocalPort();
+                }
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Command-line arguments container for server configuration. Uses JCommander annotations to define parameter names, arity,
      * default values, and descriptions. Defaults can be overridden by environment properties via {@link #initFromEnv(Args)}.
      */

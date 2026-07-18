@@ -558,7 +558,7 @@ public abstract class SQL implements SQLUtils, Closeable {
      * 
      * @throws NullPointerException if the args parameter is null
      */
-    private int findArrayParam(Object[] args) {
+    int findArrayParam(Object[] args) {
         int pos = -1;
         if (args != null)
             for (var i = 0; i < args.length; i++)
@@ -576,7 +576,7 @@ public abstract class SQL implements SQLUtils, Closeable {
      * @param queryRef a reference to the SQL query string that may contain array parameters
      * @param argsRef a reference to the array of arguments that may contain array parameters
      */
-    private void convertArrayParams(AtomicReference<String> queryRef, AtomicReference<Object[]> argsRef) {
+    void convertArrayParams(AtomicReference<String> queryRef, AtomicReference<Object[]> argsRef) {
         Object[] args = argsRef.get();
         String query = queryRef.get();
         int pos;

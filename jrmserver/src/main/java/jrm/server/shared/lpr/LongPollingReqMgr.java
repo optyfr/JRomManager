@@ -9,6 +9,7 @@ import com.eclipsesource.json.Json;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.actions.ActionsMgr;
+import lombok.Getter;
 
 /**
  * Manages long polling request sessions and processes client actions.
@@ -30,6 +31,7 @@ public class LongPollingReqMgr implements ActionsMgr {
      * accessed under contexts ensuring thread safety.
      * </p>
      */
+    @Getter
     private static final Map<String, LongPollingReqMgr> cmds = new HashMap<>();
 
     /**

@@ -22,6 +22,7 @@ import jrm.fullserver.db.DB;
 import jrm.fullserver.db.SQL;
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 
@@ -79,6 +80,24 @@ public class Login extends SQL implements LoginService {
     }
 
     /**
+     * Checks if the default admin user exists in the database. This method queries the users table to determine if a user with the
+     * username "admin" exists. It returns true if the admin user is found, indicating that the default admin user is present in the
+     * database. If the admin user is not found, it returns false, indicating that the default admin user does not exist.
+     * <p>
+     * Note: This method is useful for checking the existence of the default admin user during application startup or for
+     * administrative purposes. It can be used to verify that the default admin user has been created and is available for login.
+     * It is important to ensure that the users table is properly set up and populated with user credentials before calling this
+     * method to avoid potential errors or unexpected behavior.
+     * 
+     * @return true if the default admin user exists in the database; false otherwise.
+     * @throws SQLException If a database access error occurs while querying the users table.
+     */
+    public boolean checkAdmin() throws SQLException {
+        return count("SELECT * FROM USERS WHERE LOGIN = ?", ADMIN) > 0;
+    }
+
+
+    /**
      * Returns the name of the login service.
      * <p>
      * This method is required by the LoginService interface and is used to identify the login service. In this implementation, it
@@ -115,6 +134,7 @@ public class Login extends SQL implements LoginService {
      * properly manage the cache and ensure that it is cleared appropriately to maintain the security and integrity of the
      * authentication system.
      */
+    @Getter
     private static final HashMap<String, UserIdentity> cache = new HashMap<>();
 
     /**

@@ -121,7 +121,7 @@ public class SSLReload {
      *
      * @return the delay in milliseconds until midnight of the next day.
      */
-    private long getDelayUntilTomorrowMidNight() {
+    long getDelayUntilTomorrowMidNight() {
         ZoneId zone = ZoneId.systemDefault();
         ZonedDateTime now = ZonedDateTime.now(zone);
         ZonedDateTime tomorrowMidnight = LocalDate.now(zone).plusDays(1).atStartOfDay(zone);

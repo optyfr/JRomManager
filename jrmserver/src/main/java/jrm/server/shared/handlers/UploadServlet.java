@@ -211,7 +211,7 @@ public class UploadServlet extends HttpServlet {
      * 
      * @throws SecurityException if path validation fails due to security restrictions
      */
-    private void checkRequest(HttpServletRequest req, final PathAbstractor pathAbstractor, final Result result) {
+    void checkRequest(HttpServletRequest req, final PathAbstractor pathAbstractor, final Result result) {
         try {
             result.status = 0;
             result.extstatus = "continue...";
@@ -259,7 +259,7 @@ public class UploadServlet extends HttpServlet {
      * 
      * @return the expected file size in bytes, or -1 if the header is invalid or missing
      */
-    private long getXFileSize(HttpServletRequest req) {
+    long getXFileSize(HttpServletRequest req) {
         try {
             return Long.parseLong(req.getHeader("x-file-size"));
         } catch (NumberFormatException _) {
@@ -283,7 +283,7 @@ public class UploadServlet extends HttpServlet {
      * 
      * @throws IOException if URL decoding fails
      */
-    private String sanitizeHeader(String header) throws IOException {
+    String sanitizeHeader(String header) throws IOException {
         final String decoded = URLDecoder.decode(header, UTF_8);
         // Remove path traversal attempts and dangerous characters
         return decoded.replace("..", "")
@@ -370,7 +370,7 @@ public class UploadServlet extends HttpServlet {
      * @param filename the name of the file being uploaded (for status messages)
      * @param filepath the absolute path where the file should be written
      */
-    private void doUpload(HttpServletRequest req, final Result result, final String filename, final Path filepath) {
+    void doUpload(HttpServletRequest req, final Result result, final String filename, final Path filepath) {
         long filesize = getXFileSize(req);
         long size = 0;
         try (final var out = new BufferedOutputStream(Files.newOutputStream(filepath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))) {

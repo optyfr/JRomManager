@@ -155,7 +155,7 @@ public class ActionServlet extends HttpServlet {
      * 
      * @param sess the web session to initialize
      */
-    private void doInit(WebSession sess) {
+    void doInit(WebSession sess) {
         final var cmd = new LongPollingReqMgr(sess);
         if (sess.getCurrProfile() != null) {
             new ProfileActions(cmd).loaded(sess.getCurrProfile());
@@ -183,7 +183,7 @@ public class ActionServlet extends HttpServlet {
      * @throws InterruptedException if the thread is interrupted while waiting for messages
      * @throws IOException if an I/O error occurs while sending the response
      */
-    private void doLPR(HttpServletResponse resp, WebSession sess) {
+    void doLPR(HttpServletResponse resp, WebSession sess) {
         if (WebSession.isTerminate()) {
             resp.setStatus(HttpServletResponse.SC_GONE);
             return;
@@ -222,7 +222,7 @@ public class ActionServlet extends HttpServlet {
      * 
      * @throws IOException if an I/O error occurs while writing the response
      */
-    private void sendResp(HttpServletResponse resp, String msg) throws IOException {
+    void sendResp(HttpServletResponse resp, String msg) throws IOException {
         resp.setContentType(APPLICATION_JSON);
         resp.setStatus(HttpServletResponse.SC_OK);
         if (msg != null) {
@@ -242,7 +242,7 @@ public class ActionServlet extends HttpServlet {
      * 
      * @return the encapsulated JSON string, or the single message if only one exists
      */
-    private String encapsulate(final java.util.ArrayList<java.lang.String> msgs) {
+    String encapsulate(final java.util.ArrayList<java.lang.String> msgs) {
         String msg;
         if (msgs.size() > 1)
             msg = "{\"cmd\":\"Global.multiCMD\",\"params\":[" + msgs.stream().collect(Collectors.joining(",")) + "]}";
