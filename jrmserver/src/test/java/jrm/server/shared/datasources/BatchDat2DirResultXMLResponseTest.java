@@ -1,0 +1,50 @@
+package jrm.server.shared.datasources;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Path;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import jrm.server.shared.TestDataSets;
+import jrm.server.shared.TestWebSessions;
+import jrm.server.shared.WebSession;
+
+/**
+ * Unit tests for {@link BatchDat2DirResultXMLResponse}.
+ */
+@DisplayName("BatchDat2DirResultXMLResponse")
+class BatchDat2DirResultXMLResponseTest {
+
+    @TempDir
+    Path workPath;
+
+    private WebSession session;
+
+    @BeforeEach
+    void setUp() {
+        TestWebSessions.setWorkPath(workPath);
+        session = TestWebSessions.newAdminSession("batch-result-test");
+    }
+
+    @AfterEach
+    void tearDown() {
+        TestWebSessions.resetStaticState();
+    }
+
+    @Test
+    @DisplayName("fetch without src returns empty results")
+    void fetchWithoutSrc() throws Exception {
+        final String xml = """
+                <request>
+                  <operationType>fetch</operationType>
+                </request>
+                """;
+        final String output = TestDataSets.processResponse(new BatchDat2DirResultXMLResponse(TestDataSets.xmlRequest(session, xml)));
+        assertThat(output).contains("<status>0</status>").contains("<totalRows>0</totalRows>");
+    }
+}

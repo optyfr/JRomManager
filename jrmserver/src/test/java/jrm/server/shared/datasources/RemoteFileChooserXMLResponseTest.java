@@ -2,16 +2,29 @@ package jrm.server.shared.datasources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import jrm.server.shared.TestDataSets;
+import jrm.server.shared.TestWebSessions;
+import jrm.server.shared.WebSession;
+
 /**
- * Unit tests for {@link RemoteFileChooserXMLResponse.Options} context-based configuration.
+ * Unit tests for {@link RemoteFileChooserXMLResponse}.
  */
-@DisplayName("RemoteFileChooserXMLResponse.Options")
+@DisplayName("RemoteFileChooserXMLResponse")
 class RemoteFileChooserXMLResponseTest {
 
     @Nested
@@ -124,6 +137,250 @@ class RemoteFileChooserXMLResponseTest {
             final RemoteFileChooserXMLResponse.Options opts = new RemoteFileChooserXMLResponse.Options("unknown");
             assertThat(opts.isDir).isFalse();
             assertThat(opts.pathmatcher).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("case insensitive file finder")
+    class CaseInsensitiveFileFinderTest {
+        @TempDir
+        Path workPath;
+
+        @Test
+        @DisplayName("finds an existing file ignoring case")
+        void findsExistingFile() throws Exception {
+            final Path file = workPath.resolve("FiLe.TxT");
+            Files.createFile(file);
+
+            final Optional<Path> result = RemoteFileChooserXMLResponse.CaseInsensitiveFileFinder.findFileIgnoreCase(workPath, "file.txt");
+
+            assertThat(result).isPresent().hasValue(file);
+        }
+
+        @Test
+        @DisplayName("returns empty when file does not exist")
+        void returnsEmptyWhenMissing() {
+            final Optional<Path> result = RemoteFileChooserXMLResponse.CaseInsensitiveFileFinder.findFileIgnoreCase(workPath, "missing.txt");
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        @DisplayName("finds file by full string path ignoring case")
+        void findsByStringPath() throws Exception {
+            final Path file = workPath.resolve("MiXeD.dat");
+            Files.createFile(file);
+
+            final Optional<java.io.File> result = RemoteFileChooserXMLResponse.CaseInsensitiveFileFinder.findFileIgnoreCase(file.toString().toLowerCase());
+
+            assertThat(result).isPresent().hasValue(file.toFile());
+        }
+    }
+
+    @Nested
+    @DisplayName("operations")
+    class OperationsTest {
+
+        @TempDir
+        Path workPath;
+
+        private WebSession session;
+
+        @BeforeEach
+        void setUp() {
+            TestWebSessions.setWorkPath(workPath);
+            session = TestWebSessions.newAdminSession("remote-chooser-test");
+        }
+
+        @AfterEach
+        void tearDown() {
+            TestWebSessions.resetStaticState();
+        }
+
+        @Test
+        @DisplayName("fetch lists directory entries")
+        void fetch() throws Exception {
+            Files.createDirectory(session.getUser().getSettings().getWorkPath().resolve("sub"));
+            final String xml = """
+                    <request>
+                      <operationType>fetch</operationType>
+                      <data>
+                        <context>listSrcDir</context>
+                        <root>%work</root>
+                        <parent>%work/sub</parent>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>").contains("Name=\"..\"").contains("isDir=\"true\"");
+        }
+
+        @Test
+        @DisplayName("add creates a directory")
+        void add() throws Exception {
+            final String xml = """
+                    <request>
+                      <operationType>add</operationType>
+                      <data>
+                        <context>listSrcDir</context>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <Name>newfolder</Name>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>").contains("Name=\"newfolder\"");
+            assertThat(session.getUser().getSettings().getWorkPath().resolve("newfolder")).exists();
+        }
+
+        @Test
+        @DisplayName("update renames a directory")
+        void update() throws Exception {
+            Files.createDirectory(session.getUser().getSettings().getWorkPath().resolve("oldname"));
+            final String xml = """
+                    <request>
+                      <operationType>update</operationType>
+                      <data>
+                        <context>listSrcDir</context>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <Name>newname</Name>
+                      </data>
+                      <oldValues>
+                        <Name>oldname</Name>
+                      </oldValues>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>").contains("Name=\"newname\"");
+            assertThat(session.getUser().getSettings().getWorkPath().resolve("newname")).exists();
+        }
+
+        @Test
+        @DisplayName("remove deletes a directory")
+        void remove() throws Exception {
+            Files.createDirectory(session.getUser().getSettings().getWorkPath().resolve("todelete"));
+            final String xml = """
+                    <request>
+                      <operationType>remove</operationType>
+                      <data>
+                        <context>listSrcDir</context>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <Name>todelete</Name>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>");
+            assertThat(session.getUser().getSettings().getWorkPath().resolve("todelete")).doesNotExist();
+        }
+
+        @Test
+        @DisplayName("custom expand lists provided paths")
+        void customExpand() throws Exception {
+            final String xml = """
+                    <request>
+                      <operationType>custom</operationType>
+                      <operationId>expand</operationId>
+                      <data>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <paths>%work</paths>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>").contains("<record");
+        }
+
+        @Test
+        @DisplayName("custom extract_here extracts a zip file")
+        void customExtractHere() throws Exception {
+            final Path zip = session.getUser().getSettings().getWorkPath().resolve("archive.zip");
+            try (final var zos = new ZipOutputStream(Files.newOutputStream(zip))) {
+                zos.putNextEntry(new ZipEntry("nested.txt"));
+                zos.write("content".getBytes());
+                zos.closeEntry();
+            }
+            final String xml = """
+                    <request>
+                      <operationType>custom</operationType>
+                      <operationId>extract_here</operationId>
+                      <data>
+                        <root>%work</root>
+                        <Path>%work/archive.zip</Path>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>");
+            assertThat(session.getUser().getSettings().getWorkPath().resolve("nested.txt")).exists();
+        }
+
+        @Test
+        @DisplayName("custom extract_subfolder extracts a zip file into a subfolder")
+        void customExtractSubfolder() throws Exception {
+            final Path zip = session.getUser().getSettings().getWorkPath().resolve("archive.zip");
+            try (final var zos = new ZipOutputStream(Files.newOutputStream(zip))) {
+                zos.putNextEntry(new ZipEntry("nested.txt"));
+                zos.write("content".getBytes());
+                zos.closeEntry();
+            }
+            final String xml = """
+                    <request>
+                      <operationType>custom</operationType>
+                      <operationId>extract_subfolder</operationId>
+                      <data>
+                        <root>%work</root>
+                        <Path>%work/archive.zip</Path>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>");
+            assertThat(session.getUser().getSettings().getWorkPath().resolve("archive/nested.txt")).exists();
+        }
+
+        @Test
+        @DisplayName("custom expand with addArc context lists archive files recursively")
+        void customExpandAddArc() throws Exception {
+            final Path sub = session.getUser().getSettings().getWorkPath().resolve("sub");
+            Files.createDirectories(sub);
+            Files.createFile(sub.resolve("archive.zip"));
+            final String xml = """
+                    <request>
+                      <operationType>custom</operationType>
+                      <operationId>expand</operationId>
+                      <data>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <context>addArc</context>
+                        <paths>%work</paths>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("<status>0</status>").contains("archive.zip");
+        }
+
+        @Test
+        @DisplayName("initial path marks selected entry in fetch response")
+        void fetchWithInitialPath() throws Exception {
+            Files.createDirectories(session.getUser().getSettings().getWorkPath().resolve("sub"));
+            final String xml = """
+                    <request>
+                      <operationType>fetch</operationType>
+                      <data>
+                        <context>listSrcDir</context>
+                        <root>%work</root>
+                        <parent>%work</parent>
+                        <initialPath>%work/sub</initialPath>
+                      </data>
+                    </request>
+                    """;
+            final String output = TestDataSets.processResponse(new RemoteFileChooserXMLResponse(TestDataSets.xmlRequest(session, xml)));
+            assertThat(output).contains("isSelected=\"true\"").contains("Name=\"sub\"");
         }
     }
 }
