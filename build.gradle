@@ -466,13 +466,10 @@ project(':jrmstandalone') {
 		implementation 'one.util:streamex:0.8.+'
 		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 		implementation 'com.sun.activation:javax.activation:1.2.+'
-	
+
 		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
 		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
-        testImplementation 'org.assertj:assertj-core:3.27.7'
-        testImplementation 'org.mockito:mockito-core:latest.release'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
 	}
 	apply plugin: 'application'
 	application.mainClass='jrm.JRomManager'
@@ -499,56 +496,11 @@ project(':jrmstandalone') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-	apply plugin:'jacoco'
 	test {
 		useJUnitPlatform {
 			includeEngines 'junit-jupiter'
 		}
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
-		}
-		finalizedBy jacocoTestReport
-	    testLogging {
-	        // set options for log level LIFECYCLE
-	        events TestLogEvent.FAILED,
-	               TestLogEvent.PASSED,
-	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_ERROR
-	        exceptionFormat = TestExceptionFormat.SHORT
-	        showExceptions = true
-	        showCauses = true
-	        showStackTraces = true
-	
-	        // set options for log level DEBUG and INFO
-	        debug {
-	            events TestLogEvent.STARTED,
-	                   TestLogEvent.FAILED,
-	                   TestLogEvent.PASSED,
-	                   TestLogEvent.SKIPPED,
-	                   TestLogEvent.STANDARD_ERROR,
-	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat = TestExceptionFormat.FULL
-                showExceptions = true
-                showCauses = true
-                showStackTraces = true
-	        }
-	        info.events = debug.events
-	        info.exceptionFormat = debug.exceptionFormat
-	
-            addTestListener(new TestListener() {
-                void aftersuite(TestDescriptor desc, TestResult result) {
-                    if (!desc.parent) { // will match the outermost suite
-                        def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                        def startItem = '|  ', endItem = '  |'
-                        def repeatLength = startItem.length() + output.length() + endItem.length()
-                        println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-                    }
-                }
-            })
-	    }
-	    systemProperty "file.encoding", "utf-8"
+		systemProperty "file.encoding", "utf-8"
 	}
 }
 
