@@ -502,6 +502,9 @@ project(':jrmstandalone') {
 		}
 		systemProperty "file.encoding", "utf-8"
 	}
+	sonar {
+		skipProject = true
+	}
 }
 
 project(':jrmfx') {
