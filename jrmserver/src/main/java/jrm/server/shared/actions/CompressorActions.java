@@ -48,34 +48,39 @@ public class CompressorActions {
      */
     public void start(JsonObject jso) // NOSONAR
     {
-        (ws.getSession().setWorker(new Worker(() -> {
-            final var session = ws.getSession();
-            final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format));
-            final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class);
+        (ws.getSession().setWorker(new Worker(this::processCompressorList))).start();
+    }
 
-            final var useParallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
-            final var nThreads = Boolean.TRUE.equals(useParallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
+    private void processCompressorList() {
+        final var session = ws.getSession();
+        final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format));
+        final var force = session.getUser().getSettings().getProperty(SettingsEnum.compressor_force, Boolean.class);
 
-            session.getWorker().progress = new ProgressActions(ws);
-            session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), ws.getSession().getCachedCompressorList().size()), true);
-            try {
-                clearResults();
-                final var cnt = new AtomicInteger();
-                final var compressor = new Compressor(session, cnt, ws.getSession().getCachedCompressorList().size(), session.getWorker().progress);
-                List<FileResult> values = new ArrayList<>(ws.getSession().getCachedCompressorList().values());
+        final var useParallelism = session.getUser().getSettings().getProperty(SettingsEnum.use_parallelism, Boolean.class);
+        final var nThreads = Boolean.TRUE.equals(useParallelism) ? session.getUser().getSettings().getProperty(SettingsEnum.thread_count, Integer.class) : 1;
 
-                try (final var mt = new MultiThreadingVirtual<Compressor.FileResult>("compressor", session.getWorker().progress, nThreads,
-                        fr -> doCompress(session, format, force, cnt, compressor, values, fr))) {
-                    mt.start(ws.getSession().getCachedCompressorList().values().stream());
-                }
+        session.getWorker().progress = new ProgressActions(ws);
+        session.getWorker().progress.setInfos(Math.min(Runtime.getRuntime().availableProcessors(), ws.getSession().getCachedCompressorList().size()), true);
+        try {
+            clearResults();
+            startParallelCompression(session, format, force, nThreads);
 
-            } catch (BreakException _) { // user requested to stop the process
-                session.getWorker().progress.doCancel();
-            } finally {
-                session.getWorker().progress.close();
-                CompressorActions.this.end();
-            }
-        }))).start();
+        } catch (BreakException _) { // user requested to stop the process
+            session.getWorker().progress.doCancel();
+        } finally {
+            session.getWorker().progress.close();
+            CompressorActions.this.end();
+        }
+    }
+
+    private void startParallelCompression(final WebSession session, final CompressorFormat format, final Boolean force, final int nThreads) {
+        List<FileResult> values = new ArrayList<>(session.getCachedCompressorList().values());
+        final var cnt = new AtomicInteger();
+        final var compressor = new Compressor(session, cnt, session.getCachedCompressorList().size(), session.getWorker().progress);
+        try (final var mt = new MultiThreadingVirtual<Compressor.FileResult>("compressor", session.getWorker().progress, nThreads,
+                fr -> doCompress(session, format, force, cnt, compressor, values, fr))) {
+            mt.start(session.getCachedCompressorList().values().stream());
+        }
     }
 
     /**

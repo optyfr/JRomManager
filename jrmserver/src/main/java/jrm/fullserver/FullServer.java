@@ -703,32 +703,32 @@ public class FullServer extends AbstractServer {
      * @throws Exception if an error occurs while configuring or starting the server
      */
     public static void initialize() throws Exception {
-        if (jettyserver != null) {
+        if (jettyServer != null) {
             Log.err("Already initialized");
             return;
         }
-        jettyserver = new Server(createThreadPool());
+        jettyServer = new Server(createThreadPool());
 
         final var context = createContext();
 
         final var gh = gzipHandler();
         gh.setHandler(context);
-        jettyserver.setHandler(gh);
-        jettyserver.setStopAtShutdown(true);
+        jettyServer.setHandler(gh);
+        jettyServer.setStopAtShutdown(true);
 
         final var config = new HttpConfiguration();
         config.addCustomizer(new SecureRequestCustomizer());
         config.addCustomizer(new ForwardedRequestCustomizer());
 
-        addConnectors(jettyserver, config);
+        addConnectors(jettyServer, config);
 
-        final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyserver);
-        jettyserver.addBean(connectionLimit);
-        jettyserver.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyserver));
+        final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyServer);
+        jettyServer.addBean(connectionLimit);
+        jettyServer.addBean(new AcceptRateLimit(rateLimit > 0 ? rateLimit : (connLimit / 10), 1, TimeUnit.SECONDS, jettyServer));
 
-        jettyserver.start();
+        jettyServer.start();
         Log.config("Start server");
-        for (final var connector : jettyserver.getConnectors())
+        for (final var connector : jettyServer.getConnectors())
             Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to "
                     + ((ServerConnector) connector).getHost());
         Log.config("clientPath: " + context.getBaseResource());

@@ -115,18 +115,9 @@ public class Dir2Dat {
             final EnhancedXMLStreamWriter writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, UTF_8)); // $NON-NLS-1$
             writer.writeStartDocument(UTF_8, "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
             switch (type) {
-                case MAME: {
-                    writeMame(scan, progress, options, i, writer);
-                    break;
-                }
-                case DATAFILE: {
-                    writeDataFile(scan, progress, options, headers, i, writer);
-                    break;
-                }
-                case SOFTWARELIST: {
-                    writeSoftwareList(scan, progress, options, i, writer);
-                    break;
-                }
+                case MAME -> writeMame(scan, progress, options, i, writer);
+                case DATAFILE -> writeDataFile(scan, progress, options, headers, i, writer);
+                case SOFTWARELIST -> writeSoftwareList(scan, progress, options, i, writer);
             }
             writer.writeEndDocument();
             writer.close();

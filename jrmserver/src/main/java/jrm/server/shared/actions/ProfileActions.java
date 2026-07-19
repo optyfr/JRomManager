@@ -140,34 +140,36 @@ public class ProfileActions extends PathAbstractor {
      * @param jso the JSON object containing import parameters
      */
     public void imprt(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            session.getWorker().progress = new ProgressActions(ws);
-            session.getWorker().progress.canCancel(false);
-            session.getWorker().progress.setProgress(session.getMsgs().getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
-            try {
-                JsonObject jsobj = jso.get(PARAMS).asObject();
-                String filename = FindCmd.findMame();
-                if (filename != null) {
-                    final var sl = jsobj.getBoolean("sl", false);
-                    final var imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
-                    if (imprt.getFile() != null)
-                        doImport(session, jsobj, sl, imprt);
-                    else
-                        new GlobalActions(ws).warn("Could not import anything from Mame");
-                } else
-                    new GlobalActions(ws).warn("Mame not found in system's search path");
-            } catch (BreakException _) {
-                // user cancelled action
-            } catch (IOException e) {
-                Log.err(e.getMessage(), e);
-                new GlobalActions(ws).warn(e.getMessage());
-            } finally {
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
-            }
-        }))).start();
+        (ws.getSession().setWorker(new Worker(() -> performMameImport(jso)))).start();
+    }
+
+    private void performMameImport(JsonObject jso) {
+        WebSession session = ws.getSession();
+        session.getWorker().progress = new ProgressActions(ws);
+        session.getWorker().progress.canCancel(false);
+        session.getWorker().progress.setProgress(session.getMsgs().getString("MainFrame.ImportingFromMame"), -1); //$NON-NLS-1$
+        try {
+            JsonObject jsobj = jso.get(PARAMS).asObject();
+            String filename = FindCmd.findMame();
+            if (filename != null) {
+                final var sl = jsobj.getBoolean("sl", false);
+                final var imprt = new Import(session, new File(filename), sl, session.getWorker().progress);
+                if (imprt.getFile() != null)
+                    doImport(session, jsobj, sl, imprt);
+                else
+                    new GlobalActions(ws).warn("Could not import anything from Mame");
+            } else
+                new GlobalActions(ws).warn("Mame not found in system's search path");
+        } catch (BreakException _) {
+            // user cancelled action
+        } catch (IOException e) {
+            Log.err(e.getMessage(), e);
+            new GlobalActions(ws).warn(e.getMessage());
+        } finally {
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
+        }
     }
 
     /**
@@ -257,30 +259,32 @@ public class ProfileActions extends PathAbstractor {
      * @param jso the JSON object containing load parameters
      */
     public void load(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            if (session.getCurrProfile() != null)
-                session.getCurrProfile().saveSettings();
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                JsonObject jsobj = jso.get(PARAMS).asObject();
-                val file = getAbsolutePath(jsobj.getString(PARENT, null)).resolve(jsobj.getString("file", null));
-                session.setCurrProfile(jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress));
-                if (session.getCurrProfile() != null) {
-                    session.getCurrProfile().getNfo().save(session);
-                    session.getReport().setProfile(session.getCurrProfile());
-                    loaded(session.getCurrProfile());
-                    new CatVerActions(ws).loaded(session.getCurrProfile());
-                    new NPlayersActions(ws).loaded(session.getCurrProfile());
-                }
-            } catch (BreakException _) {
-                // user cancelled action
-            } finally {
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
+        (ws.getSession().setWorker(new Worker(() -> performProfileLoad(jso)))).start();
+    }
+
+    private void performProfileLoad(JsonObject jso) {
+        WebSession session = ws.getSession();
+        if (session.getCurrProfile() != null)
+            session.getCurrProfile().saveSettings();
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            JsonObject jsobj = jso.get(PARAMS).asObject();
+            val file = getAbsolutePath(jsobj.getString(PARENT, null)).resolve(jsobj.getString("file", null));
+            session.setCurrProfile(jrm.profile.Profile.load(session, file.toFile(), session.getWorker().progress));
+            if (session.getCurrProfile() != null) {
+                session.getCurrProfile().getNfo().save(session);
+                session.getReport().setProfile(session.getCurrProfile());
+                loaded(session.getCurrProfile());
+                new CatVerActions(ws).loaded(session.getCurrProfile());
+                new NPlayersActions(ws).loaded(session.getCurrProfile());
             }
-        }))).start();
+        } catch (BreakException _) {
+            // user cancelled action
+        } finally {
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
+        }
     }
 
     /**
@@ -409,24 +413,26 @@ public class ProfileActions extends PathAbstractor {
      * @param automate {@code true} to enable automatic fix after scan, {@code false} to scan only
      */
     public void scan(JsonObject jso, final boolean automate) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
-            } catch (BreakException _) {
-                // user cancelled action
-            } catch (ScanException ex) {
-                session.getWorker().progress.addError(ex.getMessage());
-            }
-            session.getWorker().progress.close();
-            session.getWorker().progress = null;
-            session.setLastAction(Instant.now());
-            final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
-            scanned(session.getCurrScan(), automation.hasReport());
-            if (automate && session.getCurrScan() != null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
-                fix(jso);
-        }))).start();
+        ws.getSession().setWorker(new Worker(() -> performScan(jso, automate))).start();
+    }
+
+    private void performScan(JsonObject jso, final boolean automate) {
+        WebSession session = ws.getSession();
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
+        } catch (BreakException _) {
+            // user cancelled action
+        } catch (ScanException ex) {
+            session.getWorker().progress.addError(ex.getMessage());
+        }
+        session.getWorker().progress.close();
+        session.getWorker().progress = null;
+        session.setLastAction(Instant.now());
+        final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
+        scanned(session.getCurrScan(), automation.hasReport());
+        if (automate && session.getCurrScan() != null && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0 && automation.hasFix())
+            fix(jso);
     }
 
     /**
@@ -474,7 +480,10 @@ public class ProfileActions extends PathAbstractor {
      * @param jso the JSON object containing fix parameters (currently unused)
      */
     public void fix(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
+        ws.getSession().setWorker(new Worker(() -> performFix(jso))).start();
+    }
+
+    private void performFix(final JsonObject jso) {
             final var session = ws.getSession();
             session.getWorker().progress = new ProgressActions(ws);
             try {
@@ -496,8 +505,7 @@ public class ProfileActions extends PathAbstractor {
                 session.getWorker().progress = null;
                 session.setLastAction(Instant.now());
             }
-        }))).start();
-    }
+        }
 
     /**
      * Updates profile settings properties from a JSON object.

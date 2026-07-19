@@ -118,8 +118,8 @@ public class Server extends AbstractServer {
      * @return the local port, or -1 if not available
      */
     static int getLocalPort() {
-        if (jettyserver != null && jettyserver.isStarted()) {
-            for (final var connector : jettyserver.getConnectors()) {
+        if (jettyServer != null && jettyServer.isStarted()) {
+            for (final var connector : jettyServer.getConnectors()) {
                 if (connector instanceof ServerConnector sc) {
                     return sc.getLocalPort();
                 }
@@ -275,8 +275,8 @@ public class Server extends AbstractServer {
      * @throws Exception if an error occurs during server initialization or startup
      */
     public static void initialize() throws Exception {
-        if (jettyserver == null) {
-            jettyserver = new org.eclipse.jetty.server.Server();
+        if (jettyServer == null) {
+            jettyServer = new org.eclipse.jetty.server.Server();
 
             final var context = new ServletContextHandler(ServletContextHandler.SESSIONS);
             final var resourceFactory = ResourceFactory.of(context);
@@ -291,11 +291,11 @@ public class Server extends AbstractServer {
             context.addServlet(new ServletHolder("download", DownloadServlet.class), "/download/*");
 
             context.addFilter(new FilterHolder((request, response, chain) -> {
-                if (request instanceof HttpServletRequest httprequest && response instanceof HttpServletResponse httpresponse) {
-                    if (httprequest.getRequestURI().endsWith(".nocache.js"))
-                        httpresponse.setHeader("cache-control", "no-store");
-                    else if (!httprequest.getRequestURI().endsWith(".cache.js"))
-                        httpresponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
+                if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse httpResponse) {
+                    if (httpRequest.getRequestURI().endsWith(".nocache.js"))
+                        httpResponse.setHeader("cache-control", "no-store");
+                    else if (!httpRequest.getRequestURI().endsWith(".cache.js"))
+                        httpResponse.setHeader("cache-control", "public, max-age=0, must-revalidate");
                 }
                 chain.doFilter(request, response);
             }), "*.js", EnumSet.of(DispatcherType.REQUEST));
@@ -307,24 +307,24 @@ public class Server extends AbstractServer {
 
             final var gh = gzipHandler();
             gh.setHandler(context);
-            jettyserver.setHandler(gh);
-            jettyserver.setStopAtShutdown(true);
+            jettyServer.setHandler(gh);
+            jettyServer.setStopAtShutdown(true);
 
             // Create the HTTP connection
             final var httpConnectionFactory = new HttpConnectionFactory();
-            final var httpConnector = new ServerConnector(jettyserver, httpConnectionFactory);
+            final var httpConnector = new ServerConnector(jettyServer, httpConnectionFactory);
             httpConnector.setPort(httpPort);
             httpConnector.setHost(bind);
             httpConnector.setName("HTTP");
-            jettyserver.addConnector(httpConnector);
+            jettyServer.addConnector(httpConnector);
 
-            final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyserver);
-            jettyserver.addBean(connectionLimit); // limit simultaneous connections
+            final var connectionLimit = new NetworkConnectionLimit(connLimit, jettyServer);
+            jettyServer.addBean(connectionLimit); // limit simultaneous connections
 
-            jettyserver.start();
+            jettyServer.start();
             Log.config("Start server");
-            for (final var connector : jettyserver.getConnectors())
-                Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " binded to "
+            for (final var connector : jettyServer.getConnectors())
+                Log.config(((ServerConnector) connector).getName() + " with port on " + ((ServerConnector) connector).getPort() + " bind to "
                         + ((ServerConnector) connector).getHost());
             Log.config("clientPath: " + context.getBaseResource());
             Log.config("workPath: " + getWorkPath());

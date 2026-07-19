@@ -120,46 +120,52 @@ public class TrntChkActions {
      * @param jso the incoming JSON message (currently unused, reserved for future parameters)
      */
     public void start(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode));
-            final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
-            if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class)))
-                opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
-            if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class)))
-                opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
-            if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class)))
-                opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
+        (ws.getSession().setWorker(new Worker(this::performTorrentCheck))).start();
+    }
 
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                SDRList<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
-                new TorrentChecker<SrcDstResult>(session, session.getWorker().progress, sdrl, mode, new ResultColUpdater() {
-                    @Override
-                    public void updateResult(int row, String result) {
-                        sdrl.get(row).setResult(result);
-                        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
-                        session.getUser().getSettings().saveSettings();
-                        TrntChkActions.this.updateResult(row, result);
-                    }
+    private void performTorrentCheck() {
+        WebSession session = ws.getSession();
+        final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode));
+        final var opts = EnumSet.noneOf(TorrentChecker.Options.class);
+        if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_unknown_files, Boolean.class)))
+            opts.add(TorrentChecker.Options.REMOVEUNKNOWNFILES);
+        if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_remove_wrong_sized_files, Boolean.class)))
+            opts.add(TorrentChecker.Options.REMOVEWRONGSIZEDFILES);
+        if (Boolean.TRUE.equals(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_detect_archived_folders, Boolean.class)))
+            opts.add(TorrentChecker.Options.DETECTARCHIVEDFOLDERS);
 
-                    @Override
-                    public void clearResults() {
-                        sdrl.forEach(sdr -> sdr.setResult(""));
-                        session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
-                        session.getUser().getSettings().saveSettings();
-                        TrntChkActions.this.clearResults();
-                    }
-                }, opts);
-            } catch (BreakException _) {
-                // user cancelled action
-            } finally {
-                TrntChkActions.this.end();
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            SDRList<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_sdr));
+            new TorrentChecker<SrcDstResult>(session, session.getWorker().progress, sdrl, mode, createResultColUpdater(session, sdrl), opts);
+        } catch (BreakException _) {
+            // user cancelled action
+        } finally {
+            TrntChkActions.this.end();
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
+        }
+    }
+
+    private ResultColUpdater createResultColUpdater(WebSession session, SDRList<SrcDstResult> sdrl) {
+        return new ResultColUpdater() {
+            @Override
+            public void updateResult(int row, String result) {
+                sdrl.get(row).setResult(result);
+                session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
+                session.getUser().getSettings().saveSettings();
+                TrntChkActions.this.updateResult(row, result);
             }
-        }))).start();
+
+            @Override
+            public void clearResults() {
+                sdrl.forEach(sdr -> sdr.setResult(""));
+                session.getUser().getSettings().setProperty(SettingsEnum.trntchk_sdr, AbstractSrcDstResult.toJSON(sdrl));
+                session.getUser().getSettings().saveSettings();
+                TrntChkActions.this.clearResults();
+            }
+        };
     }
 
     /**

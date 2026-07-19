@@ -144,7 +144,7 @@ public class SubjectSet extends Subject {
      */
     public List<Note> filter(final Set<FilterOptions> filterOptions) {
         return stream(filterOptions).sorted(Note.getComparator())
-                .collect(Collectors.toList()); //NOSONAR
+                .collect(Collectors.toList()); // NOSONAR
     }
 
     /**
@@ -275,25 +275,24 @@ public class SubjectSet extends Subject {
      */
     @Override
     public String toString() {
-        switch (status) {
-            case MISSING:
-                return String.format(Messages.getString("SubjectSet.Missing"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-            case UNNEEDED:
-                return String.format(Messages.getString("SubjectSet.Unneeded"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-            case FOUND:
+        return switch (status) {
+            case MISSING -> String.format(Messages.getString("SubjectSet.Missing"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+            case UNNEEDED -> String.format(Messages.getString("SubjectSet.Unneeded"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+            case FOUND -> {
                 if (hasNotes()) {
                     if (isFixable())
-                        return String.format(Messages.getString("SubjectSet.FoundNeedFixes"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-                    return String.format(Messages.getString("SubjectSet.FoundIncomplete"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+                        yield String.format(Messages.getString("SubjectSet.FoundNeedFixes"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+                    yield String.format(Messages.getString("SubjectSet.FoundIncomplete"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
                 }
-                return String.format(Messages.getString("SubjectSet.Found"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-            case CREATE, CREATEFULL:
+                yield String.format(Messages.getString("SubjectSet.Found"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+            }
+            case CREATE, CREATEFULL -> {
                 if (isFixable())
-                    return String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-                return String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-            default:
-                return String.format(Messages.getString("SubjectSet.Unknown"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
-        }
+                    yield String.format(Messages.getString("SubjectSet.MissingTotallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+                yield String.format(Messages.getString("SubjectSet.MissingPartiallyCreated"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+            }
+            default -> String.format(Messages.getString("SubjectSet.Unknown"), ware.getFullName(), ware.getDescription()); //$NON-NLS-1$
+        };
     }
 
     /**
@@ -305,25 +304,24 @@ public class SubjectSet extends Subject {
     public String getDocument() {
         final String machine_name = toBlue(ware.getFullName());
         final String machine_description = toPurple(ware.getDescription());
-        switch (status) {
-            case MISSING:
-                return toDocument(String.format(escape(Messages.getString("SubjectSet.Missing")), machine_name, machine_description)); //$NON-NLS-1$
-            case UNNEEDED:
-                return toDocument(String.format(escape(Messages.getString("SubjectSet.Unneeded")), machine_name, machine_description)); //$NON-NLS-1$
-            case FOUND:
+        return switch (status) {
+            case MISSING -> toDocument(String.format(escape(Messages.getString("SubjectSet.Missing")), machine_name, machine_description)); //$NON-NLS-1$
+            case UNNEEDED -> toDocument(String.format(escape(Messages.getString("SubjectSet.Unneeded")), machine_name, machine_description)); //$NON-NLS-1$
+            case FOUND -> {
                 if (hasNotes()) {
                     if (isFixable())
-                        return toDocument(String.format(escape(Messages.getString("SubjectSet.FoundNeedFixes")), machine_name, machine_description)); //$NON-NLS-1$
-                    return toDocument(String.format(escape(Messages.getString("SubjectSet.FoundIncomplete")), machine_name, machine_description)); //$NON-NLS-1$
+                        yield toDocument(String.format(escape(Messages.getString("SubjectSet.FoundNeedFixes")), machine_name, machine_description)); //$NON-NLS-1$
+                    yield toDocument(String.format(escape(Messages.getString("SubjectSet.FoundIncomplete")), machine_name, machine_description)); //$NON-NLS-1$
                 }
-                return toDocument(String.format(escape(Messages.getString("SubjectSet.Found")), machine_name, machine_description)); //$NON-NLS-1$
-            case CREATE, CREATEFULL:
+                yield toDocument(String.format(escape(Messages.getString("SubjectSet.Found")), machine_name, machine_description)); //$NON-NLS-1$
+            }
+            case CREATE, CREATEFULL -> {
                 if (isFixable())
-                    return toDocument(String.format(escape(Messages.getString("SubjectSet.MissingTotallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
-                return toDocument(String.format(escape(Messages.getString("SubjectSet.MissingPartiallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
-            default:
-                return toDocument(String.format(escape(Messages.getString("SubjectSet.Unknown")), machine_name, machine_description)); //$NON-NLS-1$
-        }
+                    yield toDocument(String.format(escape(Messages.getString("SubjectSet.MissingTotallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+                yield toDocument(String.format(escape(Messages.getString("SubjectSet.MissingPartiallyCreated")), machine_name, machine_description)); //$NON-NLS-1$
+            }
+            default -> toDocument(String.format(escape(Messages.getString("SubjectSet.Unknown")), machine_name, machine_description)); //$NON-NLS-1$
+        };
     }
 
     /**
@@ -332,13 +330,9 @@ public class SubjectSet extends Subject {
     @Override
     public void updateStats() {
         switch (status) {
-            case MISSING:
-                parent.getStats().incSetMissing();
-                break;
-            case UNNEEDED:
-                parent.getStats().incSetUnneeded();
-                break;
-            case FOUND:
+            case MISSING -> parent.getStats().incSetMissing();
+            case UNNEEDED -> parent.getStats().incSetUnneeded();
+            case FOUND -> {
                 parent.getStats().incSetFound();
                 if (hasNotes()) {
                     if (isFixable())
@@ -347,16 +341,16 @@ public class SubjectSet extends Subject {
                         parent.getStats().incSetFoundFixPartial();
                 } else
                     parent.getStats().incSetFoundOk();
-                break;
-            case CREATE, CREATEFULL:
+            }
+            case CREATE, CREATEFULL -> {
                 parent.getStats().incSetCreate();
                 if (isFixable())
                     parent.getStats().incSetCreateComplete();
                 else
                     parent.getStats().incSetCreatePartial();
-                break;
-            default:
-                break;
+            }
+            default -> {
+                /* no stats update for UNKNOWN */ }
         }
     }
 

@@ -134,13 +134,13 @@ public class UploadServlet extends HttpServlet {
      * @see #checkRequest
      */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) {
         if ("/upload/".equals(req.getRequestURI())) {
             try {
                 val ws = (WebSession) req.getSession().getAttribute("session");
                 val pathAbstractor = new PathAbstractor(ws);
-                final var result = new Result();
-                String init = req.getParameter("init");
+                val result = new Result();
+                val init = req.getParameter("init");
                 if (init != null && init.equals("1")) {
                     checkRequest(req, pathAbstractor, result);
                 } else {
@@ -150,7 +150,7 @@ public class UploadServlet extends HttpServlet {
                 resp.setContentType("text/json");
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().write(new Gson().toJson(result));
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 internalError(resp, e);
             }
         } else
@@ -167,7 +167,7 @@ public class UploadServlet extends HttpServlet {
      * @param req the HTTP servlet request
      * @param resp the HTTP servlet response
      */
-    private void superPost(HttpServletRequest req, HttpServletResponse resp) {
+    private void superPost(final HttpServletRequest req, final HttpServletResponse resp) {
         try {
             super.doPost(req, resp);
         } catch (ServletException | IOException e) {
@@ -184,10 +184,10 @@ public class UploadServlet extends HttpServlet {
      * @param resp the HTTP servlet response
      * @param e the I/O exception that triggered the error response
      */
-    private void internalError(HttpServletResponse resp, IOException e) {
+    private void internalError(final HttpServletResponse resp, final IOException e) {
         try {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-        } catch (IOException e1) {
+        } catch (final IOException e1) {
             Log.err(e1.getMessage(), e1);
         }
     }
@@ -211,7 +211,7 @@ public class UploadServlet extends HttpServlet {
      * 
      * @throws SecurityException if path validation fails due to security restrictions
      */
-    void checkRequest(HttpServletRequest req, final PathAbstractor pathAbstractor, final Result result) {
+    void checkRequest(final HttpServletRequest req, final PathAbstractor pathAbstractor, final Result result) {
         try {
             result.status = 0;
             result.extstatus = "continue...";
@@ -238,11 +238,11 @@ public class UploadServlet extends HttpServlet {
                 result.status = 11;
                 result.extstatus = "Is read only";
             }
-        } catch (NoSuchFileException _) { // File does not exist yet, which is acceptable for new uploads
+        } catch (final NoSuchFileException _) { // File does not exist yet, which is acceptable for new uploads
         } catch (InvalidPathException | SecurityException _) { // Invalid path syntax or traversal attempt detected
             result.status = 8;
             result.extstatus = INVALID_PATH;
-        } catch (IOException e) { // I/O error occurred while accessing file metadata
+        } catch (final IOException e) { // I/O error occurred while accessing file metadata
             result.status = 9;
             result.extstatus = e.getMessage();
         }
@@ -259,10 +259,10 @@ public class UploadServlet extends HttpServlet {
      * 
      * @return the expected file size in bytes, or -1 if the header is invalid or missing
      */
-    long getXFileSize(HttpServletRequest req) {
+    long getXFileSize(final HttpServletRequest req) {
         try {
             return Long.parseLong(req.getHeader("x-file-size"));
-        } catch (NumberFormatException _) {
+        } catch (final NumberFormatException _) {
             return -1;
         }
     }
@@ -283,7 +283,7 @@ public class UploadServlet extends HttpServlet {
      * 
      * @throws IOException if URL decoding fails
      */
-    String sanitizeHeader(String header) throws IOException {
+    String sanitizeHeader(final String header) throws IOException {
         final String decoded = URLDecoder.decode(header, UTF_8);
         // Remove path traversal attempts and dangerous characters
         return decoded.replace("..", "")
@@ -312,7 +312,7 @@ public class UploadServlet extends HttpServlet {
      * @see #doUpload
      */
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPut(final HttpServletRequest req, final HttpServletResponse resp) {
         if ("/upload/".equals(req.getRequestURI())) {
             try {
                 val ws = (WebSession) req.getSession().getAttribute("session");
@@ -334,16 +334,16 @@ public class UploadServlet extends HttpServlet {
                     result.extstatus = "Is read only";
                 }
                 resp.getWriter().write(new Gson().toJson(result));
-            } catch (SecurityException _) { // Path traversal or forgery attempt detected by PathAbstractor
+            } catch (final SecurityException _) { // Path traversal or forgery attempt detected by PathAbstractor
                 final var errResult = new Result();
                 errResult.status = 8;
                 errResult.extstatus = INVALID_PATH;
                 try {
                     resp.getWriter().write(new Gson().toJson(errResult));
-                } catch (IOException ioe) {
+                } catch (final IOException ioe) {
                     internalError(resp, ioe);
                 }
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 internalError(resp, e);
             }
         } else
@@ -370,14 +370,14 @@ public class UploadServlet extends HttpServlet {
      * @param filename the name of the file being uploaded (for status messages)
      * @param filepath the absolute path where the file should be written
      */
-    void doUpload(HttpServletRequest req, final Result result, final String filename, final Path filepath) {
-        long filesize = getXFileSize(req);
+    void doUpload(final HttpServletRequest req, final Result result, final String filename, final Path filepath) {
+        final long filesize = getXFileSize(req);
         long size = 0;
         try (final var out = new BufferedOutputStream(Files.newOutputStream(filepath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))) {
             size = IOUtils.copy(req.getInputStream(), out);
             result.status = 3;
             result.extstatus = filename + " done";
-        } catch (IOException e) {
+        } catch (final IOException e) {
             result.status = 20;
             result.extstatus = filename + " : " + e.getMessage();
         } finally {

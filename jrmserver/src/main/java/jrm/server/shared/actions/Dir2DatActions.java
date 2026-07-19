@@ -122,34 +122,36 @@ public class Dir2DatActions {
      * @param jso the incoming JSON message containing scanning options, DAT file headers, and export format settings
      */
     public void start(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir);
-                String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file);
-                String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format);
-                JsonObject opts = jso.get("params").asObject().get("options").asObject();
-                EnumSet<DirScan.Options> options = getOptions(opts);
-                HashMap<String, String> headers = new HashMap<>();
-                JsonObject hdrs = jso.get("params").asObject().get("headers").asObject();
-                hdrs.forEach(m -> {
-                    if (!m.getValue().isNull())
-                        headers.put(m.getName(), m.getValue().asString());
-                });
-                if (srcdir != null && dstdat != null)
-                    new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.getWorker().progress, options, ExportType.valueOf(format), headers);
-            } catch (BreakException _) {
-                // user cancelled action
-            } finally {
-                Dir2DatActions.this.end();
-                session.setCurrProfile(null);
-                session.setCurrScan(null);
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
-            }
-        }))).start();
+        (ws.getSession().setWorker(new Worker(() -> executeDir2DatTransformation(jso)))).start();
+    }
+
+    private void executeDir2DatTransformation(JsonObject jso) {
+        WebSession session = ws.getSession();
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            String srcdir = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_src_dir);
+            String dstdat = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_dst_file);
+            String format = session.getUser().getSettings().getProperty(jrm.misc.SettingsEnum.dir2dat_format);
+            JsonObject opts = jso.get("params").asObject().get("options").asObject();
+            EnumSet<DirScan.Options> options = getOptions(opts);
+            HashMap<String, String> headers = new HashMap<>();
+            JsonObject hdrs = jso.get("params").asObject().get("headers").asObject();
+            hdrs.forEach(m -> {
+                if (!m.getValue().isNull())
+                    headers.put(m.getName(), m.getValue().asString());
+            });
+            if (srcdir != null && dstdat != null)
+                new Dir2Dat(ws.getSession(), new File(srcdir), new File(dstdat), session.getWorker().progress, options, ExportType.valueOf(format), headers);
+        } catch (BreakException _) {
+            // user cancelled action
+        } finally {
+            Dir2DatActions.this.end();
+            session.setCurrProfile(null);
+            session.setCurrScan(null);
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
+        }
     }
 
     /**
@@ -178,24 +180,26 @@ public class Dir2DatActions {
      * @return an EnumSet of enabled scanning options
      */
     private EnumSet<DirScan.Options> getOptions(JsonObject opts) {
-        EnumSet<DirScan.Options> options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
-        if (opts.getBoolean("dir2dat.scan_subfolders", true)) //$NON-NLS-1$
-            options.add(Options.RECURSE);
-        if (!opts.getBoolean("dir2dat.deep_scan", false)) //$NON-NLS-1$
-            options.add(Options.IS_DEST);
-        if (opts.getBoolean("dir2dat.add_md5", false)) //$NON-NLS-1$
-            options.add(Options.NEED_MD5);
-        if (opts.getBoolean("dir2dat.add_sha1", false)) //$NON-NLS-1$
-            options.add(Options.NEED_SHA1);
-        if (opts.getBoolean("dir2dat.junk_folders", false)) //$NON-NLS-1$
-            options.add(Options.JUNK_SUBFOLDERS);
-        if (opts.getBoolean("dir2dat.do_not_scan_archives", false)) //$NON-NLS-1$
-            options.add(Options.ARCHIVES_AND_CHD_AS_ROMS);
-        if (opts.getBoolean("dir2dat.match_profile", false)) //$NON-NLS-1$
-            options.add(Options.MATCH_PROFILE);
-        if (opts.getBoolean("dir2dat.include_empty_dirs", false)) //$NON-NLS-1$
-            options.add(Options.EMPTY_DIRS);
+        var options = EnumSet.of(Options.USE_PARALLELISM, Options.MD5_DISKS, Options.SHA1_DISKS);
+        addIf(opts, options, "dir2dat.scan_subfolders", true, Options.RECURSE); //$NON-NLS-1$
+        addUnless(opts, options, "dir2dat.deep_scan", false, Options.IS_DEST); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.add_md5", false, Options.NEED_MD5); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.add_sha1", false, Options.NEED_SHA1); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.junk_folders", false, Options.JUNK_SUBFOLDERS); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.do_not_scan_archives", false, Options.ARCHIVES_AND_CHD_AS_ROMS); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.match_profile", false, Options.MATCH_PROFILE); //$NON-NLS-1$
+        addIf(opts, options, "dir2dat.include_empty_dirs", false, Options.EMPTY_DIRS); //$NON-NLS-1$
         return options;
+    }
+
+    private static void addIf(JsonObject opts, EnumSet<Options> options, String key, boolean defaultValue, Options option) {
+        if (opts.getBoolean(key, defaultValue))
+            options.add(option);
+    }
+
+    private static void addUnless(JsonObject opts, EnumSet<Options> options, String key, boolean defaultValue, Options option) {
+        if (!opts.getBoolean(key, defaultValue))
+            options.add(option);
     }
 
     /**

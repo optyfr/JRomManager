@@ -239,7 +239,7 @@ public class ActionServlet extends HttpServlet {
      * 
      * @return the encapsulated JSON string, or the single message if only one exists
      */
-    String encapsulate(final java.util.ArrayList<java.lang.String> msgs) {
+    String encapsulate(final ArrayList<String> msgs) {
         String msg;
         if (msgs.size() > 1)
             msg = "{\"cmd\":\"Global.multiCMD\",\"params\":[" + msgs.stream().collect(Collectors.joining(",")) + "]}";

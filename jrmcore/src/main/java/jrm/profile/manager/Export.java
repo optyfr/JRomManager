@@ -73,15 +73,9 @@ public final class Export {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             writer = new EnhancedXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(fos, "UTF-8")); //$NON-NLS-1$
             switch (type) {
-                case MAME:
-                    profile.getMachineListList().export(writer, progress, true, modes);
-                    break;
-                case DATAFILE:
-                    profile.getMachineListList().export(writer, progress, false, modes);
-                    break;
-                case SOFTWARELIST:
-                    profile.getMachineListList().getSoftwareListList().export(writer, progress, modes, selection);
-                    break;
+                case MAME -> profile.getMachineListList().export(writer, progress, true, modes);
+                case DATAFILE -> profile.getMachineListList().export(writer, progress, false, modes);
+                case SOFTWARELIST -> profile.getMachineListList().getSoftwareListList().export(writer, progress, modes, selection);
             }
             writer.close();
         } catch (FactoryConfigurationError | XMLStreamException | IOException e) {

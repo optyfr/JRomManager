@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 
 import jrm.misc.Log;
 import jrm.server.shared.WebSession;
@@ -26,7 +27,7 @@ public class LongPollingReqMgr implements ActionsMgr {
     /**
      * A global registry storing active long polling request managers indexed by their web session IDs.
      * <p>
-     * <strong>Concurrrency Note:</strong> This map is implemented as a standard, non-synchronized {@link HashMap}. Concurrent
+     * <strong>Concurrency Note:</strong> This map is implemented as a standard, non-synchronized {@link HashMap}. Concurrent
      * modifications (e.g., sessions being registered or unregistered from different threads) must be managed externally, or
      * accessed under contexts ensuring thread safety.
      * </p>
@@ -54,7 +55,7 @@ public class LongPollingReqMgr implements ActionsMgr {
 
     /**
      * Processes an incoming client message in JSON format. Parses the raw message into a JSON object and routes the actions through
-     * the {@link #processActions(ActionsMgr, com.eclipsesource.json.JsonObject)} pipeline.
+     * the {@link #processActions(ActionsMgr, JsonObject)} pipeline.
      * 
      * @param msg the JSON message string received from the client
      */

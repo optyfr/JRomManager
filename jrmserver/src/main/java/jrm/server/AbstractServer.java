@@ -78,7 +78,7 @@ public abstract class AbstractServer implements Daemon {
      * Shared Jetty {@link Server} instance used by all server variants to manage the HTTP server lifecycle. A {@code null} value
      * indicates that the server has not been initialized or has been terminated.
      */
-    protected static Server jettyserver = null;
+    protected static Server jettyServer = null;
 
     /**
      * Debug-mode flag. When {@code true}, the server waits for an interactive console "stop" command instead of blocking on
@@ -170,7 +170,7 @@ public abstract class AbstractServer implements Daemon {
      * <ul>
      * <li><b>Debug mode or Windows:</b> Reads from {@code System.in} in a loop, waiting for the user to type "stop"
      * (case-insensitive), then calls {@link System#exit(int)}.</li>
-     * <li><b>Production (non-Windows):</b> Calls {@link Server#join() jettyserver.join()} to block until the server thread
+     * <li><b>Production (non-Windows):</b> Calls {@link Server#join() jettyServer.join()} to block until the server thread
      * completes.</li>
      * </ul>
      *
@@ -198,7 +198,7 @@ public abstract class AbstractServer implements Daemon {
                     System.exit(0);
                 }
             } else if (isStarted())
-                jettyserver.join();
+                jettyServer.join();
         } catch (InterruptedException e) {
             throw e;
         } catch (Exception e) {
@@ -216,40 +216,40 @@ public abstract class AbstractServer implements Daemon {
      * <li>Calls {@link WebSession#closeAll()} to close every active session and set the global termination flag.</li>
      * <li>If the Jetty server is not {@code null} and is currently started, invokes {@link Server#stop()} to shut it down
      * gracefully.</li>
-     * <li>Sets the {@link #jettyserver} reference to {@code null} to indicate that the server has been fully terminated.</li>
+     * <li>Sets the {@link #jettyServer} reference to {@code null} to indicate that the server has been fully terminated.</li>
      * </ol>
      *
      * @throws Exception if an error occurs while stopping the Jetty server
      */
     public static synchronized void terminate() throws Exception {
         WebSession.closeAll();
-        if (jettyserver != null) {
-            if (jettyserver.isStarted())
-                jettyserver.stop();
-            jettyserver = null;
+        if (jettyServer != null) {
+            if (jettyServer.isStarted())
+                jettyServer.stop();
+            jettyServer = null;
         }
     }
 
     /**
      * Checks whether the Jetty server has been initialized and is currently running. A server is considered started when the
-     * {@link #jettyserver} reference is not {@code null} and {@link Server#isStarted() jettyserver.isStarted()} returns
+     * {@link #jettyServer} reference is not {@code null} and {@link Server#isStarted() jettyServer.isStarted()} returns
      * {@code true}.
      *
      * @return {@code true} if the server has been initialized and is in a started state; {@code false} otherwise
      */
     public static final synchronized boolean isStarted() {
-        return jettyserver != null && jettyserver.isStarted();
+        return jettyServer != null && jettyServer.isStarted();
 
     }
 
     /**
-     * Checks whether the Jetty server is currently stopped. A server is considered stopped when the {@link #jettyserver} reference
+     * Checks whether the Jetty server is currently stopped. A server is considered stopped when the {@link #jettyServer} reference
      * is {@code null}, indicating that it has either never been initialized or has been fully terminated via {@link #terminate()}.
      *
-     * @return {@code true} if the server is stopped (i.e., {@code jettyserver} is {@code null}); {@code false} otherwise
+     * @return {@code true} if the server is stopped (i.e., {@code jettyServer} is {@code null}); {@code false} otherwise
      */
     public static final synchronized boolean isStopped() {
-        return jettyserver == null;
+        return jettyServer == null;
 
     }
 

@@ -64,7 +64,7 @@ public class DownloadServlet extends HttpServlet {
      * @param resp the HTTP servlet response for streaming the file or ZIP archive
      */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) {
         try {
             if ("/download/".equals(req.getRequestURI())) {
                 download(req, resp);
@@ -105,50 +105,56 @@ public class DownloadServlet extends HttpServlet {
      * 
      * @throws SecurityException if the requested path is not accessible to the current user
      */
-    private void download(HttpServletRequest req, HttpServletResponse resp) {
+    private void download(final HttpServletRequest req, final HttpServletResponse resp) {
         try {
             val ws = (WebSession) req.getSession().getAttribute("session");
             val pathAbstractor = new PathAbstractor(ws);
             val path = req.getParameter("path");
             if (path != null) {
                 val file = pathAbstractor.getAbsolutePath(path);
-                if (Files.isRegularFile(file)) {
-                    val dlfilename = file.getFileName().toString();
-                    resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");
-                    resp.setHeader("Content-Transfer-Encoding", "binary");
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    resp.setContentLengthLong(Files.size(file));
-                    resp.setContentType(Files.probeContentType(file));
-                    resp.setDateHeader("Last-Modified", Files.getLastModifiedTime(file).toMillis());
-                    resp.setHeader("Cache-Control", "max-age=86400");
-                    Files.copy(file, resp.getOutputStream());
-
-                } else {
-                    val dlfilename = file.getFileName().toString() + ".zip";
-                    resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");
-                    resp.setHeader("Content-Transfer-Encoding", "binary");
-                    resp.setContentType("application/zip");
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    final var zos = new ZipOutputStream(resp.getOutputStream(), StandardCharsets.UTF_8);
-                    Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
-                        @Override
-                        public FileVisitResult visitFile(Path f, BasicFileAttributes attrs) throws IOException {
-                            zos.putNextEntry(new ZipEntry(file.relativize(f).toString()));
-                            Files.copy(f, zos);
-                            zos.closeEntry();
-                            return FileVisitResult.CONTINUE;
-                        }
-                    });
-                    zos.finish();
-                }
+                if (Files.isRegularFile(file))
+                    streamFile(resp, file);
+                else
+                    streamZippedDirectory(resp, file);
             } else
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             try {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            } catch (IOException e1) {
+            } catch (final IOException e1) {
                 Log.err(e1.getMessage(), e1);
             }
         }
+    }
+
+    private void streamZippedDirectory(final HttpServletResponse resp, final Path file) throws IOException {
+        val dlfilename = file.getFileName().toString() + ".zip";
+        resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");
+        resp.setHeader("Content-Transfer-Encoding", "binary");
+        resp.setContentType("application/zip");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        final var zos = new ZipOutputStream(resp.getOutputStream(), StandardCharsets.UTF_8);
+        Files.walkFileTree(file, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(final Path f, final BasicFileAttributes attrs) throws IOException {
+                zos.putNextEntry(new ZipEntry(file.relativize(f).toString()));
+                Files.copy(f, zos);
+                zos.closeEntry();
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        zos.finish();
+    }
+
+    private void streamFile(final HttpServletResponse resp, final Path file) throws IOException {
+        val dlfilename = file.getFileName().toString();
+        resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");
+        resp.setHeader("Content-Transfer-Encoding", "binary");
+        resp.setStatus(HttpServletResponse.SC_OK);
+        resp.setContentLengthLong(Files.size(file));
+        resp.setContentType(Files.probeContentType(file));
+        resp.setDateHeader("Last-Modified", Files.getLastModifiedTime(file).toMillis());
+        resp.setHeader("Cache-Control", "max-age=86400");
+        Files.copy(file, resp.getOutputStream());
     }
 }

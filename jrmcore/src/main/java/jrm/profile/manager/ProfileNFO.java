@@ -317,14 +317,9 @@ public final class ProfileNFO implements Serializable, StatusRendererFactory {
                     {
                         for (var i = 0; i < attributes.getLength(); i++) {
                             switch (attributes.getQName(i).toLowerCase()) {
-                                case "roms": //$NON-NLS-1$
-                                    mame.setFileroms(new File(jrmfile.getParentFile(), attributes.getValue(i)));
-                                    break;
-                                case "sl": //$NON-NLS-1$
-                                    mame.setFilesl(new File(jrmfile.getParentFile(), attributes.getValue(i)));
-                                    break;
-                                default:
-                                    break;
+                                case "roms" -> mame.setFileroms(new File(jrmfile.getParentFile(), attributes.getValue(i))); //$NON-NLS-1$
+                                case "sl" -> mame.setFilesl(new File(jrmfile.getParentFile(), attributes.getValue(i))); //$NON-NLS-1$
+                                default -> { }
                             }
                         }
                     }

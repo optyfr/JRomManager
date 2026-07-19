@@ -7,10 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -19,6 +16,7 @@ import jrm.misc.Log;
 import jrm.server.shared.TempFileInputStream;
 import jrm.server.shared.WebSession;
 import jrm.server.shared.datasources.XMLRequest.Operation.Sorter;
+import jrm.xml.XMLTools;
 import lombok.Getter;
 
 /**
@@ -419,12 +417,7 @@ public class XMLRequest {
     public XMLRequest(WebSession session, InputStream in, long len) throws IOException {
         this.session = session;
         try {
-            final var factory = SAXParserFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            final var parser = factory.newSAXParser();
-            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            final var parser = XMLTools.getSaxParser();
             try (final var tfis = TempFileInputStream.newInstance(in, len)) {
                 parser.parse(tfis, new XMLRequestHandler());
             }

@@ -27,11 +27,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
@@ -82,6 +81,7 @@ import jrm.profile.filter.NPlayers;
 import jrm.profile.manager.ProfileNFO;
 import jrm.security.PathAbstractor;
 import jrm.security.Session;
+import jrm.xml.XMLTools;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -99,21 +99,6 @@ public class Profile implements Serializable, StatusRendererFactory {
     private static final String DESCRIPTION = "description";
     private static final String VERSION = "version";
 
-    static {
-        System.setProperty("jdk.xml.entityExpansionLimit", "0");
-        System.setProperty("jdk.xml.maxAttributeCount", "0");
-        System.setProperty("jdk.xml.maxElementCount", "0");
-        System.setProperty("jdk.xml.maxElementDepth", "0");
-        System.setProperty("jdk.xml.maxEntityCount", "0");
-        System.setProperty("jdk.xml.maxGeneralEntityCount", "0");
-        System.setProperty("jdk.xml.maxGeneralEntitySizeLimit", "0");
-        System.setProperty("jdk.xml.maxParameterEntityCount", "0");
-        System.setProperty("jdk.xml.maxParameterEntitySizeLimit", "0");
-        System.setProperty("jdk.xml.maxOccurLimit", "0");
-        System.setProperty("jdk.xml.maxXMLNameLimit", "0");
-        System.setProperty("jdk.xml.totalEntitySizeLimit", "0");
-    }
-    
     /**
      * Scanned machines count.
      * 
@@ -484,89 +469,35 @@ public class Profile implements Serializable, StatusRendererFactory {
             try {
                 currTag = qName;
                 switch (qName) {
-                    case "mame", "datafile":
-                        startDatfile(attributes);
-                        break;
-                    case "header":
-                        startHeader();
-                        break;
-                    case "softwarelist":
-                        startSoftwareList(attributes);
-                        break;
-                    case "software":
-                        startSoftware(attributes);
-                        break;
-                    case "feature":
-                        startSoftwareFeature(attributes);
-                        break;
-                    case "part":
-                        startSoftwarePart(attributes);
-                        break;
-                    case "dataarea":
-                        startSoftwarePartDataarea(attributes);
-                        break;
-                    case "diskarea":
-                        startSoftwarePartDiskarea(attributes);
-                        break;
-                    case "machine", "game":
-                        startMachine(attributes);
-                        break;
-                    case DESCRIPTION:
-                        startDescription();
-                        break;
-                    case "year":
-                        startYear();
-                        break;
-                    case "manufacturer":
-                        startManufacturer();
-                        break;
-                    case "publisher":
-                        startPublisher();
-                        break;
-                    case "driver":
-                        startDriver(attributes);
-                        break;
-                    case "display":
-                        startDisplay(attributes);
-                        break;
-                    case "input":
-                        startInput(attributes);
-                        break;
-                    case "device":
-                        startDevice(attributes);
-                        break;
-                    case "instance":
-                        startInstance(attributes);
-                        break;
-                    case "extension":
-                        startExtension(attributes);
-                        break;
-                    case "dipswitch":
-                        startDipSwitch(attributes);
-                        break;
-                    case "dipvalue":
-                        startDipValue(attributes);
-                        break;
-                    case "sample":
-                        startSample(attributes);
-                        break;
-                    case "device_ref":
-                        startDeviceRef(attributes);
-                        break;
-                    case "slot":
-                        startSlot(attributes);
-                        break;
-                    case "slotoption":
-                        startSlotOption(attributes);
-                        break;
-                    case "rom":
-                        startRom(attributes);
-                        break;
-                    case "disk":
-                        startDisk(attributes);
-                        break;
-                    default:
-                        break;
+                    case "mame", "datafile" -> startDatfile(attributes);
+                    case "header" -> startHeader();
+                    case "softwarelist" -> startSoftwareList(attributes);
+                    case "software" -> startSoftware(attributes);
+                    case "feature" -> startSoftwareFeature(attributes);
+                    case "part" -> startSoftwarePart(attributes);
+                    case "dataarea" -> startSoftwarePartDataarea(attributes);
+                    case "diskarea" -> startSoftwarePartDiskarea(attributes);
+                    case "machine", "game" -> startMachine(attributes);
+                    case DESCRIPTION -> startDescription();
+                    case "year" -> startYear();
+                    case "manufacturer" -> startManufacturer();
+                    case "publisher" -> startPublisher();
+                    case "driver" -> startDriver(attributes);
+                    case "display" -> startDisplay(attributes);
+                    case "input" -> startInput(attributes);
+                    case "device" -> startDevice(attributes);
+                    case "instance" -> startInstance(attributes);
+                    case "extension" -> startExtension(attributes);
+                    case "dipswitch" -> startDipSwitch(attributes);
+                    case "dipvalue" -> startDipValue(attributes);
+                    case "sample" -> startSample(attributes);
+                    case "device_ref" -> startDeviceRef(attributes);
+                    case "slot" -> startSlot(attributes);
+                    case "slotoption" -> startSlotOption(attributes);
+                    case "rom" -> startRom(attributes);
+                    case "disk" -> startDisk(attributes);
+                    default -> {
+                        /* skip unknown */ }
                 }
             } catch (Exception e) {
                 throw new ProfileHandlerException(getDebugMsg(attributes, qName, e), e);
@@ -602,26 +533,32 @@ public class Profile implements Serializable, StatusRendererFactory {
          */
         private String getDebugMsg(Attributes attributes, String qName, Exception e) {
             final var msg = new StringBuilder("Error");
-            if (currMachine != null)
+
+            // Add machine or software list context
+            if (currMachine != null) {
                 msg.append(" for machine ").append(currMachine.getName());
-            else if (currSoftwareList != null) {
+            } else if (currSoftwareList != null) {
                 msg.append(" for software list ").append(currSoftwareList.getName());
                 if (currSoftware != null)
                     msg.append(", software ").append(currSoftware.getName());
             }
+
+            // Add ROM and disk context
             if (currRom != null)
                 msg.append(", rom ").append(currRom.getName());
             if (currDisk != null)
                 msg.append(", disk ").append(currDisk.getName());
+
+            // Add XML tag and attributes using Stream API
             msg.append(", xmltag=").append(qName);
-            msg.append(", xmlattributes={");
-            for (var i = 0; i < attributes.getLength(); i++) {
-                if (i > 0)
-                    msg.append(", ");
-                msg.append(attributes.getQName(i)).append("=").append(attributes.getValue(i));
-            }
-            msg.append("}");
-            msg.append("\nOriginal exception=").append(e.getClass().getSimpleName()).append(" ").append(e.getMessage());
+            final var attrs = IntStream.range(0, attributes.getLength())
+                    .mapToObj(i -> attributes.getQName(i) + "=" + attributes.getValue(i))
+                    .collect(Collectors.joining(", "));
+            msg.append(", xmlattributes={").append(attrs).append("}");
+
+            // Add exception details
+            msg.append("\nOriginal exception=").append(e.getClass().getSimpleName())
+                    .append(" ").append(e.getMessage());
             return msg.toString();
         }
 
@@ -639,43 +576,30 @@ public class Profile implements Serializable, StatusRendererFactory {
             if (currSoftware != null && currDiskArea != null)
                 currDiskArea.getDisks().add(currDisk);
             for (var i = 0; i < attributes.getLength(); i++) {
+                final var value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                    {
-                        String name = attributes.getValue(i).trim();
-                        if (name.endsWith(".chd"))
+                    case "name" -> { //$NON-NLS-1$
+                        var name = value.trim();
+                        if (name.endsWith(".chd")) //$NON-NLS-1$
                             name = name.substring(0, name.length() - 4);
                         currDisk.setName(name);
-                        break;
                     }
-                    case "sha1": //$NON-NLS-1$
-                        currDisk.setSha1(safeHex(attributes.getValue(i), 40));
+                    case "sha1" -> { //$NON-NLS-1$
+                        currDisk.setSha1(safeHex(value, 40));
                         sha1Disks = true;
-                        break;
-                    case "md5": //$NON-NLS-1$
-                        currDisk.setMd5(safeHex(attributes.getValue(i), 32));
+                    }
+                    case "md5" -> { //$NON-NLS-1$
+                        currDisk.setMd5(safeHex(value, 32));
                         md5Disks = true;
-                        break;
-                    case "merge": //$NON-NLS-1$
-                        currDisk.setMerge(attributes.getValue(i).trim());
-                        break;
-                    case "index": //$NON-NLS-1$
-                        currDisk.setIndex(Integer.decode(attributes.getValue(i)));
-                        break;
-                    case "optional": //$NON-NLS-1$
-                        currDisk.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case "writeable": //$NON-NLS-1$
-                        currDisk.setWriteable(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case "region": //$NON-NLS-1$
-                        currDisk.setRegion(attributes.getValue(i));
-                        break;
-                    case STATUS: // $NON-NLS-1$
-                        currDisk.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
-                        break;
-                    default:
-                        break;
+                    }
+                    case "merge" -> currDisk.setMerge(value.trim()); //$NON-NLS-1$
+                    case "index" -> currDisk.setIndex(Integer.decode(value)); //$NON-NLS-1$
+                    case "optional" -> currDisk.setOptional(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case "writeable" -> currDisk.setWriteable(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case "region" -> currDisk.setRegion(value); //$NON-NLS-1$
+                    case STATUS -> currDisk.setDumpStatus(Entity.Status.valueOf(value)); // $NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -694,56 +618,35 @@ public class Profile implements Serializable, StatusRendererFactory {
             if (currSoftware != null && currDataArea != null)
                 currDataArea.getRoms().add(currRom);
             for (var i = 0; i < attributes.getLength(); i++) {
+                final var value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        currRom.setName(attributes.getValue(i).trim());
-                        break;
-                    case "size": //$NON-NLS-1$
-                        currRom.setSize(Long.decode(attributes.getValue(i)));
-                        break;
-                    case "offset": //$NON-NLS-1$
-                        if (attributes.getValue(i).toLowerCase().startsWith("0x"))
-                            currRom.setOffset(Long.decode(attributes.getValue(i)));
+                    case "name" -> currRom.setName(value.trim()); //$NON-NLS-1$
+                    case "size" -> currRom.setSize(Long.decode(value)); //$NON-NLS-1$
+                    case "offset" -> { //$NON-NLS-1$
+                        if (value.toLowerCase().startsWith("0x")) //$NON-NLS-1$
+                            currRom.setOffset(Long.decode(value));
                         else
-                            currRom.setOffset(Long.decode("0x" + attributes.getValue(i))); //$NON-NLS-1$
-                        break;
-                    case "value": //$NON-NLS-1$
-                        currRom.setValue(attributes.getValue(i));
-                        break;
-                    case "crc": //$NON-NLS-1$
-                        currRom.setCrc(safeHex(attributes.getValue(i), 8));
-                        break;
-                    case "sha1": //$NON-NLS-1$
-                        currRom.setSha1(safeHex(attributes.getValue(i), 40));
+                            currRom.setOffset(Long.decode("0x" + value)); //$NON-NLS-1$
+                    }
+                    case "value" -> currRom.setValue(value); //$NON-NLS-1$
+                    case "crc" -> currRom.setCrc(safeHex(value, 8)); //$NON-NLS-1$
+                    case "sha1" -> { //$NON-NLS-1$
+                        currRom.setSha1(safeHex(value, 40));
                         sha1Roms = true;
-                        break;
-                    case "md5": //$NON-NLS-1$
-                        currRom.setMd5(safeHex(attributes.getValue(i), 32));
+                    }
+                    case "md5" -> { //$NON-NLS-1$
+                        currRom.setMd5(safeHex(value, 32));
                         md5Roms = true;
-                        break;
-                    case "merge": //$NON-NLS-1$
-                        currRom.setMerge(attributes.getValue(i).trim());
-                        break;
-                    case "bios": //$NON-NLS-1$
-                        currRom.setBios(attributes.getValue(i));
-                        break;
-                    case "region": //$NON-NLS-1$
-                        currRom.setRegion(attributes.getValue(i));
-                        break;
-                    case "date": //$NON-NLS-1$
-                        currRom.setDate(attributes.getValue(i));
-                        break;
-                    case "optional": //$NON-NLS-1$
-                        currRom.setOptional(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case STATUS: // $NON-NLS-1$
-                        currRom.setDumpStatus(Entity.Status.valueOf(attributes.getValue(i)));
-                        break;
-                    case "loadflag": //$NON-NLS-1$
-                        currRom.setLoadflag(LoadFlag.getEnum(attributes.getValue(i)));
-                        break;
-                    default:
-                        break;
+                    }
+                    case "merge" -> currRom.setMerge(value.trim()); //$NON-NLS-1$
+                    case "bios" -> currRom.setBios(value); //$NON-NLS-1$
+                    case "region" -> currRom.setRegion(value); //$NON-NLS-1$
+                    case "date" -> currRom.setDate(value); //$NON-NLS-1$
+                    case "optional" -> currRom.setOptional(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case STATUS -> currRom.setDumpStatus(Entity.Status.valueOf(value)); // $NON-NLS-1$
+                    case "loadflag" -> currRom.setLoadflag(LoadFlag.getEnum(value)); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -782,19 +685,16 @@ public class Profile implements Serializable, StatusRendererFactory {
                 return;
             final var slotoption = new SlotOption();
             for (var i = 0; i < attributes.getLength(); i++) {
+                String value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        slotoption.setName(attributes.getValue(i));
+                    case "name" -> { //$NON-NLS-1$
+                        slotoption.setName(value);
                         currSlot.add(slotoption);
-                        break;
-                    case "devname": //$NON-NLS-1$
-                        slotoption.setDevName(attributes.getValue(i));
-                        break;
-                    case "default": //$NON-NLS-1$
-                        slotoption.setDef(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    default:
-                        break;
+                    }
+                    case "devname" -> slotoption.setDevName(value); //$NON-NLS-1$
+                    case "default" -> slotoption.setDef(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -930,24 +830,15 @@ public class Profile implements Serializable, StatusRendererFactory {
             currDevice = new Device();
             currMachine.getDevices().add(currDevice);
             for (var i = 0; i < attributes.getLength(); i++) {
+                final String value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "type": //$NON-NLS-1$
-                        currDevice.setType(attributes.getValue(i).trim());
-                        break;
-                    case "tag": //$NON-NLS-1$
-                        currDevice.setTag(attributes.getValue(i).trim());
-                        break;
-                    case "interface": //$NON-NLS-1$
-                        currDevice.setIntrface(attributes.getValue(i).trim());
-                        break;
-                    case "fixed_image": //$NON-NLS-1$
-                        currDevice.setFixedImage(attributes.getValue(i).trim());
-                        break;
-                    case "mandatory": //$NON-NLS-1$
-                        currDevice.setMandatory(attributes.getValue(i).trim());
-                        break;
-                    default:
-                        break;
+                    case "type" -> currDevice.setType(value.trim()); //$NON-NLS-1$
+                    case "tag" -> currDevice.setTag(value.trim()); //$NON-NLS-1$
+                    case "interface" -> currDevice.setIntrface(value.trim()); //$NON-NLS-1$
+                    case "fixed_image" -> currDevice.setFixedImage(value.trim()); //$NON-NLS-1$
+                    case "mandatory" -> currDevice.setMandatory(value.trim()); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -961,21 +852,14 @@ public class Profile implements Serializable, StatusRendererFactory {
             if (currMachine == null)
                 return;
             for (var i = 0; i < attributes.getLength(); i++) {
+                final var value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "players": //$NON-NLS-1$
-                        currMachine.input.setPlayers(attributes.getValue(i));
-                        break;
-                    case "coins": //$NON-NLS-1$
-                        currMachine.input.setCoins(attributes.getValue(i));
-                        break;
-                    case "service": //$NON-NLS-1$
-                        currMachine.input.setService(attributes.getValue(i));
-                        break;
-                    case "tilt": //$NON-NLS-1$
-                        currMachine.input.setTilt(attributes.getValue(i));
-                        break;
-                    default:
-                        break;
+                    case "players" -> currMachine.input.setPlayers(value); //$NON-NLS-1$
+                    case "coins" -> currMachine.input.setCoins(value); //$NON-NLS-1$
+                    case "service" -> currMachine.input.setService(value); //$NON-NLS-1$
+                    case "tilt" -> currMachine.input.setTilt(value); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -1040,15 +924,13 @@ public class Profile implements Serializable, StatusRendererFactory {
                 currSoftwareList = new SoftwareList(Profile.this);
                 for (var i = 0; i < attributes.getLength(); i++) {
                     switch (attributes.getQName(i)) {
-                        case "name": //$NON-NLS-1$
+                        case "name" -> { //$NON-NLS-1$
                             currSoftwareList.setName(attributes.getValue(i).trim());
                             machineListList.getSoftwareListList().putByName(currSoftwareList);
-                            break;
-                        case DESCRIPTION: // $NON-NLS-1$
-                            currSoftwareList.getDescription().append(attributes.getValue(i).trim());
-                            break;
-                        default:
-                            break;
+                        }
+                        case DESCRIPTION -> currSoftwareList.getDescription().append(attributes.getValue(i).trim()); // $NON-NLS-1$
+                        default -> {
+                            /* skip unknown */ }
                     }
                 }
             }
@@ -1063,23 +945,15 @@ public class Profile implements Serializable, StatusRendererFactory {
             final var swlist = currMachine.new SWList();
             for (var i = 0; i < attributes.getLength(); i++) {
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        swlist.setName(attributes.getValue(i));
-                        break;
-                    case STATUS: // $NON-NLS-1$
-                        swlist.setStatus(SWStatus.valueOf(attributes.getValue(i)));
-                        break;
-                    case "filter": //$NON-NLS-1$
-                        swlist.setFilter(attributes.getValue(i));
-                        break;
-                    default:
-                        break;
+                    case "name" -> swlist.setName(attributes.getValue(i)); //$NON-NLS-1$
+                    case STATUS -> swlist.setStatus(SWStatus.valueOf(attributes.getValue(i))); // $NON-NLS-1$
+                    case "filter" -> swlist.setFilter(attributes.getValue(i)); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
             currMachine.getSwlists().put(swlist.getName(), swlist);
-            if (!machineListList.getSoftwareListDefs().containsKey(swlist.getName()))
-                machineListList.getSoftwareListDefs().put(swlist.getName(), new ArrayList<>());
-            machineListList.getSoftwareListDefs().get(swlist.getName()).add(currMachine);
+            machineListList.getSoftwareListDefs().computeIfAbsent(swlist.getName(), _ -> new ArrayList<>()).add(currMachine);
         }
 
         /**
@@ -1091,17 +965,11 @@ public class Profile implements Serializable, StatusRendererFactory {
             currSoftware = new Software(Profile.this);
             for (var i = 0; i < attributes.getLength(); i++) {
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        currSoftware.setName(attributes.getValue(i).trim());
-                        break;
-                    case "cloneof": //$NON-NLS-1$
-                        currSoftware.setCloneof(attributes.getValue(i).trim());
-                        break;
-                    case "supported": //$NON-NLS-1$
-                        currSoftware.setSupported(Software.Supported.valueOf(attributes.getValue(i)));
-                        break;
-                    default:
-                        break;
+                    case "name" -> currSoftware.setName(attributes.getValue(i).trim()); //$NON-NLS-1$
+                    case "cloneof" -> currSoftware.setCloneof(attributes.getValue(i).trim()); //$NON-NLS-1$
+                    case "supported" -> currSoftware.setSupported(Software.Supported.valueOf(attributes.getValue(i))); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -1148,23 +1016,15 @@ public class Profile implements Serializable, StatusRendererFactory {
             currPart.getDataareas().add(currDataArea);
             for (var i = 0; i < attributes.getLength(); i++) {
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        currDataArea.setName(attributes.getValue(i).trim());
-                        break;
-                    case "size": //$NON-NLS-1$
-                    {
+                    case "name" -> currDataArea.setName(attributes.getValue(i).trim()); //$NON-NLS-1$
+                    case "size" -> { //$NON-NLS-1$
                         final var value = attributes.getValue(i).trim();
                         ExceptionUtils.unthrowF(currDataArea::setSize, Integer::decode, value, t -> ExceptionUtils.test(t, "0x" + value, 0));
-                        break;
                     }
-                    case "width", "databits": //$NON-NLS-1$
-                        currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i)));
-                        break;
-                    case "endianness", "endian": //$NON-NLS-1$
-                        currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i)));
-                        break;
-                    default:
-                        break;
+                    case "width", "databits" -> currDataArea.setDatabits(Integer.valueOf(attributes.getValue(i))); //$NON-NLS-1$
+                    case "endianness", "endian" -> currDataArea.setEndianness(Endianness.valueOf(attributes.getValue(i))); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -1193,39 +1053,28 @@ public class Profile implements Serializable, StatusRendererFactory {
         private void startMachine(Attributes attributes) {
             currMachine = new Machine(Profile.this);
             for (var i = 0; i < attributes.getLength(); i++) {
+                final String value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case "name": //$NON-NLS-1$
-                        currMachine.setName(attributes.getValue(i).trim());
+                    case "name" -> { //$NON-NLS-1$
+                        currMachine.setName(value.trim());
                         machineListList.get(0).putByName(currMachine);
-                        break;
-                    case "romof": //$NON-NLS-1$
-                        currMachine.setRomof(attributes.getValue(i).trim());
-                        break;
-                    case "cloneof": //$NON-NLS-1$
-                        currMachine.setCloneof(attributes.getValue(i).trim());
-                        break;
-                    case "sampleof": //$NON-NLS-1$
-                        currMachine.setSampleof(attributes.getValue(i).trim());
+                    }
+                    case "romof" -> currMachine.setRomof(value.trim()); //$NON-NLS-1$
+                    case "cloneof" -> currMachine.setCloneof(value.trim()); //$NON-NLS-1$
+                    case "sampleof" -> { //$NON-NLS-1$
+                        currMachine.setSampleof(value.trim());
                         if (!machineListList.get(0).samplesets.containsName(currMachine.getSampleof())) {
                             currSampleSet = new Samples(currMachine.getSampleof());
                             machineListList.get(0).samplesets.putByName(currSampleSet);
                         } else
                             currSampleSet = machineListList.get(0).samplesets.getByName(currMachine.getSampleof());
-                        break;
-                    case "isbios": //$NON-NLS-1$
-                        currMachine.setIsbios(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case "ismechanical": //$NON-NLS-1$
-                        currMachine.setIsmechanical(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case "isdevice": //$NON-NLS-1$
-                        currMachine.setIsdevice(BooleanUtils.toBoolean(attributes.getValue(i)));
-                        break;
-                    case "sourcefile": //$NON-NLS-1$
-                        currMachine.setSourcefile(attributes.getValue(i));
-                        break;
-                    default:
-                        break;
+                    }
+                    case "isbios" -> currMachine.setIsbios(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case "ismechanical" -> currMachine.setIsmechanical(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case "isdevice" -> currMachine.setIsdevice(BooleanUtils.toBoolean(value)); //$NON-NLS-1$
+                    case "sourcefile" -> currMachine.setSourcefile(value); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
             if (currMachine.getRomof() != null && currMachine.getRomof().equals(currMachine.getBaseName()))
@@ -1254,21 +1103,14 @@ public class Profile implements Serializable, StatusRendererFactory {
             if (currMachine == null)
                 return;
             for (var i = 0; i < attributes.getLength(); i++) {
+                final String value = attributes.getValue(i);
                 switch (attributes.getQName(i)) {
-                    case STATUS: // $NON-NLS-1$
-                        currMachine.driver.setStatus(attributes.getValue(i));
-                        break;
-                    case "emulation": //$NON-NLS-1$
-                        currMachine.driver.setEmulation(attributes.getValue(i));
-                        break;
-                    case "cocktail": //$NON-NLS-1$
-                        currMachine.driver.setCocktail(attributes.getValue(i));
-                        break;
-                    case "savestate": //$NON-NLS-1$
-                        currMachine.driver.setSaveState(attributes.getValue(i));
-                        break;
-                    default:
-                        break;
+                    case STATUS -> currMachine.driver.setStatus(value); // $NON-NLS-1$
+                    case "emulation" -> currMachine.driver.setEmulation(value); //$NON-NLS-1$
+                    case "cocktail" -> currMachine.driver.setCocktail(value); //$NON-NLS-1$
+                    case "savestate" -> currMachine.driver.setSaveState(value); //$NON-NLS-1$
+                    default -> {
+                        /* skip unknown */ }
                 }
             }
         }
@@ -1282,12 +1124,14 @@ public class Profile implements Serializable, StatusRendererFactory {
             if (currMachine == null)
                 return;
             for (var i = 0; i < attributes.getLength(); i++) {
-                if (attributes.getQName(i).equals("rotate")) {
+                if ("rotate".equals(attributes.getQName(i))) {
                     ExceptionUtils.unthrow(orientation -> {
-                        if (orientation == 0 || orientation == 180)
-                            currMachine.setOrientation(Machine.DisplayOrientation.horizontal);
-                        if (orientation == 90 || orientation == 270)
-                            currMachine.setOrientation(Machine.DisplayOrientation.vertical);
+                        switch (orientation) {
+                            case 0, 180 -> currMachine.setOrientation(Machine.DisplayOrientation.horizontal);
+                            case 90, 270 -> currMachine.setOrientation(Machine.DisplayOrientation.vertical);
+                            default -> {
+                                /* ignore unknown orientation values */ }
+                        }
                     }, Integer::parseInt, attributes.getValue(i));
                 }
             }
@@ -1295,39 +1139,20 @@ public class Profile implements Serializable, StatusRendererFactory {
 
         @Override
         public void endElement(final String uri, final String localName, final String qName) throws SAXException {
-            if (qName.equals("header")) //$NON-NLS-1$
-            {
-                inHeader = false;
-            } else if (qName.equals("softwarelist")) //$NON-NLS-1$
-            {
-                endSoftwareList();
-            } else if (qName.equals("software")) //$NON-NLS-1$
-            {
-                endSoftware();
-            } else if (qName.equals("machine") || qName.equals("game")) //$NON-NLS-1$ //$NON-NLS-2$
-            {
-                endMachine();
-            } else if (qName.equals("rom")) //$NON-NLS-1$
-            {
-                endRom();
-            } else if (qName.equals("disk")) //$NON-NLS-1$
-            {
-                endDisk();
-            } else if (qName.equals(DESCRIPTION)) // $NON-NLS-1$
-            {
-                endDescription();
-            } else if (qName.equals("year")) //$NON-NLS-1$
-            {
-                endYear();
-            } else if (qName.equals("manufacturer")) //$NON-NLS-1$
-            {
-                endManufacturer();
-            } else if (qName.equals("publisher")) //$NON-NLS-1$
-            {
-                endPublisher();
-            } else if (qName.equals("dipswitch")) //$NON-NLS-1$
-            {
-                endDipSwitch();
+            switch (qName) {
+                case "header" -> inHeader = false; //$NON-NLS-1$
+                case "softwarelist" -> endSoftwareList(); //$NON-NLS-1$
+                case "software" -> endSoftware(); //$NON-NLS-1$
+                case "machine", "game" -> endMachine(); //$NON-NLS-1$ //$NON-NLS-2$
+                case "rom" -> endRom(); //$NON-NLS-1$
+                case "disk" -> endDisk(); //$NON-NLS-1$
+                case DESCRIPTION -> endDescription(); // $NON-NLS-1$
+                case "year" -> endYear(); //$NON-NLS-1$
+                case "manufacturer" -> endManufacturer(); //$NON-NLS-1$
+                case "publisher" -> endPublisher(); //$NON-NLS-1$
+                case "dipswitch" -> endDipSwitch(); //$NON-NLS-1$
+                default -> {
+                    /* skip unknown */ }
             }
         }
 
@@ -1482,30 +1307,59 @@ public class Profile implements Serializable, StatusRendererFactory {
                 throw new BreakException();
         }
 
+        /**
+         * Determines the target StringBuilder for appending character data based on current parsing context.
+         * 
+         * @return the target StringBuilder, or null if no target is available
+         */
+        private StringBuilder getCharacterTarget() {
+            if (inDescription) {
+                return getDescriptionTarget();
+            } else if (inYear) {
+                return getYearTarget();
+            } else if (inManufacturer && currMachine != null) {
+                return currMachine.manufacturer;
+            } else if (inPublisher && currSoftware != null) {
+                return currSoftware.getPublisher();
+            } else if (inHeader) {
+                return header.computeIfAbsent(currTag, _ -> new StringBuilder());
+            }
+            return null;
+        }
+
+        /**
+         * Determines the target StringBuilder for the description element.
+         * 
+         * @return the target StringBuilder, or null if no target is available
+         */
+        private StringBuilder getDescriptionTarget() {
+            if (currMachine != null)
+                return currMachine.description;
+            if (currSoftware != null)
+                return currSoftware.description;
+            if (currSoftwareList != null)
+                return currSoftwareList.getDescription();
+            return null;
+        }
+
+        /**
+         * Determines the target StringBuilder for the year element.
+         * 
+         * @return the target StringBuilder, or null if no target is available
+         */
+        private StringBuilder getYearTarget() {
+            if (currMachine != null)
+                return currMachine.year;
+            if (currSoftware != null)
+                return currSoftware.year;
+            return null;
+        }
+
         @Override
         public void characters(final char[] ch, final int start, final int length) throws SAXException {
             final var value = new String(ch, start, length);
-            if (value.isBlank())
-                return;
-            if (inDescription) {
-                if (currMachine != null)
-                    currMachine.description.append(value);
-                else if (currSoftware != null)
-                    currSoftware.description.append(value);
-                else if (currSoftwareList != null)
-                    currSoftwareList.getDescription().append(value);
-            } else if (inYear) {
-                if (currMachine != null)
-                    currMachine.year.append(value);
-                else if (currSoftware != null)
-                    currSoftware.year.append(value);
-            } else if (inManufacturer && currMachine != null) {
-                currMachine.manufacturer.append(value);
-            } else if (inPublisher && currSoftware != null) {
-                currSoftware.getPublisher().append(value);
-            } else if (inHeader) {
-                header.computeIfAbsent(currTag, _ -> new StringBuilder()).append(value);
-            }
+            if (!value.isBlank())
+                Optional.ofNullable(getCharacterTarget()).ifPresent(target -> target.append(value));
         }
     }
 
@@ -1520,13 +1374,7 @@ public class Profile implements Serializable, StatusRendererFactory {
     private boolean internalLoad(final File file, final ProgressHandler handler) {
         handler.setProgress(String.format(Messages.getString("Profile.Parsing"), new PathAbstractor(session).getRelativePath(file.toPath())), -1); //$NON-NLS-1$
         try (var in = handler.getInputStream(new FileInputStream(file), (int) file.length())) {
-            final var factory = SAXParserFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            final var parser = factory.newSAXParser();
-            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Compliant
-            parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
-            parser.parse(in, new ProfileHandler(handler));
+            XMLTools.getSaxParser().parse(in, new ProfileHandler(handler));
             return true;
         } catch (final ParserConfigurationException | SAXException e) {
             handler.addError(e.getMessage());
@@ -1577,50 +1425,104 @@ public class Profile implements Serializable, StatusRendererFactory {
      * @return parsed profile metadata container
      */
     public static Profile load(final Session session, final ProfileNFO nfo, final ProgressHandler handler) {
-        Profile profile = null;
-        final var cachefile = session.getUser().getSettings().getCacheFile(nfo.getFile());
-        if (cachefile.lastModified() >= nfo.getFile().lastModified() && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified())
-                && Boolean.TRUE.equals(!session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, Boolean.class))) // $NON-NLS-1$
-        { // Load from cache if cachefile is not outdated and debug_nocache is disabled
-            profile = loadCache(session, nfo, handler, profile, cachefile);
-        }
-        if (profile == null) // if cache failed to load or because it is outdated
-            profile = loadThenSaveToCache(session, nfo, handler);
+        Profile profile = loadProfile(session, nfo, handler);
         if (profile == null)
             return null;
-        // build parent-clones relations
+        
+        initializeProfile(profile, handler);
+        return profile;
+    }
+
+    /**
+     * Loads profile from cache or creates new profile from source files.
+     * 
+     * @param session execution workspace context
+     * @param nfo JRomManager database profile information stats summary
+     * @param handler progressive feedback reporter
+     * 
+     * @return loaded profile or null if loading failed
+     */
+    private static Profile loadProfile(final Session session, final ProfileNFO nfo, final ProgressHandler handler) {
+        final var cachefile = session.getUser().getSettings().getCacheFile(nfo.getFile());
+        if (shouldLoadFromCache(cachefile, nfo, session)) {
+            return loadCache(session, nfo, handler, null, cachefile);
+        }
+        return loadThenSaveToCache(session, nfo, handler);
+    }
+
+    /**
+     * Determines whether profile should be loaded from cache based on file timestamps and cache settings.
+     * 
+     * @param cachefile cached profile file
+     * @param nfo JRomManager database profile information stats summary
+     * @param session execution workspace context
+     * 
+     * @return true if cache should be used, false otherwise
+     */
+    private static boolean shouldLoadFromCache(final File cachefile, final ProfileNFO nfo, final Session session) {
+        return cachefile.lastModified() >= nfo.getFile().lastModified()
+            && (!nfo.isJRM() || cachefile.lastModified() >= nfo.getMame().getFileroms().lastModified())
+            && Boolean.TRUE.equals(!session.getUser().getSettings().getProperty(SettingsEnum.debug_nocache, Boolean.class)); // $NON-NLS-1$
+    }
+
+    /**
+     * Initializes loaded profile by building relationships, updating statistics, and loading components.
+     * 
+     * @param profile profile to initialize
+     * @param handler progressive feedback reporter
+     */
+    private static void initializeProfile(final Profile profile, final ProgressHandler handler) {
         handler.setProgress(Messages.getString("Profile.BuildingParentClonesRelations"), -1); //$NON-NLS-1$
         profile.buildParentClonesRelations();
-        // update nfo stats (those to keep serialized)
-        if (profile.build != null)
-            profile.nfo.getStats().setVersion(profile.build);
-        else
-            profile.nfo.getStats().setVersion(profile.header.containsKey(VERSION) ? profile.header.get(VERSION).toString() : null); // $NON-NLS-1$
-                                                                                                                                    // //$NON-NLS-2$
-        profile.nfo.getStats().setTotalSets(profile.softwaresCnt + profile.machinesCnt);
-        profile.nfo.getStats().setTotalRoms(profile.romsCnt + profile.swromsCnt);
-        profile.nfo.getStats().setTotalDisks(profile.disksCnt + profile.swdisksCnt);
-        profile.nfo.save(session);
-        // Load profile settings
-        handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
-        profile.loadSettings();
-        // Build Systems filters
-        handler.setProgress("Creating Systems filters...", -1); //$NON-NLS-1$
-        profile.loadSystems();
-        // Build Years filters
-        handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
-        profile.loadYears();
-        // Load cartver.ini (if any)
-        profile.loadCatVer(handler);
-        // Load nplayers.ini (if any)
-        profile.loadNPlayers(handler);
-
+        updateNfoStats(profile);
+        profile.nfo.save(profile.session);
+        
+        loadProfileComponents(profile, handler);
+        
         profile.filterEntities = EnumSet.allOf(EntityStatus.class);
         profile.filterList = EnumSet.allOf(AnywareStatus.class);
         profile.filterListLists = EnumSet.allOf(AnywareStatus.class);
+    }
 
-        // return the resulting profile
-        return profile;
+    /**
+     * Updates profile NFO statistics with current counts and version information.
+     * 
+     * @param profile profile containing statistics to update
+     */
+    private static void updateNfoStats(final Profile profile) {
+        final var stats = profile.nfo.getStats();
+        final String version;
+        if (profile.build != null) {
+            version = profile.build;
+        } else if (profile.header.containsKey(VERSION)) {
+            version = profile.header.get(VERSION).toString();
+        } else {
+            version = null;
+        }
+        stats.setVersion(version); // $NON-NLS-1$
+        stats.setTotalSets(profile.softwaresCnt + profile.machinesCnt);
+        stats.setTotalRoms(profile.romsCnt + profile.swromsCnt);
+        stats.setTotalDisks(profile.disksCnt + profile.swdisksCnt);
+    }
+
+    /**
+     * Loads all profile components including settings, filters, and configuration files.
+     * 
+     * @param profile profile to load components for
+     * @param handler progressive feedback reporter
+     */
+    private static void loadProfileComponents(final Profile profile, final ProgressHandler handler) {
+        handler.setProgress("Loading settings...", -1); //$NON-NLS-1$
+        profile.loadSettings();
+        
+        handler.setProgress("Creating Systems filters...", -1); //$NON-NLS-1$
+        profile.loadSystems();
+        
+        handler.setProgress("Creating Years filters...", -1); //$NON-NLS-1$
+        profile.loadYears();
+        
+        profile.loadCatVer(handler);
+        profile.loadNPlayers(handler);
     }
 
     /**
@@ -1886,31 +1788,34 @@ public class Profile implements Serializable, StatusRendererFactory {
      */
     public String getName() {
         final var xmlpath = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize();
-        final String fname;
-        if (nfo.getFile().toPath().startsWith(xmlpath))
-            fname = xmlpath.relativize(nfo.getFile().toPath()).toString();
-        else
-            fname = nfo.getFile().getName();
-        String name = "[" + toBlue(fname) + "] "; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        if (build != null)
-            name += toBoldBlack(build); // $NON-NLS-1$ //$NON-NLS-2$
-        else if (header.size() > 0) {
-            if (header.containsKey(DESCRIPTION)) // $NON-NLS-1$
-                name += toBoldBlack(header.get(DESCRIPTION)); // $NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-            else if (header.containsKey("name")) //$NON-NLS-1$
-            {
-                name += toBoldBlack(header.get("name")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        final var fname = nfo.getFile().toPath().startsWith(xmlpath)
+            ? xmlpath.relativize(nfo.getFile().toPath()).toString()
+            : nfo.getFile().getName();
+        final var nameBuilder = new StringBuilder("[")
+            .append(toBlue(fname))
+            .append("] "); //$NON-NLS-1$ //$NON-NLS-2$
+        if (build != null) {
+            nameBuilder.append(toBoldBlack(build)); // $NON-NLS-1$
+        } else if (!header.isEmpty()) {
+            if (header.containsKey(DESCRIPTION)) { // $NON-NLS-1$
+                nameBuilder.append(toBoldBlack(header.get(DESCRIPTION))); // $NON-NLS-1$
+            } else if (header.containsKey("name")) { //$NON-NLS-1$
+                nameBuilder.append(toBoldBlack(header.get("name"))); //$NON-NLS-1$
                 if (header.containsKey(VERSION)) // $NON-NLS-1$
-                    name += " (" + header.get(VERSION) + ")"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+                    nameBuilder.append(" (").append(header.get(VERSION)).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
             }
         }
-        var strcnt = ""; //$NON-NLS-1$
+        final var strcntBuilder = new StringBuilder();
         if (!machineListList.get(0).isEmpty())
-            strcnt += machinesCnt + " Machines"; //$NON-NLS-1$
-        if (!machineListList.getSoftwareListList().isEmpty())
-            strcnt += (strcnt.isEmpty() ? "" : ", ") + softwaresListCnt + " Software Lists, " + softwaresCnt + " Softwares"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-        name += "(" + strcnt + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-        return toDocument(name);
+            strcntBuilder.append(machinesCnt).append(" Machines"); //$NON-NLS-1$
+        if (!machineListList.getSoftwareListList().isEmpty()) {
+            if (!strcntBuilder.isEmpty())
+                strcntBuilder.append(", "); //$NON-NLS-1$
+            strcntBuilder.append(softwaresListCnt).append(" Software Lists, ") //$NON-NLS-1$
+                .append(softwaresCnt).append(" Softwares"); //$NON-NLS-1$
+        }
+        nameBuilder.append("(").append(strcntBuilder).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+        return toDocument(nameBuilder.toString());
     }
 
     /**

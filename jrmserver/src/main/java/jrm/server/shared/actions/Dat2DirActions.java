@@ -1,7 +1,9 @@
 package jrm.server.shared.actions;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -124,51 +126,64 @@ public class Dat2DirActions {
      * @param jso the incoming JSON message (currently unused, reserved for future parameters)
      */
     public void start(JsonObject jso) {
-        (ws.getSession().setWorker(new Worker(() -> {
-            WebSession session = ws.getSession();
-            boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class);
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|');
-                if (srcdirs.length > 0) {
-                    SDRList<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
-                    if (sdrl.stream()
-                            .filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists())
-                            .count() > 0)
-                        new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
-                    else {
-                        new DirUpdater(session, sdrl, session.getWorker().progress,
-                                Stream.of(srcdirs).map(s -> PathAbstractor.getAbsolutePath(session, s).toFile()).toList(), new ResultColUpdater() {
-                                    @Override
-                                    public void updateResult(int row, String result) {
-                                        sdrl.get(row).setResult(result);
-                                        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
-                                        session.getUser().getSettings().saveSettings();
-                                        Dat2DirActions.this.updateResult(row, result);
-                                    }
+        (ws.getSession().setWorker(new Worker(this::processDat2Dir))).start();
+    }
 
-                                    @Override
-                                    public void clearResults() {
-                                        sdrl.forEach(sdr -> sdr.setResult(""));
-                                        session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
-                                        session.getUser().getSettings().saveSettings();
-                                        Dat2DirActions.this.clearResults();
-                                    }
-                                }, dryrun);
-                    }
-                } else
-                    new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AtLeastOneSrcDir"));
-            } catch (BreakException _) {
-                // user cancelled action
-            } finally {
-                Dat2DirActions.this.end();
-                session.setCurrProfile(null);
-                session.setCurrScan(null);
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
+    private void processDat2Dir() {
+        WebSession session = ws.getSession();
+        boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class);
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            String[] srcdirs = StringUtils.split(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_srcdirs), '|');
+            if (srcdirs.length > 0) {
+                SDRList<SrcDstResult> sdrl = SrcDstResult.fromJSON(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_sdr));
+                if (countMissingProfiles(session, sdrl) > 0)
+                    new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AllDatsPresetsAssigned")); //$NON-NLS-1$
+                else {
+                    new DirUpdater(session, sdrl, session.getWorker().progress, toSrcDirFileList(session, srcdirs), createResultColUpdater(session, sdrl), dryrun);
+                }
+            } else
+                new GlobalActions(ws).warn(ws.getSession().getMsgs().getString("MainFrame.AtLeastOneSrcDir"));
+        } catch (BreakException _) {
+            // user cancelled action
+        } finally {
+            Dat2DirActions.this.end();
+            session.setCurrProfile(null);
+            session.setCurrScan(null);
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
+        }
+    }
+
+    private long countMissingProfiles(WebSession session, SDRList<SrcDstResult> sdrl) {
+        return sdrl.stream()
+                .filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists())
+                .count();
+    }
+
+    private List<File> toSrcDirFileList(WebSession session, String[] srcdirs) {
+        return Stream.of(srcdirs).map(s -> PathAbstractor.getAbsolutePath(session, s).toFile()).toList();
+    }
+
+    private ResultColUpdater createResultColUpdater(WebSession session, SDRList<SrcDstResult> sdrl) {
+        return new ResultColUpdater() {
+            @Override
+            public void updateResult(int row, String result) {
+                sdrl.get(row).setResult(result);
+                session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
+                session.getUser().getSettings().saveSettings();
+                Dat2DirActions.this.updateResult(row, result);
             }
-        }))).start();
+
+            @Override
+            public void clearResults() {
+                sdrl.forEach(sdr -> sdr.setResult(""));
+                session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_sdr, AbstractSrcDstResult.toJSON(sdrl));
+                session.getUser().getSettings().saveSettings();
+                Dat2DirActions.this.clearResults();
+            }
+        };
     }
 
     /**
