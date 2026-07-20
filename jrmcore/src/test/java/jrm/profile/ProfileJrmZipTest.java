@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -31,12 +32,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.misc.GlobalSettings;
 import jrm.profile.data.ExportMode;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Rom;
 import jrm.profile.manager.Export;
 import jrm.profile.manager.Export.ExportType;
 import jrm.security.Session;
+import jrm.security.User;
 
 /**
  * Comprehensive tests for Profile loading from JRM archive (jrm.zip).
@@ -79,7 +82,14 @@ class ProfileJrmZipTest {
     @BeforeEach
     void setUp() {
         session = mock(Session.class);
-        when(session.getUser()).thenReturn(null);
+		final var mockSettings = mock(GlobalSettings.class);
+        when(mockSettings.getWorkPath()).thenReturn(java.nio.file.Paths.get(System.getProperty("java.io.tmpdir")));
+		final var mockUser = mock(User.class);
+		when(mockUser.getSettings()).thenReturn(mockSettings);
+        when(session.getUser()).thenReturn(mockUser);
+        final var msgs = ResourceBundle.getBundle("jrm.resources.Messages");
+        when(session.getMsgs()).thenReturn(msgs);
+
         
         handler = mock(ProgressHandler.class);
         when(handler.isCancel()).thenReturn(false);

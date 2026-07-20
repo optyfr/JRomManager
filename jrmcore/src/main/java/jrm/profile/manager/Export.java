@@ -79,7 +79,6 @@ public final class Export {
             }
             writer.close();
         } catch (FactoryConfigurationError | XMLStreamException | IOException e) {
-            // JOptionPane.showMessageDialog(null, e, "Exception", JOptionPane.ERROR_MESSAGE); //$NON-NLS-1$
             Log.err(e.getMessage(), e);
         }
     }
