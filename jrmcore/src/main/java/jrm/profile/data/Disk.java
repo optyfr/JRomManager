@@ -91,12 +91,12 @@ public class Disk extends Entity {
         if (getParent().profile.getSettings() != null && getParent().profile.getSettings().getMergeMode().isMerge()) {
             if (merge == null) {
                 if (isCollisionMode(true) && getParent().isClone()) {
-                    return parent.name + "/" + name + ".chd"; //$NON-NLS-1$ //$NON-NLS-2$
+                    return parent.name + "/" + name + ".chd";
                 }
-            } else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_disks, Boolean.class))) // $NON-NLS-1$
-                return merge + ".chd"; //$NON-NLS-1$
+            } else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_disks, Boolean.class)))
+                return merge + ".chd";
         }
-        return name + ".chd"; //$NON-NLS-1$
+        return name + ".chd";
     }
 
     /**
@@ -232,30 +232,30 @@ public class Disk extends Entity {
      */
     public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException {
         if (parent instanceof Software) {
-            writer.writeElement(DISK_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
-                    new SimpleAttribute(WRITEABLE_STR, writeable ? "yes" : null) //$NON-NLS-1$ //$NON-NLS-2$
+            writer.writeElement(DISK_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)),
+                    new SimpleAttribute(WRITEABLE_STR, writeable ? "yes" : null)
             );
         } else if (is_mame) {
-            writer.writeElement(DISK_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
-                    new SimpleAttribute("optional", optional), //$NON-NLS-1$
-                    new SimpleAttribute("region", region), //$NON-NLS-1$
-                    new SimpleAttribute("writable", writeable ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
-                    new SimpleAttribute("index", index) //$NON-NLS-1$
+            writer.writeElement(DISK_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute(MERGE_STR, merge),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)),
+                    new SimpleAttribute("optional", optional),
+                    new SimpleAttribute("region", region),
+                    new SimpleAttribute("writable", writeable ? "yes" : null),
+                    new SimpleAttribute("index", index)
             );
         } else {
-            writer.writeElement(DISK_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute("md5", md5), //$NON-NLS-1$
-                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)) // $NON-NLS-1$
+            writer.writeElement(DISK_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute("md5", md5),
+                    new SimpleAttribute(MERGE_STR, merge),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame))
             );
         }
     }

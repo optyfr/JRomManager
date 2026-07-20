@@ -93,7 +93,7 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
      */
     @Override
     public void setFilterCache(final Set<AnywareStatus> filter) {
-        // not used
+        // Intentionally empty - filter cache not used for software lists
     }
 
     /**
@@ -152,23 +152,21 @@ public final class SoftwareListList extends AnywareListList<SoftwareList> implem
                 lists = getList();
         }
         if (lists.size() > 0) {
-            writer.writeStartDocument("UTF-8", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+            writer.writeStartDocument("UTF-8", "1.0");
             if (lists.size() > 1) {
-                writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), StandardCharsets.UTF_8) //$NON-NLS-1$ //$NON-NLS-2$
-                        + "\n]>\n"); //$NON-NLS-1$
-                                     // //$NON-NLS-4$
-                writer.writeStartElement("softwarelists"); //$NON-NLS-1$
+                writer.writeDTD("<!DOCTYPE softwarelists [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelists.dtd"), StandardCharsets.UTF_8)
+                        + "\n]>\n");
+                writer.writeStartElement("softwarelists");
             } else
-                writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8) //$NON-NLS-1$ //$NON-NLS-2$
-                        + "\n]>\n"); //$NON-NLS-1$
-                                     // //$NON-NLS-4$
-            progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum()); //$NON-NLS-1$
-            progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size()); // $NON-NLS-1$
+                writer.writeDTD("<!DOCTYPE softwarelist [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/softwarelist.dtd"), StandardCharsets.UTF_8)
+                        + "\n]>\n");
+            progress.setProgress("Exporting", 0, lists.stream().flatMapToInt(sl -> IntStream.of(sl.size())).sum());
+            progress.setProgress2(String.format(N_OF_T, 0, lists.size()), 0, lists.size());
             for (final SoftwareList list : lists) {
                 if (progress.isCancel())
                     break;
                 list.export(writer, modes, progress);
-                progress.setProgress2(String.format(N_OF_T, progress.getCurrent2() + 1, lists.size()), progress.getCurrent2() + 1); // $NON-NLS-1$
+                progress.setProgress2(String.format(N_OF_T, progress.getCurrent2() + 1, lists.size()), progress.getCurrent2() + 1);
             }
             writer.writeEndDocument();
         }

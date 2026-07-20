@@ -10,7 +10,6 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.io.FileUtils;
 
-import jrm.misc.Log;
 import jrm.misc.Tree.Node;
 import jrm.profile.manager.Dir;
 import jrm.profile.manager.DirTree;

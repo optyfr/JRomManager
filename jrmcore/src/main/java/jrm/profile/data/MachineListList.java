@@ -47,15 +47,11 @@ public final class MachineListList extends AnywareListList<MachineList> {
 
     /**
      * The attached list of software lists ({@link SoftwareListList}), if any.
-     *
-     * @return the softwareListList value
      */
     private final @Getter SoftwareListList softwareListList;
 
     /**
      * A mapping between a software list name and list of machines declared to be at least compatible with that software list.
-     *
-     * @return the softwareListDefs mapping
      */
     private final @Getter Map<String, List<Machine>> softwareListDefs = new HashMap<>();
 
@@ -109,7 +105,7 @@ public final class MachineListList extends AnywareListList<MachineList> {
     public List<MachineList> getFilteredList() {
         if (filteredList == null)
             filteredList = getFilteredStream().filter(t -> profile.getFilterListLists().contains(t.getStatus())).sorted()
-                .collect(Collectors.toList()); //NOSONAR
+                    .collect(Collectors.toList()); // NOSONAR
         return filteredList;
     }
 
@@ -191,20 +187,17 @@ public final class MachineListList extends AnywareListList<MachineList> {
     public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes)
             throws XMLStreamException, IOException {
         final List<MachineList> lists = getFilteredStream().toList();
-        if (lists.size() > 0) {
-            writer.writeStartDocument(UTF_8, "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
-            if (is_mame) {
-                writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                                                                                                                                                              // //$NON-NLS-4$
-            } else {
-                writer.writeDTD(
-                        "<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), StandardCharsets.UTF_8) + "\n]>\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                                                                                                                                                                              // //$NON-NLS-4$
-            }
-            for (final MachineList list : lists)
-                list.export(writer, progress, is_mame, modes);
-            writer.writeEndDocument();
+        if (lists.isEmpty())
+            return;
+        writer.writeStartDocument(UTF_8, "1.0");
+        if (is_mame) {
+            writer.writeDTD("<!DOCTYPE mame [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/mame.dtd"), StandardCharsets.UTF_8) + "\n]>\n");
+        } else {
+            writer.writeDTD("<!DOCTYPE datafile [\n" + IOUtils.toString(Export.class.getResourceAsStream("/jrm/resources/dtd/datafile.dtd"), StandardCharsets.UTF_8) + "\n]>\n");
         }
+        for (final MachineList list : lists)
+            list.export(writer, progress, is_mame, modes);
+        writer.writeEndDocument();
     }
 
     @Override
@@ -229,7 +222,7 @@ public final class MachineListList extends AnywareListList<MachineList> {
     @Override
     public String getHaveTot(int i) {
         if (i < getList().size())
-            return String.format("%d/%d", getList().get(i).countHave(), getList().get(i).countAll()); //$NON-NLS-1$
+            return String.format("%d/%d", getList().get(i).countHave(), getList().get(i).countAll());
         return softwareListList.getHaveTot(i - getList().size());
     }
 }

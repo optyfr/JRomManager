@@ -345,20 +345,20 @@ public class Software extends Anyware {
      * @throws XMLStreamException if an XML writing error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, Collection<Entry> entries, Set<ExportMode> modes) throws XMLStreamException {
-        writer.writeStartElement("software", //$NON-NLS-1$
-                new SimpleAttribute("name", name), //$NON-NLS-1$
-                new SimpleAttribute("cloneof", cloneof), //$NON-NLS-1$
-                new SimpleAttribute("supported", supported.getXML()) //$NON-NLS-1$
+        writer.writeStartElement("software",
+                new SimpleAttribute("name", name),
+                new SimpleAttribute("cloneof", cloneof),
+                new SimpleAttribute("supported", supported.getXML())
         );
-        writer.writeElement("description", description); //$NON-NLS-1$
+        writer.writeElement("description", description);
         if (!year.isEmpty())
-            writer.writeElement("year", year); //$NON-NLS-1$
+            writer.writeElement("year", year);
         if (!publisher.isEmpty())
-            writer.writeElement("publisher", publisher); //$NON-NLS-1$
+            writer.writeElement("publisher", publisher);
         for (final Part part : parts) {
-            writer.writeStartElement("part", //$NON-NLS-1$
-                    new SimpleAttribute("name", part.name), //$NON-NLS-1$
-                    new SimpleAttribute("interface", part.intrface) //$NON-NLS-1$
+            writer.writeStartElement("part",
+                    new SimpleAttribute("name", part.name),
+                    new SimpleAttribute("interface", part.intrface)
             );
             exportRoms(writer, entries, part, modes);
             exportDisks(writer, entries, part, modes);
@@ -383,11 +383,11 @@ public class Software extends Anyware {
         final var have = modes.contains(ExportMode.HAVE);
         final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
         for (final DataArea dataarea : part.dataareas) {
-            writer.writeStartElement("dataarea", //$NON-NLS-1$
-                    new SimpleAttribute("name", dataarea.name), //$NON-NLS-1$
-                    new SimpleAttribute("size", dataarea.size), //$NON-NLS-1$
-                    new SimpleAttribute("width", dataarea.databits), //$NON-NLS-1$
-                    new SimpleAttribute("endianness", dataarea.endianness.getXML()) //$NON-NLS-1$
+            writer.writeStartElement("dataarea",
+                    new SimpleAttribute("name", dataarea.name),
+                    new SimpleAttribute("size", dataarea.size),
+                    new SimpleAttribute("width", dataarea.databits),
+                    new SimpleAttribute("endianness", dataarea.endianness.getXML())
             );
             exportDataAreaRoms(writer, entries, dataarea, all, missing, have);
             writer.writeEndElement();
@@ -430,8 +430,8 @@ public class Software extends Anyware {
         final var have = modes.contains(ExportMode.HAVE);
         final var all = modes.contains(ExportMode.ALL) || modes.contains(ExportMode.FILTERED);
         for (final DiskArea diskarea : part.diskareas) {
-            writer.writeStartElement("diskarea", //$NON-NLS-1$
-                    new SimpleAttribute("name", diskarea.name) //$NON-NLS-1$
+            writer.writeStartElement("diskarea",
+                    new SimpleAttribute("name", diskarea.name)
             );
             exportDiskAreaDisks(writer, entries, diskarea, all, missing, have);
             writer.writeEndElement();

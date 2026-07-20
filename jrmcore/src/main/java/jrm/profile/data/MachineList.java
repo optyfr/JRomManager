@@ -81,18 +81,16 @@ public final class MachineList extends AnywareList<Machine> {
      * Bundles the various filtering option values retrieved from the current profile configurations.
      */
     private class FilterOptions {
-        final boolean excludeGames = profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class); // $NON-NLS-1$
-        final boolean excludeMachines = profile.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class); // $NON-NLS-1$
-        final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); // $NON-NLS-1$
-        final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); // $NON-NLS-1$
-        final boolean filterIncludeSamples = profile.getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class); // $NON-NLS-1$
-        final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DriverStatus, String.class)); // $NON-NLS-1$
-        final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DisplayOrientation, String.class)); // $NON-NLS-1$
-        final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_CabinetType, String.class)); // $NON-NLS-1$
-        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$
-                                                                                                            // //$NON-NLS-2$
-        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$
-                                                                                                            // //$NON-NLS-2$
+        final boolean excludeGames = profile.getProperty(ProfileSettingsEnum.exclude_games, Boolean.class);
+        final boolean excludeMachines = profile.getProperty(ProfileSettingsEnum.exclude_machines, Boolean.class);
+        final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class);
+        final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class);
+        final boolean filterIncludeSamples = profile.getProperty(ProfileSettingsEnum.filter_InclSamples, Boolean.class);
+        final Driver.StatusType filterMinDriverStatus = Driver.StatusType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DriverStatus, String.class));
+        final DisplayOrientation filterDisplayOrientation = DisplayOrientation.valueOf(profile.getProperty(ProfileSettingsEnum.filter_DisplayOrientation, String.class));
+        final CabinetType filterCabinetType = CabinetType.valueOf(profile.getProperty(ProfileSettingsEnum.filter_CabinetType, String.class));
+        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class);
+        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class);
     }
 
     @Override
@@ -105,12 +103,12 @@ public final class MachineList extends AnywareList<Machine> {
         /*
          * get all needed profile options
          */
-
         return getList().stream().filter(t -> {
-            if (options.excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine()) // exclude pure games (pure means not bios
-                                                                                        // nor devices)
+            // exclude pure games (pure means not bios nor devices)
+            if (options.excludeGames && !t.isdevice && !t.isbios && !t.isSoftMachine())
                 return false;
-            if (options.excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine()) // exclude computer/console
+            // exclude computer/console
+            if (options.excludeMachines && !t.isdevice && !t.isbios && t.isSoftMachine())
                 return false;
             /*
              * Apply simple filters
@@ -218,18 +216,11 @@ public final class MachineList extends AnywareList<Machine> {
     private boolean getNonDeviceFilter(final FilterOptions options, Machine t) {
         if (!t.isdevice) // exception on devices
         {
-            if (options.filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary) // exclude
-                                                                                                                         // preliminary
-                                                                                                                         // when min
-                                                                                                                         // driver
-                                                                                                                         // status
-                                                                                                                         // is
-                                                                                                                         // imperfect
+            // exclude preliminary when min driver status is imperfect
+            if (options.filterMinDriverStatus == StatusType.imperfect && t.driver.getStatus() == StatusType.preliminary)
                 return false;
-            if (options.filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good) // exclude non good
-                                                                                                             // status when min
-                                                                                                             // driver status is
-                                                                                                             // good
+            // exclude non-good status when min driver status is good
+            if (options.filterMinDriverStatus == StatusType.good && t.driver.getStatus() != StatusType.good)
                 return false;
             if (!getNonMechanicalFilter(options, t))
                 return false;
@@ -248,25 +239,11 @@ public final class MachineList extends AnywareList<Machine> {
     private boolean getNonMechanicalFilter(final FilterOptions options, Machine t) {
         if (!t.ismechanical) // exception on mechanical
         {
-            if (options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal) // exclude
-                                                                                                                                   // "horizontal
-                                                                                                                                   // only"
-                                                                                                                                   // when
-                                                                                                                                   // display
-                                                                                                                                   // filter
-                                                                                                                                   // is
-                                                                                                                                   // "vertical
-                                                                                                                                   // only"
+            // exclude "horizontal only" when display filter is "vertical only"
+            if (options.filterDisplayOrientation == DisplayOrientation.vertical && t.orientation == DisplayOrientation.horizontal)
                 return false;
-            if (options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical) // exclude
-                                                                                                                                   // "vertical
-                                                                                                                                   // only"
-                                                                                                                                   // when
-                                                                                                                                   // display
-                                                                                                                                   // filter
-                                                                                                                                   // is
-                                                                                                                                   // "horizontal
-                                                                                                                                   // only"
+            // exclude "vertical only" when display filter is "horizontal only"
+            if (options.filterDisplayOrientation == DisplayOrientation.horizontal && t.orientation == DisplayOrientation.vertical)
                 return false;
             if (!getNonBiosFilter(options, t))
                 return false;
@@ -285,14 +262,11 @@ public final class MachineList extends AnywareList<Machine> {
     private boolean getNonBiosFilter(final FilterOptions options, Machine t) {
         if (!t.isbios) // exception on bios
         {
-            if (options.filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail) // exclude "cocktail
-                                                                                                           // only" if cabinet
-                                                                                                           // filter is "upright
-                                                                                                           // only"
+            // exclude "cocktail only" if cabinet filter is "upright only"
+            if (options.filterCabinetType == CabinetType.upright && t.cabinetType == CabinetType.cocktail)
                 return false;
-            if (options.filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright) // exclude "upright only"
-                                                                                                           // if cabinet filter is
-                                                                                                           // "cocktail only"
+            // exclude "upright only" if cabinet filter is "cocktail only"
+            if (options.filterCabinetType == CabinetType.cocktail && t.cabinetType == CabinetType.upright)
                 return false;
         }
         return true;
@@ -328,16 +302,16 @@ public final class MachineList extends AnywareList<Machine> {
      */
     public void export(final EnhancedXMLStreamWriter writer, final ProgressHandler progress, final boolean is_mame, final Set<ExportMode> modes) throws XMLStreamException {
         if (is_mame)
-            writer.writeStartElement("mame"); //$NON-NLS-1$
+            writer.writeStartElement("mame");
         else
-            writer.writeStartElement("datafile"); //$NON-NLS-1$
+            writer.writeStartElement("datafile");
         final List<Machine> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
         var i = 0;
-        progress.setProgress(profile.getSession().getMsgs().getString("MachineList.Exporting"), i, list.size()); //$NON-NLS-1$
+        progress.setProgress(profile.getSession().getMsgs().getString("MachineList.Exporting"), i, list.size());
         for (final Machine m : list) {
             if (progress.isCancel())
                 break;
-            progress.setProgress(String.format(profile.getSession().getMsgs().getString("MachineList.Exporting_%s"), m.name), ++i); //$NON-NLS-1$
+            progress.setProgress(String.format(profile.getSession().getMsgs().getString("MachineList.Exporting_%s"), m.name), ++i);
             if (modes.contains(ExportMode.ALL)
                     || (modes.contains(ExportMode.FILTERED) && m.isSelected())
                     || (modes.contains(ExportMode.MISSING) && m.getStatus() != AnywareStatus.COMPLETE && m.getStatus() != AnywareStatus.UNKNOWN)

@@ -130,7 +130,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm {
      */
     @Override
     public String toString() {
-        return "[" + getType() + "] " + description.toString(); //$NON-NLS-1$ //$NON-NLS-2$
+        return "[" + getType() + "] " + description.toString();
     }
 
     /**
@@ -152,21 +152,19 @@ public final class SoftwareList extends AnywareList<Software> implements Systm {
      */
     private class FilterOptions {
         /** Indicates whether clones should be included in filters. */
-        final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class); // $NON-NLS-1$
+        final boolean filterIncludeClones = profile.getProperty(ProfileSettingsEnum.filter_InclClones, Boolean.class);
 
         /** Indicates whether software with disks should be included. */
-        final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class); // $NON-NLS-1$
+        final boolean filterIncludeDisks = profile.getProperty(ProfileSettingsEnum.filter_InclDisks, Boolean.class);
 
         /** The minimum supported level required for software inclusion. */
-        final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class)); // $NON-NLS-1$
+        final Supported filterMinSoftwareSupportedLevel = Supported.valueOf(profile.getProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, String.class));
 
         /** The minimum release year boundary. */
-        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class); // $NON-NLS-1$
-                                                                                                            // //$NON-NLS-2$
+        final String filterYearMin = profile.getProperty(ProfileSettingsEnum.filter_YearMin, String.class);
 
         /** The maximum release year boundary. */
-        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class); // $NON-NLS-1$
-                                                                                                            // //$NON-NLS-2$
+        final String filterYearMax = profile.getProperty(ProfileSettingsEnum.filter_YearMax, String.class);
     }
 
     /**
@@ -181,23 +179,20 @@ public final class SoftwareList extends AnywareList<Software> implements Systm {
         return getList().stream().filter(t -> {
             if (!getYearFilter(options, t))
                 return false;
-            if (options.filterMinSoftwareSupportedLevel == Supported.partial && t.getSupported() == Supported.no) // exclude
-                                                                                                                  // support=no
-                                                                                                                  // software if min
-                                                                                                                  // software
-                                                                                                                  // support is
-                                                                                                                  // partial
+            // Exclude support=no software if minimum software support level is partial
+            if (options.filterMinSoftwareSupportedLevel == Supported.partial && t.getSupported() == Supported.no)
                 return false;
-            if (options.filterMinSoftwareSupportedLevel == Supported.yes && t.getSupported() != Supported.yes) // exclude
-                                                                                                               // support!=yes if
-                                                                                                               // min software
-                                                                                                               // support is yes
+            // Exclude support!=yes software if minimum software support level is yes
+            if (options.filterMinSoftwareSupportedLevel == Supported.yes && t.getSupported() != Supported.yes)
                 return false;
-            if (!options.filterIncludeClones && t.isClone()) // exclude clones machines
+            // Exclude clone machines if clones are not included
+            if (!options.filterIncludeClones && t.isClone())
                 return false;
-            if (!options.filterIncludeDisks && t.getDisks().size() > 0) // exclude softwares with disks
+            // Exclude software with disks if disks are not included
+            if (!options.filterIncludeDisks && t.getDisks().size() > 0)
                 return false;
-            return t.getSystem().isSelected(profile); // exclude software for which their software list were not selected
+            // Exclude software whose software list is not selected in the profile
+            return t.getSystem().isSelected(profile);
         });
     }
 
@@ -228,7 +223,7 @@ public final class SoftwareList extends AnywareList<Software> implements Systm {
     public List<Software> getFilteredList() {
         if (filteredList == null)
             filteredList = getFilteredStream().filter(t -> profile.getFilterList().contains(t.getStatus())).sorted()
-                .collect(Collectors.toList()); //NOSONAR
+                    .collect(Collectors.toList()); // NOSONAR
         return filteredList;
     }
 
@@ -262,15 +257,15 @@ public final class SoftwareList extends AnywareList<Software> implements Systm {
      * @throws XMLStreamException if an XML serialization error occurs
      */
     public void export(final EnhancedXMLStreamWriter writer, Set<ExportMode> modes, final ProgressHandler progress) throws XMLStreamException {
-        writer.writeStartElement("softwarelist", //$NON-NLS-1$
-                new SimpleAttribute("name", name), //$NON-NLS-1$
-                new SimpleAttribute("description", description) //$NON-NLS-1$
+        writer.writeStartElement("softwarelist",
+                new SimpleAttribute("name", name),
+                new SimpleAttribute("description", description)
         );
         final List<Software> list = modes.contains(ExportMode.FILTERED) ? getFilteredStream().toList() : getList();
         for (final Software s : list) {
             if (progress.isCancel())
                 break;
-            progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"), //$NON-NLS-1$
+            progress.setProgress(String.format(profile.getSession().getMsgs().getString("SoftwareList.Exporting_%s"),
                     s.getFullName()), progress.getCurrent() + 1);
             if (modes.contains(ExportMode.ALL)
                     || (modes.contains(ExportMode.FILTERED) && s.isSelected())

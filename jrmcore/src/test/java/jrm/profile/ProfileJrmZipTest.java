@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -30,8 +31,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import jrm.aui.progress.ProgressHandler;
+import jrm.profile.data.ExportMode;
 import jrm.profile.data.Machine;
 import jrm.profile.data.Rom;
+import jrm.profile.manager.Export;
+import jrm.profile.manager.Export.ExportType;
 import jrm.security.Session;
 
 /**
@@ -378,6 +382,47 @@ class ProfileJrmZipTest {
             // Assert
             assertThat(machinesWithRoms).isGreaterThan(0);
         }
+
+        @Test
+        @DisplayName("Should export MAME xml file")
+        void shouldExportMame(@TempDir Path tempDir) throws IOException {
+            // Arrange
+            Path zipPath = datFilesRoot.resolve("jrm.zip");
+            Path extractedDir = extractJrmZip(zipPath, tempDir);
+            File jrmFile = extractedDir.resolve("JRM5314466932233810111.jrm").toFile();
+            Profile profile = loadProfile(jrmFile);
+            final var mamexml = Files.createTempFile(tempDir, null, null);
+            Export.export(profile, mamexml.toFile(), ExportType.MAME, Set.of(ExportMode.ALL), null, handler);
+            assertThat(mamexml).exists().isNotEmptyFile();
+        }
+
+        @Test
+        @DisplayName("Should export SOFTWARELIST xml file")
+        void shouldExportSoftwareList(@TempDir Path tempDir) throws IOException {
+            // Arrange
+            Path zipPath = datFilesRoot.resolve("jrm.zip");
+            Path extractedDir = extractJrmZip(zipPath, tempDir);
+            File jrmFile = extractedDir.resolve("JRM5314466932233810111.jrm").toFile();
+            Profile profile = loadProfile(jrmFile);
+            final var swlistxml = Files.createTempFile(tempDir, null, null);
+            Export.export(profile, swlistxml.toFile(), ExportType.SOFTWARELIST, Set.of(ExportMode.ALL), null, handler);
+            assertThat(swlistxml).exists().isNotEmptyFile();
+        }
+
+
+        @Test
+        @DisplayName("Should export old DAT file")
+        void shouldExportDat(@TempDir Path tempDir) throws IOException {
+            // Arrange
+            Path zipPath = datFilesRoot.resolve("jrm.zip");
+            Path extractedDir = extractJrmZip(zipPath, tempDir);
+            File jrmFile = extractedDir.resolve("JRM5314466932233810111.jrm").toFile();
+            Profile profile = loadProfile(jrmFile);
+            final var datfile = Files.createTempFile(tempDir, null, null);
+            Export.export(profile, datfile.toFile(), ExportType.DATAFILE, Set.of(ExportMode.ALL), null, handler);
+            assertThat(datfile).exists().isNotEmptyFile();
+        }
+
     }
 
     /**

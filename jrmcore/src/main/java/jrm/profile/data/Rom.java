@@ -228,9 +228,9 @@ public class Rom extends Entity {
         if (parent.getProfile().getSettings() != null && parent.getProfile().getSettings().getMergeMode().isMerge()) {
             if (merge == null) {
                 if (isCollisionMode(false) && getParent().isClone()) {
-                    return parent.name + "/" + name; //$NON-NLS-1$
+                    return parent.name + "/" + name;
                 }
-            } else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class))) // $NON-NLS-1$
+            } else if (Boolean.FALSE.equals(parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class)))
                 return merge;
         }
         return name;
@@ -243,9 +243,9 @@ public class Rom extends Entity {
      */
     public String getFullName() {
         if (getParent().profile.getSettings() != null && getParent().profile.getSettings().getMergeMode().isMerge()) {
-            if (merge != null && !parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class)) // $NON-NLS-1$
-                return parent.name + "/" + merge; //$NON-NLS-1$
-            return parent.name + "/" + name; //$NON-NLS-1$
+            if (merge != null && !parent.getProfile().getProperty(ProfileSettingsEnum.ignore_merge_name_roms, Boolean.class))
+                return parent.name + "/" + merge;
+            return parent.name + "/" + name;
         }
         return name;
     }
@@ -405,40 +405,40 @@ public class Rom extends Entity {
      */
     public void export(final EnhancedXMLStreamWriter writer, final boolean is_mame) throws XMLStreamException {
         if (parent instanceof Software) {
-            writer.writeElement(ROM_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
-                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
-                    new SimpleAttribute("value", value), //$NON-NLS-1$
-                    new SimpleAttribute("loadflag", loadflag), //$NON-NLS-1$
-                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+            writer.writeElement(ROM_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute(SIZE_STR, size),
+                    new SimpleAttribute(CRC_STR, crc),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute(MERGE_STR, merge),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)),
+                    new SimpleAttribute("value", value),
+                    new SimpleAttribute("loadflag", loadflag),
+                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset)))
             );
         } else if (is_mame) {
-            writer.writeElement(ROM_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute("bios", bios), //$NON-NLS-1$
-                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
-                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
-                    new SimpleAttribute("optional", optional ? "yes" : null), //$NON-NLS-1$ //$NON-NLS-2$
-                    new SimpleAttribute("region", region), //$NON-NLS-1$
-                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset))) //$NON-NLS-1$ //$NON-NLS-2$
+            writer.writeElement(ROM_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute("bios", bios),
+                    new SimpleAttribute(SIZE_STR, size),
+                    new SimpleAttribute(CRC_STR, crc),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute(MERGE_STR, merge),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)),
+                    new SimpleAttribute("optional", optional ? "yes" : null),
+                    new SimpleAttribute("region", region),
+                    new SimpleAttribute(OFFSET_STR, offset == null ? null : ("0x" + Long.toHexString(offset)))
             );
         } else {
-            writer.writeElement(ROM_STR, // $NON-NLS-1$
-                    new SimpleAttribute(NAME_STR, name), // $NON-NLS-1$
-                    new SimpleAttribute(SIZE_STR, size), // $NON-NLS-1$
-                    new SimpleAttribute(CRC_STR, crc), // $NON-NLS-1$
-                    new SimpleAttribute(SHA1_STR, sha1), // $NON-NLS-1$
-                    new SimpleAttribute(MD5_STR, md5), // $NON-NLS-1$
-                    new SimpleAttribute(MERGE_STR, merge), // $NON-NLS-1$
-                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)), // $NON-NLS-1$
-                    new SimpleAttribute("date", date) //$NON-NLS-1$
+            writer.writeElement(ROM_STR,
+                    new SimpleAttribute(NAME_STR, name),
+                    new SimpleAttribute(SIZE_STR, size),
+                    new SimpleAttribute(CRC_STR, crc),
+                    new SimpleAttribute(SHA1_STR, sha1),
+                    new SimpleAttribute(MD5_STR, md5),
+                    new SimpleAttribute(MERGE_STR, merge),
+                    new SimpleAttribute(STATUS_STR, dumpStatus.getXML(is_mame)),
+                    new SimpleAttribute("date", date)
             );
         }
     }

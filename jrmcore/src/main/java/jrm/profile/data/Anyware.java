@@ -222,23 +222,15 @@ public abstract class Anyware extends AnywareBase implements Systm {
         return stream.filter(d -> {
             if (d.dumpStatus == Status.nodump) // exclude nodump disks
                 return false;
-            if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d)) // exclude if
-                // splitting
-                // and the disk
-                // is in parent
+            if (profile.getSettings().getMergeMode() == MergeOptions.SPLIT && containsInParent(this, d)) // exclude if splitting and
+                                                                                                         // the disk is in parent
                 return false;
-            if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, d)) // explicitely
-                // include if
-                // nomerge
-                // and the
-                // disk is in
-                // parent
+            if (profile.getSettings().getMergeMode() == MergeOptions.NOMERGE && containsInParent(this, d)) // explicitly include if
+                                                                                                           // nomerge and the disk
+                                                                                                           // is in parent
                 return true;
-            return isBios() || !containsInParent(this, d); // otherwise include
-                                                           // if I'm bios or
-                                                           // the disk is not
-                                                           // in parent
-        }).collect(Collectors.toList()); //NOSONAR
+            return isBios() || !containsInParent(this, d); // otherwise include if I'm bios or the disk is not in parent
+        }).collect(Collectors.toList()); // NOSONAR
     }
 
     /**
@@ -255,17 +247,14 @@ public abstract class Anyware extends AnywareBase implements Systm {
             stream = Stream.empty();
         else if (profile.getSettings().getMergeMode().isMerge()) // if merging
         {
-            if (isClone() && getParent().isSelected()) // skip if I'm a clone and my
-                                                       // parent is selected for
-                                                       // inclusion
+            if (isClone() && getParent().isSelected()) // skip if I'm a clone and my parent is selected for inclusion
                 stream = Stream.empty();
             else // otherwise...
             {
                 // concatenate my disks and all my clones disks into a stream
                 final List<Disk> disksWithClones = Stream.concat(disks.stream(), clones.values().stream().flatMap(m -> m.disks.stream())).toList();
-                // and mark for collision disks with same names but with
-                // different hash (this
-                // will change the way getName return disks names)
+                // and mark for collision disks with same names but with different hash (this will change the way getName returns
+                // disk names)
                 StreamEx.of(disksWithClones).groupingBy(Disk::getName).forEach((_, l) -> {
                     if (l.size() > 1 && StreamEx.of(l).distinct(Disk::hashString).count() > 1)
                         l.forEach(Disk::setCollisionMode);
@@ -274,8 +263,7 @@ public abstract class Anyware extends AnywareBase implements Systm {
                 stream = StreamEx.of(disksWithClones).distinct(Disk::getName);
             }
         } else // if not merging
-            stream = disks.stream(); // simply initialize stream to current
-                                     // object disks list
+            stream = disks.stream(); // simply initialize stream to current object disks list
         return stream;
     }
 
@@ -370,23 +358,19 @@ public abstract class Anyware extends AnywareBase implements Systm {
      */
     private Stream<Rom> getFilterRomsMergingStream() {
         Stream<Rom> stream;
-        if (isClone() && getParent().isSelected()) // skip if I'm a clone and my
-                                                   // parent is selected for
-                                                   // inclusion
+        if (isClone() && getParent().isSelected()) // skip if I'm a clone and my parent is selected for inclusion
             stream = Stream.empty();
         else // otherwise...
         {
             // concatenate my roms and all my clones roms into a stream
             final List<Rom> romsWithClones = Stream.concat(roms.stream(), clones.values().stream().flatMap(m -> m.roms.stream())).toList();
-            // and mark for collision roms with same names but with different
-            // hash (this
-            // will change the way getName return roms names)
+            // and mark for collision roms with same names but with different hash (this will change the way getName returns rom
+            // names)
             StreamEx.of(romsWithClones).groupingBy(Rom::getName).forEach((_, l) -> {
                 if (l.size() > 1 && StreamEx.of(l).distinct(Rom::hashString).count() > 1)
                     l.forEach(Rom::setCollisionMode);
             });
-            if (HashCollisionOptions.HALFDUMB == profile.getSettings().getHashCollisionMode()) // HALFDUMB extra stuffs
-            // for PD
+            if (HashCollisionOptions.HALFDUMB == profile.getSettings().getHashCollisionMode()) // HALFDUMB extra stuffs for PD
             {
                 /*
                  * This will filter roms with same hash between clones (the encountered first clone collisioning rom is kept), and
@@ -400,7 +384,7 @@ public abstract class Anyware extends AnywareBase implements Systm {
                 final List<Rom> clonesRoms = new ArrayList<>(map.values());
                 clonesRoms.removeAll(roms);
                 stream = Stream.concat(roms.stream(), clonesRoms.stream());
-            } else // finally remove real duplicate disks
+            } else // finally remove real duplicate roms
                 stream = StreamEx.of(romsWithClones).distinct(Rom::getName);
         }
         return stream;

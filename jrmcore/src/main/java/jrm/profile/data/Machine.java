@@ -104,17 +104,17 @@ public class Machine extends Anyware {
     public final StringBuilder manufacturer = new StringBuilder();
 
     /**
-     * The {@link Driver} informations.
+     * The {@link Driver} information.
      */
     public final Driver driver = new Driver();
 
     /**
-     * The {@link Input} informations.
+     * The {@link Input} information.
      */
     public final Input input = new Input();
 
     /**
-     * The {@link DisplayOrientation} informations.
+     * The {@link DisplayOrientation} information.
      *
      * @param orientation the display orientation to set
      * 
@@ -123,7 +123,7 @@ public class Machine extends Anyware {
     protected @Getter @Setter DisplayOrientation orientation = DisplayOrientation.any;
 
     /**
-     * The {@link CabinetType} informations.
+     * The {@link CabinetType} information.
      *
      * @param cabinetType the cabinet type to set
      * 
