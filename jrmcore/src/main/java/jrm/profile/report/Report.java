@@ -742,7 +742,7 @@ public class Report extends AbstractList<Subject> implements StatusRendererFacto
         if (statusHandler != null)
             statusHandler.setStatus(stats.getStatus());
         if (insertObjectCache.size() > 0) {
-            if (handler.hasListeners())
+            if (handler!=null && handler.hasListeners())
                 handler.notifyInsertion(IntStreamEx.of(insertObjectCache.keySet()).toArray(), insertObjectCache.values().toArray());
             insertObjectCache.clear();
         }

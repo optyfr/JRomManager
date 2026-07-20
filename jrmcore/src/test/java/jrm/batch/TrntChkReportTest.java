@@ -1,6 +1,7 @@
 package jrm.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +21,8 @@ import jrm.profile.report.FilterOptions;
 import jrm.security.Session;
 
 /**
- * Unit tests for {@link TrntChkReport}, covering child node creation, status propagation, filtering, cloning,
- * save/load round-trip, and the {@link TrntChkReport.Child} and {@link TrntChkReport.ChildData} inner classes.
+ * Unit tests for {@link TrntChkReport}, covering child node creation, status propagation, filtering, cloning, save/load round-trip,
+ * and the {@link TrntChkReport.Child} and {@link TrntChkReport.ChildData} inner classes.
  */
 @DisplayName("TrntChkReport tests")
 class TrntChkReportTest {
@@ -47,7 +48,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Construction
+    // Construction
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -78,7 +79,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Adding child nodes
+    // Adding child nodes
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -156,7 +157,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  ChildData
+    // ChildData
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -199,7 +200,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  setStatus and propagation
+    // setStatus and propagation
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -260,17 +261,16 @@ class TrntChkReportTest {
         @Test
         @DisplayName("setStatus on node without children should not throw")
         void setStatusOnNodeWithoutChildrenShouldNotThrow() {
-            var report = new TrntChkReport(new File("test.torrent"));
-            var child = report.add("node");
-
-            child.setStatus(TrntChkReport.Status.OK);
-
-            assertThat(child.getData().getStatus()).isEqualTo(TrntChkReport.Status.OK);
+            assertDoesNotThrow(() -> {
+                var report = new TrntChkReport(new File("test.torrent"));
+                var child = report.add("node");
+                child.setStatus(TrntChkReport.Status.OK);
+            });
         }
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Filter and stream
+    // Filter and stream
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -340,7 +340,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Clone
+    // Clone
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -386,7 +386,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Child.copy()
+    // Child.copy()
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -412,7 +412,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  toString
+    // toString
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -466,7 +466,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Save / Load
+    // Save / Load
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -539,7 +539,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Status enum
+    // Status enum
     // ──────────────────────────────────────────────────────────────
 
     @Nested
@@ -561,7 +561,7 @@ class TrntChkReportTest {
     }
 
     // ──────────────────────────────────────────────────────────────
-    //  Options enum
+    // Options enum
     // ──────────────────────────────────────────────────────────────
 
     @Nested

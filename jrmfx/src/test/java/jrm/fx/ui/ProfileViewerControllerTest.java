@@ -10,6 +10,9 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
@@ -49,6 +52,7 @@ import jrm.misc.GlobalSettings;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 import javafx.application.Platform;
 
@@ -992,58 +996,32 @@ class ProfileViewerControllerTest {
      * @return the resulting predicate
      */
     @SuppressWarnings("unchecked")
-    private java.util.function.Predicate<? super Anyware> invokeSearchPredicate(String newValue) throws Exception {
+    private Predicate<? super Anyware> invokeSearchPredicate(String newValue) throws Exception {
         Method method = ProfileViewerController.class.getDeclaredMethod("searchPredicate", String.class);
         method.setAccessible(true);
         return (java.util.function.Predicate<? super Anyware>) method.invoke(TestApp.getController(), newValue);
     }
 
-    @Test
-    @DisplayName("searchPredicate should match all when the search text is empty")
-    void searchPredicateShouldMatchAllWhenEmpty() throws Exception {
+    @ParameterizedTest
+    @DisplayName("searchPredicate should match by name, description, or match all when empty")
+    @MethodSource("searchPredicateTestCases")
+    void searchPredicateShouldMatchCorrectly(String searchText, String baseName, String description, boolean expected) throws Exception {
         Anyware ware = mock(Anyware.class);
-        when(ware.getBaseName()).thenReturn("game");
-        when(ware.getDescription()).thenReturn("desc");
+        when(ware.getBaseName()).thenReturn(baseName);
+        when(ware.getDescription()).thenReturn(description);
 
-        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("");
+        final var predicate = invokeSearchPredicate(searchText);
 
-        assertThat(predicate.test(ware)).isTrue();
+        assertThat(predicate.test(ware)).isEqualTo(expected);
     }
 
-    @Test
-    @DisplayName("searchPredicate should match by base name case-insensitively")
-    void searchPredicateShouldMatchByBaseName() throws Exception {
-        Anyware ware = mock(Anyware.class);
-        when(ware.getBaseName()).thenReturn("PacMan");
-        when(ware.getDescription()).thenReturn("desc");
-
-        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("pacman");
-
-        assertThat(predicate.test(ware)).isTrue();
-    }
-
-    @Test
-    @DisplayName("searchPredicate should match by description")
-    void searchPredicateShouldMatchByDescription() throws Exception {
-        Anyware ware = mock(Anyware.class);
-        when(ware.getBaseName()).thenReturn("game");
-        when(ware.getDescription()).thenReturn("A Pac-Man clone");
-
-        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("pac-man");
-
-        assertThat(predicate.test(ware)).isTrue();
-    }
-
-    @Test
-    @DisplayName("searchPredicate should not match when neither name nor description contains the text")
-    void searchPredicateShouldNotMatchWhenNoOverlap() throws Exception {
-        Anyware ware = mock(Anyware.class);
-        when(ware.getBaseName()).thenReturn("game");
-        when(ware.getDescription()).thenReturn("desc");
-
-        java.util.function.Predicate<? super Anyware> predicate = invokeSearchPredicate("zzz");
-
-        assertThat(predicate.test(ware)).isFalse();
+    static Stream<Arguments> searchPredicateTestCases() {
+        return Stream.of(
+            Arguments.of("", "game", "desc", true),
+            Arguments.of("pacman", "PacMan", "desc", true),
+            Arguments.of("pac-man", "game", "A Pac-Man clone", true),
+            Arguments.of("zzz", "game", "desc", false)
+        );
     }
 
     // ==================== reloadE Tests ====================

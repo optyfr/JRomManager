@@ -36,7 +36,7 @@ class WorkerTest {
                 started.countDown();
                 try {
                     finish.await();
-                } catch (InterruptedException e) {
+                } catch (InterruptedException _) {
                     Thread.currentThread().interrupt();
                 }
             });

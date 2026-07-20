@@ -169,7 +169,10 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
     protected void update(Operation operation) throws XMLStreamException, IOException {
         var id = Integer.valueOf(operation.getData("ID"));
         var path = request.getSession().getProfileList(id);
-        Log.debug(path);
+        if(path==null) {
+            failure();
+            return;
+        }
         var title = operation.getData(TITLE);
         path = Files.move(path, path.getParent().resolve(title));
         request.getSession().putProfileList(id, path);
@@ -199,6 +202,10 @@ public class ProfilesTreeXMLResponse extends XMLResponse {
     protected void remove(Operation operation) throws XMLStreamException, IOException {
         var id = Integer.valueOf(operation.getData("ID"));
         var path = request.getSession().getProfileList(id);
+        if(path==null) {
+            failure();
+            return;
+        }
         FileUtils.deleteDirectory(path.toFile());
         request.getSession().removeProfileList(id);
         writer.writeStartElement(RESPONSE);

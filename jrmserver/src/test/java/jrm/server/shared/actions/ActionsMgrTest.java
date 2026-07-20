@@ -1,6 +1,7 @@
 package jrm.server.shared.actions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,20 +109,24 @@ class ActionsMgrTest {
         @Test
         @DisplayName("Global.getMemory routes to GlobalActions.setMemory without throwing")
         void getMemory() {
-            final JsonObject jso = new JsonObject();
-            jso.add("cmd", "Global.getMemory");
-            // processActions catches exceptions, so routing should not throw even if setMemory fails
-            mgr.processActions(mgr, jso);
-            // setMemory may fail if msgs bundle is not loaded; routing is verified by no exception
+            assertDoesNotThrow(() -> {
+                final JsonObject jso = new JsonObject();
+                jso.add("cmd", "Global.getMemory");
+                // processActions catches exceptions, so routing should not throw even if setMemory fails
+                mgr.processActions(mgr, jso);
+                // setMemory may fail if msgs bundle is not loaded; routing is verified by no exception
+            });
         }
 
         @Test
         @DisplayName("Global.GC routes to GlobalActions.gc without throwing")
         void gc() {
-            final JsonObject jso = new JsonObject();
-            jso.add("cmd", "Global.GC");
-            mgr.processActions(mgr, jso);
-            // gc calls setMemory which may fail if msgs bundle is not loaded; routing is verified by no exception
+            assertDoesNotThrow(() -> {
+                final JsonObject jso = new JsonObject();
+                jso.add("cmd", "Global.GC");
+                mgr.processActions(mgr, jso);
+                // gc calls setMemory which may fail if msgs bundle is not loaded; routing is verified by no exception
+            });
         }
     }
 
@@ -144,15 +149,17 @@ class ActionsMgrTest {
         @Test
         @DisplayName("ReportLite.setFilter routes to ReportActions.setFilter (lite)")
         void reportLiteSetFilter() {
-            final JsonObject params = new JsonObject();
-            params.add("SHOWOK", true);
-            final JsonObject jso = new JsonObject();
-            jso.add("cmd", "ReportLite.setFilter");
-            jso.add("params", params);
-            // processActions catches exceptions, so routing should not throw even if handler fails
-            mgr.processActions(mgr, jso);
-            // ReportLite uses getTmpReport() which may be null, causing the handler to fail silently
-            // The test verifies routing does not throw, not that the handler succeeds
+            assertDoesNotThrow(() -> {
+                final JsonObject params = new JsonObject();
+                params.add("SHOWOK", true);
+                final JsonObject jso = new JsonObject();
+                jso.add("cmd", "ReportLite.setFilter");
+                jso.add("params", params);
+                // processActions catches exceptions, so routing should not throw even if handler fails
+                mgr.processActions(mgr, jso);
+                // ReportLite uses getTmpReport() which may be null, causing the handler to fail silently
+                // The test verifies routing does not throw, not that the handler succeeds
+            });
         }
     }
 
@@ -162,21 +169,25 @@ class ActionsMgrTest {
         @Test
         @DisplayName("CatVer.load routes to CatVerActions.load without throwing")
         void catVerLoad() {
-            final JsonObject jso = new JsonObject();
-            jso.add("cmd", "CatVer.load");
-            jso.add("params", new JsonObject());
-            mgr.processActions(mgr, jso);
-            // CatVer.load may fail silently if no profile is loaded; routing is verified by no exception
+            assertDoesNotThrow(() -> {
+                final JsonObject jso = new JsonObject();
+                jso.add("cmd", "CatVer.load");
+                jso.add("params", new JsonObject());
+                mgr.processActions(mgr, jso);
+                // CatVer.load may fail silently if no profile is loaded; routing is verified by no exception
+            });
         }
 
         @Test
         @DisplayName("NPlayers.load routes to NPlayersActions.load without throwing")
         void nPlayersLoad() {
-            final JsonObject jso = new JsonObject();
-            jso.add("cmd", "NPlayers.load");
-            jso.add("params", new JsonObject());
-            mgr.processActions(mgr, jso);
-            // NPlayers.load may fail silently if no profile is loaded; routing is verified by no exception
+            assertDoesNotThrow(() -> {
+                final JsonObject jso = new JsonObject();
+                jso.add("cmd", "NPlayers.load");
+                jso.add("params", new JsonObject());
+                mgr.processActions(mgr, jso);
+                // NPlayers.load may fail silently if no profile is loaded; routing is verified by no exception
+            });
         }
     }
 }

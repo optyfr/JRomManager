@@ -61,8 +61,6 @@ class AbstractSessionServletTest {
         servlet.fillAndSendJSO(req, resp, jso);
 
         final String json = writer.toString();
-        assertThat(json).contains("\"session\"");
-        assertThat(json).contains("\"msgs\"");
-        assertThat(json).contains("\"settings\"");
+        assertThat(json).contains("\"session\"").contains("\"msgs\"").contains("\"settings\"");
     }
 }
