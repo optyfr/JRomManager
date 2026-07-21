@@ -2,13 +2,19 @@ plugins {
     id 'java' 
     id 'application'
     id "org.sonarqube"
-    id "de.undercouch.download" version "latest.release"
     id "com.netflix.nebula.ospackage" version "latest.release"
+    id "de.undercouch.download" version "latest.release"
     id "io.freefair.lombok" version "latest.release"
     id 'org.openjfx.javafxplugin' version 'latest.release'
     id "org.beryx.jlink" version "3.2.1" apply false
     id 'jacoco'
     id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "org.bouncycastle:bcprov-jdk15on:[1.78,2.0)"
+    }
 }
 
 sonar {
@@ -1046,12 +1052,12 @@ ospackage {
 }
 
 buildDeb {
-    requires('java21-runtime')
+    requires('java25-runtime')
     arch = "all"
 }
 
 buildRpm {
-    requires('java', '1:21', EQUAL).or('java-21')
+    requires('java', '1:25', EQUAL).or('java-25')
     arch = NOARCH
     os = LINUX
     addParentDirs = false
