@@ -12,8 +12,11 @@ package jrm.profile.scan;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.ResourceBundle;
 import java.util.zip.CRC32;
@@ -117,9 +121,9 @@ class ScanFixTest {
      * @return the mocked progress handler
      */
     static ProgressHandler nonCancellingHandler() {
-        final ProgressHandler handler = mock(ProgressHandler.class);
+        final ProgressHandler handler = mock(ProgressHandler.class, withSettings().stubOnly());
         when(handler.isCancel()).thenReturn(false);
-        when(handler.getInputStream(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(handler.getInputStream(any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
         return handler;
     }
 
@@ -131,9 +135,9 @@ class ScanFixTest {
      * @return a permissive mock resource bundle
      */
     static ResourceBundle fullBundle() {
-        final ResourceBundle bundle = mock(ResourceBundle.class);
-        when(bundle.getString(org.mockito.ArgumentMatchers.anyString())).thenAnswer(invocation -> "!" + invocation.getArgument(0) + "!");
-        when(bundle.containsKey(org.mockito.ArgumentMatchers.anyString())).thenReturn(true);
+        final ResourceBundle bundle = mock(ResourceBundle.class, withSettings().stubOnly());
+        when(bundle.getString(anyString())).thenAnswer(invocation -> "!" + invocation.getArgument(0) + "!");
+        when(bundle.containsKey(anyString())).thenReturn(true);
         return bundle;
     }
 
@@ -342,7 +346,7 @@ class ScanFixTest {
         private static void deleteRecursively(final Path path) throws IOException {
             if (Files.exists(path))
                 try (final var walk = Files.walk(path)) {
-                    walk.sorted(java.util.Comparator.reverseOrder()).forEach(p -> {
+                    walk.sorted(Comparator.reverseOrder()).forEach(p -> {
                         try {
                             Files.deleteIfExists(p);
                         } catch (final IOException _) {

@@ -100,7 +100,7 @@ public class Fix {
         currProfile.getNfo().getStats().setFixed(Instant.now());
 
         // output to console timing information
-        Log.info(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
+        Log.debug(() -> "Fix total duration for " + currProfile.getNfo().getName() + " : " + DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)); //$NON-NLS-1$
     }
 
     /**

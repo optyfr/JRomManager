@@ -2,11 +2,14 @@ package jrm.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +52,7 @@ class DirUpdaterTest {
         System.setProperty(JRM_DIR_PROP, tempDir.toString());
         Files.createDirectories(tempDir.resolve("users").resolve("JRomManager"));
         session = new Session("dirupdater-test");
-        progress = mock(ProgressHandler.class);
+        progress = mock(ProgressHandler.class, withSettings().stubOnly());
         when(progress.isCancel()).thenReturn(false);
         resultUpdater = mock(ResultColUpdater.class);
     }
@@ -76,8 +79,8 @@ class DirUpdaterTest {
             assertThatCode(() -> new DirUpdater(session, sdrl, progress, srcdirs, resultUpdater, false))
                     .doesNotThrowAnyException();
 
-            verify(resultUpdater, never()).updateResult(org.mockito.ArgumentMatchers.anyInt(),
-                    org.mockito.ArgumentMatchers.anyString());
+            verify(resultUpdater, never()).updateResult(anyInt(),
+                    anyString());
         }
 
         @Test
@@ -95,8 +98,8 @@ class DirUpdaterTest {
             assertThatCode(() -> new DirUpdater(session, sdrl, progress, srcdirs, resultUpdater, false))
                     .doesNotThrowAnyException();
 
-            verify(resultUpdater, never()).updateResult(org.mockito.ArgumentMatchers.anyInt(),
-                    org.mockito.ArgumentMatchers.anyString());
+            verify(resultUpdater, never()).updateResult(anyInt(),
+                    anyString());
         }
     }
 
@@ -279,7 +282,7 @@ class DirUpdaterTest {
 
             // Capture all updateResult calls
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(resultUpdater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(resultUpdater, atLeast(2)).updateResult(anyInt(), captor.capture());
             // At least "" and "In progress..." were called
             assertThat(captor.getAllValues()).contains("", "In progress...");
         }

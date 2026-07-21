@@ -1,27 +1,27 @@
 plugins {
-	id 'java' 
-	id 'application'
-	id "org.sonarqube"
-	id "de.undercouch.download" version "latest.release"
-	id "com.netflix.nebula.ospackage" version "latest.release"
-	id "io.freefair.lombok" version "latest.release"
-	id 'org.openjfx.javafxplugin' version 'latest.release'
-	id "org.beryx.jlink" version "3.2.1" apply false
-	id 'jacoco'
+    id 'java' 
+    id 'application'
+    id "org.sonarqube"
+    id "de.undercouch.download" version "latest.release"
+    id "com.netflix.nebula.ospackage" version "latest.release"
+    id "io.freefair.lombok" version "latest.release"
+    id 'org.openjfx.javafxplugin' version 'latest.release'
+    id "org.beryx.jlink" version "3.2.1" apply false
+    id 'jacoco'
     id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
 }
 
 sonar {
-	properties {
-		property "sonar.projectKey", "optyfr_JRomManager"
-		property "sonar.organization", "optyfr"
-		property "sonar.host.url", "https://sonarcloud.io"
-		property "sonar.sourceEncoding", "utf-8"
-		property "sonar.log.level", "WARNING"
-		property "sonar.verbose", "false"
-		property "sonar.scm.provider", "git"
-		property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
-	}
+    properties {
+        property "sonar.projectKey", "optyfr_JRomManager"
+        property "sonar.organization", "optyfr"
+        property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.sourceEncoding", "utf-8"
+        property "sonar.log.level", "WARNING"
+        property "sonar.verbose", "false"
+        property "sonar.scm.provider", "git"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
+    }
 }
 
 tasks.register("codeCoverageReport", JacocoReport) {
@@ -32,14 +32,6 @@ tasks.register("codeCoverageReport", JacocoReport) {
                 sourceSets subproject.sourceSets.main
                 executionData(testTask)
             }
-/*
-            // To automatically run `test` every time `./gradlew codeCoverageReport` is called,
-            // you may want to set up a task dependency between them as shown below.
-            // Note that this requires the `test` tasks to be resolved eagerly (see `forEach`) which
-            // may have a negative effect on the configuration time of your build.
-            subproject.tasks.matching({ t -> t.extensions.findByType(JacocoTaskExtension) }).forEach {
-                rootProject.tasks.codeCoverageReport.dependsOn(it)
-            }*/
         }
     }
 
@@ -59,8 +51,9 @@ codeCoverageReport.dependsOn {
     subprojects*.test
 }
 
-
 apply plugin: 'java'
+
+compileJava.options.encoding = 'utf-8'
 
 java {
     toolchain {
@@ -70,15 +63,15 @@ java {
 
 apply plugin: 'eclipse'
 eclipse {
-	classpath {
-		downloadJavadoc = true
-		downloadSources = true
-	}
+    classpath {
+        downloadJavadoc = true
+        downloadSources = true
+    }
 }
 
 
 lombok {
-	version = '1.18.46'
+    version = '1.18.46'
 }
 
 ext.props = new Properties()
@@ -87,49 +80,35 @@ file("dist/ver.properties").withInputStream { props.load(it) }
 version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
 
 repositories {
-	mavenCentral()
-	maven {
-		url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
-		credentials {
-			username = "public"
-			password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
-		}
-	}
-	maven { url = "https://jitpack.io" }
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
+        credentials {
+            username = "public"
+            password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
+        }
+    }
+    maven { url = "https://jitpack.io" }
 }
 
 configurations.all {
-	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 boolean isConGradle(entry) {
-	entry.kind == 'con' && entry.path == 'org.eclipse.buildship.core.gradleclasspathcontainer'
+    entry.kind == 'con' && entry.path == 'org.eclipse.buildship.core.gradleclasspathcontainer'
 }
-/*
-task WebClientJar (type: Jar, dependsOn: [':WebClient:build']) {
-	archiveBaseName = 'jrm-webui'
-	from (new File(project(':WebClient').buildDir,"/gwt/release")) {
-		into('webclient')
-	}
-	from (new File(project(':WebClient').projectDir,"/war/index.html")) {
-		into('webclient')
-	}
-	from ('certs') {
-		into('certs')
-	}
-	outputs.file new File(project(':WebClient').buildDir,'/libs/jrm-WebClient-'+version+'.jar') 
-}
-*/
+
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 subprojects {
-	apply plugin: 'java'
-	java {
-	    toolchain {
-	        languageVersion = JavaLanguageVersion.of(25)
-	    }
-	}
+    apply plugin: 'java'
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
 
     tasks.withType(JavaCompile).configureEach {
         options.compilerArgs += ['-Xlint:deprecation']
@@ -143,114 +122,108 @@ subprojects {
         failOnNoDiscoveredTests = false
     }
 
-	version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
-	repositories {
-		mavenCentral()
-		maven {
-			url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
-			credentials {
-				username = "public"
-				password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
-			}
-		}
-		maven { url = "https://jitpack.io" }
-	}
+    version = props.getProperty("Specification-Version")+'.'+props.getProperty("Implementation-Version")
+    repositories {
+        mavenCentral()
+        maven {
+            url = uri("https://maven.pkg.github.com/optyfr/Jtrrntzip")
+            credentials {
+                username = "public"
+                password = "\u0067hp_6DEjEzjpKxxDeQ5s39Wfm3wOMRTrxH2L20xf"
+            }
+        }
+        maven { url = "https://jitpack.io" }
+    }
 
-	test {
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		jacoco {
-			enabled = true
-		}
-		finalizedBy jacocoTestReport
-		minHeapSize = "128m" // initial heap size
-		maxHeapSize = "2G" // maximum heap size
-		jvmArgs '-XX:+EnableDynamicAgentLoading',
-			'--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-			'--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
-			'--add-opens', 'java.base/java.util=ALL-UNNAMED'
-	}
-	
-	jacocoTestReport {
-		dependsOn test
-		reports {
-			xml.required = true
-			html.required = true
-		}
-	}
-	
-	sonar {
-		properties {
-			property "sonar.projectKey", "optyfr_JRomManager"
-			property "sonar.organization", "optyfr"
-			property "sonar.host.url", "https://sonarcloud.io"
-			property "sonar.sourceEncoding", "utf-8"
-			property "sonar.log.level", "INFO"
-			property "sonar.verbose", "true"
-			property "sonar.scm.provider", "github"
-			property "sonar.coverage.exclusions", "**/src-jfx/**/*"
-			property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
-		}
-	}
+    test {
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        jacoco {
+            enabled = true
+        }
+        finalizedBy jacocoTestReport
+        minHeapSize = "256m" // initial heap size
+        maxHeapSize = "2G" // maximum heap size
+        jvmArgs '-XX:+EnableDynamicAgentLoading',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+            '--enable-native-access=ALL-UNNAMED'
+    }
+    
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+    
+    sonar {
+        properties {
+            property "sonar.projectKey", "optyfr_JRomManager"
+            property "sonar.organization", "optyfr"
+            property "sonar.host.url", "https://sonarcloud.io"
+            property "sonar.sourceEncoding", "utf-8"
+            property "sonar.log.level", "INFO"
+            property "sonar.verbose", "true"
+            property "sonar.scm.provider", "github"
+            property "sonar.coverage.exclusions", "**/src-jfx/**/*"
+            property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
+        }
+    }
 
-	dependencies {
-		compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-	}
-	jar {
-		manifest {
-			attributes(
-				"Manifest-Version"     : "1.0",
-				"Specification-Title"  : "JRomManager",
-				"Specification-Version": props.getProperty("Specification-Version"),
-				"Implementation-Title" : "jrm",
-				"Implementation-Version" : props.getProperty("Implementation-Version")
-			)
-		}
-		archiveFileName = 'jrm-' + project.name + '-' + project.version + '.jar'
-	}
+    dependencies {
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    }
+    jar {
+        manifest {
+            attributes(
+                "Manifest-Version"     : "1.0",
+                "Specification-Title"  : "JRomManager",
+                "Specification-Version": props.getProperty("Specification-Version"),
+                "Implementation-Title" : "jrm",
+                "Implementation-Version" : props.getProperty("Implementation-Version")
+            )
+        }
+        archiveFileName = 'jrm-' + project.name + '-' + project.version + '.jar'
+    }
 }
-/*
-project(':WebClient') {
-	sonar {
-		skipProject = true
-	}
-}
-*/
+
 project(':jrmcore') {
-	apply plugin: "io.freefair.lombok"
+    apply plugin: "io.freefair.lombok"
 
-	apply plugin: "eclipse"
+    apply plugin: "eclipse"
 
-	dependencies {
-		implementation 'com.github.optyfr:sevenzipjbindingallinone:1.1'
-		implementation 'com.github.optyfr:jtrrntzip:1.3.1'
-		implementation 'commons-codec:commons-codec:1.+'
-		implementation 'commons-io:commons-io:2.+'
-		implementation 'org.apache.commons:commons-text:1.+'
-		implementation 'org.apache.commons:commons-compress:1.+'
-	//	implementation group: 'net.sf.sevenzipjbinding', name: 'sevenzipjbinding'
-		implementation 'one.util:streamex:0.9.+'
-		implementation 'com.sun.activation:javax.activation:1.2.+'
-		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-		implementation 'net.lingala.zip4j:zip4j:latest.release'
-	
-		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
-		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+    dependencies {
+        implementation 'com.github.optyfr:sevenzipjbindingallinone:1.1'
+        implementation 'com.github.optyfr:jtrrntzip:1.3.1'
+        implementation 'commons-codec:commons-codec:1.+'
+        implementation 'commons-io:commons-io:2.+'
+        implementation 'org.apache.commons:commons-text:1.+'
+        implementation 'org.apache.commons:commons-compress:1.+'
+        implementation 'one.util:streamex:0.9.+'
+        implementation 'com.sun.activation:javax.activation:1.2.+'
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+        implementation 'net.lingala.zip4j:zip4j:latest.release'
+    
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
         testImplementation 'org.assertj:assertj-core:3.27.7'
         testImplementation 'org.mockito:mockito-core:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
-	}
-	jar {
-		manifest {
-			attributes(
-				"Specification-Title"  : "JRomManager Core",
-				"Implementation-Title" : "jrmcore",
-			)
-		}
-	}
-	javadoc {
+    }
+    jar {
+        manifest {
+            attributes(
+                "Specification-Title"  : "JRomManager Core",
+                "Implementation-Title" : "jrmcore",
+            )
+        }
+    }
+    javadoc {
         dependsOn delombok
         source = fileTree("$buildDir/generated/sources/delombok/java/main") {
             include '**/*.java'
@@ -265,45 +238,44 @@ project(':jrmcore') {
             addStringOption('Xmaxwarns', '0')
             addBooleanOption('-syntax-highlight', true)
         }
-	}
-	apply plugin:'jacoco'
-	test {
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
-		}
-		finalizedBy jacocoTestReport
-	    testLogging {
-	        // set options for log level LIFECYCLE
-	        events TestLogEvent.FAILED,
-	               TestLogEvent.PASSED,
-	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_ERROR
-	        exceptionFormat = TestExceptionFormat.SHORT
-	        showExceptions = true
-	        showCauses = true
-	        showStackTraces = true
-	
-	        // set options for log level DEBUG and INFO
-	        debug {
-	            events TestLogEvent.STARTED,
-	                   TestLogEvent.FAILED,
-	                   TestLogEvent.PASSED,
-	                   TestLogEvent.SKIPPED,
-	                   TestLogEvent.STANDARD_ERROR,
-	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat = TestExceptionFormat.FULL
+    }
+    apply plugin:'jacoco'
+    test {
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        jacocoTestReport {
+            reports {
+                xml.required = true
+            }
+        }
+        finalizedBy jacocoTestReport
+        testLogging {
+            // set options for log level LIFECYCLE
+            events  TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED
+            exceptionFormat = TestExceptionFormat.SHORT
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+    
+            // set options for log level DEBUG and INFO
+            debug {
+                events  TestLogEvent.STARTED,
+                        TestLogEvent.FAILED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.STANDARD_ERROR,
+                        TestLogEvent.STANDARD_OUT
+                exceptionFormat = TestExceptionFormat.FULL
                 showExceptions = true
                 showCauses = true
                 showStackTraces = true
-	        }
-	        info.events = debug.events
-	        info.exceptionFormat = debug.exceptionFormat
-	
+            }
+            info.events = debug.events
+            info.exceptionFormat = debug.exceptionFormat
+    
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -314,42 +286,42 @@ project(':jrmcore') {
                     }
                 }
             })
-	    }
-	    systemProperty "file.encoding", "utf-8"
-	}
+        }
+        systemProperty "file.encoding", "utf-8"
+    }
 }
 
 project(':jrmcli') {
-	apply plugin: "io.freefair.lombok"
-	
-	apply plugin: "eclipse"
+    apply plugin: "io.freefair.lombok"
+    
+    apply plugin: "eclipse"
 
-	dependencies {
-		implementation project(':jrmcore')
-		implementation 'com.beust:jcommander:1.+'
-		implementation 'commons-io:commons-io:2.+'
-		implementation 'org.apache.commons:commons-lang3:3.+'
-		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-		implementation 'org.jline:jline:4.3.1'
-		implementation 'org.jline:jline-terminal-jansi:3.30.15'
-	
-		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
-		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
-		testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
-		testImplementation 'org.assertj:assertj-core:3.27.7'
-		testImplementation 'org.mockito:mockito-core:latest.release'
+    dependencies {
+        implementation project(':jrmcore')
+        implementation 'com.beust:jcommander:1.+'
+        implementation 'commons-io:commons-io:2.+'
+        implementation 'org.apache.commons:commons-lang3:3.+'
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+        implementation 'org.jline:jline:4.3.1'
+        implementation 'org.jline:jline-terminal-jansi:3.30.15'
+    
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
+        testImplementation 'org.assertj:assertj-core:3.27.7'
+        testImplementation 'org.mockito:mockito-core:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
-	}
-	apply plugin: 'application'
-	application.mainClass='jrm.cli.JRomManagerCLI'
-	jar {
-		manifest {
-			attributes(
-				"Specification-Title"  : "JRomManager CLI",
-				"Implementation-Title" : "jrmcli",
-			)
-		}
-	}
+    }
+    apply plugin: 'application'
+    application.mainClass='jrm.cli.JRomManagerCLI'
+    jar {
+        manifest {
+            attributes(
+                "Specification-Title"  : "JRomManager CLI",
+                "Implementation-Title" : "jrmcli",
+            )
+        }
+    }
     javadoc {
         dependsOn delombok
         source = fileTree("$buildDir/generated/sources/delombok/java/main") {
@@ -365,45 +337,44 @@ project(':jrmcli') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-	apply plugin:'jacoco'
-	test {
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		jvmArgs '--add-opens', 'jdk.unsupported/sun.misc=ALL-UNNAMED'
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
-		}
-		finalizedBy jacocoTestReport
-	    testLogging {
-	        // set options for log level LIFECYCLE
-	        events TestLogEvent.FAILED,
-	               TestLogEvent.PASSED,
-	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_ERROR
-	        exceptionFormat = TestExceptionFormat.SHORT
-	        showExceptions = true
-	        showCauses = true
-	        showStackTraces = true
-	
-	        // set options for log level DEBUG and INFO
-	        debug {
-	            events TestLogEvent.STARTED,
-	                   TestLogEvent.FAILED,
-	                   TestLogEvent.PASSED,
-	                   TestLogEvent.SKIPPED,
-	                   TestLogEvent.STANDARD_ERROR,
-	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat = TestExceptionFormat.FULL
+    apply plugin:'jacoco'
+    test {
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        jvmArgs '--add-opens', 'jdk.unsupported/sun.misc=ALL-UNNAMED'
+        jacocoTestReport {
+            reports {
+                xml.required = true
+            }
+        }
+        finalizedBy jacocoTestReport
+        testLogging {
+            // set options for log level LIFECYCLE
+            events  TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED
+            exceptionFormat = TestExceptionFormat.SHORT
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+    
+            // set options for log level DEBUG and INFO
+            debug {
+                events  TestLogEvent.STARTED,
+                        TestLogEvent.FAILED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.STANDARD_ERROR,
+                        TestLogEvent.STANDARD_OUT
+                exceptionFormat = TestExceptionFormat.FULL
                 showExceptions = true
                 showCauses = true
                 showStackTraces = true
-	        }
-	        info.events = debug.events
-	        info.exceptionFormat = debug.exceptionFormat
-	
+            }
+            info.events = debug.events
+            info.exceptionFormat = debug.exceptionFormat
+    
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -414,73 +385,73 @@ project(':jrmcli') {
                     }
                 }
             })
-	    }
-	    systemProperty "file.encoding", "utf-8"
-	}
-	
+        }
+        systemProperty "file.encoding", "utf-8"
+    }
+    
 }
 
 project(':res-icons') {
-	sourceSets {
-		main {
-			java {
-				srcDirs = ["src/main/java"]
-			}
-		}
-		main {
-			resources {
-				srcDirs = ["src/main/java"]
-			}
-		}
-	}
-	dependencies {
-	}
-	jar {
-		manifest {
-			attributes(
-				"Specification-Title"  : "JRomManager Resources",
-				"Implementation-Title" : "res-icons",
-			)
-		}
-	}
-	javadoc {
-		enabled = false
-	}
-	sonar {
-		skipProject = true
-	}
+    sourceSets {
+        main {
+            java {
+                srcDirs = ["src/main/java"]
+            }
+        }
+        main {
+            resources {
+                srcDirs = ["src/main/java"]
+            }
+        }
+    }
+    dependencies {
+    }
+    jar {
+        manifest {
+            attributes(
+                "Specification-Title"  : "JRomManager Resources",
+                "Implementation-Title" : "res-icons",
+            )
+        }
+    }
+    javadoc {
+        enabled = false
+    }
+    sonar {
+        skipProject = true
+    }
 }
 
 project(':jrmstandalone') {
-	apply plugin: "io.freefair.lombok"
+    apply plugin: "io.freefair.lombok"
 
-	apply plugin: "eclipse"
+    apply plugin: "eclipse"
 
-	dependencies {
-		implementation project(':jrmcore')
-		implementation project(':res-icons')
-		implementation 'commons-codec:commons-codec:1.+'
-		implementation 'com.beust:jcommander:1.+'
-		implementation 'commons-io:commons-io:2.+'
-		implementation 'org.apache.commons:commons-lang3:3.+'
-		implementation 'one.util:streamex:0.9.+'
-		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-		implementation 'com.sun.activation:javax.activation:1.2.+'
+    dependencies {
+        implementation project(':jrmcore')
+        implementation project(':res-icons')
+        implementation 'commons-codec:commons-codec:1.+'
+        implementation 'com.beust:jcommander:1.+'
+        implementation 'commons-io:commons-io:2.+'
+        implementation 'org.apache.commons:commons-lang3:3.+'
+        implementation 'one.util:streamex:0.9.+'
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+        implementation 'com.sun.activation:javax.activation:1.2.+'
 
-		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
-		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
-		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
-	}
-	apply plugin: 'application'
-	application.mainClass='jrm.JRomManager'
-	jar {
-		manifest {
-			attributes(
-				"Manifest-Version"     : "1.0",
-				"Specification-Title"  : "JRomManager Standalone",
-			)
-		}
-	}
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
+    }
+    apply plugin: 'application'
+    application.mainClass='jrm.JRomManager'
+    jar {
+        manifest {
+            attributes(
+                "Manifest-Version"     : "1.0",
+                "Specification-Title"  : "JRomManager Standalone",
+            )
+        }
+    }
     javadoc {
         dependsOn delombok
         source = fileTree("$buildDir/generated/sources/delombok/java/main") {
@@ -496,61 +467,61 @@ project(':jrmstandalone') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-	test {
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		systemProperty "file.encoding", "utf-8"
-	}
-	sonar {
-		skipProject = true
-	}
+    test {
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        systemProperty "file.encoding", "utf-8"
+    }
+    sonar {
+        skipProject = true
+    }
 }
 
 project(':jrmfx') {
-	apply plugin: "io.freefair.lombok"
+    apply plugin: "io.freefair.lombok"
 
-	apply plugin: "org.openjfx.javafxplugin"
-	
-	javafx {
-		version = '22'
-		modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing' ]
-	}
+    apply plugin: "org.openjfx.javafxplugin"
+    
+    javafx {
+        version = '22'
+        modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing' ]
+    }
 
-	apply plugin: "eclipse"
+    apply plugin: "eclipse"
 
-	dependencies {
-		implementation project(':jrmcore')
-		implementation project(':res-icons')
-		implementation 'com.beust:jcommander:1.+'
-		implementation 'commons-io:commons-io:2.+'
-		implementation 'org.apache.commons:commons-text:1.+'
-		implementation 'org.apache.commons:commons-lang3:3.+'
-		implementation 'com.google.code.gson:gson:latest.release'
-		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+    dependencies {
+        implementation project(':jrmcore')
+        implementation project(':res-icons')
+        implementation 'com.beust:jcommander:1.+'
+        implementation 'commons-io:commons-io:2.+'
+        implementation 'org.apache.commons:commons-text:1.+'
+        implementation 'org.apache.commons:commons-lang3:3.+'
+        implementation 'com.google.code.gson:gson:latest.release'
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
 
-		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
-		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
         testImplementation 'org.assertj:assertj-core:3.27.7'
         testImplementation 'org.mockito:mockito-core:latest.release'
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
-		testImplementation 'io.gitlab.fx-labs:testfx-junit:0.2.0'
-		testImplementation 'io.gitlab.fx-labs:testfx-assertj:0.2.0'
-	}
-	apply plugin: 'application'
-	application.mainClass='jrm.fx.JRomManagerMulti'
-	jar {
-		manifest {
-			attributes(
-				"Manifest-Version"     : "1.0",
-				"Specification-Title"  : "JRomManager JFX",
-				"Specification-Version": props.getProperty("Specification-Version"),
-				"Implementation-Title"  : "jrm",
-				"Implementation-Version" : props.getProperty("Implementation-Version"),
-			)
-		}
-	}
+        testImplementation 'io.gitlab.fx-labs:testfx-junit:0.2.0'
+        testImplementation 'io.gitlab.fx-labs:testfx-assertj:0.2.0'
+    }
+    apply plugin: 'application'
+    application.mainClass='jrm.fx.JRomManagerMulti'
+    jar {
+        manifest {
+            attributes(
+                "Manifest-Version"     : "1.0",
+                "Specification-Title"  : "JRomManager JFX",
+                "Specification-Version": props.getProperty("Specification-Version"),
+                "Implementation-Title"  : "jrm",
+                "Implementation-Version" : props.getProperty("Implementation-Version"),
+            )
+        }
+    }
     javadoc {
         dependsOn delombok
         source = fileTree("$buildDir/generated/sources/delombok/java/main") {
@@ -567,44 +538,43 @@ project(':jrmfx') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-	apply plugin:'jacoco'
-	test {
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
-		}
-		finalizedBy jacocoTestReport
-	    testLogging {
-	        // set options for log level LIFECYCLE
-	        events TestLogEvent.FAILED,
-	               TestLogEvent.PASSED,
-	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_ERROR
-	        exceptionFormat = TestExceptionFormat.SHORT
-	        showExceptions = true
-	        showCauses = true
-	        showStackTraces = true
-	
-	        // set options for log level DEBUG and INFO
-	        debug {
-	            events TestLogEvent.STARTED,
-	                   TestLogEvent.FAILED,
-	                   TestLogEvent.PASSED,
-	                   TestLogEvent.SKIPPED,
-	                   TestLogEvent.STANDARD_ERROR,
-	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat = TestExceptionFormat.FULL
+    apply plugin:'jacoco'
+    test {
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        jacocoTestReport {
+            reports {
+                xml.required = true
+            }
+        }
+        finalizedBy jacocoTestReport
+        testLogging {
+            // set options for log level LIFECYCLE
+            events  TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED
+            exceptionFormat = TestExceptionFormat.SHORT
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+    
+            // set options for log level DEBUG and INFO
+            debug {
+                events  TestLogEvent.STARTED,
+                        TestLogEvent.FAILED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.STANDARD_ERROR,
+                        TestLogEvent.STANDARD_OUT
+                exceptionFormat = TestExceptionFormat.FULL
                 showExceptions = true
                 showCauses = true
                 showStackTraces = true
-	        }
-	        info.events = debug.events
-	        info.exceptionFormat = debug.exceptionFormat
-	
+            }
+            info.events = debug.events
+            info.exceptionFormat = debug.exceptionFormat
+    
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -615,55 +585,53 @@ project(':jrmfx') {
                     }
                 }
             })
-	    }
-	    systemProperty "file.encoding", "utf-8"
-	}
+        }
+        systemProperty "file.encoding", "utf-8"
+    }
 }
 
 project(':jrmserver') {
 
-	apply plugin: "io.freefair.lombok"
-	apply plugin: "eclipse"
+    apply plugin: "io.freefair.lombok"
+    apply plugin: "eclipse"
 
     compileJava.dependsOn project(':WebClient').build 
 
     def wcjar = project(':WebClient').jar;
-	dependencies {
-		implementation project(':jrmcore')
-		implementation project(':res-icons')
-		implementation 'com.beust:jcommander:1.+'
-		implementation 'commons-io:commons-io:2.+'
-		implementation 'commons-daemon:commons-daemon:latest.release'
-		implementation 'org.apache.commons:commons-lang3:3.+'
-		implementation 'org.eclipse.jetty:jetty-server:12.1.11'
-		implementation 'org.eclipse.jetty.ee9:jetty-ee9-servlet:12.1.11'
-		implementation 'org.eclipse.jetty:jetty-security:12.1.11'
-		implementation 'org.eclipse.jetty:jetty-session:12.1.11'
-		implementation 'org.eclipse.jetty:jetty-alpn-server:12.1.11'
-		implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server:12.1.11'
-		implementation 'org.eclipse.jetty.http2:jetty-http2-server:12.1.11'
-		implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-		implementation 'com.google.code.gson:gson:latest.release'
-		implementation 'one.util:streamex:0.9.+'
-		implementation 'commons-dbutils:commons-dbutils:latest.release'
-		implementation 'com.h2database:h2:2.4.+'
-		implementation 'org.mindrot:jbcrypt:0.4'
-		implementation 'net.java.dev.jna:jna:latest.release'
-		implementation 'de.mkammerer:argon2-jvm:latest.release'
-		implementation 'ch.qos.logback:logback-core:latest.release'
-		implementation 'ch.qos.logback:logback-classic:latest.release'
-		implementation files(wcjar)
+    dependencies {
+        implementation project(':jrmcore')
+        implementation project(':res-icons')
+        implementation 'com.beust:jcommander:1.+'
+        implementation 'commons-io:commons-io:2.+'
+        implementation 'commons-daemon:commons-daemon:latest.release'
+        implementation 'org.apache.commons:commons-lang3:3.+'
+        implementation 'org.eclipse.jetty:jetty-server:12.1.11'
+        implementation 'org.eclipse.jetty.ee9:jetty-ee9-servlet:12.1.11'
+        implementation 'org.eclipse.jetty:jetty-security:12.1.11'
+        implementation 'org.eclipse.jetty:jetty-session:12.1.11'
+        implementation 'org.eclipse.jetty:jetty-alpn-server:12.1.11'
+        implementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server:12.1.11'
+        implementation 'org.eclipse.jetty.http2:jetty-http2-server:12.1.11'
+        implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
+        implementation 'com.google.code.gson:gson:latest.release'
+        implementation 'one.util:streamex:0.9.+'
+        implementation 'commons-dbutils:commons-dbutils:latest.release'
+        implementation 'com.h2database:h2:2.4.+'
+        implementation 'org.mindrot:jbcrypt:0.4'
+        implementation 'net.java.dev.jna:jna:latest.release'
+        implementation 'de.mkammerer:argon2-jvm:latest.release'
+        implementation 'ch.qos.logback:logback-core:latest.release'
+        implementation 'ch.qos.logback:logback-classic:latest.release'
+        implementation files(wcjar)
 
-		testImplementation 'org.eclipse.jetty:jetty-client:12.1.11'
-		testImplementation 'org.eclipse.jetty:jetty-http:12.1.11'
-		testImplementation 'org.awaitility:awaitility:4.+'
-    	testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
-    	testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
-		testImplementation 'org.assertj:assertj-core:3.27.7'
-		testImplementation 'org.mockito:mockito-core:latest.release'
-//		testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
-//		testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
-	}
+        testImplementation 'org.eclipse.jetty:jetty-client:12.1.11'
+        testImplementation 'org.eclipse.jetty:jetty-http:12.1.11'
+        testImplementation 'org.awaitility:awaitility:4.+'
+        testImplementation("org.junit.jupiter:junit-jupiter:latest.release")
+        testRuntimeOnly("org.junit.platform:junit-platform-launcher:latest.release")
+        testImplementation 'org.assertj:assertj-core:3.27.7'
+        testImplementation 'org.mockito:mockito-core:latest.release'
+    }
     javadoc {
         dependsOn delombok
         source = fileTree("$buildDir/generated/sources/delombok/java/main") {
@@ -679,47 +647,46 @@ project(':jrmserver') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-	
-	apply plugin: 'jacoco'
-	test {
-	    dependsOn ':WebClient:build'
-	
-		useJUnitPlatform {
-			includeEngines 'junit-jupiter'
-		}
-		jacocoTestReport {
-			reports {
-				xml.required = true
-			}
-		}
-		finalizedBy jacocoTestReport
-	    testLogging {
-	        // set options for log level LIFECYCLE
-	        events TestLogEvent.FAILED,
-	               TestLogEvent.PASSED,
-	               TestLogEvent.SKIPPED,
-	               TestLogEvent.STANDARD_ERROR
-	        exceptionFormat = TestExceptionFormat.SHORT
-	        showExceptions = true
-	        showCauses = true
-	        showStackTraces = true
-	
-	        // set options for log level DEBUG and INFO
-	        debug {
-	            events TestLogEvent.STARTED,
-	                   TestLogEvent.FAILED,
-	                   TestLogEvent.PASSED,
-	                   TestLogEvent.SKIPPED,
-	                   TestLogEvent.STANDARD_ERROR,
-	                   TestLogEvent.STANDARD_OUT
-	            exceptionFormat = TestExceptionFormat.FULL
+    
+    apply plugin: 'jacoco'
+    test {
+        dependsOn ':WebClient:build'
+    
+        useJUnitPlatform {
+            includeEngines 'junit-jupiter'
+        }
+        jacocoTestReport {
+            reports {
+                xml.required = true
+            }
+        }
+        finalizedBy jacocoTestReport
+        testLogging {
+            // set options for log level LIFECYCLE
+            events  TestLogEvent.FAILED,
+                    TestLogEvent.PASSED,
+                    TestLogEvent.SKIPPED
+            exceptionFormat = TestExceptionFormat.SHORT
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+    
+            // set options for log level DEBUG and INFO
+            debug {
+                events  TestLogEvent.STARTED,
+                        TestLogEvent.FAILED,
+                        TestLogEvent.PASSED,
+                        TestLogEvent.SKIPPED,
+                        TestLogEvent.STANDARD_ERROR,
+                        TestLogEvent.STANDARD_OUT
+                exceptionFormat = TestExceptionFormat.FULL
                 showExceptions = true
                 showCauses = true
                 showStackTraces = true
-	        }
-	        info.events = debug.events
-	        info.exceptionFormat = debug.exceptionFormat
-	
+            }
+            info.events = debug.events
+            info.exceptionFormat = debug.exceptionFormat
+    
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -730,34 +697,34 @@ project(':jrmserver') {
                     }
                 }
             })
-	    }
-	    systemProperty "JRomManager.rootPath", "${rootDir}"
-	    systemProperty "file.encoding", "utf-8"
-	}
+        }
+        systemProperty "JRomManager.rootPath", "${rootDir}"
+        systemProperty "file.encoding", "utf-8"
+    }
 
-	
-	jar {
-		manifest {
-			attributes(
-				"Specification-Title"  : "JRomManager Server",
-				"Implementation-Title" : "jrmserver",
-			)
-		}
-	}
+    
+    jar {
+        manifest {
+            attributes(
+                "Specification-Title"  : "JRomManager Server",
+                "Implementation-Title" : "jrmserver",
+            )
+        }
+    }
 }
 
 configurations {
-	jlinkConfig
-	noarchConfig.extendsFrom runtimeClasspath, runtime
+    jlinkConfig
+    noarchConfig.extendsFrom runtimeClasspath, runtime
 }
 
 dependencies {
-	jlinkConfig project(':jrmstandalone')
-	jlinkConfig project(':jrmfx')
-	jlinkConfig project(':jrmcli')
-	jlinkConfig project(':jrmserver')
-	noarchConfig project(':jrmcli')
-	noarchConfig project(':jrmserver')
+    jlinkConfig project(':jrmstandalone')
+    jlinkConfig project(':jrmfx')
+    jlinkConfig project(':jrmcli')
+    jlinkConfig project(':jrmserver')
+    noarchConfig project(':jrmcli')
+    noarchConfig project(':jrmserver')
 }
 
 configurations.jlinkConfig  {
@@ -768,47 +735,47 @@ configurations.jlinkConfig  {
 }
 
 jar {
-	def mainClassName="jrm.server.Server"
-	manifest {
-		def path =configurations.noarchConfig.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
-		attributes(
-			"Manifest-Version"     : "1.0",
-			"Specification-Title"  : "JRomManager",
-			"Specification-Version": props.getProperty("Specification-Version"),
-			"Implementation-Title" : "jrm",
-			"Implementation-Version" : props.getProperty("Implementation-Version"),
-			"Main-Class"           : mainClassName,
-			"Class-Path"           : path
-		)
-		archiveFileName = project.name + '.jar'
-	}
+    def mainClassName="jrm.server.Server"
+    manifest {
+        def path =configurations.noarchConfig.filter { it.name.endsWith('.jar') }.collect { 'lib/' + it.getName() }.join(' ')
+        attributes(
+            "Manifest-Version"     : "1.0",
+            "Specification-Title"  : "JRomManager",
+            "Specification-Version": props.getProperty("Specification-Version"),
+            "Implementation-Title" : "jrm",
+            "Implementation-Version" : props.getProperty("Implementation-Version"),
+            "Main-Class"           : mainClassName,
+            "Class-Path"           : path
+        )
+        archiveFileName = project.name + '.jar'
+    }
 }
 
 task cliFatJar(type: Jar) {
-	def mainClassName="jrm.cli.JRomManagerCLI"
-	manifest {
-		attributes(
-			"Manifest-Version"     : "1.0",
-			"Specification-Title"  : "JRomManager",
-			"Specification-Version": props.getProperty("Specification-Version"),
-			"Implementation-Title" : "jrm",
-			"Implementation-Version" : props.getProperty("Implementation-Version"),
-			'Main-Class': mainClassName
-		)
-	}
-	duplicatesStrategy = DuplicatesStrategy.INCLUDE
-	archiveBaseName = 'JRomManagerCLI'
-	from(project(':jrmcli').sourceSets.main.output.classesDirs)
-	from(project(':jrmcli').sourceSets.main.resources)
-	from { project(':jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    def mainClassName="jrm.cli.JRomManagerCLI"
+    manifest {
+        attributes(
+            "Manifest-Version"     : "1.0",
+            "Specification-Title"  : "JRomManager",
+            "Specification-Version": props.getProperty("Specification-Version"),
+            "Implementation-Title" : "jrm",
+            "Implementation-Version" : props.getProperty("Implementation-Version"),
+            'Main-Class': mainClassName
+        )
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    archiveBaseName = 'JRomManagerCLI'
+    from(project(':jrmcli').sourceSets.main.output.classesDirs)
+    from(project(':jrmcli').sourceSets.main.resources)
+    from { project(':jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
 build.dependsOn cliFatJar 
 
 task downloadDaemonWin(type: Download) {
-	src 'https://archive.apache.org/dist/commons/daemon/binaries/windows/commons-daemon-'+props.getProperty("Commons-Daemon-Version")+'-bin-windows.zip'
-	dest file("$buildDir/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows.zip")
-	onlyIfModified true
+    src 'https://archive.apache.org/dist/commons/daemon/binaries/windows/commons-daemon-'+props.getProperty("Commons-Daemon-Version")+'-bin-windows.zip'
+    dest file("$buildDir/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows.zip")
+    onlyIfModified true
 }
 
 task extractDaemonWin(type: Copy) {
@@ -816,16 +783,16 @@ task extractDaemonWin(type: Copy) {
     from zipTree(file("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows.zip"))
     include('amd64/*.exe', 'prunmgr.exe')
     eachFile {
-      path = name
+        path = name
     }
     includeEmptyDirs = false
     into "${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows"
 }
 
 task downloadDaemonLinux(type: Download) {
-	src 'https://archive.apache.org/dist/commons/daemon/source/commons-daemon-'+props.getProperty("Commons-Daemon-Version")+'-native-src.tar.gz'
-	dest file("$buildDir/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src.tar.gz")
-	onlyIfModified true
+    src 'https://archive.apache.org/dist/commons/daemon/source/commons-daemon-'+props.getProperty("Commons-Daemon-Version")+'-native-src.tar.gz'
+    dest file("$buildDir/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src.tar.gz")
+    onlyIfModified true
 }
 
 task extractDaemonLinux(type: Copy) {
@@ -835,21 +802,21 @@ task extractDaemonLinux(type: Copy) {
 }
 
 task configureDaemonLinux(type:Exec, dependsOn:extractDaemonLinux){
-	workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
-	commandLine './configure', '--silent', '--with-java='+System.properties['java.home']
-	standardOutput = new ByteArrayOutputStream()
-	doLast{
-		print standardOutput.toString().trim()
-	}
+    workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
+    commandLine './configure', '--silent', '--with-java='+System.properties['java.home']
+    standardOutput = new ByteArrayOutputStream()
+    doLast{
+        print standardOutput.toString().trim()
+    }
 }
 
 task compileDaemonLinux(type:Exec, dependsOn:configureDaemonLinux){
-	workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
-	commandLine 'make', '--silent'
-	standardOutput = new ByteArrayOutputStream()
-	doLast{
-		print standardOutput.toString().trim()
-	}
+    workingDir "${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix"
+    commandLine 'make', '--silent'
+    standardOutput = new ByteArrayOutputStream()
+    doLast{
+        print standardOutput.toString().trim()
+    }
 }
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
@@ -858,117 +825,117 @@ def os = DefaultNativePlatform.currentOperatingSystem
 def arch = DefaultNativePlatform.currentArchitecture
 
 distributions {
-	main {
+    main {
         distributionBaseName = 'JRomManager'
-       	distributionClassifier = 'nogui-noarch'
-		contents {
-			from (configurations.noarchConfig) {
-				into('lib')
-				exclude '*.zip'
-				include '*.jar'
-			}
-			from (jar)
-			if (os.isLinux()) {
-				from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
-					include 'jsvc'
+        distributionClassifier = 'nogui-noarch'
+        contents {
+            from (configurations.noarchConfig) {
+                into('lib')
+                exclude '*.zip'
+                include '*.jar'
+            }
+            from (jar)
+            if (os.isLinux()) {
+                from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
+                    include 'jsvc'
                     filePermissions {unix(0755)}
-				}
-			}
-			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
+                }
+            }
+            from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
                 filePermissions {unix(0755)}
-			}
-			from ('dist/logs') {
-				include '.do_not_delete'
-				into 'logs'
-				dirPermissions {unix(0777)}
-			}
-			from ('dist') {
-				include '*.bat'
-				include '*.sh'
+            }
+            from ('dist/logs') {
+                include '.do_not_delete'
+                into 'logs'
+                dirPermissions {unix(0777)}
+            }
+            from ('dist') {
+                include '*.bat'
+                include '*.sh'
                 filePermissions {unix(0755)}
-			}
-		}
-	}
-	win {
+            }
+        }
+    }
+    win {
         distributionBaseName = 'JRomManager'
         if(arch.isI386())
-        	distributionClassifier = 'win-x32'
+            distributionClassifier = 'win-x32'
         else if(arch.isAmd64())
-        	distributionClassifier = 'win-x64'
+            distributionClassifier = 'win-x64'
         else if(arch.isArm32())
-        	distributionClassifier = 'win-arm32'
+            distributionClassifier = 'win-arm32'
         else if(arch.isArm64())
-        	distributionClassifier = 'win-arm64'
+            distributionClassifier = 'win-arm64'
         else
-        	distributionClassifier = 'win-'+arch.getName()
-		contents {
-			from (configurations.jlinkConfig) {
-				into('lib')
-				exclude '*.zip'
-				include '*.jar'
-			}
-			from (jar)
-			from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
+            distributionClassifier = 'win-'+arch.getName()
+        contents {
+            from (configurations.jlinkConfig) {
+                into('lib')
+                exclude '*.zip'
+                include '*.jar'
+            }
+            from (jar)
+            from ("${buildDir}/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-bin-windows") {
                 filePermissions {unix(0755)}
-			}
-			from ('dist/logs') {
-				include '.do_not_delete'
-				into 'logs'
+            }
+            from ('dist/logs') {
+                include '.do_not_delete'
+                into 'logs'
                 dirPermissions {unix(0777)}
-			}
-			from ('dist') {
-				include '*.bat'
+            }
+            from ('dist') {
+                include '*.bat'
                 filePermissions {unix(0755)}
-			}
-			from ('dist/full') {
-				include '*.bat'
+            }
+            from ('dist/full') {
+                include '*.bat'
                 filePermissions {unix(0755)}
-			}
-		}
-	}
-	linux {
+            }
+        }
+    }
+    linux {
         distributionBaseName = 'JRomManager'
         if(arch.isI386())
-        	distributionClassifier = 'linux-x32'
+            distributionClassifier = 'linux-x32'
         else if(arch.isAmd64())
-        	distributionClassifier = 'linux-x64'
+            distributionClassifier = 'linux-x64'
         else if(arch.isArm32())
-        	distributionClassifier = 'linux-arm32'
+            distributionClassifier = 'linux-arm32'
         else if(arch.isArm64())
-        	distributionClassifier = 'linux-arm64'
+            distributionClassifier = 'linux-arm64'
         else
-        	distributionClassifier = 'linux-'+arch.getName()
-		contents {
-			from (configurations.jlinkConfig) {
-				into('lib')
-				exclude '*.zip'
-				include '*.jar'
-			}
-			from (jar)
-			from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
-				include 'jsvc'
+            distributionClassifier = 'linux-'+arch.getName()
+        contents {
+            from (configurations.jlinkConfig) {
+                into('lib')
+                exclude '*.zip'
+                include '*.jar'
+            }
+            from (jar)
+            from ("${buildDir}/jsvc/commons-daemon-"+props.getProperty("Commons-Daemon-Version")+"-native-src/unix") {
+                include 'jsvc'
                 filePermissions {unix(0755)}
-			}
-			from ('dist/logs') {
-				include '.do_not_delete'
-				into 'logs'
+            }
+            from ('dist/logs') {
+                include '.do_not_delete'
+                into 'logs'
                 dirPermissions {unix(0777)}
-			}
-			from ('dist') {
-				include '*.sh'
+            }
+            from ('dist') {
+                include '*.sh'
                 filePermissions {unix(0755)}
-			}
-			from ('dist/full') {
-				include '*.sh'
+            }
+            from ('dist/full') {
+                include '*.sh'
                 filePermissions {unix(0755)}
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 distTar {
-	compression = Compression.GZIP
-	archiveExtension = "tar.gz"
+    compression = Compression.GZIP
+    archiveExtension = "tar.gz"
 }
 
 distZip.dependsOn jar
@@ -981,70 +948,59 @@ installDist.dependsOn jar
 installDist.dependsOn ':WebClient:build'
 installDist.dependsOn extractDaemonWin
 if (os.isLinux()) {
-	winDistZip.enabled = false
-	winDistTar.enabled = false
-	linuxDistZip.enabled = false
-	linuxDistTar.dependsOn jar
-	linuxDistTar.dependsOn ':WebClient:build'
-	linuxDistTar.dependsOn compileDaemonLinux
-	linuxDistTar {
-		compression = Compression.GZIP
-		archiveExtension = "tar.gz"
-	}
-	distZip.dependsOn compileDaemonLinux
-	distTar.dependsOn compileDaemonLinux
-	installDist.dependsOn compileDaemonLinux
-	build.dependsOn linuxDistTar
+    winDistZip.enabled = false
+    winDistTar.enabled = false
+    linuxDistZip.enabled = false
+    linuxDistTar.dependsOn jar
+    linuxDistTar.dependsOn ':WebClient:build'
+    linuxDistTar.dependsOn compileDaemonLinux
+    linuxDistTar {
+        compression = Compression.GZIP
+        archiveExtension = "tar.gz"
+    }
+    distZip.dependsOn compileDaemonLinux
+    distTar.dependsOn compileDaemonLinux
+    installDist.dependsOn compileDaemonLinux
+    build.dependsOn linuxDistTar
 }
 else if (os.isWindows()) {
-	linuxDistTar.enabled = false
-	linuxDistZip.enabled = false
-	winDistTar.enabled = false
-	winDistZip.dependsOn jar
-	winDistZip.dependsOn ':WebClient:build'
-	winDistZip.dependsOn extractDaemonWin
-	build.dependsOn winDistZip
+    linuxDistTar.enabled = false
+    linuxDistZip.enabled = false
+    winDistTar.enabled = false
+    winDistZip.dependsOn jar
+    winDistZip.dependsOn ':WebClient:build'
+    winDistZip.dependsOn extractDaemonWin
+    build.dependsOn winDistZip
 }
 else {
-	linuxDistTar.enabled = false
-	linuxDistZip.enabled = false
-	winDistZip.enabled = false
-	winDistTar.enabled = false
+    linuxDistTar.enabled = false
+    linuxDistZip.enabled = false
+    winDistZip.enabled = false
+    winDistTar.enabled = false
 }
 
 task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all child projects as if it was a single project', group: 'Documentation') {
-	destinationDir = file("$buildDir/docs/javadoc")
-	title = "$project.name $version API"
-	options.author true
-	options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
-//	options.addStringOption 'Xdoclint:none', '-quiet'
-	
-	dependsOn subprojects.findAll { it.javadoc.enabled }.collect { it.javadoc }
-	
-	def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
+    destinationDir = file("$buildDir/docs/javadoc")
+    title = "$project.name $version API"
+    options.author true
+    options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
+    
+    dependsOn subprojects.findAll { it.javadoc.enabled }.collect { it.javadoc }
+    
+    def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
     source = projectsWithJavadoc.collect { it.buildDir.toPath().resolve("generated/sources/delombok/java/main").toFile() }
-	classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
-	includes = projectsWithJavadoc.collectMany { it.javadoc.getIncludes() }
-	excludes = projectsWithJavadoc.collectMany { it.javadoc.getExcludes() }
-	
-	
-/*	subprojects.each { proj ->
-		proj.tasks.withType(Javadoc).each { javadocTask ->
-			source += javadocTask.source
-			classpath += javadocTask.classpath
-			excludes += javadocTask.excludes
-			includes += javadocTask.includes
-		}
-	}*/
+    classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
+    includes = projectsWithJavadoc.collectMany { it.javadoc.getIncludes() }
+    excludes = projectsWithJavadoc.collectMany { it.javadoc.getExcludes() }
 }
 
 task docZip(type: Zip, dependsOn: aggregatedJavadocs) {
-	destinationDirectory = buildDir
-	archiveClassifier = 'javadocs'
-	from javadoc.outputs.files
-	into "docs"
-	archiveFileName = project.name + '-' + project.version + '-apidocs' + '.zip'
-	destinationDirectory = file("$buildDir/distributions/")
+    destinationDirectory = buildDir
+    archiveClassifier = 'javadocs'
+    from javadoc.outputs.files
+    into "docs"
+    archiveFileName = project.name + '-' + project.version + '-apidocs' + '.zip'
+    destinationDirectory = file("$buildDir/distributions/")
 }
 
 build.dependsOn docZip
@@ -1054,52 +1010,52 @@ build.dependsOn installDist
 apply plugin: 'com.netflix.nebula.ospackage'
 
 ospackage {
-	packageName = 'jrommanager'
-	packageDescription = 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
-	release = '1'
-	type = BINARY
-	license = 'GPL-2'
-	vendor = 'optyfr'
-	packager = 'optyfr'
-	maintainer = 'optyfr'
-	user = 'root'
-	permissionGroup = 'root'
+    packageName = 'jrommanager'
+    packageDescription = 'A Mame and Retrogaming Rom Manager, Java alternative to ClrMamePro'
+    release = '1'
+    type = BINARY
+    license = 'GPL-2'
+    vendor = 'optyfr'
+    packager = 'optyfr'
+    maintainer = 'optyfr'
+    user = 'root'
+    permissionGroup = 'root'
     url = 'https://github.com/optyfr/JRomManager'
-	into '/opt/jrommanager'
-	from (configurations.noarchConfig) {
-		into('lib')
-		exclude '*.zip'
-		include '*.jar'
-	}
-	from (jar)
-	from ('dist') {
-		include '*.bat'
-		include '*.sh'
-		include '*.shconf'
-		filePermissions { unix(0755) }
-	}
-	from ('dist') {
-		include name+'.desktop'
-		into '/usr/share/applications'
-	}
-	from ('dist') {
-		include name+'.png'
-		into '/usr/share/pixmaps'
-	}
-	link('/usr/bin/jrommanager', '/opt/jrommanager/JRomManager-multi.sh')
+    into '/opt/jrommanager'
+    from (configurations.noarchConfig) {
+        into('lib')
+        exclude '*.zip'
+        include '*.jar'
+    }
+    from (jar)
+    from ('dist') {
+        include '*.bat'
+        include '*.sh'
+        include '*.shconf'
+        filePermissions { unix(0755) }
+    }
+    from ('dist') {
+        include name+'.desktop'
+        into '/usr/share/applications'
+    }
+    from ('dist') {
+        include name+'.png'
+        into '/usr/share/pixmaps'
+    }
+    link('/usr/bin/jrommanager', '/opt/jrommanager/JRomManager-multi.sh')
 }
 
 buildDeb {
-	requires('java21-runtime')
-	arch = "all"
+    requires('java21-runtime')
+    arch = "all"
 }
 
 buildRpm {
-	requires('java', '1:21', EQUAL).or('java-21')
-	arch = NOARCH
-	os = LINUX
-	addParentDirs = false
-	createDirectoryEntry = false
+    requires('java', '1:21', EQUAL).or('java-21')
+    arch = NOARCH
+    os = LINUX
+    addParentDirs = false
+    createDirectoryEntry = false
 }
 
 buildRpm.dependsOn distZip
@@ -1111,95 +1067,92 @@ build.dependsOn buildDeb
 apply plugin: "org.beryx.jlink"
 
 jlink {
-//	options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-	mergedModuleName = "jrm.merged.module"
-	configuration = 'jlinkConfig'
-	addExtraDependencies("javafx")
-	mergedModule {
- 		additive = true
-	//	requires 'com.google.gson'
-		requires 'ch.qos.logback.classic'
-	//	requires 'one.util.streamex'
-		requires 'jdk.zipfs'
-	}
-	launcher {
-		name = 'JRomManager'
-		moduleName = 'jrm.merged.module'
-		mainClass = 'jrm.fx.JRomManagerMulti'
-		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
-	}
-	secondaryLauncher {
-		name = 'JRomManagerSwing'
-		moduleName = 'jrm.merged.module'
-		mainClass = 'jrm.JRomManagerMulti'
-		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
-	}
-	secondaryLauncher {
-		name = 'JRomManagerCLI'
-		moduleName = 'jrm.merged.module'
-		mainClass = 'jrm.cli.JRomManagerCLI'
-		winConsole = true
-		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
-	}
-	secondaryLauncher {
-		name = 'JRomManagerServer'
-		moduleName = 'jrm.merged.module'
-		mainClass = 'jrm.server.Server'
-		winConsole = true
-		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
-		args = ['--workpath','%HOMEPATH%/.jrommanager']
-	}
-	secondaryLauncher {
-		name = 'JRomManagerFullServer'
-		moduleName = 'jrm.merged.module'
-		mainClass = 'jrm.fullserver.FullServer'
-		winConsole = true
-		jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
-		args = ['--workpath','%HOMEPATH%/.jrommanager']
-	}
-	targetPlatform("win-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.zip")
-	}
-	targetPlatform("linux-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz")
-	}
-	targetPlatform("macos-x64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.tar.gz")
-	}
-	targetPlatform("macos-aarch64") {
-		jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.4_7.tar.gz")
-	}
-	jpackage {
-		installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
-		targetPlatformName = project.findProperty('targetPlatform') // we will pass this from the command line (example: -PtargetPlatform=win)
-		installerOutputDir = file("$buildDir/installer")
-		imageName = 'JRomManager'
-		icon = 'dist/JRomManager.ico'
-		if (installerType == 'msi') {
-			imageOptions += ['--icon', 'dist/JRomManager.ico']
-			installerOptions += [
-				'--win-dir-chooser', '--win-menu', '--win-shortcut'
-			]
-			installerName = 'JRomManager-' + targetPlatformName
-		}
-		if (installerType == 'deb' || installerType=='rpm') {
-			imageOptions += ['--icon', 'dist/JRomManager.png']
-			installerOptions += [
-				'--linux-package-name', 'jrommanager',
-				'--linux-app-category', 'utils',
-				'--linux-app-release', 1,
-				'--linux-rpm-license-type', 'GPL-2',
-				'--linux-menu-group', 'Utility',
-				'--linux-shortcut'
-			]
-		}
-		if (installerType == 'dmg') {
-/*			imageOptions += ['--icon', 'dist/JRomManager.png']
-			installerOptions += [
-			]*/
-			installerName = 'JRomManager-' + targetPlatformName
-		}
-	}	
+//    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    mergedModuleName = "jrm.merged.module"
+    configuration = 'jlinkConfig'
+    addExtraDependencies("javafx")
+    mergedModule {
+        additive = true
+    //    requires 'com.google.gson'
+        requires 'ch.qos.logback.classic'
+    //    requires 'one.util.streamex'
+        requires 'jdk.zipfs'
+    }
+    launcher {
+        name = 'JRomManager'
+        moduleName = 'jrm.merged.module'
+        mainClass = 'jrm.fx.JRomManagerMulti'
+        jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
+    }
+    secondaryLauncher {
+        name = 'JRomManagerSwing'
+        moduleName = 'jrm.merged.module'
+        mainClass = 'jrm.JRomManagerMulti'
+        jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
+    }
+    secondaryLauncher {
+        name = 'JRomManagerCLI'
+        moduleName = 'jrm.merged.module'
+        mainClass = 'jrm.cli.JRomManagerCLI'
+        winConsole = true
+        jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
+    }
+    secondaryLauncher {
+        name = 'JRomManagerServer'
+        moduleName = 'jrm.merged.module'
+        mainClass = 'jrm.server.Server'
+        winConsole = true
+        jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
+        args = ['--workpath','%HOMEPATH%/.jrommanager']
+    }
+    secondaryLauncher {
+        name = 'JRomManagerFullServer'
+        moduleName = 'jrm.merged.module'
+        mainClass = 'jrm.fullserver.FullServer'
+        winConsole = true
+        jvmArgs = ['-Dfile.encoding=UTF-8', '-XX:MaxRAMPercentage=75']
+        args = ['--workpath','%HOMEPATH%/.jrommanager']
+    }
+    targetPlatform("win-x64") {
+        jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_windows_hotspot_21.0.4_7.zip")
+    }
+    targetPlatform("linux-x64") {
+        jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_linux_hotspot_21.0.4_7.tar.gz")
+    }
+    targetPlatform("macos-x64") {
+        jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_x64_mac_hotspot_21.0.4_7.tar.gz")
+    }
+    targetPlatform("macos-aarch64") {
+        jdkHome = jdkDownload("https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.4_7.tar.gz")
+    }
+    jpackage {
+        installerType = project.findProperty('installerType') // we will pass this from the command line (example: -PinstallerType=msi)
+        targetPlatformName = project.findProperty('targetPlatform') // we will pass this from the command line (example: -PtargetPlatform=win)
+        installerOutputDir = file("$buildDir/installer")
+        imageName = 'JRomManager'
+        icon = 'dist/JRomManager.ico'
+        if (installerType == 'msi') {
+            imageOptions += ['--icon', 'dist/JRomManager.ico']
+            installerOptions += [
+                '--win-dir-chooser', '--win-menu', '--win-shortcut'
+            ]
+            installerName = 'JRomManager-' + targetPlatformName
+        }
+        if (installerType == 'deb' || installerType=='rpm') {
+            imageOptions += ['--icon', 'dist/JRomManager.png']
+            installerOptions += [
+                '--linux-package-name', 'jrommanager',
+                '--linux-app-category', 'utils',
+                '--linux-app-release', 1,
+                '--linux-rpm-license-type', 'GPL-2',
+                '--linux-menu-group', 'Utility',
+                '--linux-shortcut'
+            ]
+        }
+        if (installerType == 'dmg') {
+            installerName = 'JRomManager-' + targetPlatformName
+        }
+    }    
 }
 
 prepareMergedJarsDir.dependsOn jar

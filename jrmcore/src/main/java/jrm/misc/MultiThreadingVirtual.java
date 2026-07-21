@@ -195,7 +195,7 @@ public class MultiThreadingVirtual<K> implements ExecutorService, OffsetProvider
             stream.forEach(entry -> submit(new CallableWith(entry))); // submit all entries from stream using a task
             shutdown(); // does not accept submission after stream as been consumed
             awaitTermination(1, TimeUnit.DAYS); // wait max for 1 day for all tasks to terminate
-            Log.info(() -> name + "-%d : %d vthreads for %d tasks in %s".formatted(poolNumber.get(), maxActive.get(), count.get(),
+            Log.debug(() -> name + "-%d : %d vthreads for %d tasks in %s".formatted(poolNumber.get(), maxActive.get(), count.get(),
                     DurationFormatUtils.formatDurationHMS(System.currentTimeMillis() - start)));
         } catch (InterruptedException e) {
             Log.err(e.getMessage(), e);

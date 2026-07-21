@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -483,7 +484,7 @@ class ScanTest {
             // The backup source directory is always added by Scan.initSrcDirs; pre-create it so the DirScan over it is cheap.
             Files.createDirectories(tempDir.resolve("users").resolve("JRomManager").resolve("backup"));
             session = new Session("scan-e2e");
-            handler = mock(ProgressHandler.class);
+            handler = mock(ProgressHandler.class, withSettings().stubOnly());
             when(handler.isCancel()).thenReturn(false);
             when(handler.getInputStream(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));

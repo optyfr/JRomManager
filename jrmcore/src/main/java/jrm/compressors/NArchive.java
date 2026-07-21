@@ -90,6 +90,16 @@ abstract class NArchive extends NArchiveBase {
     private static final Map<String, File> archives = new HashMap<>();
 
     /**
+     * Clears the static archive cache, releasing all cached {@link File} references.
+     * <p>
+     * This should be called after tests or operations that populate the archive cache to prevent memory leaks.
+     * </p>
+     */
+    public static void clearArchives() {
+        archives.clear();
+    }
+
+    /**
      * The format of the archive being processed. This is determined based on the file extension of the archive and is used to
      * specify the appropriate handling and options for the archive operations. The format is set during the initialization of the
      * NArchive instance and is used to configure the behavior of the SevenZipJBinding library when performing operations on the

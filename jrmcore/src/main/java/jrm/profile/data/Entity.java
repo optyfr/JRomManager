@@ -10,6 +10,7 @@ package jrm.profile.data;
 
 import java.io.IOException;
 import java.io.ObjectStreamField;
+
 import jrm.misc.ProfileSettings;
 import jrm.profile.scan.options.HashCollisionOptions;
 import lombok.Getter;

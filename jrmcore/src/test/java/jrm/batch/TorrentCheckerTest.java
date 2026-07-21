@@ -2,11 +2,14 @@ package jrm.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -56,7 +59,7 @@ class TorrentCheckerTest {
         Files.createDirectories(tempDir.resolve("users").resolve("JRomManager"));
         session = new Session("torrent-checker-test");
         session.getUser().getSettings().setProperty(SettingsEnum.use_parallelism, false);
-        progress = mock(ProgressHandler.class);
+        progress = mock(ProgressHandler.class, withSettings().stubOnly());
         when(progress.isCancel()).thenReturn(false);
         updater = mock(ResultColUpdater.class);
     }
@@ -168,8 +171,7 @@ class TorrentCheckerTest {
             assertThatCode(() -> new TorrentChecker<>(session, progress, sdrl, jrm.io.torrent.options.TrntChkMode.FILENAME,
                     updater, new HashSet<>())).doesNotThrowAnyException();
 
-            verify(updater, never()).updateResult(org.mockito.ArgumentMatchers.anyInt(),
-                    org.mockito.ArgumentMatchers.anyString());
+            verify(updater, never()).updateResult(anyInt(), anyString());
         }
 
         @Test
@@ -186,8 +188,8 @@ class TorrentCheckerTest {
             assertThatCode(() -> new TorrentChecker<>(session, progress, sdrl, jrm.io.torrent.options.TrntChkMode.FILENAME,
                     updater, new HashSet<>())).doesNotThrowAnyException();
 
-            verify(updater, never()).updateResult(org.mockito.ArgumentMatchers.anyInt(),
-                    org.mockito.ArgumentMatchers.anyString());
+            verify(updater, never()).updateResult(anyInt(),
+                    anyString());
         }
     }
 
@@ -211,7 +213,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             assertThat(captor.getAllValues()).contains("");
             // The result should be the SrcNotDefined message (not "In progress...")
             assertThat(captor.getAllValues()).anyMatch(v -> !v.isEmpty() && !"In progress...".equals(v));
@@ -229,7 +231,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             assertThat(captor.getAllValues()).contains("");
         }
     }
@@ -256,7 +258,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             // Should have "" and a non-"In progress..." result
             assertThat(captor.getAllValues()).contains("");
         }
@@ -276,7 +278,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             assertThat(captor.getAllValues()).contains("");
         }
     }
@@ -304,7 +306,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             // Should have "", "In progress...", and a result
             assertThat(captor.getAllValues()).contains("", "In progress...");
             // The final result should not be "In progress..."
@@ -329,7 +331,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             // The result should contain "Complete" or similar success indicator
             assertThat(captor.getAllValues()).anyMatch(v -> v.contains("COMPLETE") || v.contains("100"));
         }
@@ -358,7 +360,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             assertThat(captor.getAllValues()).contains("", "In progress...");
             assertThat(captor.getAllValues()).anyMatch(v -> !"In progress...".equals(v) && !v.isEmpty());
         }
@@ -381,7 +383,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             // Result should not be "Complete" since sizes are wrong
             assertThat(captor.getAllValues()).anyMatch(v -> !"In progress...".equals(v) && !v.isEmpty());
         }
@@ -410,7 +412,7 @@ class TorrentCheckerTest {
                     updater, new HashSet<>());
 
             var captor = ArgumentCaptor.forClass(String.class);
-            verify(updater, atLeast(2)).updateResult(org.mockito.ArgumentMatchers.anyInt(), captor.capture());
+            verify(updater, atLeast(2)).updateResult(anyInt(), captor.capture());
             assertThat(captor.getAllValues()).contains("", "In progress...");
             assertThat(captor.getAllValues()).anyMatch(v -> !"In progress...".equals(v) && !v.isEmpty());
         }

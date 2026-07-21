@@ -3,6 +3,7 @@ package jrm.batch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,7 @@ class CompressorTest {
         Files.createDirectories(tempDir.resolve("users").resolve("JRomManager"));
         session = new Session("compressor-test");
         session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, ZipLevel.NORMAL);
-        progressHandler = mock(ProgressHandler.class);
+        progressHandler = mock(ProgressHandler.class, withSettings().stubOnly());
         when(progressHandler.isCancel()).thenReturn(false);
         compressor = new Compressor(session, new AtomicInteger(0), 1, progressHandler);
     }

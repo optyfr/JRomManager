@@ -320,7 +320,7 @@ public class Scan extends PathAbstractor {
             nfo.getStats().setHaveDisks(Stream.concat(profile.getMachineListList().stream(), profile.getMachineListList().getSoftwareListList().stream())
                     .flatMap(AnywareList::stream).mapToLong(Anyware::countHaveDisks).sum());
             nfo.save(profile.getSession());
-            profile.save();
+            //profile.save();
         }
 
         if (backup)

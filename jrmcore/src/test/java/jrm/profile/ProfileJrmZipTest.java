@@ -10,14 +10,17 @@
 package jrm.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
@@ -81,20 +84,18 @@ class ProfileJrmZipTest {
      */
     @BeforeEach
     void setUp() {
-        session = mock(Session.class);
-		final var mockSettings = mock(GlobalSettings.class);
-        when(mockSettings.getWorkPath()).thenReturn(java.nio.file.Paths.get(System.getProperty("java.io.tmpdir")));
-		final var mockUser = mock(User.class);
+        session = mock(Session.class,withSettings().stubOnly());
+		final var mockSettings = mock(GlobalSettings.class,withSettings().stubOnly());
+        when(mockSettings.getWorkPath()).thenReturn(Paths.get(System.getProperty("java.io.tmpdir")));
+		final var mockUser = mock(User.class, withSettings().stubOnly());
 		when(mockUser.getSettings()).thenReturn(mockSettings);
         when(session.getUser()).thenReturn(mockUser);
         final var msgs = ResourceBundle.getBundle("jrm.resources.Messages");
         when(session.getMsgs()).thenReturn(msgs);
-
         
-        handler = mock(ProgressHandler.class);
+        handler = mock(ProgressHandler.class, withSettings().stubOnly());
         when(handler.isCancel()).thenReturn(false);
-        when(handler.getInputStream(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(handler.getInputStream(any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
         
         datFilesRoot = Path.of("src/test/resources/dats");
     }

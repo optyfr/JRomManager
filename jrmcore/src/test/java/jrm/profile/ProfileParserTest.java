@@ -11,8 +11,10 @@ package jrm.profile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -57,13 +59,12 @@ class ProfileParserTest {
      */
     @BeforeEach
     void setUp() {
-        session = mock(Session.class);
+        session = mock(Session.class, withSettings().stubOnly());
         when(session.getUser()).thenReturn(null);
         
-        handler = mock(ProgressHandler.class);
+        handler = mock(ProgressHandler.class, withSettings().stubOnly());
         when(handler.isCancel()).thenReturn(false);
-        when(handler.getInputStream(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+        when(handler.getInputStream(any(), any())).thenAnswer(invocation -> invocation.getArgument(0));
         
         datFilesRoot = Path.of("src/test/resources/dats");
     }
