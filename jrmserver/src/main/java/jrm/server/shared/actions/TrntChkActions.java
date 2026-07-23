@@ -123,6 +123,21 @@ public class TrntChkActions {
         (ws.getSession().setWorker(new Worker(this::performTorrentCheck))).start();
     }
 
+    /** Performs the torrent check action in a worker thread.        
+     * <p>
+     * This method performs the actual torrent check action. It loads the necessary settings, builds the required options,
+     * initializes the progress handler, and runs the {@link TorrentChecker} with a result updater.
+     * <h4>Steps:</h4>
+     * <ol>
+     * <li>Loads the checking mode from user settings</li>
+     * <li>Builds an {@link EnumSet} of {@link TorrentChecker.Options} based on user preferences</li>
+     * <li>Initializes the progress handler</li>
+     * <li>Loads the {@link SDRList} of {@link SrcDstResult} mappings from settings</li>
+     * <li>Creates and runs a new {@link TorrentChecker} instance with the specified parameters</li>
+     * <li>Handles the {@link BreakException} if the user cancels the operation</li>
+     * <li>Ensures cleanup and client notification upon completion</li>
+     * </ol>
+     */
     private void performTorrentCheck() {
         WebSession session = ws.getSession();
         final var mode = TrntChkMode.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_mode));
@@ -148,6 +163,28 @@ public class TrntChkActions {
         }
     }
 
+    /** Creates a ResultColUpdater that updates the result of a specific SDR row and saves the changes to user settings.
+     * <p>
+     * The ResultColUpdater is used by the TorrentChecker to update the verification result of a specific SDR row and save the changes
+     * to the user's settings. It also notifies the client about the updated result.
+     * </p>
+     * <h4>Response JSON Structure:</h4>
+     * 
+     * <pre>
+     * <code class="language-json">
+     * {
+     *   "cmd": "TrntChk.updateResult",
+     *   "params": {
+     *     "row": 0,
+     *     "result": "Complete" | "Missing files" | "Error description"
+     *   }
+     * }
+     * </code>
+     * </pre>
+     * @param session The WebSession instance associated with the current user and request.
+     * @param sdrl The SDRList of SrcDstResult instances to be checked and updated.
+     * @return A ResultColUpdater implementation that updates the verification result of a specific SDR row and notifies the client.
+     */
     private ResultColUpdater createResultColUpdater(WebSession session, SDRList<SrcDstResult> sdrl) {
         return new ResultColUpdater() {
             @Override

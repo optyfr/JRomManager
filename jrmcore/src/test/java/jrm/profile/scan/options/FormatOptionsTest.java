@@ -20,6 +20,9 @@ class FormatOptionsTest {
     @DisplayName("Ext enum")
     class ExtEnum {
 
+        /**
+         * Verifies that the toString() method returns the literal file extension.
+         */
         @Test
         @DisplayName("toString should return the literal file extension")
         void toStringShouldReturnLiteralFileExtension() {
@@ -29,6 +32,9 @@ class FormatOptionsTest {
             assertThat(Ext.FAKE).hasToString(".$$$");
         }
 
+        /**
+         * Verifies that the isDir() method returns true only for DIR.
+         */
         @Test
         @DisplayName("isDir should return true only for DIR")
         void isDirShouldReturnTrueOnlyForDir() {
@@ -38,6 +44,9 @@ class FormatOptionsTest {
             assertThat(Ext.FAKE.isDir()).isFalse();
         }
 
+        /**
+         * Verifies that the allExcept() method returns all other extensions excluding self and DIR.
+         */
         @ParameterizedTest(name = "allExcept() for {0} should exclude self and DIR")
         @EnumSource(Ext.class)
         @DisplayName("allExcept should exclude self and DIR")
@@ -51,6 +60,9 @@ class FormatOptionsTest {
                 .hasSize(expectedSize);
         }
 
+        /**
+         * Verifies that DIR.allExcept() returns all other extensions excluding self and DIR.
+         */
         @Test
         @DisplayName("DIR.allExcept should still exclude DIR and self")
         void dirAllExceptShouldStillExcludeDirAndSelf() {
@@ -60,10 +72,16 @@ class FormatOptionsTest {
         }
     }
 
+    /**
+     * Tests for {@link FormatOptions#getExt()} mapping behavior.
+     */
     @Nested
     @DisplayName("getExt()")
     class GetExt {
 
+        /**
+         * Verifies that ZIP-based formats map to the ZIP extension.
+         */
         @Test
         @DisplayName("ZIP-based formats should map to ZIP extension")
         void zipBasedFormatsShouldMapToZipExtension() {
@@ -72,18 +90,27 @@ class FormatOptionsTest {
             assertThat(FormatOptions.TZIP.getExt()).isEqualTo(Ext.ZIP);
         }
 
+        /**
+         * Verifies that SEVENZIP-based formats map to the SEVENZIP extension.
+         */
         @Test
         @DisplayName("SEVENZIP should map to SEVENZIP extension")
         void sevenZipShouldMapToSevenZipExtension() {
             assertThat(FormatOptions.SEVENZIP.getExt()).isEqualTo(Ext.SEVENZIP);
         }
 
+        /**
+         * Verifies that DIR-based formats map to the DIR extension.
+         */
         @Test
         @DisplayName("DIR should map to DIR extension")
         void dirShouldMapToDirExtension() {
             assertThat(FormatOptions.DIR.getExt()).isEqualTo(Ext.DIR);
         }
 
+        /**
+         * Verifies that FAKE-based formats map to the FAKE extension.
+         */
         @Test
         @DisplayName("FAKE should map to FAKE extension")
         void fakeShouldMapToFakeExtension() {
@@ -91,10 +118,16 @@ class FormatOptionsTest {
         }
     }
 
+    /**
+     * Tests for {@link FormatOptions#getDesc()} contract behavior.
+     */
     @Nested
     @DisplayName("Descriptor contract")
     class DescriptorContract {
 
+        /**
+         * Verifies that every FormatOptions constant exposes a non-blank description.
+         */
         @ParameterizedTest(name = "{0} should expose non-blank desc")
         @EnumSource(FormatOptions.class)
         @DisplayName("every constant should expose a non-blank description")
@@ -103,10 +136,16 @@ class FormatOptionsTest {
         }
     }
 
+    /**
+     * Tests for {@link FormatOptions#allExcept()} contract behavior.
+     */
     @Nested
     @DisplayName("allExcept()")
     class AllExcept {
 
+        /**
+         * Verifies that allExcept() returns all other format options excluding self and DIR.
+         */
         @ParameterizedTest(name = "allExcept() for {0} should exclude self and DIR")
         @EnumSource(FormatOptions.class)
         @DisplayName("allExcept should exclude self and DIR format")
@@ -118,6 +157,9 @@ class FormatOptionsTest {
         }
     }
 
+    /**
+     * Verifies that FormatOptions exposes exactly six constants.
+     */
     @Test
     @DisplayName("should expose exactly six format options")
     void shouldExposeExactlySixFormatOptions() {

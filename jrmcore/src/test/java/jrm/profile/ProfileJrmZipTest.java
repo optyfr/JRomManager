@@ -394,6 +394,12 @@ class ProfileJrmZipTest {
             assertThat(machinesWithRoms).isGreaterThan(0);
         }
 
+        /**
+         * Verifies that a MAME XML export file is generated successfully from the loaded profile.
+         *
+         * @param tempDir the temporary directory used for the test
+         * @throws IOException if file operations fail
+         */
         @Test
         @DisplayName("Should export MAME xml file")
         void shouldExportMame(@TempDir Path tempDir) throws IOException {
@@ -407,6 +413,12 @@ class ProfileJrmZipTest {
             assertThat(mamexml).exists().isNotEmptyFile();
         }
 
+        /**
+         * Verifies that a SOFTWARELIST XML export file is generated successfully from the loaded profile.
+         *
+         * @param tempDir the temporary directory used for the test
+         * @throws IOException if file operations fail
+         */
         @Test
         @DisplayName("Should export SOFTWARELIST xml file")
         void shouldExportSoftwareList(@TempDir Path tempDir) throws IOException {
@@ -421,6 +433,12 @@ class ProfileJrmZipTest {
         }
 
 
+        /**
+         * Verifies that an old DAT file is exported successfully from the loaded profile.
+         *
+         * @param tempDir the temporary directory used for the test
+         * @throws IOException if file operations fail
+         */
         @Test
         @DisplayName("Should export old DAT file")
         void shouldExportDat(@TempDir Path tempDir) throws IOException {

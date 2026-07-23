@@ -28,6 +28,7 @@ import jrm.server.shared.WebSession;
 @DisplayName("SessionServlet (fullserver)")
 class SessionServletTest {
 
+    /** The web session to use for the tests. */
     private WebSession webSession;
 
     @BeforeEach
@@ -40,6 +41,7 @@ class SessionServletTest {
         TestWebSessions.resetStaticState();
     }
 
+    /** Builds a mock HttpServletRequest with an admin user session. */
     private HttpServletRequest buildRequest() {
         final HttpSession httpSession = mock(HttpSession.class);
         when(httpSession.getAttribute("session")).thenReturn(webSession);
@@ -50,6 +52,7 @@ class SessionServletTest {
         return req;
     }
 
+    /** Tests that doPost sets the authenticated and admin fields to true for an admin user and returns the expected JSON string.     */  
     @Nested
     @DisplayName("doPost admin user")
     class DoPostAdminTest {
@@ -69,6 +72,9 @@ class SessionServletTest {
         }
     }
 
+    /**
+     * Tests that doPost sets the admin field to false for a non-admin user and returns the expected JSON string.
+     */
     @Nested
     @DisplayName("doPost non-admin user")
     class DoPostNonAdminTest {
@@ -89,6 +95,9 @@ class SessionServletTest {
         }
     }
 
+    /**
+     * Tests that doPost sets the response status to SC_INTERNAL_SERVER_ERROR when an exception occurs while writing the response.
+     */
     @Nested
     @DisplayName("doPost exception")
     class DoPostExceptionTest {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="bin/test" path="src/test/resources">
+	<classpathentry excluding="**" kind="src" output="bin/test" path="src/test/resources">
 		<attributes>
 			<attribute name="gradle_scope" value="test"/>
 			<attribute name="gradle_used_by_scope" value="test"/>
@@ -14,7 +14,7 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" output="bin/main" path="src/main/resources">
+	<classpathentry excluding="**" kind="src" output="bin/main" path="src/main/resources">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
 			<attribute name="gradle_used_by_scope" value="main,test"/>
@@ -43,5 +43,10 @@
 			<attribute name="gradle.buildServer" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/GIT/JRomManager/jrmcore/build/libs/jrm-jrmcore-3.0.5.jar"/>
+	<classpathentry kind="lib" path="D:/GIT/JRomManager/res-icons/build/libs/jrm-res-icons-3.0.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.6.0/4e74ef2ed795b259364e33278c04f5265ca8266a/logback-classic-1.6.0.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-classic/1.6.0/17be7c218878e09bba7132cf83af4673977b610c/logback-classic-1.6.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.6.0/5b87315554b55fbf03288f22564f75b4db50ad80/logback-core-1.6.0.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/ch.qos.logback/logback-core/1.6.0/248665965c4eb8d19b3489c0d5baa7502aab8f31/logback-core-1.6.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.18/78a9e7a37cd6360e0b818e86341b24123d28d4df/slf4j-api-2.0.18.jar" sourcepath="C:/Users/opty/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/2.0.18/cbef69ca0f760268b2cb46acd30a3f50b98c2af2/slf4j-api-2.0.18-sources.jar"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

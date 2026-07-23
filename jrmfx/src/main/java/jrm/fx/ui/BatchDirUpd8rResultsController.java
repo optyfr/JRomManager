@@ -65,6 +65,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
     @FXML
     private Button ok;
 
+    /** {@inheritDoc} */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ok.setOnAction(_ -> ok.getScene().getWindow().hide());
@@ -80,18 +81,47 @@ public class BatchDirUpd8rResultsController extends BaseController {
         reportCol.setCellFactory(_ -> createReportCellFactory());
     }
 
+    /**
+     * Returns the total number of sets for a given DAT statistics object.
+     * <p>
+     * This method calculates the total number of sets by summing up the number of sets that were found, created, and missing.
+     * 
+     * @param stats the DAT statistics object
+     * 
+     * @return the total number of sets
+     */
     private int getSetTotal(Stats stats) {
         return stats.getSetCreate() + stats.getSetFound() + stats.getSetMissing();
     }
 
+    /**
+     * Returns the number of sets that were missing for a given DAT statistics object.
+     * <p>
+     * This method calculates the number of missing sets by subtracting the sum of sets that were found, created, and fixed from the
+     * total number of sets. *
+     * 
+     * @param stats the DAT statistics object
+     * 
+     * @return the number of missing sets
+     */
     private int getSetMissed(Stats stats) {
         return getSetTotal(stats) - (stats.getSetCreateComplete() + stats.getSetFoundFixComplete() + stats.getSetFoundOk());
     }
 
+    /**
+     * Creates a button cell factory for the report column that opens a detailed report when clicked.
+     * 
+     * @return the button cell factory for the report column
+     */
     private ButtonCellFactory<DirUpdaterResult, DirUpdaterResult> createReportCellFactory() {
         return new ButtonCellFactory<>("Report", this::showReport);
     }
 
+    /**
+     * Opens a detailed report for the selected DAT file when the report button in the table is clicked.
+     * 
+     * @param cell the table cell containing the report button
+     */
     private void showReport(TableCell<DirUpdaterResult, DirUpdaterResult> cell) {
         final var result = resultList.getItems().get(cell.getIndex());
         try {
@@ -113,6 +143,14 @@ public class BatchDirUpd8rResultsController extends BaseController {
         col.setCellValueFactory(param -> observableValueFromStats(extractor, param));
     }
 
+    /**
+     * Creates an observable value for a table cell that extracts and displays an integer value from the stats object.
+     * 
+     * @param extractor function to extract the integer value from the stats object
+     * @param param the cell data features for the current row in the table
+     * 
+     * @return an observable value that provides the extracted integer value
+     */
     private ObservableValueBase<Integer> observableValueFromStats(ToIntFunction<Report.Stats> extractor, CellDataFeatures<DirUpdaterResult, Integer> param) {
         return new ObservableValueBase<>() {
             @Override
@@ -133,6 +171,14 @@ public class BatchDirUpd8rResultsController extends BaseController {
         col.setCellValueFactory(param -> createObservableValue(extractor, param));
     }
 
+    /**
+     * Creates an observable value for a table cell that extracts and displays a string value from the result object.
+     * 
+     * @param extractor function to extract the string value from the result object
+     * @param param the cell data features for the current row in the table
+     * 
+     * @return an observable value that provides the extracted string value
+     */
     private ObservableValueBase<String> createObservableValue(Function<DirUpdaterResult, String> extractor, CellDataFeatures<DirUpdaterResult, String> param) {
         return new ObservableValueBase<>() {
             @Override

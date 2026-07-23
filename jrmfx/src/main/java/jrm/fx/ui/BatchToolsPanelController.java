@@ -85,86 +85,176 @@ import jrm.security.PathAbstractor;
  * @since 2.5
  */
 public class BatchToolsPanelController extends BaseController {
+    /** The path to the bullet/go icon resource. */
     private static final String ICON_BULLET_GO = "/jrm/resicons/icons/bullet_go.png";
+    /** The localized string for the cancelled status. */
     private static final String CANCELLED = "Cancelled";
 
+    /** FXML-injected tab for the DAT to directory extraction operation. */
     @FXML
     private Tab panelBatchToolsDat2Dir;
+    /** FXML-injected tab for the torrent checking operation. */
     @FXML
     private Tab panelBatchToolsDir2Torrent;
+    /** FXML-injected tab for the DAT to torrent operation (not yet implemented). */
+    @FXML
+    private Tab panelBatchToolsDat2Torrent;
+
+    /** FXML-injected button to clear the DAT-to-directory source list. */
+    @FXML
+    private Button btnBatchToolsDat2DirClear;
+    /** FXML-injected button to clear the torrent check list. */
+    @FXML
+    private Button btnBatchToolsTrntChkClear;    
+    /** FXML-injected button to start the DAT-to-directory batch operation. */
+    @FXML
+    private Button btnBatchToolsDat2DirStart;
+    /** FXML-injected button to start the DAT-to-torrent batch operation. */
+    @FXML
+    private Button btnBatchToolsDat2TorrentStart;
+    /** FXML-injected button to clear the DAT-to-torrent list. */
+    @FXML
+    private Button btnBatchToolsDat2TorrentClear;
+    /** FXML-injected checkbox for the DAT-to-torrent dry-run mode. */
+    @FXML
+    private CheckBox cbBatchToolsDat2TorrentDryRun;
+    /** FXML-injected choice box for the DAT-to-torrent check mode. */
+    @FXML
+    private ChoiceBox<TrntChkMode> cbbxBatchToolsDat2TorrentMode;
+    /** FXML-injected table view for the DAT-to-torrent source files. */
+    @FXML
+    private TableView<File> tvBatchToolsDat2TorrentSrc;
+    /** FXML-injected column for the DAT-to-torrent source file path. */
+    @FXML
+    private TableColumn<File, File> tvBatchToolsDat2TorrentSrcCol;
+    /** FXML-injected context menu for the DAT-to-torrent source list. */
+    @FXML
+    private ContextMenu popupMenuSrcDat2Torrent;
+    /** FXML-injected menu item to add a DAT-to-torrent source directory. */
+    @FXML
+    private MenuItem mnDat2TorrentAddSrcDir;
+    /** FXML-injected menu item to delete a DAT-to-torrent source directory. */
+    @FXML
+    private MenuItem mnDat2TorrentDelSrcDir;
+    /** FXML-injected table view for the DAT-to-torrent destination results. */
+    @FXML
+    private TableView<SrcDstResult> tvBatchToolsDat2TorrentDst;
+    /** FXML-injected column for the DAT-to-torrent destination DAT path. */
+    @FXML
+    private TableColumn<SrcDstResult, String> tvBatchToolsDat2TorrentDstDatsCol;
+    /** FXML-injected column for the DAT-to-torrent selection checkbox. */
+    @FXML
+    private TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2Torrent;
+    /** FXML-injected tab for the archive compression operation. */
     @FXML
     private Tab panelBatchToolsCompressor;
+    /** FXML-injected button to start the directory-to-DAT batch operation. */
     @FXML
     private Button btnBatchToolsDir2DatStart;
+    /** FXML-injected button to start the torrent check operation. */
     @FXML
     private Button btnBatchToolsTrntChkStart;
+    /** FXML-injected button to start the compression operation. */
     @FXML
     private Button btnBatchToolsCompressorStart;
+    /** FXML-injected button to clear the compressor list. */
     @FXML
     private Button btnBatchToolsCompressorClear;
+    /** FXML-injected choice box for the torrent check mode. */
     @FXML
     private ChoiceBox<TrntChkMode> cbbxBatchToolsTrntChk;
+    /** FXML-injected choice box for the compressor output format. */
     @FXML
     private ChoiceBox<CompressorFormat> cbbxBatchToolsCompressorFormat;
+    /** FXML-injected checkbox for the DAT-to-directory dry-run mode. */
     @FXML
     private CheckBox cbBatchToolsDat2DirDryRun;
+    /** FXML-injected checkbox for detecting archived folders during torrent check. */
     @FXML
     private CheckBox cbBatchToolsTrntChkDetectArchivedFolder;
+    /** FXML-injected checkbox for removing unknown files during torrent check. */
     @FXML
     private CheckBox cbBatchToolsTrntChkRemoveUnknownFiles;
+    /** FXML-injected checkbox for removing wrong-sized files during torrent check. */
     @FXML
     private CheckBox cbBatchToolsTrntChkRemoveWrongSizedFiles;
+    /** FXML-injected checkbox for forcing recompression even if the target format matches. */
     @FXML
     private CheckBox cbBatchToolsCompressorForce;
+    /** FXML-injected table view for the DAT-to-directory source directories. */
     @FXML
     private TableView<File> tvBatchToolsDat2DirSrc;
+    /** FXML-injected column for the DAT-to-directory source directory path. */
     @FXML
     private TableColumn<File, File> tvBatchToolsDat2DirSrcCol;
+    /** FXML-injected context menu for the DAT-to-directory source list. */
     @FXML
     private ContextMenu popupMenuSrc;
+    /** FXML-injected menu item to add a DAT-to-directory source directory. */
     @FXML
     private MenuItem mnDat2DirAddSrcDir;
+    /** FXML-injected menu item to delete a DAT-to-directory source directory. */
     @FXML
     private MenuItem mnDat2DirDelSrcDir;
+    /** FXML-injected table view for the DAT-to-directory destination results. */
     @FXML
     private TableView<SrcDstResult> tvBatchToolsDat2DirDst;
+    /** FXML-injected column for the DAT-to-directory destination DAT path. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDatsCol;
+    /** FXML-injected column for the DAT-to-directory destination directory path. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstDirsCol;
+    /** FXML-injected column for the DAT-to-directory result status text. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsDat2DirDstResultCol;
+    /** FXML-injected column for the DAT-to-directory detail button. */
     @FXML
     private TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsDat2DirDstDetailsCol;
+    /** FXML-injected column for the DAT-to-directory selection checkbox. */
     @FXML
     private TableColumn<SrcDstResult, Boolean> tvBatchToolsDat2DirDstSelCol;
+    /** FXML-injected context menu for the DAT-to-directory destination list. */
     @FXML
     private ContextMenu popupMenuDst;
+    /** FXML-injected menu item to delete a DAT-to-directory destination DAT entry. */
     @FXML
     private MenuItem mnDat2DirDelDstDat;
+    /** FXML-injected menu for the DAT-to-directory destination presets submenu. */
     @FXML
     private Menu mntmDat2DirDstPresets;
+    /** FXML-injected table view for the torrent check source entries. */
     @FXML
     private TableView<SrcDstResult> tvBatchToolsTorrent;
+    /** FXML-injected column for the torrent check source file path. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsTorrentFilesCol;
+    /** FXML-injected column for the torrent check destination directory path. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsTorrentDstDirsCol;
+    /** FXML-injected column for the torrent check result status text. */
     @FXML
     private TableColumn<SrcDstResult, String> tvBatchToolsTorrentResultCol;
+    /** FXML-injected column for the torrent check detail button. */
     @FXML
     private TableColumn<SrcDstResult, SrcDstResult> tvBatchToolsTorrentDetailsCol;
+    /** FXML-injected column for the torrent check selection checkbox. */
     @FXML
     private TableColumn<SrcDstResult, Boolean> tvBatchToolsTorrentSelCol;
+    /** FXML-injected context menu for the torrent check list. */
     @FXML
     private ContextMenu popupMenuTorrent;
+    /** FXML-injected menu item to delete a torrent entry. */
     @FXML
     private MenuItem mnDelTorrent;
 
+    /** FXML-injected table view for the compressor file list. */
     @FXML
     private TableView<FileResult> tvBatchToolsCompressor;
+    /** FXML-injected column for the compressor source file path. */
     @FXML
     private TableColumn<FileResult, Path> tvBatchToolsCompressorFileCol;
+    /** FXML-injected column for the compressor status text. */
     @FXML
     private TableColumn<FileResult, String> tvBatchToolsCompressorStatusCol;
 
@@ -346,10 +436,8 @@ public class BatchToolsPanelController extends BaseController {
      * @param cnt the compression counter
      * @param compressor the compressor instance
      * @param fr the file result to compress
-     * 
-     * @throws IllegalArgumentException if the file cannot be compressed
      */
-    private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) throws IllegalArgumentException {
+    private void compress(final AtomicInteger cnt, final Compressor compressor, FileResult fr) {
         var file = fr.getFile().toFile();
         cnt.incrementAndGet();
         Compressor.UpdResultCallBack cb = fr::setResult;
@@ -368,10 +456,8 @@ public class BatchToolsPanelController extends BaseController {
      * @param file the file to convert
      * @param cb the result callback
      * @param scb the source callback
-     * 
-     * @throws IllegalArgumentException if the file cannot be converted
      */
-    private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
+    private void toSevenZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) {
         switch (FilenameUtils.getExtension(file.getName())) {
             case "zip" -> compressor.zip2SevenZip(file, cb, scb);
             case "7z" -> {
@@ -391,10 +477,8 @@ public class BatchToolsPanelController extends BaseController {
      * @param file the file to convert
      * @param cb the result callback
      * @param scb the source callback
-     * 
-     * @throws IllegalArgumentException if the file cannot be converted
      */
-    private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
+    private void toZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) {
         if ("zip".equals(FilenameUtils.getExtension(file.getName()))) {
             if (cbBatchToolsCompressorForce.isSelected())
                 compressor.zip2Zip(file, cb, scb);
@@ -411,10 +495,8 @@ public class BatchToolsPanelController extends BaseController {
      * @param file the file to convert
      * @param cb the result callback
      * @param scb the source callback
-     * 
-     * @throws IllegalArgumentException if the file cannot be converted
      */
-    private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) throws IllegalArgumentException {
+    private void toTZip(final Compressor compressor, File file, Compressor.UpdResultCallBack cb, Compressor.UpdSrcCallBack scb) {
         if ("zip".equals(FilenameUtils.getExtension(file.getName())))
             compressor.zip2TZip(file, cbBatchToolsCompressorForce.isSelected(), cb);
         else {
@@ -580,6 +662,13 @@ public class BatchToolsPanelController extends BaseController {
         return new DropCell(tvBatchToolsTorrent, this::handleTorrentDstDrop, File::isDirectory);
     }
 
+    /**
+     * Handles dropped destination directories by updating the destination paths in the given list
+     * of {@code SrcDstResult} objects and saving the updated list.
+     *
+     * @param sdrlist the list of {@code SrcDstResult} objects to update
+     * @param files the list of dropped directories
+     */
     private void handleTorrentDstDrop(List<SrcDstResult> sdrlist, List<File> files) {
         for (int i = 0; i < files.size(); i++)
             sdrlist.get(i).setDst(PathAbstractor.getRelativePath(session, files.get(i).toPath()).toString());
@@ -639,6 +728,11 @@ public class BatchToolsPanelController extends BaseController {
         btnBatchToolsDir2DatStart.setOnAction(_ -> startDir2Dat());
     }
 
+    /**
+     * Handles changes to the "Dry Run" checkbox for the DAT-to-directory operation.
+     *
+     * @param newValue the new value of the checkbox
+     */
     private void handleDat2DirDryRunChange(Boolean newValue) {
         session.getUser().getSettings().setProperty(SettingsEnum.dat2dir_dry_run, newValue);
     }
@@ -888,6 +982,11 @@ public class BatchToolsPanelController extends BaseController {
             Dialogs.showAlert(Messages.getString("MainFrame.AtLeastOneSrcDir"));
     }
 
+    /**
+     * Creates a result column updater for the DAT-to-directory batch operation.
+     *
+     * @return a new {@link ResultColUpdater} that updates the DAT-to-directory destination table rows
+     */
     private ResultColUpdater createResultColUpdater() {
         return new ResultColUpdater() {
             @Override
@@ -1107,7 +1206,8 @@ public class BatchToolsPanelController extends BaseController {
         final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseOpenFileMulti(tvBatchToolsDat2DirDst, null, lastdstdatdir, Arrays.asList(new FileChooser.ExtensionFilter("DAT files", "*.dat", "*.xml")), paths -> DropCell
-                .process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(), this::processDat2DirDstFiles));
+                .process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), paths.stream().map(Path::toFile).toList(),
+                        this::processDat2DirDstFiles));
     }
 
     /**
@@ -1133,7 +1233,8 @@ public class BatchToolsPanelController extends BaseController {
         final var lastdstdatdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdatdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsDat2DirDst, null, lastdstdatdir,
-                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::processDat2DirDstFiles));
+                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()),
+                        this::processDat2DirDstFiles));
     }
 
     /**
@@ -1146,7 +1247,8 @@ public class BatchToolsPanelController extends BaseController {
         final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_lastdstdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsDat2DirDst, null, lastdstdir,
-                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::processDat2DirDst));
+                path -> DropCell.process(tvBatchToolsDat2DirDst, tvBatchToolsDat2DirDst.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()),
+                        this::processDat2DirDst));
     }
 
     /**
@@ -1220,11 +1322,13 @@ public class BatchToolsPanelController extends BaseController {
         final var lastdstdir = Optional.ofNullable(session.getUser().getSettings().getProperty(SettingsEnum.trntchk_lastdstdir)).map(File::new).filter(File::exists)
                 .filter(File::isDirectory).orElse(null);
         chooseDir(tvBatchToolsTorrent, null, lastdstdir,
-                path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()), this::handleTorrentDstSelection));
+                path -> DropCell.process(tvBatchToolsTorrent, tvBatchToolsTorrent.getSelectionModel().getSelectedIndex(), Arrays.asList(path.toFile()),
+                        this::handleTorrentDstSelection));
     }
 
     /**
-     * Handles the selection of a torrent destination directory by updating the destination paths in the given list of {@code SrcDstResult} objects.
+     * Handles the selection of a torrent destination directory by updating the destination paths in the given list of
+     * {@code SrcDstResult} objects.
      *
      * @param sdrlist the list of {@code SrcDstResult} objects to update
      * @param files the list of selected torrent destination directories
@@ -1280,9 +1384,17 @@ public class BatchToolsPanelController extends BaseController {
         tvBatchToolsCompressor.getItems().removeAll(tvBatchToolsCompressor.getSelectionModel().getSelectedItems());
     }
 
-    /** Custom presets stage. */
+    /**
+     * Modal dialog for editing custom profile settings (compression, filtering, etc.) on selected
+     * DAT-to-directory entries.
+     * <p>
+     * Loads the {@code ScannerPanelSettings.fxml} layout, initializes a {@link ScannerPanelSettingsController},
+     * and saves the modified settings back for each selected entry on OK.
+     */
     public class CustomPresets extends Stage {
-        /** The controller for the scanner panel settings. */
+        /**
+         * The controller for the scanner panel settings loaded from the FXML layout.
+         */
         ScannerPanelSettingsController controller;
 
         /**

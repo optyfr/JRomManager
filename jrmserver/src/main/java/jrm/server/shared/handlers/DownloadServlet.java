@@ -127,6 +127,17 @@ public class DownloadServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Streams a directory and its contents as a ZIP archive to the client.
+     * <p>
+     * This method creates a ZIP output stream from the response's output stream and walks the file tree starting at the
+     * specified directory path, adding each file as a ZIP entry. The ZIP archive uses UTF-8 encoding for entry names.
+     * </p>
+     *
+     * @param resp the HTTP servlet response for writing the ZIP stream
+     * @param file the directory path to zip and stream
+     * @throws IOException if an I/O error occurs during streaming
+     */
     private void streamZippedDirectory(final HttpServletResponse resp, final Path file) throws IOException {
         val dlfilename = file.getFileName().toString() + ".zip";
         resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");
@@ -146,6 +157,13 @@ public class DownloadServlet extends HttpServlet {
         zos.finish();
     }
 
+    /**
+     * Streams a single file to the client with appropriate HTTP headers.
+     *
+     * @param resp the HTTP servlet response for streaming the file
+     * @param file the path to the file to stream
+     * @throws IOException if an I/O error occurs during streaming
+     */
     private void streamFile(final HttpServletResponse resp, final Path file) throws IOException {
         val dlfilename = file.getFileName().toString();
         resp.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(dlfilename, "UTF-8") + "; filename=\"" + dlfilename + "\"");

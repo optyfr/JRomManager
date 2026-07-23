@@ -15,7 +15,15 @@ import jrm.security.Sessions;
 
 /**
  * Modal dialog displaying batch directory update results.
- *
+ * <p>
+ * This dialog is modal and will block until the user closes it. The results are
+ * passed to the FXML controller, which displays them in a table view. The dialog
+ * can be resized and moved by the user, and its position and size are saved in the
+ * user's settings. If no results are provided, the dialog will display an empty
+ * table view.
+ * 
+ * @see jrm.batch.DirUpdaterResults
+ * 
  * @since 2.5
  */
 class BatchDirUpd8rResults extends Stage {
@@ -28,10 +36,11 @@ class BatchDirUpd8rResults extends Stage {
     /**
      * Constructs and shows the batch directory update results dialog.
      *
-     * @param parent  the parent stage
+     * @param parent the parent stage
      * @param results the results to display, or {@code null}
+     * 
      * @throws URISyntaxException if the FXML resource cannot be converted to a URI
-     * @throws IOException        if the FXML cannot be loaded
+     * @throws IOException if the FXML cannot be loaded
      */
     public BatchDirUpd8rResults(Stage parent, DirUpdaterResults results) throws URISyntaxException, IOException {
         super();

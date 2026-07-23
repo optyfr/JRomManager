@@ -159,6 +159,22 @@ public class DataSourceServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * Returns an instance of the appropriate {@link XMLResponse} handler based on the request URI.
+     * <p>
+     * This method uses a switch expression to match the request URI against known data source endpoints and instantiate the
+     * corresponding {@code XMLResponse} subclass. If the URI is unrecognized, the method returns {@code null}.
+     * 
+     * @param sess the current web session associated with the request
+     * @param req the HTTP servlet request providing the input stream and URI
+     * @param bodylen the length of the request body in bytes
+     * @param in the buffered input stream from which the request body can be read
+     * 
+     * @return an instance of the appropriate {@code XMLResponse} handler, or {@code null} if the URI is unrecognized
+     * 
+     * @throws IOException if an I/O error occurs while reading the request body
+     * @throws XMLStreamException if an error occurs during XML stream processing
+     */
     private XMLResponse getXMLResponse(final WebSession sess, final HttpServletRequest req, final int bodylen, final BufferedInputStream in) throws IOException, XMLStreamException {
         return switch (req.getRequestURI()) {
             case "/datasources/profilesTree" -> new ProfilesTreeXMLResponse(new XMLRequest(sess, in, bodylen));

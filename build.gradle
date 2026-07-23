@@ -1,5 +1,5 @@
 plugins {
-    id 'java' 
+    id 'java'
     id 'application'
     id "org.sonarqube"
     id "com.netflix.nebula.ospackage" version "latest.release"
@@ -74,7 +74,6 @@ eclipse {
         downloadSources = true
     }
 }
-
 
 lombok {
     version = '1.18.46'
@@ -157,7 +156,7 @@ subprojects {
             '--add-opens', 'java.base/java.util=ALL-UNNAMED',
             '--enable-native-access=ALL-UNNAMED'
     }
-    
+
     jacocoTestReport {
         dependsOn test
         reports {
@@ -165,7 +164,7 @@ subprojects {
             html.required = true
         }
     }
-    
+
     sonar {
         properties {
             property "sonar.projectKey", "optyfr_JRomManager"
@@ -213,7 +212,7 @@ project(':jrmcore') {
         implementation 'com.sun.activation:javax.activation:1.2.+'
         implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
         implementation 'net.lingala.zip4j:zip4j:latest.release'
-    
+
         testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
@@ -265,7 +264,7 @@ project(':jrmcore') {
             showExceptions = true
             showCauses = true
             showStackTraces = true
-    
+
             // set options for log level DEBUG and INFO
             debug {
                 events  TestLogEvent.STARTED,
@@ -281,7 +280,7 @@ project(':jrmcore') {
             }
             info.events = debug.events
             info.exceptionFormat = debug.exceptionFormat
-    
+
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -299,7 +298,7 @@ project(':jrmcore') {
 
 project(':jrmcli') {
     apply plugin: "io.freefair.lombok"
-    
+
     apply plugin: "eclipse"
 
     dependencies {
@@ -310,7 +309,7 @@ project(':jrmcli') {
         implementation 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
         implementation 'org.jline:jline:4.3.1'
         implementation 'org.jline:jline-terminal-jansi:3.30.15'
-    
+
         testImplementation 'org.junit.jupiter:junit-jupiter-api:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-engine:latest.release'
         testImplementation 'org.junit.jupiter:junit-jupiter-params:latest.release'
@@ -364,7 +363,7 @@ project(':jrmcli') {
             showExceptions = true
             showCauses = true
             showStackTraces = true
-    
+
             // set options for log level DEBUG and INFO
             debug {
                 events  TestLogEvent.STARTED,
@@ -380,7 +379,7 @@ project(':jrmcli') {
             }
             info.events = debug.events
             info.exceptionFormat = debug.exceptionFormat
-    
+
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -394,7 +393,7 @@ project(':jrmcli') {
         }
         systemProperty "file.encoding", "utf-8"
     }
-    
+
 }
 
 project(':res-icons') {
@@ -488,7 +487,7 @@ project(':jrmfx') {
     apply plugin: "io.freefair.lombok"
 
     apply plugin: "org.openjfx.javafxplugin"
-    
+
     javafx {
         version = '22'
         modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.swing' ]
@@ -564,7 +563,7 @@ project(':jrmfx') {
             showExceptions = true
             showCauses = true
             showStackTraces = true
-    
+
             // set options for log level DEBUG and INFO
             debug {
                 events  TestLogEvent.STARTED,
@@ -580,7 +579,7 @@ project(':jrmfx') {
             }
             info.events = debug.events
             info.exceptionFormat = debug.exceptionFormat
-    
+
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -601,7 +600,7 @@ project(':jrmserver') {
     apply plugin: "io.freefair.lombok"
     apply plugin: "eclipse"
 
-    compileJava.dependsOn project(':WebClient').build 
+    compileJava.dependsOn project(':WebClient').build
 
     def wcjar = project(':WebClient').jar;
     dependencies {
@@ -653,11 +652,11 @@ project(':jrmserver') {
             addBooleanOption('-syntax-highlight', true)
         }
     }
-    
+
     apply plugin: 'jacoco'
     test {
         dependsOn ':WebClient:build'
-    
+
         useJUnitPlatform {
             includeEngines 'junit-jupiter'
         }
@@ -676,7 +675,7 @@ project(':jrmserver') {
             showExceptions = true
             showCauses = true
             showStackTraces = true
-    
+
             // set options for log level DEBUG and INFO
             debug {
                 events  TestLogEvent.STARTED,
@@ -692,7 +691,7 @@ project(':jrmserver') {
             }
             info.events = debug.events
             info.exceptionFormat = debug.exceptionFormat
-    
+
             addTestListener(new TestListener() {
                 void aftersuite(TestDescriptor desc, TestResult result) {
                     if (!desc.parent) { // will match the outermost suite
@@ -708,7 +707,6 @@ project(':jrmserver') {
         systemProperty "file.encoding", "utf-8"
     }
 
-    
     jar {
         manifest {
             attributes(
@@ -776,7 +774,7 @@ task cliFatJar(type: Jar) {
     from { project(':jrmcli').configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
-build.dependsOn cliFatJar 
+build.dependsOn cliFatJar
 
 task downloadDaemonWin(type: Download) {
     src 'https://archive.apache.org/dist/commons/daemon/binaries/windows/commons-daemon-'+props.getProperty("Commons-Daemon-Version")+'-bin-windows.zip'
@@ -990,9 +988,9 @@ task aggregatedJavadocs(type: Javadoc, description: 'Generate javadocs from all 
     title = "$project.name $version API"
     options.author true
     options.links 'https://docs.oracle.com/en/java/javase/21/docs/api', 'https://openjfx.io/javadoc/21/'
-    
+
     dependsOn subprojects.findAll { it.javadoc.enabled }.collect { it.javadoc }
-    
+
     def projectsWithJavadoc = subprojects.findAll { it.javadoc.enabled }
     source = projectsWithJavadoc.collect { it.buildDir.toPath().resolve("generated/sources/delombok/java/main").toFile() }
     classpath = files(projectsWithJavadoc.collect { it.sourceSets.main.compileClasspath })
@@ -1068,7 +1066,6 @@ buildRpm.dependsOn distZip
 build.dependsOn buildRpm
 buildDeb.dependsOn distZip
 build.dependsOn buildDeb
-
 
 apply plugin: "org.beryx.jlink"
 
@@ -1158,7 +1155,8 @@ jlink {
         if (installerType == 'dmg') {
             installerName = 'JRomManager-' + targetPlatformName
         }
-    }    
+    }
 }
 
 prepareMergedJarsDir.dependsOn jar
+

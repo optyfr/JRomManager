@@ -30,20 +30,31 @@ import jrm.server.shared.WebSession;
 @DisplayName("FullDataSourceServlet")
 class FullDataSourceServletTest {
 
+    /** Web session for testing. */
     private WebSession webSession;
+    /** Servlet under test. */
     private FullDataSourceServlet servlet;
 
+    /** Set up before each test. */
     @BeforeEach
     void setUp() {
         webSession = TestWebSessions.newAdminSession("full-ds-test");
         servlet = new FullDataSourceServlet();
     }
 
+    /** Clean up after each test. */
     @AfterEach
     void tearDown() {
         TestWebSessions.resetStaticState();
     }
 
+    /**
+     * Builds a mock HttpServletRequest with the given URI and body.
+     *
+     * @param uri the request URI
+     * @param body the request body as bytes, or null if no body
+     * @return a mock HttpServletRequest configured with the given parameters
+     */
     private HttpServletRequest buildRequest(final String uri, final byte[] body) {
         final HttpSession httpSession = mock(HttpSession.class);
         when(httpSession.getAttribute("session")).thenReturn(webSession);
@@ -83,9 +94,27 @@ class FullDataSourceServletTest {
         return req;
     }
 
+    /**
+     * Tests for the processResponse dispatch method.
+     */
     @Nested
     @DisplayName("processResponse dispatch")
     class ProcessResponseTest {
+
+        /** Tests that a known URI delegates to the super implementation. */
+        @Test
+        @DisplayName("known URI delegates to super")
+        void knownUri() throws Exception {
+            final HttpServletResponse resp = mock(HttpServletResponse.class);
+            final String xml = "<request><operationType>fetch</operationType><operationId>op1</operationId></request>";
+            final byte[] body = xml.getBytes(StandardCharsets.UTF_8);
+            final HttpServletRequest req = buildRequest("/datasources/fetch", body);
+            final var result = servlet.processResponse(webSession, req, resp);
+            assertThat(result).isNull();
+            verify(resp).setStatus(HttpServletResponse.SC_OK);
+        }
+
+        /** Tests that an unknown URI delegates to the super implementation and sets SC_NOT_IMPLEMENTED. */
         @Test
         @DisplayName("unknown URI delegates to super and sets SC_NOT_IMPLEMENTED")
         void unknownUri() throws Exception {
