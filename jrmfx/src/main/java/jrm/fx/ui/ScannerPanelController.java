@@ -80,165 +80,243 @@ import jrm.security.Session;
  * @since 2.5
  */
 public class ScannerPanelController extends BaseController implements ProfileLoader {
+    /** Icon path for disk destination buttons. */
     private static final String DISK_ICON = "/jrm/resicons/icons/disk.png";
 
+    /** The scanner panel tab. */
     @FXML
     private Tab dirTab;
 
+    /** Profile information button. */
     @FXML
     private Button infosBtn;
+    /** Scan button. */
     @FXML
     private Button scanBtn;
+    /** Report button. */
     @FXML
     private Button reportBtn;
+    /** Fix button. */
     @FXML
     private Button fixBtn;
+    /** Import settings button. */
     @FXML
     private Button importBtn;
+    /** Export settings button. */
     @FXML
     private Button exportBtn;
 
+    /** ROMs destination browse button. */
     @FXML
     private Button romsDestBtn;
+    /** ROMs destination directory text field. */
     @FXML
     private TextField romsDest;
+    /** Disks destination enabled checkbox. */
     @FXML
     private CheckBox disksDestCB;
+    /** Disks destination browse button. */
     @FXML
     private Button disksDestBtn;
+    /** Disks destination directory text field. */
     @FXML
     private TextField disksDest;
+    /** Software ROMs destination enabled checkbox. */
     @FXML
     private CheckBox swDestCB;
+    /** Software ROMs destination browse button. */
     @FXML
     private Button swDestBtn;
+    /** Software ROMs destination directory text field. */
     @FXML
     private TextField swDest;
+    /** Software disks destination enabled checkbox. */
     @FXML
     private CheckBox swDisksDestCB;
+    /** Software disks destination browse button. */
     @FXML
     private Button swDisksDestBtn;
+    /** Software disks destination directory text field. */
     @FXML
     private TextField swDisksDest;
+    /** Samples destination enabled checkbox. */
     @FXML
     private CheckBox samplesDestCB;
+    /** Samples destination browse button. */
     @FXML
     private Button samplesDestBtn;
+    /** Samples destination directory text field. */
     @FXML
     private TextField samplesDest;
+    /** Backup destination enabled checkbox. */
     @FXML
     private CheckBox backupDestCB;
+    /** Backup destination browse button. */
     @FXML
     private Button backupDestBtn;
+    /** Backup destination directory text field. */
     @FXML
     private TextField backupDest;
 
+    /** ROM source directories list view. */
     @FXML
     private ListView<File> srcList;
+    /** Source list context menu. */
     @FXML
     private ContextMenu srcListMenu;
+    /** Source list &quot;Add&quot; menu item. */
     @FXML
     private MenuItem srcListAddMenuItem;
+    /** Source list &quot;Delete&quot; menu item. */
     @FXML
     private MenuItem srcListDelMenuItem;
 
+    /** Settings tab. */
     @FXML
     private Tab settingsTab;
 
+    /** Nested settings controller. */
     @FXML
     private ScannerPanelSettingsController scannerPanelSettingsController;
 
+    /** Filter tab. */
     @FXML
     private Tab filterTab;
+    /** Advanced filter tab. */
     @FXML
     private Tab advFilterTab;
+    /** Automation tab. */
     @FXML
     private Tab automationTab;
 
+    /** Profile info label container. */
     @FXML
     private HBox profileinfoLbl;
 
+    /** Systems filter check-box list view. */
     @FXML
     private ListView<Systm> systemsFilter;
+    /** Systems filter context menu. */
     @FXML
     private ContextMenu systemsFilterMenu;
+    /** Systems filter &quot;Select All&quot; menu item. */
     @FXML
     private MenuItem systemsFilterSelectAllMenuItem;
+    /** Systems filter &quot;Select All BIOS&quot; menu item. */
     @FXML
     private MenuItem systemsFilterSelectAllBiosMenuItem;
+    /** Systems filter &quot;Select All Software Lists&quot; menu item. */
     @FXML
     private MenuItem systemsFilterSelectAllSoftwaresMenuItem;
+    /** Systems filter &quot;Unselect All&quot; menu item. */
     @FXML
     private MenuItem systemsFilterUnselectAllMenuItem;
+    /** Systems filter &quot;Unselect All BIOS&quot; menu item. */
     @FXML
     private MenuItem systemsFilterUnselectAllBiosMenuItem;
+    /** Systems filter &quot;Unselect All Software Lists&quot; menu item. */
     @FXML
     private MenuItem systemsFilterUnselectAllSoftwaresMenuItem;
+    /** Systems filter &quot;Invert Selection&quot; menu item. */
     @FXML
     private MenuItem systemsFilterInvertSelectionMenuItem;
+    /** Sources filter check-box list view. */
     @FXML
     private ListView<Source> sourcesFilter;
+    /** Sources filter context menu. */
     @FXML
     private ContextMenu sourcesFilterMenu;
+    /** Sources filter &quot;Select All&quot; menu item. */
     @FXML
     private MenuItem sourcesFilterSelectAllMenuItem;
+    /** Sources filter &quot;Unselect All&quot; menu item. */
     @FXML
     private MenuItem sourcesFilterUnselectAllMenuItem;
+    /** Sources filter &quot;Invert Selection&quot; menu item. */
     @FXML
     private MenuItem sourcesFilterInvertSelectionMenuItem;
 
+    /** Include clones filter checkbox. */
     @FXML
     private CheckBox chckbxIncludeClones;
+    /** Include disks filter checkbox. */
     @FXML
     private CheckBox chckbxIncludeDisks;
+    /** Include samples filter checkbox. */
     @FXML
     private CheckBox chckbxIncludeSamples;
+    /** Driver status filter combo box. */
     @FXML
     private ComboBox<Driver.StatusType> cbbxDriverStatus;
+    /** Cabinet type filter combo box. */
     @FXML
     private ComboBox<CabinetType> cbbxFilterCabinetType;
+    /** Display orientation filter combo box. */
     @FXML
     private ComboBox<DisplayOrientation> cbbxFilterDisplayOrientation;
+    /** Software minimum supported level filter combo box. */
     @FXML
     private ComboBox<Supported> cbbxSWMinSupportedLvl;
+    /** Minimum year filter combo box. */
     @FXML
     private ComboBox<String> cbbxYearMin;
+    /** Maximum year filter combo box. */
     @FXML
     private ComboBox<String> cbbxYearMax;
 
+    /** NPlayers file path text field. */
     @FXML
     private TextField tfNPlayers;
+    /** NPlayers list view. */
     @FXML
     private ListView<NPlayer> listNPlayers;
+    /** CatVer file path text field. */
     @FXML
     private TextField tfCatVer;
+    /** CatVer category tree view. */
     @FXML
     private TreeView<PropertyStub> treeCatVer;
+    /** Scan automation combo box. */
     @FXML
     private ComboBox<Descriptor> cbAutomation;
+    /** NPlayers context menu. */
     @FXML
     private ContextMenu nPlayersMenu;
+    /** NPlayers &quot;Select All&quot; menu item. */
     @FXML
     private MenuItem nPlayersMenuItemAll;
+    /** NPlayers &quot;Select None&quot; menu item. */
     @FXML
     private MenuItem nPlayersMenuItemNone;
+    /** NPlayers &quot;Invert Selection&quot; menu item. */
     @FXML
     private MenuItem nPlayersMenuItemInvert;
+    /** NPlayers &quot;Clear&quot; menu item. */
     @FXML
     private MenuItem nPlayersMenuItemClear;
+    /** CatVer context menu. */
     @FXML
     private ContextMenu catVerMenu;
+    /** CatVer &quot;Select All&quot; menu item. */
     @FXML
     private MenuItem catVerMenuItemSelectAll;
+    /** CatVer &quot;Select Mature&quot; menu item. */
     @FXML
     private MenuItem catVerMenuItemSelectMature;
+    /** CatVer &quot;Unselect All&quot; menu item. */
     @FXML
     private MenuItem catVerMenuItemUnselectAll;
+    /** CatVer &quot;Unselect Mature&quot; menu item. */
     @FXML
     private MenuItem catVerMenuItemUnselectMature;
+    /** CatVer &quot;Clear&quot; menu item. */
     @FXML
     private MenuItem catVerMenuItemClear;
 
+    /**
+     * Initializes the controller, setting up tabs, destinations, action buttons,
+     * source list, drag-and-drop, filters, NPlayers, CatVer, automation, and import/export.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initTabIcons();
@@ -253,6 +331,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         initImportExport();
     }
 
+    /**
+     * Sets icons for all tab headers: directory, settings, filter, advanced filter, and automation.
+     */
     private void initTabIcons() {
         dirTab.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/folder.png"));
         settingsTab.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/cog.png"));
@@ -261,6 +342,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         automationTab.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/link.png"));
     }
 
+    /**
+     * Initializes destination text fields and buttons with icons and checkbox listeners.
+     */
     private void initDestinations() {
         romsDestBtn.setGraphic(IconHelper.createIcon(DISK_ICON));
         disksDestBtn.setGraphic(IconHelper.createIcon(DISK_ICON));
@@ -275,6 +359,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         initDestCheckBox(backupDestCB, backupDest, backupDestBtn, ProfileSettingsEnum.backup_dest_dir_enabled);
     }
 
+    /**
+     * Sets icons on the info, scan, report, fix, import, and export action buttons.
+     */
     private void initActionButtons() {
         infosBtn.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/information.png"));
         scanBtn.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/magnifier.png"));
@@ -284,6 +371,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         exportBtn.setGraphic(IconHelper.createIcon("/jrm/resicons/icons/table_save.png"));
     }
 
+    /**
+     * Configures the source list view with a custom cell factory and context menu actions.
+     */
     private void initSrcList() {
         srcList.setCellFactory(_ -> srcListCellFactory());
         srcListMenu.setOnShowing(_ -> srcListDelMenuItem.setDisable(srcList.getSelectionModel().getSelectedIndex() < 0));
@@ -291,11 +381,21 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         srcListAddMenuItem.setOnAction(_ -> chooseSrc(null, ProfileSettingsEnum.src_dir, "MainFrame.ChooseRomsSource"));
     }
 
+    /**
+     * Removes selected items from the source list and persists the change to the profile.
+     */
     private void removeSelectedSrcItems() {
         srcList.getItems().removeAll(srcList.getSelectionModel().getSelectedItems());
         saveSrcList();
     }
 
+    /**
+     * Creates a cell factory for the source file list view.
+     * <p>
+     * Displays the file path and enables double-click editing of the source directory.
+     *
+     * @return a {@link ListCell} factory for {@link File} entries
+     */
     private ListCell<File> srcListCellFactory() {
         return new ListCell<File>() {
             @Override
@@ -317,6 +417,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         };
     }
 
+    /**
+     * Installs drag-and-drop directory handlers for destination text fields and the source list.
+     */
     private void initDestDragNDrop() {
         new DragNDrop(romsDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.roms_dest_dir, txt));
         new DragNDrop(disksDest).addDir(txt -> session.getCurrProfile().setProperty(ProfileSettingsEnum.disks_dest_dir, txt));
@@ -328,6 +431,10 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 .addDirs(files -> session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", files.stream().map(File::getAbsolutePath).toList())));
     }
 
+    /**
+     * Initializes the systems and sources filter lists and all filter combo boxes
+     * with their data sources and event handlers.
+     */
     private void initFilters() {
         systemsFilter.setCellFactory(CheckBoxListCell.forListView(this::systemsFilterCellValue));
 
@@ -348,51 +455,84 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         cbbxYearMax.setOnAction(_ -> yearMax());
     }
 
+    /**
+     * Handles changes to the maximum year filter, updating the profile setting.
+     */
     private void yearMax() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMax, cbbxYearMax.getValue());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the minimum year filter, updating the profile setting.
+     */
     private void yearMin() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_YearMin, cbbxYearMin.getValue());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the software minimum supported level filter.
+     */
     private void swMinSupportedLevel() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_MinSoftwareSupportedLevel, cbbxSWMinSupportedLvl.getValue().toString());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the driver status filter.
+     */
     private void driverStatus() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DriverStatus, cbbxDriverStatus.getValue().toString());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the display orientation filter.
+     */
     private void filterDisplayOrientation() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_DisplayOrientation, cbbxFilterDisplayOrientation.getValue().toString());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the cabinet type filter.
+     */
     private void filterCabinetType() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_CabinetType, cbbxFilterCabinetType.getValue().toString());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the include samples filter checkbox.
+     */
     private void includeSamples() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclSamples, chckbxIncludeSamples.isSelected());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the include disks filter checkbox.
+     */
     private void includeDisks() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclDisks, chckbxIncludeDisks.isSelected());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Handles changes to the include clones filter checkbox.
+     */
     private void includeClones() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_InclClones, chckbxIncludeClones.isSelected());
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Provides an observable boolean value for the sources filter check-box list.
+     *
+     * @param item the source to bind
+     * @return an {@link ObservableValue} reflecting the selection state of the source
+     */
     private ObservableValue<Boolean> sourcesFilterCellValue(Source item) {
         BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
         observable.addListener((_, _, isNowSelected) -> {
@@ -402,6 +542,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         return observable;
     }
 
+    /**
+     * Provides an observable boolean value for the systems filter check-box list.
+     *
+     * @param item the system to bind
+     * @return an {@link ObservableValue} reflecting the selection state of the system
+     */
     private ObservableValue<Boolean> systemsFilterCellValue(Systm item) {
         BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
         observable.addListener((_, _, isNowSelected) -> {
@@ -411,11 +557,20 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         return observable;
     }
 
+    /**
+     * Initializes the NPlayers filter view with drag-and-drop file loading and check-box cell factory.
+     */
     private void initNPlayers() {
         new DragNDrop(tfNPlayers).addFile(this::selectNPlayersFile);
         listNPlayers.setCellFactory(CheckBoxListCell.forListView(this::nPlayersCellValue));
     }
 
+    /**
+     * Provides an observable boolean value for the NPlayers check-box list.
+     *
+     * @param item the NPlayer entry to bind
+     * @return an {@link ObservableValue} reflecting the selection state
+     */
     private ObservableValue<Boolean> nPlayersCellValue(NPlayer item) {
         BooleanProperty observable = new SimpleBooleanProperty(item.isSelected(session.getCurrProfile()));
         observable.addListener((_, _, isNowSelected) -> {
@@ -425,11 +580,19 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         return observable;
     }
 
+    /**
+     * Initializes the CatVer filter tree view with drag-and-drop file loading and check-box tree cell factory.
+     */
     private void initCatVer() {
         new DragNDrop(tfCatVer).addFile(this::selectCatVerFile);
         treeCatVer.setCellFactory(CheckBoxTreeCell.forTreeView(this::catVerCellValue, catVerStringConverter()));
     }
 
+    /**
+     * Creates a string converter for CatVer tree items.
+     *
+     * @return a {@link StringConverter} that reads the string representation of tree items
+     */
     private StringConverter<TreeItem<PropertyStub>> catVerStringConverter() {
         return new StringConverter<TreeItem<PropertyStub>>() {
 
@@ -445,12 +608,21 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         };
     }
 
+    /**
+     * Provides the selected property of CatVer tree items for the check-box cell factory.
+     *
+     * @param item the tree item
+     * @return the selected property, or {@code null} if the item is not a {@link CheckBoxTreeItem}
+     */
     private ObservableValue<Boolean> catVerCellValue(TreeItem<PropertyStub> item) {
         if (item instanceof CheckBoxTreeItem<?> i)
             return i.selectedProperty();
         return null;
     }
 
+    /**
+     * Initializes the scan automation combo box with available {@link ScanAutomation} values.
+     */
     private void initAutomation() {
         cbAutomation.setItems(FXCollections.observableArrayList(ScanAutomation.values()));
         cbAutomation.setCellFactory(_ -> new DescriptorCellFactory());
@@ -458,12 +630,18 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         cbAutomation.setOnAction(_ -> session.getCurrProfile().setProperty(ProfileSettingsEnum.automation_scan, cbAutomation.getValue().toString()));
     }
 
+    /**
+     * Initializes the import and export button event handlers.
+     */
     private void initImportExport() {
         importBtn.setOnAction(_ -> doImport());
 
         exportBtn.setOnAction(_ -> doExport());
     }
 
+    /**
+     * Opens a save dialog to export the current profile's settings to a properties file.
+     */
     private void doExport() {
         final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
         final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
@@ -476,6 +654,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         }
     }
 
+    /**
+     * Opens a file picker to import profile settings from a properties file, then reloads filters and UI.
+     */
     private void doImport() {
         final var filters = Arrays.asList(new ExtensionFilter("Properties", "*.properties"));
         final var presets = session.getUser().getSettings().getWorkPath().resolve("presets");
@@ -487,6 +668,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         });
     }
 
+    /**
+     * Saves the current profile and loads the specified profile, refreshing the UI.
+     *
+     * @param session the current user session
+     * @param profile the profile to load
+     */
     @Override
     public void loadProfile(Session session, ProfileNFO profile) {
         if (session.getCurrProfile() != null)
@@ -498,6 +685,16 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> loadProfileTask(session, profile, stage));
     }
 
+    /**
+     * Creates a background task that loads a {@link Profile} and updates the scanner UI on success.
+     *
+     * @param session the current user session
+     * @param profile the profile descriptor to load
+     * @param stage   the parent stage for the progress dialog
+     * @return a {@link ProgressTask} that loads the profile
+     * @throws IOException        if the profile files cannot be read
+     * @throws URISyntaxException if a profile URI is malformed
+     */
     private ProgressTask<Profile> loadProfileTask(Session session, ProfileNFO profile, Stage stage) throws IOException, URISyntaxException {
         return new ProgressTask<Profile>(stage) {
             @Override
@@ -518,6 +715,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 }
             }
 
+            /**
+             * Updates the UI after a profile has been successfully loaded.
+             */
             private void profileLoaded(Session session, final Profile profile) {
                 session.getReport().setProfile(session.getCurrProfile());
                 MainFrame.getReportFrame().setNeedUpdate(true);
@@ -544,13 +744,22 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         };
     }
 
+    /**
+     * FXML handler for the scan button.
+     *
+     * @param e the action event
+     */
     @FXML
     private void scan(ActionEvent e) {
         scan(session, true);
     }
 
     /**
-     * Scan.
+     * Validates the ROMs destination directory and starts a scan in a background task.
+     * If the destination is empty, it opens the directory chooser first.
+     *
+     * @param session  the current user session
+     * @param automate whether scan automation rules should be applied after the scan
      */
     private void scan(final Session session, final boolean automate) {
         String txtdstdir = romsDest.getText();
@@ -563,6 +772,16 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> scanProgressTask(session, automate, stage));
     }
 
+    /**
+     * Creates a background task that performs a ROM scan on the current profile.
+     *
+     * @param session  the current user session
+     * @param automate whether scan automation rules should be applied after the scan
+     * @param stage    the parent stage for the progress dialog
+     * @return a {@link ProgressTask} that performs the scan
+     * @throws IOException        if profile files cannot be read
+     * @throws URISyntaxException if a profile URI is malformed
+     */
     private ProgressTask<Scan> scanProgressTask(final Session session, final boolean automate, Stage stage) throws IOException, URISyntaxException {
         return new ProgressTask<Scan>(stage) {
             @Override
@@ -587,6 +806,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
                 ProgressTaskRunner.handleFailedException(this, getException());
             }
 
+            /**
+             * Completes the scan by updating the UI and optionally running automated fix.
+             */
             private void handleScanSuccess(final Session session, final boolean automate, final Scan scan, final ProgressTask<Scan> task) {
                 session.setCurrScan(scan);
                 updateFixButtonState(session);
@@ -601,12 +823,22 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         };
     }
 
+    /**
+     * Enables or disables the fix button based on whether the current scan has pending actions.
+     *
+     * @param session the current user session
+     */
     private void updateFixButtonState(final Session session) {
         boolean hasActions = session.getCurrScan() != null
                 && session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
         fixBtn.setDisable(!hasActions);
     }
 
+    /**
+     * Shows the report frame if the current automation mode includes a report step.
+     *
+     * @param session the current user session
+     */
     private void handleReportFrame(final Session session) {
         if (MainFrame.getReportFrame() == null)
             return;
@@ -617,29 +849,57 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         MainFrame.getReportFrame().setNeedUpdate(true);
     }
 
+    /**
+     * Determines whether the current automation mode should trigger automatic fixing.
+     *
+     * @param session the current user session
+     * @return {@code true} if auto-fix should run
+     */
     private boolean shouldAutoFix(final Session session) {
         ScanAutomation automation = ScanAutomation.valueOf(
                 session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
         return !fixBtn.isDisabled() && automation.hasFix();
     }
 
+    /**
+     * FXML handler for the report button. Shows the report frame.
+     *
+     * @param evt the action event
+     */
     @FXML
     private void report(ActionEvent evt) {
         MainFrame.getReportFrame().setVisible();
     }
 
+    /**
+     * FXML handler for the fix button.
+     *
+     * @param e the action event
+     */
     @FXML
     private void fix(ActionEvent e) {
         fix(session);
     }
 
     /**
-     * Fix.
+     * Runs the fix operation on the current scan in a background task.
+     *
+     * @param session the current user session
      */
     private void fix(final Session session) {
         ProgressTaskRunner.run((Stage) romsDest.getScene().getWindow(), stage -> getFixTask(session, stage));
     }
 
+    /**
+     * Creates a background task that applies fix operations to the current scan.
+     * Prompts for rescan if profile settings have changed since the last scan.
+     *
+     * @param session the current user session
+     * @param stage   the parent stage for the progress dialog
+     * @return a {@link ProgressTask} that performs the fix
+     * @throws IOException        if profile files cannot be read
+     * @throws URISyntaxException if a profile URI is malformed
+     */
     private ProgressTask<Fix> getFixTask(final Session session, Stage stage) throws IOException, URISyntaxException {
         return new ProgressTask<Fix>(stage) {
 
@@ -674,9 +934,12 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     }
 
     /**
-     * Ask user to rescan before fix if settings changed.
-     * 
-     * @return true to proceed with fix, false to cancel
+     * Prompts the user to rescan before fixing if profile settings have changed since the last scan.
+     *
+     * @param session the current user session
+     * @param task    the current progress task for progress reporting during rescan
+     * @return {@code true} to proceed with the fix, {@code false} to cancel
+     * @throws Exception if the rescan encounters an error
      */
     private boolean confirmRescanIfNeeded(final Session session, final ProgressTask<?> task) throws Exception /* NOSONAR */ {
         if (!session.getCurrProfile().hasPropsChanged())
@@ -694,17 +957,31 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         return true;
     }
 
+    /**
+     * Triggers a reload of the profile viewer if it is open.
+     */
     private void updateProfileViewer() {
         if (MainFrame.getProfileViewer() != null)
             MainFrame.getProfileViewer().reload();
     }
 
+    /**
+     * Runs the next automation step (re-scan or report) after a fix completes, if configured.
+     *
+     * @param session the current user session
+     */
     private void runScanAutomation(final Session session) {
         ScanAutomation automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
         if (automation.hasScanAgain())
             scan(session, false);
     }
 
+    /**
+     * Refreshes all UI controls from the current profile settings: destinations, source list,
+     * scanner settings, filters, NPlayers, CatVer, and automation.
+     *
+     * @param session the current user session
+     */
     private void initProfileSettings(Session session) {
         initDestSettings(session);
         initSrcListSettings(session);
@@ -734,6 +1011,11 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         backupDest.setText(session.getCurrProfile().getProperty(ProfileSettingsEnum.backup_dest_dir));
     }
 
+    /**
+     * Populates the source file list from the pipe-delimited source directory profile setting.
+     *
+     * @param session the current user session
+     */
     void initSrcListSettings(Session session) {
         srcList.setItems(FXCollections.observableList(Stream.of(StringUtils.split(session.getCurrProfile().getProperty(ProfileSettingsEnum.src_dir), '|'))
                 .filter(s -> !s.isEmpty())
@@ -760,10 +1042,20 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         cbbxYearMax.getSelectionModel().select(session.getCurrProfile().getProperty(ProfileSettingsEnum.filter_YearMax));
     }
 
+    /**
+     * Selects the current automation mode in the combo box from profile settings.
+     *
+     * @param session the current user session
+     */
     void initAutomationSettings(Session session) {
         cbAutomation.getSelectionModel().select(ScanAutomation.valueOf(session.getCurrProfile().getProperty(ProfileSettingsEnum.automation_scan)));
     }
 
+    /**
+     * Loads an NPlayers definitions file from the given path and refreshes the NPlayers list.
+     *
+     * @param file the absolute path to an NPlayers INI file
+     */
     private void selectNPlayersFile(String file) {
         if (Files.isRegularFile(Path.of(file))) {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_nplayers_ini, file);
@@ -772,11 +1064,19 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         }
     }
 
+    /**
+     * Refreshes the NPlayers text field and list view from the current profile data.
+     */
     private void showNPlayers() {
         tfNPlayers.setText(session.getCurrProfile().getNplayers() != null ? session.getCurrProfile().getNplayers().file.getAbsolutePath() : null);
         listNPlayers.setItems(Optional.ofNullable(session.getCurrProfile().getNplayers()).map(NPlayers::getListNPlayers).map(FXCollections::observableArrayList).orElse(null));
     }
 
+    /**
+     * Loads a CatVer definitions file from the given path and refreshes the CatVer tree.
+     *
+     * @param file the absolute path to a CatVer INI file
+     */
     private void selectCatVerFile(String file) {
         if (Files.isRegularFile(Path.of(file))) {
             session.getCurrProfile().setProperty(ProfileSettingsEnum.filter_catver_ini, file);
@@ -785,6 +1085,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         }
     }
 
+    /**
+     * Rebuilds the CatVer category tree view from the current profile data, wiring selection bindings.
+     */
     private void showCatVer() {
         tfCatVer.setText(session.getCurrProfile().getCatver() != null ? session.getCurrProfile().getCatver().file.getAbsolutePath() : null);
 
@@ -816,60 +1119,125 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
 
     }
 
+    /**
+     * Updates a sub-category selection state and refreshes the CatVer tree view.
+     *
+     * @param sc       the sub-category to update
+     * @param newvalue the new selection state
+     */
     private void updateSubCategorySelection(SubCategory sc, Boolean newvalue) {
         sc.setSelected(newvalue);
         treeCatVer.refresh();
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * FXML handler for choosing the ROMs destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseRomsDest(ActionEvent e) {
         chooseAnyDest(romsDest, ProfileSettingsEnum.roms_dest_dir, "MainFrame.ChooseRomsDestination");
     }
 
+    /**
+     * FXML handler for choosing the disks destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseDisksDest(ActionEvent e) {
         chooseAnyDest(disksDest, ProfileSettingsEnum.disks_dest_dir, "MainFrame.ChooseDisksDestination");
     }
 
+    /**
+     * FXML handler for choosing the software ROMs destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseSWRomsDest(ActionEvent e) {
         chooseAnyDest(swDest, ProfileSettingsEnum.swroms_dest_dir, "MainFrame.ChooseSWRomsDestination");
     }
 
+    /**
+     * FXML handler for choosing the software disks destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseSWDisksDest(ActionEvent e) {
         chooseAnyDest(swDisksDest, ProfileSettingsEnum.swdisks_dest_dir, "MainFrame.ChooseSWDisksDestination");
     }
 
+    /**
+     * FXML handler for choosing the samples destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseSamplesDest(ActionEvent e) {
         chooseAnyDest(samplesDest, ProfileSettingsEnum.samples_dest_dir, "MainFrame.ChooseSamplesDestination");
     }
 
+    /**
+     * FXML handler for choosing the backup destination directory.
+     *
+     * @param e the action event
+     */
     @FXML
     private void chooseBackupDest(ActionEvent e) {
         chooseAnyDest(backupDest, ProfileSettingsEnum.backup_dest_dir, "MainFrame.ChooseBackupDestination");
     }
 
+    /**
+     * Opens a directory chooser for a destination and saves the selected path to the profile.
+     *
+     * @param tf          the text field to display the chosen path
+     * @param ppt         the profile settings key to persist the path under
+     * @param defPptName   the default directory settings key
+     */
     private void chooseAnyDest(TextField tf, ProfileSettingsEnum ppt, String defPptName) {
         final var workdir = session.getUser().getSettings().getWorkPath().toFile();
         final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
         chooseDir(tf, tf.getText(), defdir, dir -> applyChosenDir(tf, ppt, defPptName, dir));
     }
 
+    /**
+     * Updates the destination text field and persists the selection to both user and profile settings.
+     *
+     * @param tf          the text field to update
+     * @param ppt         the profile settings key
+     * @param defPptName   the default directory settings key for user preferences
+     * @param dir         the chosen directory path
+     */
     private void applyChosenDir(TextField tf, ProfileSettingsEnum ppt, String defPptName, Path dir) {
         tf.setText(dir.toString());
         session.getUser().getSettings().setProperty(defPptName, tf.getText()); // $NON-NLS-1$
         session.getCurrProfile().setProperty(ppt, tf.getText()); // $NON-NLS-1$
     }
 
+    /**
+     * Opens a directory chooser for adding or changing a ROM source directory.
+     *
+     * @param oldDir     the currently selected directory, or {@code null} to add a new one
+     * @param ppt        the profile settings key
+     * @param defPptName  the default directory settings key
+     */
     private void chooseSrc(File oldDir, ProfileSettingsEnum ppt, String defPptName) /* NOSONAR */ {
         final var workdir = session.getUser().getSettings().getWorkPath().toFile();
         final var defdir = PathAbstractor.getAbsolutePath(session, session.getUser().getSettings().getProperty(defPptName, workdir.getAbsolutePath())).toFile();
         chooseDir(srcList, oldDir != null ? oldDir.toString() : null, defdir, dir -> handleChosenSrcDir(oldDir, defPptName, dir));
     }
 
+    /**
+     * Updates the source list after a directory is chosen: replaces an existing entry or adds a new one.
+     *
+     * @param oldDir      the existing directory being replaced, or {@code null} for new additions
+     * @param defPptName   the default directory settings key for user preferences
+     * @param dir         the chosen directory path
+     */
     private void handleChosenSrcDir(File oldDir, String defPptName, Path dir) {
         var modified = false;
         if (oldDir != null) {
@@ -890,10 +1258,18 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         }
     }
 
+    /**
+     * Persists the current source list to the profile as a pipe-delimited string of absolute paths.
+     */
     private void saveSrcList() {
         session.getCurrProfile().setProperty(ProfileSettingsEnum.src_dir, String.join("|", srcList.getItems().stream().map(File::getAbsolutePath).toList()));
     }
 
+    /**
+     * FXML handler for the profile info button. Opens the profile viewer, creating it lazily if necessary.
+     *
+     * @param evt the action event
+     */
     @FXML
     private void infos(ActionEvent evt) {
         if (MainFrame.getProfileViewer() == null) {
@@ -910,84 +1286,126 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         }
     }
 
+    /**
+     * Selects all systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, systemsFilter);
     }
 
+    /**
+     * Selects only BIOS systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterSelectAllBios() {
         FilterSelectionHelper.selectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
     }
 
+    /**
+     * Selects only software list systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterSelectAllSoftwares() {
         FilterSelectionHelper.selectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
     }
 
+    /**
+     * Unselects all systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterUnselectAll() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, systemsFilter);
     }
 
+    /**
+     * Unselects only BIOS systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterUnselectAllBios() {
         FilterSelectionHelper.unselectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, s -> s.getType() == Systm.Type.BIOS, systemsFilter);
     }
 
+    /**
+     * Unselects only software list systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterUnselectAllSoftwares() {
         FilterSelectionHelper.unselectFiltered(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, s -> s.getType() == Systm.Type.SOFTWARELIST, systemsFilter);
     }
 
+    /**
+     * Inverts the selection of all systems in the systems filter and refreshes the list view.
+     */
     @FXML
     private void systemsFilterInvertSelection() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getSystems(), session.getCurrProfile(),
                 Systm::setSelected, Systm::isSelected, systemsFilter);
     }
 
+    /**
+     * Selects all sources in the sources filter and refreshes the list view.
+     */
     @FXML
     private void sourcesFilterSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getSources(), session.getCurrProfile(),
                 Source::setSelected, sourcesFilter);
     }
 
+    /**
+     * Unselects all sources in the sources filter and refreshes the list view.
+     */
     @FXML
     private void sourcesFilterUnselectAll() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getSources(), session.getCurrProfile(),
                 Source::setSelected, sourcesFilter);
     }
 
+    /**
+     * Inverts the selection of all sources in the sources filter and refreshes the list view.
+     */
     @FXML
     private void sourcesFilterInvertSelection() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getSources(), session.getCurrProfile(),
                 Source::setSelected, Source::isSelected, sourcesFilter);
     }
 
+    /**
+     * Selects all NPlayers entries and refreshes the list view.
+     */
     @FXML
     void nPlayersListSelectAll() {
         FilterSelectionHelper.selectAll(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
                 NPlayer::setSelected, listNPlayers);
     }
 
+    /**
+     * Unselects all NPlayers entries and refreshes the list view.
+     */
     @FXML
     void nPlayersListSelectNone() {
         FilterSelectionHelper.unselectAll(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
                 NPlayer::setSelected, listNPlayers);
     }
 
+    /**
+     * Inverts the NPlayers selection and refreshes the list view.
+     */
     @FXML
     void nPlayersListSelectInvert() {
         FilterSelectionHelper.invertSelection(session.getCurrProfile().getNplayers(), session.getCurrProfile(),
                 NPlayer::setSelected, NPlayer::isSelected, listNPlayers);
     }
 
+    /**
+     * Clears the NPlayers definitions file reference and resets the UI.
+     */
     @FXML
     void nPlayersListClear() {
         session.getCurrProfile().saveSettings();
@@ -998,10 +1416,18 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         listNPlayers.setItems(null);
     }
 
+    /**
+     * Returns a stream of all sub-category check-box tree items in the CatVer tree.
+     *
+     * @return a stream of {@link CheckBoxTreeItem} for sub-categories
+     */
     private Stream<CheckBoxTreeItem<PropertyStub>> streamSubCatItems() {
         return (treeCatVer.getRoot()).getChildren().stream().flatMap(t -> t.getChildren().stream()).map(t -> (CheckBoxTreeItem<PropertyStub>) t);
     }
 
+    /**
+     * Selects all CatVer sub-categories.
+     */
     @FXML
     void catVerListSelectAll() {
         streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(true));
@@ -1009,6 +1435,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Unselects all CatVer sub-categories.
+     */
     @FXML
     void catVerListUnselectAll() {
         streamSubCatItems().forEachOrdered(subcat -> subcat.setSelected(false));
@@ -1016,12 +1445,21 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /** Marker string identifying mature categories. */
     private static final String MATURE = "* Mature *";
 
+    /**
+     * Returns a stream of CatVer sub-category items that belong to mature categories.
+     *
+     * @return a filtered stream of mature {@link CheckBoxTreeItem} instances
+     */
     private Stream<CheckBoxTreeItem<PropertyStub>> streamMatureItems() {
         return streamSubCatItems().filter(t -> t.getValue() instanceof SubCategory subcat && (subcat.name.endsWith(MATURE) || subcat.getParent().name.endsWith(MATURE)));
     }
 
+    /**
+     * Selects only mature CatVer sub-categories.
+     */
     @FXML
     void catVerListSelectMature() {
         streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(true));
@@ -1029,6 +1467,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Unselects all mature CatVer sub-categories.
+     */
     @FXML
     void catVerListUnselectMature() {
         streamMatureItems().forEachOrdered(subcat -> subcat.setSelected(false));
@@ -1036,6 +1477,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         ProfileViewer.getResetCounter().incrementAndGet();
     }
 
+    /**
+     * Clears the CatVer definitions file reference and resets the UI.
+     */
     @FXML
     void catVerListClear() {
         session.getCurrProfile().saveSettings();
@@ -1046,6 +1490,15 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
         treeCatVer.setRoot(null);
     }
 
+    /**
+     * Binds a destination checkbox to enable/disable its associated text field and button,
+     * and persists the enabled state to the profile.
+     *
+     * @param cb          the enable/disable checkbox
+     * @param tf          the associated destination text field
+     * @param btn         the associated browse button
+     * @param enabledProp the profile settings key for the enabled state
+     */
     private void initDestCheckBox(CheckBox cb, TextField tf, Button btn, ProfileSettingsEnum enabledProp) {
         cb.selectedProperty().addListener((_, _, newValue) -> {
             tf.setDisable(!newValue);

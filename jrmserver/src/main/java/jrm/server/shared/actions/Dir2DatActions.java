@@ -125,6 +125,19 @@ public class Dir2DatActions {
         (ws.getSession().setWorker(new Worker(() -> executeDir2DatTransformation(jso)))).start();
     }
 
+    /**
+     * Executes the directory-to-DAT transformation process.
+     * <p>
+     * This method performs the core logic of the Dir2Dat operation, including loading settings, creating a scanner instance, and handling
+     * progress and cancellation.
+     * </p>
+     * <h4>Thread Safety:</h4>
+     * <p>
+     * This method is designed to run in a separate thread, allowing for non-blocking execution of the transformation process.
+     * </p>
+     * 
+     * @param jso the JSON message containing transformation parameters and settings
+     */
     private void executeDir2DatTransformation(JsonObject jso) {
         WebSession session = ws.getSession();
         session.getWorker().progress = new ProgressActions(ws);
@@ -192,11 +205,31 @@ public class Dir2DatActions {
         return options;
     }
 
+    /**
+     * Adds an option to the set if the specified key in the JSON object has a true value.
+     * If the key does not exist, it uses the provided default value.
+     * 
+     * @param opts       the JSON object containing the options
+     * @param options    the set of options to add to
+     * @param key        the key to check in the JSON object
+     * @param defaultValue the default value to use if the key does not exist
+     * @param option     the option to add if the condition is met
+     */
     private static void addIf(JsonObject opts, EnumSet<Options> options, String key, boolean defaultValue, Options option) {
         if (opts.getBoolean(key, defaultValue))
             options.add(option);
     }
 
+    /**
+     * Adds an option to the set if the specified key in the JSON object has a false value.
+     * If the key does not exist, it uses the provided default value.
+     * 
+     * @param opts       the JSON object containing the options
+     * @param options    the set of options to add to
+     * @param key        the key to check in the JSON object
+     * @param defaultValue the default value to use if the key does not exist
+     * @param option     the option to add if the condition is met
+     */
     private static void addUnless(JsonObject opts, EnumSet<Options> options, String key, boolean defaultValue, Options option) {
         if (!opts.getBoolean(key, defaultValue))
             options.add(option);

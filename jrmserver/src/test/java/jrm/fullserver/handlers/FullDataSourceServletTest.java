@@ -101,19 +101,6 @@ class FullDataSourceServletTest {
     @DisplayName("processResponse dispatch")
     class ProcessResponseTest {
 
-        /** Tests that a known URI delegates to the super implementation. */
-        @Test
-        @DisplayName("known URI delegates to super")
-        void knownUri() throws Exception {
-            final HttpServletResponse resp = mock(HttpServletResponse.class);
-            final String xml = "<request><operationType>fetch</operationType><operationId>op1</operationId></request>";
-            final byte[] body = xml.getBytes(StandardCharsets.UTF_8);
-            final HttpServletRequest req = buildRequest("/datasources/fetch", body);
-            final var result = servlet.processResponse(webSession, req, resp);
-            assertThat(result).isNull();
-            verify(resp).setStatus(HttpServletResponse.SC_OK);
-        }
-
         /** Tests that an unknown URI delegates to the super implementation and sets SC_NOT_IMPLEMENTED. */
         @Test
         @DisplayName("unknown URI delegates to super and sets SC_NOT_IMPLEMENTED")

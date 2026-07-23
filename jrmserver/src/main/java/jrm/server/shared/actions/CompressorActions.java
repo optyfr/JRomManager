@@ -51,6 +51,11 @@ public class CompressorActions {
         (ws.getSession().setWorker(new Worker(this::processCompressorList))).start();
     }
 
+    /**
+     * Processes the cached compressor list to compress files based on user settings. This method retrieves the compression format,
+     * force option, and threading configuration from the user settings. It sets up progress tracking, clears previous results, and
+     * starts the compression process in parallel if configured.
+     */
     private void processCompressorList() {
         final var session = ws.getSession();
         final var format = CompressorFormat.valueOf(session.getUser().getSettings().getProperty(SettingsEnum.compressor_format));
@@ -73,6 +78,16 @@ public class CompressorActions {
         }
     }
 
+    /**
+     * Starts parallel compression using the provided session, format, force option, and number of threads. It initializes a
+     * list of file results from the cached compressor list, creates an atomic integer for tracking processed files, and sets up
+     * a {@link Compressor} instance. The method then starts a multi-threaded virtual environment to process the compression tasks.
+     *
+     * @param session The current {@link WebSession}.
+     * @param format The target {@link CompressorFormat} for compression.
+     * @param force Whether to force compression even if the file is already in the target format.
+     * @param nThreads The number of threads to use for parallel processing.
+     */
     private void startParallelCompression(final WebSession session, final CompressorFormat format, final Boolean force, final int nThreads) {
         List<FileResult> values = new ArrayList<>(session.getCachedCompressorList().values());
         final var cnt = new AtomicInteger();

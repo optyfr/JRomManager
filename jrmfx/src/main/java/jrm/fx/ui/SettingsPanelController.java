@@ -92,9 +92,10 @@ public class SettingsPanelController extends BaseController {
     @FXML
     TextField status;
 
+    /** Valid debug log levels selectable in the UI. */
     private static final Level[] levels = new Level[] { Level.OFF, Level.SEVERE, Level.WARNING, Level.INFO, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.ALL };
 
-    /** The scheduler. */
+    /** The scheduler for periodic memory monitoring. */
     final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
@@ -129,25 +130,50 @@ public class SettingsPanelController extends BaseController {
         cbStyleSheet.getSelectionModel().selectedItemProperty().addListener((_, _, newValue) -> changeStyleSheet(newValue));
     }
 
+    /**
+     * Sets the backup destination path and updates the text field.
+     *
+     * @param path the chosen directory path
+     */
     private void configureBackupPath(Path path) {
         session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, path.toString());
         tfBackupDst.setText(path.toString());
     }
 
+    /**
+     * Sets the backup directory from a drag-and-drop path.
+     *
+     * @param txt the directory path from drag-and-drop
+     */
     private void configureBackupDirectory(String txt) {
         session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir, txt);
     }
 
+    /**
+     * Enables or disables the backup destination controls.
+     *
+     * @param newValue whether backup destination is enabled
+     */
     private void configureBackupDestinationAvailability(Boolean newValue) {
         tfBackupDst.setDisable(!newValue);
         btBackupDst.setDisable(!newValue);
         session.getUser().getSettings().setProperty(ProfileSettingsEnum.backup_dest_dir_enabled, newValue); // $NON-NLS-1$
     }
 
+    /**
+     * Configures the thread count setting.
+     *
+     * @param newValue the new thread count
+     */
     private void configureThreadCount(ThreadCnt newValue) {
         session.getUser().getSettings().setProperty(SettingsEnum.thread_count, newValue.getCnt());
     }
 
+    /**
+     * Changes the application style sheet.
+     *
+     * @param newValue the new style sheet
+     */
     private void changeStyleSheet(StyleSheet newValue) {
         session.getUser().getSettings().setEnumProperty(JRMScene.ScenePrefs.style_sheet, newValue);
         MainFrame.applyCSS();
@@ -180,14 +206,30 @@ public class SettingsPanelController extends BaseController {
         ckb7ZSolid.selectedProperty().addListener((_, _, newValue) -> configureSevenZipSolidOption(newValue));
     }
 
+    /**
+     * Applies the 7z solid archive setting.
+     *
+     * @param newValue whether solid archives are enabled
+     */
     private void configureSevenZipSolidOption(Boolean newValue) {
         session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_solid, newValue);
     }
 
+    /**
+     * Applies the 7z thread count setting.
+     *
+     * @param newValue the new thread count
+     */
     private void configureSevenZipThreads(Integer newValue) {
         session.getUser().getSettings().setProperty(SettingsEnum.sevenzip_threads, newValue);
     }
 
+    /**
+     * Creates a spinner value factory for 7z thread count with custom increment and
+     * decrement behavior that allows a minimum value of -1.
+     *
+     * @return a configured {@link SpinnerValueFactory} for thread counts
+     */
     private SpinnerValueFactory<Integer> get7zThreadsSpinner() {
         return new SpinnerValueFactory<Integer>() {
             @Override
@@ -202,6 +244,12 @@ public class SettingsPanelController extends BaseController {
         };
     }
 
+    /**
+     * Creates a string converter that shows the display name of
+     * {@link SevenZipOptions} values.
+     *
+     * @return a string converter for 7z options
+     */
     private StringConverter<SevenZipOptions> sevenZipOptionsStringConverter() {
         return new StringConverter<>() {
 
@@ -217,10 +265,21 @@ public class SettingsPanelController extends BaseController {
         };
     }
 
+    /**
+     * Applies the ZIP compression level setting.
+     *
+     * @param newValue the new compression level
+     */
     private void configureZipCompressionLevel(ZipLevel newValue) {
         session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_compression_level, newValue);
     }
 
+    /**
+     * Creates a string converter that shows the display name of
+     * {@link ZipLevel} values.
+     *
+     * @return a string converter for ZIP levels
+     */
     private StringConverter<ZipLevel> zipLevelStringConverter() {
         return new StringConverter<>() {
 
@@ -236,10 +295,21 @@ public class SettingsPanelController extends BaseController {
         };
     }
 
+    /**
+     * Applies the ZIP temporary threshold setting.
+     *
+     * @param newValue the new threshold
+     */
     private void configureZipTempThreshold(ZipTempThreshold newValue) {
         session.getUser().getSettings().setEnumProperty(SettingsEnum.zip_temp_threshold, newValue);
     }
 
+    /**
+     * Creates a string converter that displays the description of
+     * {@link ZipTempThreshold} values.
+     *
+     * @return a string converter for ZIP temp thresholds
+     */
     private StringConverter<ZipTempThreshold> zipTempThresholdStringConverter() {
         return new StringConverter<>() {
 
@@ -270,11 +340,19 @@ public class SettingsPanelController extends BaseController {
         scheduler.scheduleAtFixedRate(this::updateMemory, 0, 20, TimeUnit.SECONDS);
     }
 
+    /**
+     * Triggers garbage collection and updates the memory status display.
+     */
     private void performGarbageCollection() {
         System.gc(); // NOSONAR
         updateMemory();
     }
 
+    /**
+     * Changes the debug log level and updates the application logger.
+     *
+     * @param newValue the new log level
+     */
     private void changeDebugLevel(Level newValue) {
         session.getUser().getSettings().setProperty(SettingsEnum.debug_level, newValue.toString());
         Log.setLevel(newValue);
@@ -283,7 +361,7 @@ public class SettingsPanelController extends BaseController {
     private static final String XX_MIB = "%.2f MiB";
 
     /**
-     * Update memory.
+     * Updates the memory usage status display with total, used, free, and maximum JVM heap metrics.
      */
     void updateMemory() {
         final Runtime rt = Runtime.getRuntime();
@@ -292,6 +370,9 @@ public class SettingsPanelController extends BaseController {
                 String.format(XX_MIB, rt.maxMemory() / 1048576.0))); // $NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
     }
 
+    /**
+     * Represents a thread count option selectable in the threading choice box.
+     */
     @RequiredArgsConstructor
     private static class ThreadCnt {
         /**
@@ -307,21 +388,36 @@ public class SettingsPanelController extends BaseController {
          */
         final @Getter String name;
 
+        /**
+         * Constructs a thread count option with a numeric value and no display name.
+         *
+         * @param cnt the thread count
+         */
         public ThreadCnt(int cnt) {
             this.cnt = cnt;
             this.name = null;
         }
 
+        /**
+         * @return the display name if set, otherwise the numeric count
+         */
         @Override
         public String toString() {
             return name != null ? name : Integer.toString(cnt);
         }
 
+        /**
+         * @return the default identity hash code
+         */
         @Override
         public int hashCode() {
             return super.hashCode();
         }
 
+        /**
+         * @param obj the object to compare
+         * @return {@code true} if the other object is a {@code ThreadCnt} with the same thread count
+         */
         @Override
         public boolean equals(Object obj) {
             if (obj == null)
@@ -331,6 +427,12 @@ public class SettingsPanelController extends BaseController {
             return super.equals(obj);
         }
 
+        /**
+         * Builds the available thread count options including "Adaptive", "Max available", and numeric counts
+         * from 1 to available processors.
+         *
+         * @return the array of thread count options
+         */
         static ThreadCnt[] build() {
             ArrayList<ThreadCnt> list = new ArrayList<>();
             list.add(new ThreadCnt(-1, "Adaptive"));

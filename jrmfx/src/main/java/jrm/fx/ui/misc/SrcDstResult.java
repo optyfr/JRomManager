@@ -169,6 +169,12 @@ public class SrcDstResult extends AbstractSrcDstResult {
         this.selectedProperty().set(selected);
     }
 
+    /**
+     * Deserializes a list of SrcDstResult from JSON.
+     *
+     * @param json the JSON string
+     * @return the deserialized list
+     */
     public static SDRList<SrcDstResult> fromJSON(String json) {
         return fromJSON(json, SrcDstResult.class);
     }

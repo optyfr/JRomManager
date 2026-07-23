@@ -115,6 +115,13 @@ public class ReportViewController implements Initializable {
     /** The report being displayed. */
     private Report report;
 
+    /**
+     * Initializes the controller: sets up menu item icons and configures
+     * context menu item enable/disable based on selection state.
+     *
+     * @param location  the FXML location
+     * @param resources the resource bundle
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         openAllNodes.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/folder_open.png")));
@@ -353,42 +360,84 @@ public class ReportViewController implements Initializable {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports all entries as a Logiqx DAT file.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportAllAsLogiqxDat(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Exports all entries as a MAME DAT file.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportAllAsMameDat(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Exports all entries as software lists.
+     *
+     * @param e the action event
+     */
     @FXML
     private void exportAllAsSoftwareLists(javafx.event.ActionEvent e) {
         MainFrame.export(treeview.getScene().getWindow(), report.getProfile().getSession(), ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Custom tree cell renderer for report entries.
+     * <p>
+     * Renders each report item type with appropriate icons, colors, and localized
+     * text. Handles SubjectSet, suspicious CRC containers, container types, and
+     * entry types (add, missing, OK, unneeded, wrong hash, wrong name).
+     */
     private static final class ReportTreeCell extends TreeCell<Object> {
+        /** Bold font weight style constant. */
         private static final String FX_FONT_WEIGHT_BOLD = "-fx-font-weight: bold;";
 
+        /** Regex pattern to split localized template strings. */
         private static final Pattern regex = Pattern.compile("%s");
 
+        /** Localized template parts for "X missing" SubjectSet text. */
         private static final String[] missing = regex.split(Messages.getString("SubjectSet.Missing"));
+        /** Localized template parts for "X unneeded" SubjectSet text. */
         private static final String[] unneeded = regex.split(Messages.getString("SubjectSet.Unneeded"));
+        /** Localized template parts for "X found, need fixes" SubjectSet text. */
         private static final String[] foundneedfixes = regex.split(Messages.getString("SubjectSet.FoundNeedFixes"));
+        /** Localized template parts for "X found, incomplete" SubjectSet text. */
         private static final String[] foundincomplete = regex.split(Messages.getString("SubjectSet.FoundIncomplete"));
+        /** Localized template parts for "X found" SubjectSet text. */
         private static final String[] found = regex.split(Messages.getString("SubjectSet.Found"));
+        /** Localized template parts for "X missing, totally created" SubjectSet text. */
         private static final String[] missingtotallycreated = regex.split(Messages.getString("SubjectSet.MissingTotallyCreated"));
+        /** Localized template parts for "X missing, partially created" SubjectSet text. */
         private static final String[] missingpartiallycreated = regex.split(Messages.getString("SubjectSet.MissingPartiallyCreated"));
+        /** Localized template parts for unknown SubjectSet status text. */
         private static final String[] unknown = regex.split(Messages.getString("SubjectSet.Unknown"));
+        /** Localized template parts for entry-add text. */
         private static final String[] eadd = regex.split(Messages.getString("EntryAddAdd"));
+        /** Localized template parts for entry-missing text. */
         private static final String[] emissing = regex.split(Messages.getString("EntryMissing.Missing"));
+        /** Localized template parts for entry-missing-duplicate text. */
         private static final String[] emissingdup = regex.split(Messages.getString("EntryMissingDuplicate.MissingDuplicate"));
+        /** Localized template parts for entry-OK text. */
         private static final String[] eok = regex.split(Messages.getString("EntryOK.OK"));
+        /** Localized template parts for entry-unneeded text. */
         private static final String[] eunneeded = regex.split(Messages.getString("EntryUnneeded.Unneeded"));
+        /** Localized template parts for entry-wrong-hash text. */
         private static final String[] ewronghash = regex.split(Messages.getString("EntryWrongHash.Wrong"));
+        /** Localized template parts for entry-wrong-name text. */
         private static final String[] ewrongname = regex.split(Messages.getString("EntryWrongName.Wrong"));
 
+        /**
+         * Constructs a tree cell with double-click to show note details.
+         */
         public ReportTreeCell() {
             setOnMouseClicked(e -> {
                 final var ti = getTreeItem();
@@ -430,7 +479,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders an unneeded container with an exclamation icon.
+         *
+         * @param s the unneeded container
          */
         private void updateContainerUnneeded(ContainerUnneeded s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/exclamation.png"));
@@ -442,7 +493,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders an unknown container with an error icon.
+         *
+         * @param s the unknown container
          */
         private void updateContainerUnknown(ContainerUnknown s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/error.png"));
@@ -454,7 +507,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a TZip container with a compress icon.
+         *
+         * @param s the TZip container
          */
         private void updateContainerTZip(ContainerTZip s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/compress.png"));
@@ -466,7 +521,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a suspicious CRC ROM with an information icon.
+         *
+         * @param s the suspicious CRC ROM
          */
         private void updateRomSuspiciousCRC(RomSuspiciousCRC s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/information.png"));
@@ -478,7 +535,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a wrong-name entry with a pink bullet icon.
+         *
+         * @param s the wrong-name entry
          */
         private void updateEntryWrongName(EntryWrongName s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_pink.png"));
@@ -496,7 +555,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a wrong-hash entry with an orange bullet icon.
+         *
+         * @param s the wrong-hash entry
          */
         private void updateEntryWrongHash(EntryWrongHash s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_orange.png"));
@@ -529,7 +590,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders an unneeded entry with a black bullet icon.
+         *
+         * @param s the unneeded entry
          */
         private void updateEntryUnneeded(EntryUnneeded s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"));
@@ -552,7 +615,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders an OK entry with a green bullet icon.
+         *
+         * @param s the OK entry
          */
         private void updateEntryOK(EntryOK s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"));
@@ -568,7 +633,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a missing-duplicate entry with a purple bullet icon.
+         *
+         * @param s the missing-duplicate entry
          */
         private void updateEntryMissingDuplicate(EntryMissingDuplicate s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_purple.png"));
@@ -586,7 +653,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a missing entry with a red bullet icon, including hash if available.
+         *
+         * @param s the missing entry
          */
         private void updateEntryMissing(EntryMissing s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"));
@@ -616,7 +685,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders an add entry with a blue bullet icon, showing parent path and file.
+         *
+         * @param s the add entry
          */
         private void updateEntryAdd(EntryAdd s) {
             final var i = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/bullet_blue.png"));
@@ -636,7 +707,9 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param s
+         * Renders a SubjectSet node with the appropriate icon and localized status text.
+         *
+         * @param s the SubjectSet
          */
         private void updateSubjectSet(SubjectSet s) {
             final String[] t = switch (s.getStatus()) {
@@ -668,10 +741,11 @@ public class ReportViewController implements Initializable {
         }
 
         /**
-         * @param value
-         * @param expanded
-         * 
-         * @return
+         * Returns the folder icon path for a SubjectSet, based on its status.
+         *
+         * @param value    the SubjectSet value
+         * @param expanded whether the node is expanded
+         * @return the icon resource path
          */
         private String getFolderIcon(Object value, final boolean expanded) {
             String icon = "/jrm/resicons/folder"; //$NON-NLS-1$

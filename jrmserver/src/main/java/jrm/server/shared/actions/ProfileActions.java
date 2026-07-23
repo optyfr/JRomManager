@@ -143,6 +143,15 @@ public class ProfileActions extends PathAbstractor {
         (ws.getSession().setWorker(new Worker(() -> performMameImport(jso)))).start();
     }
 
+    /**
+     * Performs the MAME profile import operation.
+     * <p>
+     * This method handles the import process, including locating the MAME executable, creating a new profile, and copying files to
+     * the specified directory. It also manages progress updates and error handling.
+     * </p>
+     * 
+     * @param jso the JSON object containing import parameters
+     */
     private void performMameImport(JsonObject jso) {
         WebSession session = ws.getSession();
         session.getWorker().progress = new ProgressActions(ws);
@@ -262,6 +271,13 @@ public class ProfileActions extends PathAbstractor {
         (ws.getSession().setWorker(new Worker(() -> performProfileLoad(jso)))).start();
     }
 
+    /**
+     * Performs the actual loading of a ROM profile, including saving current settings, resolving file paths, loading the profile,
+     * initializing the report handler, and loading associated metadata files. It also handles progress updates and notifications to
+     * the client.
+     *
+     * @param jso the JSON object containing load parameters
+     */
     private void performProfileLoad(JsonObject jso) {
         WebSession session = ws.getSession();
         if (session.getCurrProfile() != null)
@@ -416,6 +432,19 @@ public class ProfileActions extends PathAbstractor {
         ws.getSession().setWorker(new Worker(() -> performScan(jso, automate))).start();
     }
 
+    /**
+     * Performs the actual scan operation, handling progress updates and error notifications.
+     * <p>
+     * This method is called by {@link #scan(JsonObject, boolean)} to execute the scan in a background thread. It handles progress
+     * updates and error notifications, and optionally triggers an automatic fix operation if specified.
+     * </p>
+     * 
+     * @param jso the JSON object containing scan parameters (currently unused)
+     * @param automate {@code true} to enable automatic fix after scan, {@code false} to scan only
+     * 
+     * @throws BreakException if the user cancels the operation
+     * @throws ScanException if an error occurs during the scan operation
+     */
     private void performScan(JsonObject jso, final boolean automate) {
         WebSession session = ws.getSession();
         session.getWorker().progress = new ProgressActions(ws);
@@ -483,29 +512,35 @@ public class ProfileActions extends PathAbstractor {
         ws.getSession().setWorker(new Worker(() -> performFix(jso))).start();
     }
 
+    /**
+     * Performs the actual fix operation in a background thread. It rescans the profile if necessary, creates a Fix instance to process the
+     * scan's action list, and executes the fix operation. It also handles progress updates and notifications.
+     *
+     * @param jso the JSON object containing fix parameters (currently unused)
+     */
     private void performFix(final JsonObject jso) {
-            final var session = ws.getSession();
-            session.getWorker().progress = new ProgressActions(ws);
-            try {
-                if (session.getCurrProfile().hasPropsChanged()) {
-                    session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
-                    boolean needfix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
-                    if (!needfix)
-                        return;
-                }
-                final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), session.getWorker().progress);
-                fixed(fix);
-            } catch (ScanException ex) {
-                session.getWorker().progress.addError(ex.getMessage());
-            } finally {
-                final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
-                if (automation.hasScanAgain())
-                    scan(jso, false);
-                session.getWorker().progress.close();
-                session.getWorker().progress = null;
-                session.setLastAction(Instant.now());
+        final var session = ws.getSession();
+        session.getWorker().progress = new ProgressActions(ws);
+        try {
+            if (session.getCurrProfile().hasPropsChanged()) {
+                session.setCurrScan(new Scan(session.getCurrProfile(), session.getWorker().progress));
+                boolean needfix = session.getCurrScan().actions.stream().mapToInt(Collection::size).sum() > 0;
+                if (!needfix)
+                    return;
             }
+            final var fix = new Fix(session.getCurrProfile(), session.getCurrScan(), session.getWorker().progress);
+            fixed(fix);
+        } catch (ScanException ex) {
+            session.getWorker().progress.addError(ex.getMessage());
+        } finally {
+            final var automation = ScanAutomation.valueOf(session.getCurrProfile().getSettings().getProperty(ProfileSettingsEnum.automation_scan));
+            if (automation.hasScanAgain())
+                scan(jso, false);
+            session.getWorker().progress.close();
+            session.getWorker().progress = null;
+            session.setLastAction(Instant.now());
         }
+    }
 
     /**
      * Updates profile settings properties from a JSON object.

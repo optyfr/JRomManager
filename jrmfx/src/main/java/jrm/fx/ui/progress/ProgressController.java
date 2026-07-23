@@ -75,9 +75,19 @@ public class ProgressController implements Initializable {
     @FXML
     private Button cancelBtn;
 
-    /** The progress task being tracked. */
+    /**
+     * The progress task being tracked.
+     * @param task the progress task
+     */
     private @Setter ProgressTask<?> task;
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Initializes the progress dialog: configures the cancel button icon,
+     * sets an initial single-thread info panel, and hides the secondary
+     * and tertiary progress bars.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         cancelBtn.setGraphic(new ImageView(MainFrame.getIcon("/jrm/resicons/icons/stop.png")));
@@ -92,20 +102,26 @@ public class ProgressController implements Initializable {
         ((GridPane) lblTimeleft3.getParent()).getRowConstraints().get(3).setPrefHeight(0);
     }
 
+    /** Placeholder for unknown elapsed/total time. */
     private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
-    /** The lbl info. */
+    /** Thread-info panels, one per thread. */
     private Pane[] lblInfo = new Pane[0];
 
-    /** The lbl sub info. */
+    /** Sub-info panels, one per thread when multiple sub-infos are enabled. */
     private Pane[] lblSubInfo = new Pane[0];
 
+    /** Background colour for even-indexed rows. */
     private static final Color colorNormal = new Color(0.7, 0.7, 0.7, 1.0);
+    /** Background colour for odd-indexed rows. */
     private static final Color colorLight = new Color(0.8, 0.8, 0.8, 1.0);
+    /** Background colour for the single sub-info row. */
     private static final Color colorLighter = new Color(0.9, 0.9, 0.9, 1.0);
 
     /**
      * Configures the progress panels for the given thread count.
+     * <p>
+     * Called by {@link ProgressTask#setInfos(int, Boolean)}.
      *
      * @param threadCnt        the number of threads
      * @param multipleSubInfos whether to show multiple sub-info panels
@@ -142,6 +158,15 @@ public class ProgressController implements Initializable {
         }
     }
 
+    /**
+     * Extends the info and sub-info arrays to accommodate additional threads.
+     * New panels are created and appended to the layout.
+     * <p>
+     * Called by {@link ProgressTask}.
+     *
+     * @param threadCnt        the new total thread count
+     * @param multipleSubInfos whether to extend sub-info panels as well
+     */
     void extendInfos(int threadCnt, Boolean multipleSubInfos) {
         if (lblInfo == null || lblInfo.length == threadCnt)
             return;
@@ -166,12 +191,25 @@ public class ProgressController implements Initializable {
         }
     }
 
+    /**
+     * Checks the parity of an integer.
+     *
+     * @param i the integer to test
+     * @return {@code true} if {@code i} is odd, {@code false} if even
+     */
     private boolean isOdd(int i) {
         return (i % 2) != 0;
     }
 
+    /** Pool of recycled {@link HBox} containers to avoid repeated instantiation. */
     private Deque<HBox> viewCache = new ArrayDeque<>();
 
+    /**
+     * Builds or reuses an {@link HBox} view container with the given background colour.
+     *
+     * @param color the background colour
+     * @return a styled {@link HBox} ready for content
+     */
     private HBox buildView(Color color) {
         final HBox view;
         if (!viewCache.isEmpty())
@@ -188,6 +226,11 @@ public class ProgressController implements Initializable {
         return view;
     }
 
+    /**
+     * Clears all children from every info and sub-info panel.
+     * <p>
+     * Called by {@link ProgressTask#clearInfos()}.
+     */
     void clearInfos() {
         for (final var label : lblInfo)
             label.getChildren().clear();
@@ -195,6 +238,11 @@ public class ProgressController implements Initializable {
             label.getChildren().clear();
     }
 
+    /**
+     * Updates all progress panels from a progress data snapshot.
+     *
+     * @param pd the progress data containing info strings and progress bar states
+     */
     public void setFullProgress(PData pd) {
         for (int i = 0; i < lblInfo.length; i++)
             lblInfo[i].getChildren().setAll(NeutralToNodeFormatter.toNodes(i < pd.getInfos().length ? pd.getInfos()[i] : ""));
@@ -205,9 +253,29 @@ public class ProgressController implements Initializable {
         updateProgressBar(progressBar3, progressBarLbl3, lblTimeleft3, 3, new ProgressData(pd.getPb3().isVisibility(), pd.getPb3().isIndeterminate(), pd.getPb3().getPerc() >= 0, pd.getPb3().getPerc(), pd.getPb3().isStringPainted(), pd.getPb3().getMsg(), pd.getPb3().getTimeleft()));
     }
 
+    /**
+     * Immutable snapshot of a progress bar's state.
+     *
+     * @param visible       whether the bar is visible
+     * @param indeterminate  whether the bar is indeterminate
+     * @param hasProgress    whether the bar reports a valid progress value
+     * @param perc           the progress percentage (0-100)
+     * @param stringPainted  whether the progress string is shown
+     * @param msg            the progress message, may be {@code null}
+     * @param timeleftStr    the formatted time-left string
+     */
     private record ProgressData(boolean visible, boolean indeterminate, boolean hasProgress, double perc, boolean stringPainted, String msg, String timeleftStr) {
     }
 
+    /**
+     * Updates one progress bar and its associated labels.
+     *
+     * @param bar     the progress bar control
+     * @param barLbl  the label showing the progress string
+     * @param timeleft the label showing time remaining
+     * @param rowIndex the row in the parent {@link GridPane} for visibility toggling
+     * @param data    the progress data to apply
+     */
     private void updateProgressBar(ProgressBar bar, Label barLbl, Label timeleft, int rowIndex, ProgressData data) {
         final var visible = data.visible();
         if (bar.isVisible() != visible) {
@@ -237,14 +305,26 @@ public class ProgressController implements Initializable {
         timeleft.setText(data.timeleftStr());
     }
 
+    /**
+     * Hides the progress dialog window.
+     */
     void close() {
         panel.getScene().getWindow().hide();
     }
 
+    /**
+     * Enables or disables the cancel button.
+     *
+     * @param canCancel {@code true} to enable the cancel button
+     */
     void canCancel(boolean canCancel) {
         cancelBtn.setDisable(!canCancel);
     }
 
+    /**
+     * Initiates cancellation of the tracked task and disables the cancel button
+     * to prevent duplicate requests.
+     */
     @FXML
     void doCancel() {
         task.doCancel();

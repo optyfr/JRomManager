@@ -45,7 +45,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
     /** Whether the task has been cancelled. */
     private boolean cancel = false;
-    /** Whether the task can be cancelled. */
+    /**
+     * Whether the task can be cancelled.
+     * @return whether the task can be cancelled
+     * @param canCancel whether the task can be cancelled
+     */
     private boolean canCancel = true;
 
     /**
@@ -56,24 +60,60 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
          * Progress bar state.
          */
         static final @Data class PB {
-            /** Whether the progress bar is visible. */
+            /**
+             * Whether the progress bar is visible.
+             * @param visibility whether the progress bar is visible
+             * @return whether the progress bar is visible
+             */
             boolean visibility = false;
-            /** Whether the progress bar shows a string. */
+            /**
+             * Whether the progress bar shows a string.
+             * @param stringPainted whether the progress bar shows a string
+             * @return whether the progress bar shows a string
+             */
             boolean stringPainted = false;
-            /** Whether the progress bar is indeterminate. */
+            /**
+             * Whether the progress bar is indeterminate.
+             * @param indeterminate whether the progress bar is indeterminate
+             * @return whether the progress bar is indeterminate
+             */
             boolean indeterminate = false;
-            /** The maximum value. */
+            /**
+             * The maximum value.
+             * @param max the maximum value
+             * @return the maximum value
+             */
             int max = 100;
-            /** The current value. */
+            /**
+             * The current value.
+             * @param val the current value
+             * @return the current value
+             */
             int val = 0;
-            /** The percentage. */
+            /**
+             * The percentage.
+             * @param perc the percentage
+             * @return the percentage
+             */
             double perc = 0;
-            /** The progress message. */
+            /**
+             * The progress message.
+             * @param msg the progress message
+             * @return the progress message
+             */
             String msg = null;
-            /** The time remaining. */
+            /**
+             * The time remaining.
+             * @param timeleft the time remaining
+             * @return the time remaining
+             */
             String timeleft;
 
-            /** The start time. */
+            /**
+             * The start time.
+             * @param startTime the start time
+             * @return the start time
+             */
             transient long startTime = System.currentTimeMillis(); // NOSONAR
 
             PB() {
@@ -115,11 +155,20 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
          */
         String[] subinfos = { null };
 
-        /** The primary progress bar state. */
+        /** The primary progress bar state.
+         * @param pb1 the primary progress bar state
+         * @return the primary progress bar state
+         */
         final PB pb1;
-        /** The secondary progress bar state. */
+        /** The secondary progress bar state.
+         * @param pb2 the secondary progress bar state
+         * @return the secondary progress bar state
+         */
         final PB pb2;
-        /** The tertiary progress bar state. */
+        /** The tertiary progress bar state.
+         * @param pb3 the tertiary progress bar state
+         * @return the tertiary progress bar state
+         */
         final PB pb3;
 
         PData() {
@@ -166,6 +215,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         Platform.runLater(() -> progress.getController().setInfos(data.threadCnt, data.multipleSubInfos));
     }
 
+    /**
+     * Extends the info arrays to accommodate the specified thread count.
+     *
+     * @param threadCnt the new thread count
+     */
     private synchronized void extendInfos(int threadCnt) {
         this.data.threadCnt = threadCnt;
         this.data.infos = Arrays.copyOf(this.data.infos, this.data.threadCnt);
@@ -184,6 +238,9 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         Platform.runLater(() -> progress.getController().clearInfos());
     }
 
+    /**
+     * Clears info entries for freed thread offsets.
+     */
     private synchronized void cleanup() {
         if (offsetProvider != null) {
             for (final var offset : offsetProvider.freeOffsets()) {
@@ -242,6 +299,12 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     private long lastEvent = 0;
     private PData lastPData = null;
 
+    /**
+     * Sends a progress update to the UI if enough time has passed or the state has changed.
+     *
+     * @param pb    the progress bar index (1, 2, or 3)
+     * @param force whether to force the update regardless of throttling
+     */
     private synchronized void sendSetProgress(final int pb, final boolean force) {
         if (pb == 1)
             cleanup();
@@ -265,11 +328,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     }
 
     /**
-     * @param val
-     * @param max
-     * @param force
-     * 
-     * @return
+     * Computes progress based on current and maximum values.
+     *
+     * @param pb    the progress bar data to update
+     * @param val   the current value, or {@code null} to leave unchanged
+     * @param max   the maximum value, or {@code null} to leave unchanged
+     * @param force the current force-refresh flag
+     * @return {@code true} if the UI should be force-refreshed
      */
     private boolean computeProgress(final PData.PB pb, final Integer val, final Integer max, boolean force) {
         if (max != null)
@@ -287,7 +352,10 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     }
 
     /**
-     * @param val
+     * Updates the duration display for the progress bar.
+     *
+     * @param pb  the progress bar data to update
+     * @param val the current progress value
      */
     private void showDuration(PData.PB pb, int val) {
         if (val > 0) {
@@ -342,6 +410,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         return data.pb2.val;
     }
 
+    /**
+     * Returns the current value of the tertiary progress bar.
+     *
+     * @return the tertiary progress value
+     */
     @Override
     public int getCurrent3() {
         return data.pb3.val;
@@ -357,10 +430,20 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         cancel = true;
     }
 
+    /**
+     * Returns whether the task can be cancelled by the user.
+     *
+     * @return {@code true} if the task can be cancelled
+     */
     public boolean canCancel() {
         return canCancel;
     }
 
+    /**
+     * Sets whether the task can be cancelled and updates the UI accordingly.
+     *
+     * @param canCancel whether the task can be cancelled
+     */
     public void canCancel(boolean canCancel) {
         this.canCancel = canCancel;
         Platform.runLater(() -> progress.getController().canCancel(canCancel));
@@ -381,6 +464,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         errors.add(error);
     }
 
+    /** Progress handler option flags. */
     private Set<Option> options = EnumSet.noneOf(Option.class);
 
     @Override
@@ -389,6 +473,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
     }
 
+    /** The offset provider for multi-threaded progress reporting. */
     private OffsetProvider offsetProvider = null;
 
     @Override

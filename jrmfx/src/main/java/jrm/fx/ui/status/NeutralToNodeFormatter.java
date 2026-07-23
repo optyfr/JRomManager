@@ -32,9 +32,10 @@ import lombok.experimental.UtilityClass;
  * @since 2.5
  */
 public @UtilityClass class NeutralToNodeFormatter {
-    /**
-     * SAX handler for parsing neutral markup XML.
-     */
+        /**
+         * SAX handler that converts neutral markup XML elements into JavaFX nodes.
+         * @see NeutralToNodeFormatter#toNodes(String)
+         */
     private static class Handler extends DefaultHandler {
         /** The collected nodes. */
         private List<Node> nodes = new ArrayList<>();
@@ -45,6 +46,15 @@ public @UtilityClass class NeutralToNodeFormatter {
         /** The text buffer. */
         private StringBuilder buffer = new StringBuilder();
 
+        /**
+         * Handles the start of an XML element.
+         *
+         * @param uri the namespace URI, or an empty string
+         * @param localName the local name, or an empty string
+         * @param qName the qualified name
+         * @param attributes the element attributes
+         * @throws SAXException if a SAX error occurs
+         */
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             switch (qName) {
@@ -61,6 +71,12 @@ public @UtilityClass class NeutralToNodeFormatter {
             }
         }
 
+        /**
+         * Processes the opening of a {@code label} element, reading {@code color},
+         * {@code bold}, and {@code italic} attributes and applying them to a new {@link Label}.
+         *
+         * @param attributes the XML attributes of the label element
+         */
         private void startLabel(Attributes attributes) {
             flush();
             current = new Label();
@@ -89,6 +105,13 @@ public @UtilityClass class NeutralToNodeFormatter {
                 current.styleProperty().bind(new SimpleStringProperty("-fx-font-style: italic;"));
         }
 
+        /**
+         * Processes the opening of a {@code progress} element, reading {@code width},
+         * {@code value}, and {@code max} attributes (defaulting to 100, 0, 100
+         * respectively) and applying them to a new {@link ProgressBar}.
+         *
+         * @param attributes the XML attributes of the progress element
+         */
         private void startProgress(Attributes attributes) {
             flush();
             int width = 100;
@@ -116,6 +139,14 @@ public @UtilityClass class NeutralToNodeFormatter {
             nodes.add(progress);
         }
 
+        /**
+         * Handles the end of an XML element.
+         *
+         * @param uri the namespace URI, or an empty string
+         * @param localName the local name, or an empty string
+         * @param qName the qualified name
+         * @throws SAXException if a SAX error occurs
+         */
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             switch (qName) // NOSONAR
@@ -128,6 +159,10 @@ public @UtilityClass class NeutralToNodeFormatter {
             }
         }
 
+        /**
+         * Flushes buffered text into the current {@link Label} node, creating a new
+         * {@link Label} if none exists, and resets the buffer.
+         */
         private void flush() {
             if (!buffer.isEmpty()) {
                 if (current == null)
@@ -139,12 +174,26 @@ public @UtilityClass class NeutralToNodeFormatter {
             }
         }
 
+        /**
+         * Accumulates character data from the XML document.
+         *
+         * @param ch the characters from the XML document
+         * @param start the start position in the array
+         * @param length the number of characters to read from the array
+         * @throws SAXException if a SAX error occurs
+         */
         @Override
         public void characters(char[] ch, int start, int length) throws SAXException {
             buffer.append(ch, start, length);
         }
     }
 
+    /**
+     * Converts a neutral markup XML string into a list of JavaFX {@link Node} objects.
+     *
+     * @param xml the XML string to parse
+     * @return a list of nodes, or a list containing a single plain {@link Label} if parsing fails
+     */
     public static List<Node> toNodes(String xml) {
         if (xml == null)
             return List.of();

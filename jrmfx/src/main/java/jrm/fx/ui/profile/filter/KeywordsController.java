@@ -36,7 +36,10 @@ import lombok.Getter;
  */
 public class KeywordsController implements Initializable {
 
-    /** The scene. */
+    /**
+     * The keywords filter dialog scene.
+     * @return the scene
+     */
     @FXML
     @Getter
     Scene sceneKW;
@@ -54,6 +57,13 @@ public class KeywordsController implements Initializable {
     /** The anyware list being filtered. */
     AnywareList<? extends Anyware> awlist;
 
+    /**
+     * Initializes the controller: sets up the user session and configures
+     * drag-and-drop event handlers for both list views.
+     *
+     * @param location  the FXML location
+     * @param resources the resource bundle
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         session = Sessions.getSingleSession();
@@ -113,6 +123,9 @@ public class KeywordsController implements Initializable {
 
     }
 
+    /**
+     * Closes the keywords dialog, persisting window position to settings.
+     */
     @FXML
     public void onClose() {
         final var stage = (Stage) sceneKW.getWindow();
@@ -120,16 +133,25 @@ public class KeywordsController implements Initializable {
         stage.hide();
     }
 
+    /**
+     * Applies the current keyword filter and invokes the callback.
+     */
     @FXML
     public void onFilter() {
         callback.call(awlist, listUsedKW.getItems());
         sceneKW.getWindow().hide();
     }
 
+    /**
+     * Initializes the available keywords list with the given array.
+     *
+     * @param keywords the keywords to populate the available list
+     */
     void initKeywords(String[] keywords) {
         listAvailKW.setItems(FXCollections.observableArrayList(keywords));
     }
 
+    /** The drag source property for tracking drag origin. */
     @SuppressWarnings("unused")
     private final ObjectProperty<ListCell<String>> dragSource = new SimpleObjectProperty<>();
 

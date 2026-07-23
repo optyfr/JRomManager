@@ -98,126 +98,198 @@ public class ProfileViewerController implements Initializable {
 
     private static final String D_OF_D_FMT = "%d/%d";
 
+    /** The software/machine list table. */
     @FXML
     private TableView<AnywareList<? extends Anyware>> tableWL;
+    /** The software/machine list name column. */
     @FXML
     private TableColumn<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> tableWLName;
+    /** The software/machine list description column. */
     @FXML
     private TableColumn<AnywareList<? extends Anyware>, String> tableWLDesc;
+    /** The software/machine list have-count column. */
     @FXML
     private TableColumn<AnywareList<? extends Anyware>, String> tableWLHave;
+    /** Toggle to show unknown software/machine lists. */
     @FXML
     private ToggleButton toggleWLUnknown;
+    /** Toggle to show missing software/machine lists. */
     @FXML
     private ToggleButton toggleWLMissing;
+    /** Toggle to show partial software/machine lists. */
     @FXML
     private ToggleButton toggleWLPartial;
+    /** Toggle to show complete software/machine lists. */
     @FXML
     private ToggleButton toggleWLComplete;
+    /** The entries table. */
     @FXML
     private TableView<Anyware> tableW;
+    /** The machine status column. */
     private final TableColumn<Anyware, Anyware> tableWMStatus = new TableColumn<>(Messages.getString("MachineListRenderer.Status"));
+    /** The machine name column. */
     private final TableColumn<Anyware, Machine> tableWMName = new TableColumn<>(Messages.getString("MachineListRenderer.Name"));
+    /** The machine description column. */
     private final TableColumn<Anyware, String> tableWMDescription = new TableColumn<>(Messages.getString("MachineListRenderer.Description"));
+    /** The machine have-count column. */
     private final TableColumn<Anyware, String> tableWMHave = new TableColumn<>(Messages.getString("MachineListRenderer.Have"));
+    /** The machine clone-of column. */
     private final TableColumn<Anyware, Object> tableWMCloneOf = new TableColumn<>(Messages.getString("MachineListRenderer.CloneOf"));
+    /** The machine ROM-of column. */
     private final TableColumn<Anyware, Object> tableWMRomOf = new TableColumn<>(Messages.getString("MachineListRenderer.RomOf"));
+    /** The machine sample-of column. */
     private final TableColumn<Anyware, Object> tableWMSampleOf = new TableColumn<>(Messages.getString("MachineListRenderer.SampleOf"));
+    /** The machine selected checkbox column. */
     private final TableColumn<Anyware, CheckBox> tableWMSelected = new TableColumn<>(Messages.getString("MachineListRenderer.Selected"));
+    /** The software status column. */
     private final TableColumn<Anyware, Anyware> tableWSStatus = new TableColumn<>(Messages.getString("SoftwareListRenderer.Status"));
+    /** The software name column. */
     private final TableColumn<Anyware, String> tableWSName = new TableColumn<>(Messages.getString("SoftwareListRenderer.Name"));
+    /** The software description column. */
     private final TableColumn<Anyware, String> tableWSDescription = new TableColumn<>(Messages.getString("SoftwareListRenderer.Description"));
+    /** The software have-count column. */
     private final TableColumn<Anyware, String> tableWSHave = new TableColumn<>(Messages.getString("SoftwareListRenderer.Have"));
+    /** The software clone-of column. */
     private final TableColumn<Anyware, Object> tableWSCloneOf = new TableColumn<>(Messages.getString("SoftwareListRenderer.CloneOf"));
+    /** The software selected checkbox column. */
     private final TableColumn<Anyware, CheckBox> tableWSSelected = new TableColumn<>(Messages.getString("SoftwareListRenderer.Selected"));
+    /** Toggle to show unknown entries. */
     @FXML
     private ToggleButton toggleWUnknown;
+    /** Toggle to show missing entries. */
     @FXML
     private ToggleButton toggleWMissing;
+    /** Toggle to show partial entries. */
     @FXML
     private ToggleButton toggleWPartial;
+    /** Toggle to show complete entries. */
     @FXML
     private ToggleButton toggleWComplete;
+    /** The keyword search text field. */
     @FXML
     private TextField search;
+    /** The entity details table. */
     @FXML
     private TableView<EntityBase> tableEntity;
+    /** The entity status column. */
     @FXML
     private TableColumn<EntityBase, EntityBase> tableEntityStatus;
+    /** The entity name column. */
     @FXML
     private TableColumn<EntityBase, EntityBase> tableEntityName;
+    /** The entity size column. */
     @FXML
     private TableColumn<EntityBase, Long> tableEntitySize;
+    /** The entity CRC column. */
     @FXML
     private TableColumn<EntityBase, String> tableEntityCRC;
+    /** The entity MD5 column. */
     @FXML
     private TableColumn<EntityBase, String> tableEntityMD5;
+    /** The entity SHA-1 column. */
     @FXML
     private TableColumn<EntityBase, String> tableEntitySHA1;
+    /** The entity merge name column. */
     @FXML
     private TableColumn<EntityBase, String> tableEntityMergeName;
+    /** The entity dump status column. */
     @FXML
     private TableColumn<EntityBase, Entity.Status> tableEntityDumpStatus;
+    /** Toggle to show unknown entities. */
     @FXML
     private ToggleButton toggleEntityUnknown;
+    /** Toggle to show KO entities. */
     @FXML
     private ToggleButton toggleEntityKO;
+    /** Toggle to show OK entities. */
     @FXML
     private ToggleButton toggleEntityOK;
 
+    /** The software/machine list context menu. */
     @FXML
     private ContextMenu menuWL;
+    /** Menu item: export filtered as Logiqx DAT. */
     @FXML
     private MenuItem mntmFilteredAsLogiqxDat;
+    /** Menu item: export filtered as MAME DAT. */
     @FXML
     private MenuItem mntmFilteredAsMameDat;
+    /** Menu item: export filtered as software lists. */
     @FXML
     private MenuItem mntmFilteredAsSoftwareLists;
+    /** Menu item: export all as Logiqx DAT. */
     @FXML
     private MenuItem mntmAllAsLogiqxDat;
+    /** Menu item: export all as MAME DAT. */
     @FXML
     private MenuItem mntmAllAsMameDat;
+    /** Menu item: export all as software lists. */
     @FXML
     private MenuItem mntmAllAsSoftwareLists;
+    /** Menu item: export selected filtered as software lists. */
     @FXML
     private MenuItem mntmSelectedFilteredAsSoftwareLists;
+    /** Menu item: export selected as software lists. */
     @FXML
     private MenuItem mntmSelectedAsSoftwareLists;
+    /** The entry context menu. */
     @FXML
     private ContextMenu menuW;
+    /** Menu item: select by keywords. */
     @FXML
     private MenuItem mntmSelectByKeywords;
+    /** Menu item: select all. */
     @FXML
     private MenuItem mntmSelectAll;
+    /** Menu item: select none. */
     @FXML
     private MenuItem mntmSelectNone;
+    /** Menu item: invert selection. */
     @FXML
     private MenuItem mntmSelectInvert;
+    /** The entity context menu. */
     @FXML
     private ContextMenu menuEntity;
+    /** Menu item: copy CRC. */
     @FXML
     private MenuItem mntmCopyCrc;
+    /** Menu item: copy SHA-1. */
     @FXML
     private MenuItem mntmCopySha1;
+    /** Menu item: copy name. */
     @FXML
     private MenuItem mntmCopyName;
+    /** Menu item: search web. */
     @FXML
     private MenuItem mntmSearchWeb;
 
+    /** Icon for complete software/machine list. */
     private static final Image diskMultipleGreen = MainFrame.getIcon("/jrm/resicons/disk_multiple_green.png"); //$NON-NLS-1$
+    /** Icon for partial software/machine list. */
     private static final Image diskMultipleOrange = MainFrame.getIcon("/jrm/resicons/disk_multiple_orange.png"); //$NON-NLS-1$
+    /** Icon for missing software/machine list. */
     private static final Image diskMultipleRed = MainFrame.getIcon("/jrm/resicons/disk_multiple_red.png"); //$NON-NLS-1$
+    /** Icon for unknown software/machine list. */
     private static final Image diskMultipleGray = MainFrame.getIcon("/jrm/resicons/disk_multiple_gray.png"); //$NON-NLS-1$
+    /** Icon for complete status. */
     private static final Image folderClosedGreen = MainFrame.getIcon("/jrm/resicons/folder_closed_green.png"); //$NON-NLS-1$
+    /** Icon for partial status. */
     private static final Image folderClosedOrange = MainFrame.getIcon("/jrm/resicons/folder_closed_orange.png"); //$NON-NLS-1$
+    /** Icon for missing status. */
     private static final Image folderClosedRed = MainFrame.getIcon("/jrm/resicons/folder_closed_red.png"); //$NON-NLS-1$
+    /** Icon for unknown status. */
     private static final Image folderClosedGray = MainFrame.getIcon("/jrm/resicons/folder_closed_gray.png"); //$NON-NLS-1$
+    /** Green bullet icon for OK entity status. */
     private static final Image bulletGreen = MainFrame.getIcon("/jrm/resicons/icons/bullet_green.png"); //$NON-NLS-1$
+    /** Red bullet icon for KO entity status. */
     private static final Image bulletRed = MainFrame.getIcon("/jrm/resicons/icons/bullet_red.png"); //$NON-NLS-1$
+    /** Black bullet icon for unknown entity status. */
     private static final Image bulletBlack = MainFrame.getIcon("/jrm/resicons/icons/bullet_black.png"); //$NON-NLS-1$
 
+    /** Cache of have-count strings keyed by software/machine list name. */
     private final Map<String, String> haveCache = new HashMap<>();
 
+    /** The current user session. */
     private final Session session = Sessions.getSingleSession();
 
     @Override
@@ -228,7 +300,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * 
+     * Initializes the entity details table with its columns, toggle buttons, and context menu.
      */
     private void initTableE() {
         initTableEStatus();
@@ -243,11 +315,20 @@ public class ProfileViewerController implements Initializable {
         initTableEMenu();
     }
 
+    /**
+     * Configures the entity status column with a graphical cell factory and value factory.
+     */
     private void initTableEStatus() {
         tableEntityStatus.setCellFactory(_ -> createEntityStatusCell());
         tableEntityStatus.setCellValueFactory(this::createEntityStatusValue);
     }
 
+    /**
+     * Creates an observable value that returns the entity for the status column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the entity
+     */
     private ObservableValueBase<EntityBase> createEntityStatusValue(final CellDataFeatures<EntityBase, EntityBase> p) {
         return new ObservableValueBase<EntityBase>() {
             @Override
@@ -257,6 +338,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's status as a colored bullet icon.
+     *
+     * @return the status table cell
+     */
     private TableCell<EntityBase, EntityBase> createEntityStatusCell() {
         return new TableCell<EntityBase, EntityBase>() {
             @Override
@@ -281,11 +367,19 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity name column with cell factory and value factory.
+     */
     private void initTableEName() {
         tableEntityName.setCellFactory(_ -> entityNameCellFactory());
         tableEntityName.setCellValueFactory(tableEntityStatus.getCellValueFactory());
     }
 
+    /**
+     * Creates a table cell that renders the entity name with a type icon.
+     *
+     * @return the entity name table cell
+     */
     private TableCell<EntityBase, EntityBase> entityNameCellFactory() {
         return new TableCell<EntityBase, EntityBase>() {
             final Image romSmall = MainFrame.getIcon("/jrm/resicons/rom_small.png"); //$NON-NLS-1$
@@ -316,6 +410,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity size column with width, cell factory, and value factory.
+     */
     private void initTableESize() {
         tableEntitySize.setMinWidth(getWidth(12));
         tableEntitySize.setPrefWidth(tableEntitySize.getMinWidth());
@@ -324,6 +421,12 @@ public class ProfileViewerController implements Initializable {
         tableEntitySize.setCellValueFactory(this::createEntitySizeValue);
     }
 
+    /**
+     * Creates an observable value that returns the ROM size for the entity size column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the ROM size, or {@code null} if not a ROM
+     */
     private ObservableValueBase<Long> createEntitySizeValue(final CellDataFeatures<EntityBase, Long> p) {
         return new ObservableValueBase<Long>() {
             @Override
@@ -335,6 +438,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's size.
+     *
+     * @return the size table cell
+     */
     private TableCell<EntityBase, Long> createEntitySizeCell() {
         return new TableCell<EntityBase, Long>() {
             @Override
@@ -350,6 +458,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity CRC column with monospaced font width and cell factory.
+     */
     private void initTableECRC() {
         tableEntityCRC.setMinWidth(getWidth(10, MONOSPACED));
         tableEntityCRC.setPrefWidth(tableEntityCRC.getMinWidth());
@@ -358,6 +469,12 @@ public class ProfileViewerController implements Initializable {
         tableEntityCRC.setCellValueFactory(this::createEntityCRCValue);
     }
 
+    /**
+     * Creates an observable value that returns the CRC for the entity CRC column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the CRC, or {@code null} if not a ROM or disk
+     */
     private ObservableValueBase<String> createEntityCRCValue(final CellDataFeatures<EntityBase, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -371,6 +488,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's CRC with monospaced font.
+     *
+     * @return the CRC table cell
+     */
     private TableCell<EntityBase, String> createEntityCRCCell() {
         return new TableCell<EntityBase, String>() {
             @Override
@@ -386,6 +508,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity MD5 column with monospaced font width and cell factory.
+     */
     private void initTableEMD5() {
         tableEntityMD5.setMinWidth(getWidth(34, MONOSPACED));
         tableEntityMD5.setPrefWidth(tableEntityMD5.getMinWidth());
@@ -394,6 +519,12 @@ public class ProfileViewerController implements Initializable {
         tableEntityMD5.setCellValueFactory(this::createEntityMD5Value);
     }
 
+    /**
+     * Creates an observable value that returns the MD5 for the entity MD5 column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the MD5, or {@code null} if not a ROM or disk
+     */
     private ObservableValueBase<String> createEntityMD5Value(final CellDataFeatures<EntityBase, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -407,6 +538,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's MD5 with monospaced font.
+     *
+     * @return the MD5 table cell
+     */
     private TableCell<EntityBase, String> createEntityMD5Cell() {
         return new TableCell<EntityBase, String>() {
             @Override
@@ -422,6 +558,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity SHA-1 column with monospaced font width and cell factory.
+     */
     private void initTableESHA1() {
         tableEntitySHA1.setMinWidth(getWidth(42, MONOSPACED));
         tableEntitySHA1.setPrefWidth(tableEntitySHA1.getMinWidth());
@@ -430,6 +569,12 @@ public class ProfileViewerController implements Initializable {
         tableEntitySHA1.setCellValueFactory(this::createEntitySHA1Value);
     }
 
+    /**
+     * Creates an observable value that returns the SHA-1 for the entity SHA-1 column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the SHA-1, or {@code null} if not a ROM or disk
+     */
     private ObservableValueBase<String> createEntitySHA1Value(final CellDataFeatures<EntityBase, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -443,6 +588,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's SHA-1 with monospaced font.
+     *
+     * @return the SHA-1 table cell
+     */
     private TableCell<EntityBase, String> createEntitySHA1Cell() {
         return new TableCell<EntityBase, String>() {
             @Override
@@ -458,10 +608,19 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity merge name column with value factory.
+     */
     private void initTableEMergeName() {
         tableEntityMergeName.setCellValueFactory(this::getEntityMergeName);
     }
 
+    /**
+     * Creates an observable value that returns the merge name for the entity merge name column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the merge name, or {@code null} if not a ROM or disk
+     */
     private ObservableValueBase<String> getEntityMergeName(final CellDataFeatures<EntityBase, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -475,11 +634,20 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the entity dump status column with cell factory and value factory.
+     */
     private void initTableEDumpStatus() {
         tableEntityDumpStatus.setCellFactory(_ -> createEntityDumpStatusCell());
         tableEntityDumpStatus.setCellValueFactory(this::getEntityDumpStatusValue);
     }
 
+    /**
+     * Creates an observable value that returns the dump status for the entity dump status column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the dump status, or {@code null} if not a ROM or disk
+     */
     private ObservableValueBase<Status> getEntityDumpStatusValue(final CellDataFeatures<EntityBase, Status> p) {
         return new ObservableValueBase<Entity.Status>() {
             @Override
@@ -493,6 +661,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entity's dump status as an icon.
+     *
+     * @return the dump status table cell
+     */
     private TableCell<EntityBase, Status> createEntityDumpStatusCell() {
         return new TableCell<EntityBase, Entity.Status>() {
             private static final Image verified = MainFrame.getIcon("/jrm/resicons/icons/star.png"); //$NON-NLS-1$
@@ -523,6 +696,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Initializes the entity table toggle buttons with bullet icons.
+     */
     private void initTableEToggles() {
         final ImageView ibb = new ImageView(bulletBlack);
         ibb.setPreserveRatio(true);
@@ -538,10 +714,16 @@ public class ProfileViewerController implements Initializable {
         toggleEntityOK.setGraphic(ibg);
     }
 
+    /**
+     * Initializes the entity table context menu to update item states when shown.
+     */
     private void initTableEMenu() {
         menuEntity.setOnShowing(_ -> updateEMenuItemStates());
     }
 
+    /**
+     * Enables or disables context menu items based on whether an entity is selected.
+     */
     private void updateEMenuItemStates() {
         final boolean has_selected_entity = tableEntity.getSelectionModel().getSelectedItem() != null;
         mntmCopyCrc.setDisable(!has_selected_entity);
@@ -551,11 +733,12 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * @param mame
-     * 
-     * @return
+     * Builds MAME command-line arguments for a machine entry.
+     *
+     * @param ware    the machine to build arguments for
+     * @param profile the current profile
+     * @param mame    the MAME configuration
+     * @param args    the argument list to populate
      */
     private void getMameArgsMachine(final Anyware ware, final Profile profile, final ProfileNFOMame mame, final ArrayList<String> args) {
         final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
@@ -571,14 +754,14 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * @param mame
-     * @param args
-     * 
-     * @return
-     * 
-     * @throws HeadlessException
+     * Builds MAME command-line arguments for a software entry, prompting the user
+     * to select a compatible machine if needed.
+     *
+     * @param ware    the software to build arguments for
+     * @param profile the current profile
+     * @param mame    the MAME configuration
+     * @param args    the argument list to populate
+     * @throws HeadlessException if running in a headless environment
      */
     private void getMameArgsSofware(final Anyware ware, final Profile profile, final ProfileNFOMame mame, final ArrayList<String> args) throws HeadlessException {
         final List<String> rompaths = new ArrayList<>(Collections.singletonList(profile.getProperty(ProfileSettingsEnum.roms_dest_dir))); // $NON-NLS-1$
@@ -614,10 +797,11 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * @param ware
-     * @param profile
-     * 
-     * @throws HeadlessException
+     * Launches MAME for the given entry, building arguments and starting the process.
+     *
+     * @param ware    the machine or software to launch
+     * @param profile the current profile
+     * @throws HeadlessException if running in a headless environment
      */
     private void launchMame(final Anyware ware, final Profile profile) throws HeadlessException {
         final ProfileNFOMame mame = profile.getNfo().getMame();
@@ -642,7 +826,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * 
+     * Initializes the entries table with its columns, toggle buttons, and selection listeners.
      */
     private void initTableW() {
         tableW.setFixedCellSize(-1);
@@ -660,6 +844,9 @@ public class ProfileViewerController implements Initializable {
         search.textProperty().addListener((_, _, newValue) -> filteredData.setPredicate(searchPredicate(newValue)));
     }
 
+    /**
+     * Configures the machine status column with cell factory and value factory.
+     */
     private void initTableWMStatus() {
         tableWMStatus.setResizable(false);
         tableWMStatus.setSortable(false);
@@ -668,6 +855,12 @@ public class ProfileViewerController implements Initializable {
         tableWMStatus.setCellValueFactory(this::getWMStatusValue);
     }
 
+    /**
+     * Creates an observable value that returns the {@link Anyware} for the status column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the entry
+     */
     private ObservableValueBase<Anyware> getWMStatusValue(final CellDataFeatures<Anyware, Anyware> p) {
         return new ObservableValueBase<Anyware>() {
             @Override
@@ -677,6 +870,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders an entry's status as a colored icon.
+     *
+     * @return the status table cell
+     */
     private TableCell<Anyware, Anyware> createWMStatusCell() {
         return new TableCell<Anyware, Anyware>() {
             @Override
@@ -695,6 +893,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the machine name column with width, cell factory, and value factory.
+     */
     private void initTableWMName() {
         tableWMName.setMinWidth(50);
         tableWMName.setPrefWidth(100);
@@ -704,6 +905,12 @@ public class ProfileViewerController implements Initializable {
         tableWMName.setSortable(true);
     }
 
+    /**
+     * Creates an observable value that returns the {@link Machine} for the name column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the machine, or {@code null} if not a machine
+     */
     private ObservableValueBase<Machine> getWMNameValue(final CellDataFeatures<Anyware, Machine> p) {
         return new ObservableValueBase<Machine>() {
             @Override
@@ -715,6 +922,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders a machine name with a type icon and double-click handling.
+     *
+     * @return the machine name table cell
+     */
     private TableCell<Anyware, Machine> createWMNameCell() {
         final var cell = new TableCell<Anyware, Machine>() {
             private static final Image applicationOSXTerminal = MainFrame.getIcon("/jrm/resicons/icons/application_osx_terminal.png"); //$NON-NLS-1$
@@ -751,6 +963,11 @@ public class ProfileViewerController implements Initializable {
         return cell;
     }
 
+    /**
+     * Handles double-click on a machine cell to launch MAME if the machine is complete.
+     *
+     * @param event the mouse event
+     */
     private void handleMachineDoubleClick(final MouseEvent event) {
         if (event.getClickCount() > 1 && (event.getSource() instanceof final TableCell<?, ?> c
                 && (c.getUserData() instanceof final Machine ware))) {
@@ -770,6 +987,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Configures the machine description column with width, cell factory, and value factory.
+     */
     private void initTableWMDescription() {
         tableWMDescription.setMinWidth(100);
         tableWMDescription.setPrefWidth(200);
@@ -779,6 +999,12 @@ public class ProfileViewerController implements Initializable {
         tableWMDescription.setSortable(true);
     }
 
+    /**
+     * Creates an observable value that returns the description for the machine description column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the description text
+     */
     private ObservableValueBase<String> getWMDescriptionValue(final CellDataFeatures<Anyware, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -788,6 +1014,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders a description with tooltip.
+     *
+     * @return the description table cell
+     */
     private TableCell<Anyware, String> createWMDescriptionCell() {
         return new TableCell<Anyware, String>() {
             @Override
@@ -804,6 +1035,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the have column with cell factory and value factory.
+     */
     private void initTableWMHave() {
         tableWMHave.setResizable(true);
         tableWMHave.setSortable(false);
@@ -813,6 +1047,12 @@ public class ProfileViewerController implements Initializable {
         tableWMHave.setCellValueFactory(this::getWMHaveValue);
     }
 
+    /**
+     * Creates an observable value that returns the have-count string for the machine have column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the have-count formatted string
+     */
     private ObservableValueBase<String> getWMHaveValue(final CellDataFeatures<Anyware, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -824,6 +1064,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell that renders the have-count centered.
+     *
+     * @return the have table cell
+     */
     private TableCell<Anyware, String> createWMHaveCell() {
         return new TableCell<Anyware, String>() {
             @Override
@@ -839,6 +1084,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the clone-of column with cell factory and value factory.
+     */
     private void initTableWMCloneOf() {
         tableWMCloneOf.setSortable(false);
         tableWMCloneOf.setMinWidth(50);
@@ -848,6 +1096,12 @@ public class ProfileViewerController implements Initializable {
         tableWMCloneOf.setCellValueFactory(this::getWMCloneOfValue);
     }
 
+    /**
+     * Creates an observable value that returns the clone-of relationship for the column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the clone-of entry or name
+     */
     private ObservableValueBase<Object> getWMCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
         return new ObservableValueBase<Object>() {
             @Override
@@ -857,6 +1111,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell for the clone-of column with double-click navigation.
+     *
+     * @return the clone-of table cell
+     */
     private TableCell<Anyware, Object> createWMCloneOfCell() {
         final var cell = new TableCell<Anyware, Object>() {
             @Override
@@ -868,6 +1127,13 @@ public class ProfileViewerController implements Initializable {
         return cell;
     }
 
+    /**
+     * Updates the clone-of cell content with an icon and name.
+     *
+     * @param cell  the cell to update
+     * @param item  the cell value
+     * @param empty whether the cell is empty
+     */
     private void updateCloneOfCell(final TableCell<Anyware, Object> cell, final Object item, final boolean empty) {
         if (item == null || empty) {
             cell.setText("");
@@ -889,6 +1155,11 @@ public class ProfileViewerController implements Initializable {
         cell.setAlignment(Pos.CENTER_LEFT);
     }
 
+    /**
+     * Handles double-click on a clone-of cell to select and scroll to the referenced entry.
+     *
+     * @param event the mouse event
+     */
     private void handleCloneOfDoubleClick(final MouseEvent event) {
         if (event.getClickCount() > 1 && event.getSource() instanceof final TableCell<?, ?> c && (c.getUserData() instanceof final Anyware ware)) {
             final var sm = tableW.getSelectionModel();
@@ -898,11 +1169,20 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Resolves the clone-of value for a cell data row.
+     *
+     * @param p the cell data features
+     * @return the resolved clone-of entry, name, or {@code null}
+     */
     private Object getCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
         final AnywareList<? extends Anyware> machineList = tableWL.getSelectionModel().getSelectedItem();
         return Optional.ofNullable(p.getValue().getCloneof()).map(cloneof -> machineList.containsName(cloneof) ? machineList.getByName(cloneof) : cloneof).orElse(null);
     }
 
+    /**
+     * Configures the ROM-of column reusing the clone-of cell factory.
+     */
     private void initTableWMRomOf() {
         tableWMRomOf.setSortable(false);
         tableWMRomOf.setMinWidth(50);
@@ -912,6 +1192,12 @@ public class ProfileViewerController implements Initializable {
         tableWMRomOf.setCellValueFactory(this::getWMRomOfValue);
     }
 
+    /**
+     * Creates an observable value that returns the ROM-of relationship for the column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the ROM-of entry or name
+     */
     private ObservableValueBase<Object> getWMRomOfValue(final CellDataFeatures<Anyware, Object> p) {
         return new ObservableValueBase<Object>() {
             @Override
@@ -926,6 +1212,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Configures the sample-of column with cell factory and value factory.
+     */
     private void initTableWMSampleOf() {
         tableWMSampleOf.setSortable(false);
         tableWMSampleOf.setMinWidth(50);
@@ -935,6 +1224,12 @@ public class ProfileViewerController implements Initializable {
         tableWMSampleOf.setCellValueFactory(this::getWMSampleOfValue);
     }
 
+    /**
+     * Creates an observable value that returns the sample-of relationship for the column.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the sample-of entry or name
+     */
     private ObservableValueBase<Object> getWMSampleOfValue(final CellDataFeatures<Anyware, Object> p) {
         return new ObservableValueBase<Object>() {
             @Override
@@ -944,6 +1239,11 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates a table cell for the sample-of column.
+     *
+     * @return the sample-of table cell
+     */
     private TableCell<Anyware, Object> createWMSampleOfCell() {
         return new TableCell<Anyware, Object>() {
             @Override
@@ -953,6 +1253,13 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Updates the sample-of cell content with an icon and name.
+     *
+     * @param cell  the cell to update
+     * @param item  the cell value
+     * @param empty whether the cell is empty
+     */
     private void updateSampleOfCell(final TableCell<Anyware, Object> cell, final Object item, final boolean empty) {
         if (item == null || empty) {
             cell.setText("");
@@ -973,6 +1280,12 @@ public class ProfileViewerController implements Initializable {
         cell.setAlignment(Pos.CENTER_LEFT);
     }
 
+    /**
+     * Resolves the sample-of value for a given entry.
+     *
+     * @param value the entry to check
+     * @return the resolved sample-of entry, name, or {@code null}
+     */
     private Object getSampleOfValue(final Object value) {
         if (!(value instanceof final Machine m)) {
             return null;
@@ -986,6 +1299,9 @@ public class ProfileViewerController implements Initializable {
                 .orElse(null);
     }
 
+    /**
+     * Configures the machine selected column with checkbox cell factory.
+     */
     private void initTableWMSelected() {
         tableWMSelected.setResizable(true);
         tableWMSelected.setSortable(false);
@@ -994,6 +1310,12 @@ public class ProfileViewerController implements Initializable {
         tableWMSelected.setCellValueFactory(this::createWMSelectedCell);
     }
 
+    /**
+     * Creates a checkbox cell for the selected column, bound to the entry's selected state.
+     *
+     * @param p the cell data features
+     * @return an observable containing the checkbox
+     */
     private ObservableValue<CheckBox> createWMSelectedCell(final CellDataFeatures<Anyware, CheckBox> p) {
         final var aw = p.getValue();
         final var checkBox = new CheckBox();
@@ -1002,6 +1324,9 @@ public class ProfileViewerController implements Initializable {
         return new SimpleObjectProperty<>(checkBox);
     }
 
+    /**
+     * Configures the software table columns reusing cell factories from the machine columns.
+     */
     private void initTableWSColumns() {
         tableWSStatus.setResizable(false);
         tableWSStatus.setSortable(false);
@@ -1034,6 +1359,12 @@ public class ProfileViewerController implements Initializable {
         tableWSSelected.setCellValueFactory(tableWMSelected.getCellValueFactory());
     }
 
+    /**
+     * Creates an observable value that returns the clone-of value for a software entry.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the clone-of entry or {@code null}
+     */
     private ObservableValueBase<Object> getWSCloneOfValue(final CellDataFeatures<Anyware, Object> p) {
         return new ObservableValueBase<Object>() {
             @Override
@@ -1044,6 +1375,12 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates an observable value that returns the have-count string for a software entry.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the have-count formatted string
+     */
     private ObservableValueBase<String> getWSHaveValue(final CellDataFeatures<Anyware, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -1055,6 +1392,12 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Creates an observable value that returns the base name for a software entry.
+     *
+     * @param p the cell data features
+     * @return an observable value returning the base name
+     */
     private ObservableValueBase<String> getWSNameValue(final CellDataFeatures<Anyware, String> p) {
         return new ObservableValueBase<String>() {
             @Override
@@ -1064,6 +1407,9 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Initializes the entry toggle buttons with folder icons.
+     */
     private void initToggleButtons() {
         final ImageView ifcgray = new ImageView(folderClosedGray);
         ifcgray.setPreserveRatio(true);
@@ -1084,9 +1430,10 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * @param newValue
-     * 
-     * @return
+     * Creates a search predicate that filters entries by name or description.
+     *
+     * @param newValue the search text
+     * @return a predicate matching entries whose name or description contains the search text
      */
     private Predicate<? super Anyware> searchPredicate(final String newValue) {
         return t -> {
@@ -1098,7 +1445,7 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * 
+     * Initializes the software/machine list table with columns, toggle buttons, and selection listeners.
      */
     private void initTableWL() {
         tableWL.setFixedCellSize(-1);
@@ -1129,6 +1476,9 @@ public class ProfileViewerController implements Initializable {
         menuWL.setOnShowing(_ -> refreshMenuItemAvailability());
     }
 
+    /**
+     * Refreshes the availability state of export menu items.
+     */
     private void refreshMenuItemAvailability() {
         final boolean has_machines = session.getCurrProfile().getMachineListList().getList().stream().mapToInt(ml -> ml.getList().size()).sum() > 0;
         final boolean has_filtered_machines = session.getCurrProfile().getMachineListList().getFilteredStream().mapToInt(m -> (int) m.countAll()).sum() > 0;
@@ -1144,7 +1494,9 @@ public class ProfileViewerController implements Initializable {
     }
 
     /**
-     * @param newValue
+     * Reloads the entity details table with the entities of the selected entry.
+     *
+     * @param newValue the selected entry, or {@code null} to clear
      */
     private void reloadE(final Anyware newValue) {
         final var list = FXCollections.<EntityBase>observableArrayList();
@@ -1156,10 +1508,12 @@ public class ProfileViewerController implements Initializable {
         tableEntity.setItems(list);
     }
 
+    /** The filtered list backing the entries table. */
     private FilteredList<Anyware> filteredData;
 
     /**
-     * 
+     * Reloads the entries table with data from the selected software/machine list,
+     * choosing the appropriate column set depending on the list type.
      */
     private void reloadW(final AnywareList<? extends Anyware> newValue) {
         tableW.getColumns().clear();
@@ -1193,21 +1547,44 @@ public class ProfileViewerController implements Initializable {
         tableW.getSelectionModel().select(0);
     }
 
+    /**
+     * Applies the software/machine list status filter.
+     *
+     * @param e the action event
+     */
     @FXML
     public void diskMultipleFilter(final ActionEvent e) {
         setFilterWL(toggleWLUnknown.isSelected(), toggleWLMissing.isSelected(), toggleWLPartial.isSelected(), toggleWLComplete.isSelected());
     }
 
+    /**
+     * Applies the entry status filter.
+     *
+     * @param e the action event
+     */
     @FXML
     public void folderFilter(final ActionEvent e) {
         setFilterW(toggleWUnknown.isSelected(), toggleWMissing.isSelected(), toggleWPartial.isSelected(), toggleWComplete.isSelected());
     }
 
+    /**
+     * Applies the entity status filter.
+     *
+     * @param e the action event
+     */
     @FXML
     public void bulletFilter(final ActionEvent e) {
         setFilterE(toggleEntityUnknown.isSelected(), toggleEntityKO.isSelected(), toggleEntityOK.isSelected());
     }
 
+    /**
+     * Sets the filter for software/machine lists based on toggle states.
+     *
+     * @param unknown  whether to include unknown status
+     * @param missing  whether to include missing status
+     * @param partial  whether to include partial status
+     * @param complete whether to include complete status
+     */
     private void setFilterWL(final boolean unknown, final boolean missing, final boolean partial, final boolean complete) {
         final EnumSet<AnywareStatus> filter = EnumSet.noneOf(AnywareStatus.class);
         if (unknown)
@@ -1222,6 +1599,14 @@ public class ProfileViewerController implements Initializable {
         reset(session.getCurrProfile());
     }
 
+    /**
+     * Sets the filter for entries based on toggle states.
+     *
+     * @param unknown  whether to include unknown status
+     * @param missing  whether to include missing status
+     * @param partial  whether to include partial status
+     * @param complete whether to include complete status
+     */
     private void setFilterW(final boolean unknown, final boolean missing, final boolean partial, final boolean complete) {
         final EnumSet<AnywareStatus> filter = EnumSet.noneOf(AnywareStatus.class);
         if (unknown)
@@ -1238,6 +1623,13 @@ public class ProfileViewerController implements Initializable {
             reloadW(item);
     }
 
+    /**
+     * Sets the filter for entity statuses based on toggle states.
+     *
+     * @param unknown  whether to include unknown status
+     * @param missing  whether to include KO status
+     * @param complete whether to include OK status
+     */
     private void setFilterE(final boolean unknown, final boolean missing, final boolean complete) {
         final EnumSet<EntityStatus> filter = EnumSet.noneOf(EntityStatus.class);
         if (unknown)
@@ -1252,6 +1644,12 @@ public class ProfileViewerController implements Initializable {
             reloadE(item);
     }
 
+    /**
+     * Returns the folder icon corresponding to the given status.
+     *
+     * @param status the entry status
+     * @return the matching icon
+     */
     private static Image getStatusIcon(final AnywareStatus status) {
         return switch (status) {
             case COMPLETE -> folderClosedGreen;
@@ -1262,10 +1660,23 @@ public class ProfileViewerController implements Initializable {
         };
     }
 
+    /**
+     * Returns the pixel width for the given number of digits.
+     *
+     * @param digits the number of digits
+     * @return the calculated width
+     */
     private double getWidth(final int digits) {
         return getWidth(digits, null);
     }
 
+    /**
+     * Returns the pixel width for the given number of digits using the specified font.
+     *
+     * @param digits the number of digits
+     * @param font   the font family name, or {@code null} for default
+     * @return the calculated width
+     */
     private double getWidth(final int digits, final String font) {
         final var text = new Text(String.format("%%0%dd".formatted(digits), 0));
         @SuppressWarnings("unused")
@@ -1277,6 +1688,9 @@ public class ProfileViewerController implements Initializable {
         return text.getBoundsInLocal().getWidth();
     }
 
+    /**
+     * Clears all table items and the have cache.
+     */
     public void clear() {
         tableEntity.setItems(FXCollections.observableArrayList());
         tableW.setItems(FXCollections.observableArrayList());
@@ -1284,6 +1698,9 @@ public class ProfileViewerController implements Initializable {
         haveCache.clear();
     }
 
+    /**
+     * Refreshes all tables and clears the have cache.
+     */
     public void reload() {
         tableWL.refresh();
         haveCache.clear();
@@ -1291,6 +1708,11 @@ public class ProfileViewerController implements Initializable {
         tableEntity.refresh();
     }
 
+    /**
+     * Resets the profile viewer with data from the given profile, preserving the current selection if possible.
+     *
+     * @param profile the profile to display
+     */
     public void reset(final Profile profile) {
         final var selected = tableWL.getSelectionModel().getSelectedItem();
         clear();
@@ -1311,6 +1733,10 @@ public class ProfileViewerController implements Initializable {
         tableWL.refresh();
     }
 
+    /**
+     * Extends {@link jrm.profile.filter.Keywords} to show the keyword filter dialog
+     * and refresh the entries table when filters change.
+     */
     private class KW extends jrm.profile.filter.Keywords {
 
         @Override
@@ -1329,12 +1755,22 @@ public class ProfileViewerController implements Initializable {
 
     }
 
+    /**
+     * Opens the keyword filter dialog for the selected software/machine list.
+     *
+     * @param e the action event
+     */
     @FXML
     private void selectByKeywords(final ActionEvent e) {
         final var lst = tableWL.getSelectionModel().getSelectedItem();
         new KW().filter(lst);
     }
 
+    /**
+     * Deselects all entries.
+     *
+     * @param e the action event
+     */
     @FXML
     public void selectNone(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(false));
@@ -1342,18 +1778,33 @@ public class ProfileViewerController implements Initializable {
 
     }
 
+    /**
+     * Selects all entries.
+     *
+     * @param e the action event
+     */
     @FXML
     public void selectAll(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(true));
         tableW.refresh();
     }
 
+    /**
+     * Inverts the selection of all entries.
+     *
+     * @param e the action event
+     */
     @FXML
     public void selectInvert(final ActionEvent e) {
         tableW.getItems().forEach(ware -> ware.setSelected(!ware.isSelected()));
         tableW.refresh();
     }
 
+    /**
+     * Copies the CRC of the selected entity to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     public void copyCrc(final javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
@@ -1363,6 +1814,11 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Copies the SHA-1 of the selected entity to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     public void copySha1(final javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
@@ -1372,6 +1828,11 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Copies the name of the selected entity to the clipboard.
+     *
+     * @param e the action event
+     */
     @FXML
     public void copyName(final javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
@@ -1381,6 +1842,11 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Opens a web search for the selected entity's name and hash.
+     *
+     * @param e the action event
+     */
     @FXML
     public void searchWeb(final javafx.event.ActionEvent e) {
         if (tableEntity.getSelectionModel().getSelectedItem() != null && tableEntity.getSelectionModel().getSelectedItem() instanceof final Entity entity) {
@@ -1397,48 +1863,92 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Exports filtered entries as Logiqx DAT.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportFilteredAsLogiqxDat(final ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports filtered entries as MAME DAT.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportFilteredAsMameDat(final ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports filtered entries as software lists.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportFilteredAsSoftwareLists(final ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), null);
     }
 
+    /**
+     * Exports all entries as Logiqx DAT.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportAllAsLogiqxDat(final ActionEvent e) {
         export(ExportType.DATAFILE, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Exports all entries as MAME DAT.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportAllAsMameDat(final ActionEvent e) {
         export(ExportType.MAME, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Exports all entries as software lists.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportAllAsSoftwareLists(final ActionEvent e) {
         export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), null);
     }
 
+    /**
+     * Exports the selected software list as filtered software lists.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportSelectedFilteredAsSoftwareLists(final ActionEvent e) {
         if (tableWL.getSelectionModel().getSelectedItem() instanceof final SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.FILTERED), sl);
     }
 
+    /**
+     * Exports the selected software list entirely.
+     *
+     * @param e the action event
+     */
     @FXML
     public void exportSelectedAsSoftwareLists(final ActionEvent e) {
         if (tableWL.getSelectionModel().getSelectedItem() instanceof final SoftwareList sl)
             export(ExportType.SOFTWARELIST, EnumSet.of(ExportMode.ALL), sl);
     }
 
+    /**
+     * Observable value that computes the have-count string for a software/machine list,
+     * caching the result for performance.
+     */
     private final class ValueWLHave extends ObservableValueBase<String> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, String> p;
 
@@ -1460,6 +1970,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Table cell that renders the have-count string centered.
+     */
     private static final class TableCellWLHave extends TableCell<AnywareList<? extends Anyware>, String> {
         @Override
         protected void updateItem(final String item, final boolean empty) {
@@ -1473,6 +1986,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Observable value that returns the description for a software/machine list.
+     */
     private static final class ValueWLDesc extends ObservableValueBase<String> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, String> p;
 
@@ -1488,6 +2004,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Table cell that renders the description with a tooltip.
+     */
     private static final class TableCellWLDesc extends TableCell<AnywareList<? extends Anyware>, String> {
         @Override
         protected void updateItem(final String item, final boolean empty) {
@@ -1501,6 +2020,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Observable value that returns the name for the software/machine list column.
+     */
     private static final class ValueWLName extends ObservableValueBase<AnywareList<? extends Anyware>> {
         private final CellDataFeatures<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> p;
 
@@ -1514,6 +2036,9 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Table cell that renders the software/machine list name with a status icon.
+     */
     private static final class TableCellWLName extends TableCell<AnywareList<? extends Anyware>, AnywareList<? extends Anyware>> {
         @Override
         protected void updateItem(final AnywareList<? extends Anyware> item, final boolean empty) {
@@ -1542,6 +2067,13 @@ public class ProfileViewerController implements Initializable {
         }
     }
 
+    /**
+     * Delegates export to the main frame export method.
+     *
+     * @param type      the export format type
+     * @param modes     the export modes
+     * @param selection the selected software list, or {@code null}
+     */
     private void export(final ExportType type, final Set<ExportMode> modes, final SoftwareList selection) {
         MainFrame.export(tableWL.getScene().getWindow(), session, type, modes, selection);
     }

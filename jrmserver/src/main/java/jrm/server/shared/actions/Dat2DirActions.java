@@ -129,6 +129,38 @@ public class Dat2DirActions {
         (ws.getSession().setWorker(new Worker(this::processDat2Dir))).start();
     }
 
+    /**
+     * Processes the DAT-to-Directory synchronization operation.
+     * <p>
+     * The operation involves loading source directories and SrcDstResult mappings, validating DAT profiles, and executing the
+     * synchronization process. Progress and results are reported via WebSocket messages. The operation can be cancelled by setting
+     * {@code ProgressHandler.doCancel()}.
+     * </p>
+     * <h4>Steps:</h4>
+     * <ol>
+     * <li>Load source directories from user settings</li>
+     * <li>Load SrcDstResult mappings from user settings</li>
+     * <li>Check for missing DAT profiles and warn user if necessary</li>
+     * <li>Execute the DirUpdater to synchronize directories</li>
+     * <li>Report progress and results via WebSocket messages</li>
+     * <li>Clean up resources and notify client upon completion</li>
+     * </ol>
+     * <h4>Thread Safety:</h4>
+     * <p>
+     * This method is designed to run in a background worker thread, allowing the main application thread to remain responsive. The
+     * operation can be cancelled by setting {@code ProgressHandler.doCancel()} which throws {@link BreakException}.
+     * </p>
+     * <h4>Error Handling:</h4>
+     * <ul>
+     * <li>{@link BreakException}: Caught silently - indicates user cancelled the operation</li>
+     * <li>Missing source directories: Warns user via {@code Global.warn}</li>
+     * <li>Unassigned DAT profiles: Warns user via {@code Global.warn}</li>
+     * </ul>
+     * 
+     * @see DirUpdater
+     * @see ProgressHandler
+     * @see BreakException
+     */
     private void processDat2Dir() {
         WebSession session = ws.getSession();
         boolean dryrun = session.getUser().getSettings().getProperty(SettingsEnum.dat2dir_dry_run, Boolean.class);
@@ -156,16 +188,42 @@ public class Dat2DirActions {
         }
     }
 
+    /**
+     * Counts the number of missing DAT profiles for the given source-destination results. A profile is considered missing if the
+     * corresponding settings file does not exist.
+     * 
+     * @param session The current web session containing user settings and context.
+     * @param sdrl List of source-destination results to check for missing profiles.
+     * 
+     * @return Count of missing DAT profiles.
+     */
     private long countMissingProfiles(WebSession session, SDRList<SrcDstResult> sdrl) {
         return sdrl.stream()
                 .filter(sdr -> !session.getUser().getSettings().getProfileSettingsFile(PathAbstractor.getAbsolutePath(session, sdr.getSrc()).toFile()).exists())
                 .count();
     }
 
+    /**
+     * Converts an array of source directory paths to a list of File objects, using the provided session for path resolution.
+     * 
+     * @param session The current web session.
+     * @param srcdirs Array of source directory paths.
+     * 
+     * @return List of File objects representing the source directories.
+     */
     private List<File> toSrcDirFileList(WebSession session, String[] srcdirs) {
         return Stream.of(srcdirs).map(s -> PathAbstractor.getAbsolutePath(session, s).toFile()).toList();
     }
 
+    /**
+     * Creates a ResultColUpdater object that can be used to update the result column in the DAT2Dir results table. This updater
+     * is responsible for updating the session's settings and triggering UI updates.
+     * 
+     * @param session The current web session.
+     * @param sdrl List of source-destination results to update.
+     * 
+     * @return A new ResultColUpdater object.
+     */
     private ResultColUpdater createResultColUpdater(WebSession session, SDRList<SrcDstResult> sdrl) {
         return new ResultColUpdater() {
             @Override

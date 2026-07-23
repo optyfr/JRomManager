@@ -19,6 +19,15 @@ import jrm.profile.manager.ProfileNFOStats.HaveNTotal;
  */
 public final class HaveNTotalCellFactory<T> extends TableCell<T, HaveNTotal> {
 
+    /**
+     * Updates a table cell with have/total statistics.
+     * <p>
+     * Clears the graphic, sets default style and alignment, then delegates to
+     * helper methods based on whether the have count is available.
+     *
+     * @param hnt   the have/total data, or {@code null}
+     * @param empty whether the cell is empty
+     */
     @Override
     protected void updateItem(HaveNTotal hnt, boolean empty) {
         setGraphic(null);
@@ -82,6 +91,13 @@ public final class HaveNTotalCellFactory<T> extends TableCell<T, HaveNTotal> {
         return selected ? Color.web("#ffaa88") : Color.web("#cc8800");
     }
 
+    /**
+     * Builds an HBox containing the have and total text nodes.
+     *
+     * @param have  the have count text node
+     * @param total the total count text node
+     * @return the configured HBox
+     */
     private HBox buildHBox(Text have, Text total) {
         final var tf = new HBox();
         tf.getChildren().addAll(have, total);

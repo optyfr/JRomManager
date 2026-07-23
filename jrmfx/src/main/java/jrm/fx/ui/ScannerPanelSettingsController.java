@@ -102,10 +102,17 @@ public class ScannerPanelSettingsController implements Initializable {
     @FXML
     private Pane settingsPane;
 
-    /** The CatVer context menu. */
+    /** The Pleasuredome MAME presets context menu. */
     @FXML
     private ContextMenu catVerMenu;
 
+    /**
+     * Initializes the controller, wiring up all UI bindings, context menus,
+     * and icons after FXML injection is complete.
+     *
+     * @param location the FXML location or {@code null}
+     * @param resources the resource bundle or {@code null}
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         final Callback<ListView<Descriptor>, ListCell<Descriptor>> cellFactory = _ -> new DescriptorCellFactory();
@@ -168,13 +175,21 @@ public class ScannerPanelSettingsController implements Initializable {
      * @return the profile settings
      */
     private @Getter ProfileSettings settings;
+    
     @FXML
     ContextMenu dstExcludeGlobMenu;
+    /** The menu item to add a destination exclude glob pattern. */
     @FXML
     MenuItem addDstExcludeGlobMenu;
+    /** The menu item to delete a destination exclude glob pattern. */
     @FXML
     MenuItem deleteDstExcludeGlobMenu;
 
+    /**
+     * Initializes the profile settings and binds them to the UI controls.
+     *
+     * @param settings the profile settings to bind
+     */
     void initProfileSettings(final ProfileSettings settings) {
         this.settings = settings;
         needSHA1Chkbx.setSelected(settings.getProperty(ProfileSettingsEnum.need_sha1_or_md5, Boolean.class));
@@ -198,6 +213,9 @@ public class ScannerPanelSettingsController implements Initializable {
         loadGlob();
     }
 
+    /**
+     * Applies the Pleasuredome MAME merged preset to the UI controls.
+     */
     @FXML
     private void pdMameMergedPreset() {
         createMissingSetsChkbx.setSelected(true);
@@ -214,6 +232,9 @@ public class ScannerPanelSettingsController implements Initializable {
         collisionModeCbx.getSelectionModel().select(HashCollisionOptions.HALFDUMB);
     }
 
+    /**
+     * Applies the Pleasuredome MAME non-merged preset to the UI controls.
+     */
     @FXML
     private void pdMameNonMergedPreset() {
         createMissingSetsChkbx.setSelected(true);
@@ -229,6 +250,10 @@ public class ScannerPanelSettingsController implements Initializable {
         mergeModeCbx.getSelectionModel().select(MergeOptions.SUPERFULLNOMERGE);
     }
 
+    /**
+     * Applies the Pleasuredome MAME split preset to the UI controls.
+     * Unlike the merged preset, the collision mode is left unchanged.
+     */
     @FXML
     private void pdMameSplitPreset() {
         createMissingSetsChkbx.setSelected(true);
@@ -244,12 +269,18 @@ public class ScannerPanelSettingsController implements Initializable {
         zeroEntryMattersChkbx.setSelected(false);
     }
 
+    /**
+     * Adds a new empty glob pattern to the destination exclude list and starts editing it.
+     */
     @FXML
     private void addGlob() {
         dstExcludeGlob.getItems().add("");
         dstExcludeGlob.edit(dstExcludeGlob.getItems().size() - 1);
     }
 
+    /**
+     * Deletes the selected glob pattern from the destination exclude list and saves the changes.
+     */
     @FXML
     private void delGlob() {
         if (!dstExcludeGlob.getSelectionModel().isEmpty()) {
@@ -258,6 +289,12 @@ public class ScannerPanelSettingsController implements Initializable {
         }
     }
 
+    /**
+     * Commits a glob pattern edit, removing the entry if blank or updating it otherwise.
+     * Persists the changes after applying.
+     *
+     * @param e the edit event containing the old and new values
+     */
     @FXML
     private void commitGlob(EditEvent<String> e) {
         if (e.getNewValue().isBlank())
@@ -267,10 +304,16 @@ public class ScannerPanelSettingsController implements Initializable {
         saveGlob();
     }
 
+    /**
+     * Saves the current glob patterns to the profile settings as a pipe-delimited string.
+     */
     private void saveGlob() {
         settings.setProperty(ProfileSettingsEnum.exclusion_glob_list, dstExcludeGlob.getItems().stream().collect(Collectors.joining("|")));
     }
 
+    /**
+     * Loads the glob patterns from the profile settings into the destination exclude list.
+     */
     private void loadGlob() {
         dstExcludeGlob.getItems()
                 .setAll(Stream.of(StringUtils.split(settings.getProperty(ProfileSettingsEnum.exclusion_glob_list.toString(), "|"), "|")).filter(s -> !s.isEmpty()).toList());
