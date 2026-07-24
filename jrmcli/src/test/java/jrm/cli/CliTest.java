@@ -108,221 +108,222 @@ class CliTest {
         }
     }
 
-        @Nested
-        @DisplayName("CMD advanced tests")
-        class CmdAdvancedTests {
+    @Nested
+    @DisplayName("CMD advanced tests")
+    class CmdAdvancedTests {
 
-            @ParameterizedTest
-            @CsvSource({
-                    "Cd, CD",
-                    "PwD, PWD",
-                    "SeT, SET",
-                    "Ls, LS",
-                    "Rm, RM",
-                    "Md, MD",
-                    "ScAn, SCAN"
-            })
-            @DisplayName("of() should handle arbitrary mixed case input")
-            void ofShouldHandleArbitraryMixedCase(String input, CMD expected) {
-                assertThat(CMD.of(input)).isEqualTo(expected);
-            }
+        @ParameterizedTest
+        @CsvSource({
+                "Cd, CD",
+                "PwD, PWD",
+                "SeT, SET",
+                "Ls, LS",
+                "Rm, RM",
+                "Md, MD",
+                "ScAn, SCAN"
+        })
+        @DisplayName("of() should handle arbitrary mixed case input")
+        void ofShouldHandleArbitraryMixedCase(String input, CMD expected) {
+            assertThat(CMD.of(input)).isEqualTo(expected);
+        }
 
-            @Test
-            @DisplayName("of() with null input should throw NullPointerException")
-            void ofWithNullInputShouldThrowNpe() {
-                assertThatThrownBy(() -> CMD.of(null))
-                        .isInstanceOf(NullPointerException.class);
-            }
+        @Test
+        @DisplayName("of() with null input should throw NullPointerException")
+        void ofWithNullInputShouldThrowNpe() {
+            assertThatThrownBy(() -> CMD.of(null))
+                    .isInstanceOf(NullPointerException.class);
+        }
 
-            @ParameterizedTest
-            @ValueSource(strings = { " cd", "cd ", " cd ", "\tcd", "c d" })
-            @DisplayName("of() with whitespace should return UNKNOWN")
-            void ofWithWhitespaceShouldReturnUnknown(String input) {
-                assertThat(CMD.of(input)).isEqualTo(CMD.UNKNOWN);
-            }
+        @ParameterizedTest
+        @ValueSource(strings = { " cd", "cd ", " cd ", "\tcd", "c d" })
+        @DisplayName("of() with whitespace should return UNKNOWN")
+        void ofWithWhitespaceShouldReturnUnknown(String input) {
+            assertThat(CMD.of(input)).isEqualTo(CMD.UNKNOWN);
+        }
 
-            @ParameterizedTest
-            @ValueSource(strings = { "!@#$%", "123", "cd!", "scan-Result" })
-            @DisplayName("of() with special characters should return UNKNOWN")
-            void ofWithSpecialCharactersShouldReturnUnknown(String input) {
-                assertThat(CMD.of(input)).isEqualTo(CMD.UNKNOWN);
-            }
+        @ParameterizedTest
+        @ValueSource(strings = { "!@#$%", "123", "cd!", "scan-Result" })
+        @DisplayName("of() with special characters should return UNKNOWN")
+        void ofWithSpecialCharactersShouldReturnUnknown(String input) {
+            assertThat(CMD.of(input)).isEqualTo(CMD.UNKNOWN);
+        }
 
-            @Test
-            @DisplayName("toString() should be consistent across multiple calls")
-            void toStringShouldBeConsistent() {
-                for (CMD cmd : CMD.values()) {
-                    String first = cmd.toString();
-                    String second = cmd.toString();
-                    assertThat(first).isEqualTo(second);
-                }
-            }
-
-            @Test
-            @DisplayName("of(enum.toString()) round-trip should return the same enum for all non-UNKNOWN values")
-            void roundTripOfToStringShouldReturnSameEnum() {
-                for (CMD cmd : CMD.values()) {
-                    if (cmd == CMD.UNKNOWN) continue;
-                    assertThat(CMD.of(cmd.toString()))
-                            .as("Round-trip for %s", cmd)
-                            .isEqualTo(cmd);
-                }
-            }
-
-            @Test
-            @DisplayName("allStrings() should preserve insertion order of aliases")
-            void allStringsShouldPreserveInsertionOrder() {
-                assertThat(CMD.LS.allStrings().toList())
-                        .containsExactly("ls", "list", "dir");
-                assertThat(CMD.EXIT.allStrings().toList())
-                        .containsExactly("exit", "quit", "bye");
-            }
-
-            @Test
-            @DisplayName("allStrings() should return distinct aliases for each enum value")
-            void allStringsShouldReturnDistinctAliases() {
-                for (CMD cmd : CMD.values()) {
-                    List<String> aliases = cmd.allStrings().toList();
-                    assertThat(aliases)
-                            .as("Enum %s should have no duplicate aliases", cmd)
-                            .doesNotHaveDuplicates();
-                }
-            }
-
-            @Test
-            @DisplayName("of() should be idempotent - same input always returns same result")
-            void ofShouldBeIdempotent() {
-                for (String input : Arrays.asList("cd", "unknown", "", "SCAN", "xyz")) {
-                    CMD first = CMD.of(input);
-                    CMD second = CMD.of(input);
-                    assertThat(first).isSameAs(second);
-                }
-            }
-
-            @Test
-            @DisplayName("all aliases should be lowercase internally")
-            void allAliasesShouldBeLowercase() {
-                for (CMD cmd : CMD.values()) {
-                    cmd.allStrings().forEach(alias ->
-                            assertThat(alias)
-                                    .as("Alias '%s' of %s should be lowercase", alias, cmd)
-                                    .isEqualTo(alias.toLowerCase()));
-                }
-            }
-
-            @ParameterizedTest
-            @CsvSource({
-                    "CD, 1",
-                    "PWD, 1",
-                    "SET, 1",
-                    "LS, 3",
-                    "RM, 2",
-                    "MD, 2",
-                    "QUIET, 1",
-                    "VERBOSE, 1",
-                    "PREFS, 2",
-                    "LOAD, 1",
-                    "SETTINGS, 2",
-                    "SCAN, 1",
-                    "SCANRESULT, 2",
-                    "FIX, 1",
-                    "DIRUPD8R, 2",
-                    "TRNTCHK, 2",
-                    "COMPRESSOR, 2",
-                    "EXIT, 3",
-                    "HELP, 2",
-                    "EMPTY, 1",
-                    "UNKNOWN, 0"
-            })
-            @DisplayName("each enum value should have the expected number of aliases")
-            void eachEnumShouldHaveExpectedAliasCount(CMD cmd, int expectedCount) {
-                assertThat(cmd.allStrings().toList()).hasSize(expectedCount);
-            }
-
-            @Test
-            @DisplayName("values() should return enums in declaration order")
-            void valuesShouldReturnInDeclarationOrder() {
-                CMD[] values = CMD.values();
-                assertThat(values[0]).isEqualTo(CMD.CD);
-                assertThat(values[1]).isEqualTo(CMD.PWD);
-                assertThat(values[2]).isEqualTo(CMD.SET);
-                assertThat(values[3]).isEqualTo(CMD.LS);
-                assertThat(values[4]).isEqualTo(CMD.RM);
-                assertThat(values[5]).isEqualTo(CMD.MD);
-                assertThat(values[6]).isEqualTo(CMD.QUIET);
-                assertThat(values[7]).isEqualTo(CMD.VERBOSE);
-                assertThat(values[8]).isEqualTo(CMD.PREFS);
-                assertThat(values[9]).isEqualTo(CMD.LOAD);
-                assertThat(values[10]).isEqualTo(CMD.SETTINGS);
-                assertThat(values[11]).isEqualTo(CMD.SCAN);
-                assertThat(values[12]).isEqualTo(CMD.SCANRESULT);
-                assertThat(values[13]).isEqualTo(CMD.FIX);
-                assertThat(values[14]).isEqualTo(CMD.DIRUPD8R);
-                assertThat(values[15]).isEqualTo(CMD.TRNTCHK);
-                assertThat(values[16]).isEqualTo(CMD.COMPRESSOR);
-                assertThat(values[17]).isEqualTo(CMD.EXIT);
-                assertThat(values[18]).isEqualTo(CMD.HELP);
-                assertThat(values[19]).isEqualTo(CMD.EMPTY);
-                assertThat(values[20]).isEqualTo(CMD.UNKNOWN);
-            }
-
-            @Test
-            @DisplayName("enum should contain exactly the expected number of values")
-            void enumShouldContainExpectedValueCount() {
-                assertThat(CMD.values()).hasSize(21);
-            }
-
-            @Test
-            @DisplayName("valueOf() should work for all declared enum constants")
-            void valueOfShouldWorkForAllConstants() {
-                assertThat(CMD.valueOf("CD")).isEqualTo(CMD.CD);
-                assertThat(CMD.valueOf("PWD")).isEqualTo(CMD.PWD);
-                assertThat(CMD.valueOf("SET")).isEqualTo(CMD.SET);
-                assertThat(CMD.valueOf("LS")).isEqualTo(CMD.LS);
-                assertThat(CMD.valueOf("RM")).isEqualTo(CMD.RM);
-                assertThat(CMD.valueOf("MD")).isEqualTo(CMD.MD);
-                assertThat(CMD.valueOf("QUIET")).isEqualTo(CMD.QUIET);
-                assertThat(CMD.valueOf("VERBOSE")).isEqualTo(CMD.VERBOSE);
-                assertThat(CMD.valueOf("PREFS")).isEqualTo(CMD.PREFS);
-                assertThat(CMD.valueOf("LOAD")).isEqualTo(CMD.LOAD);
-                assertThat(CMD.valueOf("SETTINGS")).isEqualTo(CMD.SETTINGS);
-                assertThat(CMD.valueOf("SCAN")).isEqualTo(CMD.SCAN);
-                assertThat(CMD.valueOf("SCANRESULT")).isEqualTo(CMD.SCANRESULT);
-                assertThat(CMD.valueOf("FIX")).isEqualTo(CMD.FIX);
-                assertThat(CMD.valueOf("DIRUPD8R")).isEqualTo(CMD.DIRUPD8R);
-                assertThat(CMD.valueOf("TRNTCHK")).isEqualTo(CMD.TRNTCHK);
-                assertThat(CMD.valueOf("COMPRESSOR")).isEqualTo(CMD.COMPRESSOR);
-                assertThat(CMD.valueOf("EXIT")).isEqualTo(CMD.EXIT);
-                assertThat(CMD.valueOf("HELP")).isEqualTo(CMD.HELP);
-                assertThat(CMD.valueOf("EMPTY")).isEqualTo(CMD.EMPTY);
-                assertThat(CMD.valueOf("UNKNOWN")).isEqualTo(CMD.UNKNOWN);
-            }
-
-            @Test
-            @DisplayName("valueOf() should throw IllegalArgumentException for invalid name")
-            void valueOfShouldThrowForInvalidName() {
-                assertThatThrownBy(() -> CMD.valueOf("INVALID"))
-                        .isInstanceOf(IllegalArgumentException.class);
-            }
-
-            @Test
-            @DisplayName("allStrings() stream should be consumable multiple times via separate calls")
-            void allStringsShouldBeConsumableMultipleTimes() {
-                List<String> first = CMD.HELP.allStrings().toList();
-                List<String> second = CMD.HELP.allStrings().toList();
+        @Test
+        @DisplayName("toString() should be consistent across multiple calls")
+        void toStringShouldBeConsistent() {
+            for (CMD cmd : CMD.values()) {
+                String first = cmd.toString();
+                String second = cmd.toString();
                 assertThat(first).isEqualTo(second);
             }
+        }
 
-            @Test
-            @DisplayName("HELP should have exactly '?' as its second alias")
-            void helpShouldHaveQuestionMarkAsSecondAlias() {
-                assertThat(CMD.HELP.allStrings().toList())
-                        .hasSize(2)
-                        .element(1)
-                        .isEqualTo("?");
+        @Test
+        @DisplayName("of(enum.toString()) round-trip should return the same enum for all non-UNKNOWN values")
+        void roundTripOfToStringShouldReturnSameEnum() {
+            for (CMD cmd : CMD.values()) {
+                if (cmd == CMD.UNKNOWN)
+                    continue;
+                assertThat(CMD.of(cmd.toString()))
+                        .as("Round-trip for %s", cmd)
+                        .isEqualTo(cmd);
             }
         }
-}
+
+        @Test
+        @DisplayName("allStrings() should preserve insertion order of aliases")
+        void allStringsShouldPreserveInsertionOrder() {
+            assertThat(CMD.LS.allStrings().toList())
+                    .containsExactly("ls", "list", "dir");
+            assertThat(CMD.EXIT.allStrings().toList())
+                    .containsExactly("exit", "quit", "bye");
+        }
+
+        @Test
+        @DisplayName("allStrings() should return distinct aliases for each enum value")
+        void allStringsShouldReturnDistinctAliases() {
+            for (CMD cmd : CMD.values()) {
+                List<String> aliases = cmd.allStrings().toList();
+                assertThat(aliases)
+                        .as("Enum %s should have no duplicate aliases", cmd)
+                        .doesNotHaveDuplicates();
+            }
+        }
+
+        @Test
+        @DisplayName("of() should be idempotent - same input always returns same result")
+        void ofShouldBeIdempotent() {
+            for (String input : Arrays.asList("cd", "unknown", "", "SCAN", "xyz")) {
+                CMD first = CMD.of(input);
+                CMD second = CMD.of(input);
+                assertThat(first).isSameAs(second);
+            }
+        }
+
+        @Test
+        @DisplayName("all aliases should be lowercase internally")
+        void allAliasesShouldBeLowercase() {
+            for (CMD cmd : CMD.values()) {
+                cmd.allStrings().forEach(alias -> assertThat(alias)
+                        .as("Alias '%s' of %s should be lowercase", alias, cmd)
+                        .isEqualTo(alias.toLowerCase()));
+            }
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+                "CD, 1",
+                "PWD, 1",
+                "SET, 1",
+                "LS, 3",
+                "RM, 2",
+                "MD, 2",
+                "QUIET, 1",
+                "VERBOSE, 1",
+                "PREFS, 2",
+                "LOAD, 1",
+                "SETTINGS, 2",
+                "SCAN, 1",
+                "SCANRESULT, 2",
+                "FIX, 1",
+                "DIRUPD8R, 2",
+                "TRNTCHK, 2",
+                "COMPRESSOR, 2",
+                "EXIT, 3",
+                "HELP, 2",
+                "EMPTY, 1",
+                "UNKNOWN, 0"
+        })
+        @DisplayName("each enum value should have the expected number of aliases")
+        void eachEnumShouldHaveExpectedAliasCount(CMD cmd, int expectedCount) {
+            assertThat(cmd.allStrings().toList()).hasSize(expectedCount);
+        }
+
+        @Test
+        @DisplayName("values() should return enums in declaration order")
+        void valuesShouldReturnInDeclarationOrder() {
+            CMD[] values = CMD.values();
+            assertThat(values[0]).isEqualTo(CMD.CD);
+            assertThat(values[1]).isEqualTo(CMD.PWD);
+            assertThat(values[2]).isEqualTo(CMD.SET);
+            assertThat(values[3]).isEqualTo(CMD.LS);
+            assertThat(values[4]).isEqualTo(CMD.RM);
+            assertThat(values[5]).isEqualTo(CMD.MD);
+            assertThat(values[6]).isEqualTo(CMD.QUIET);
+            assertThat(values[7]).isEqualTo(CMD.VERBOSE);
+            assertThat(values[8]).isEqualTo(CMD.PREFS);
+            assertThat(values[9]).isEqualTo(CMD.LOAD);
+            assertThat(values[10]).isEqualTo(CMD.SETTINGS);
+            assertThat(values[11]).isEqualTo(CMD.SCAN);
+            assertThat(values[12]).isEqualTo(CMD.SCANRESULT);
+            assertThat(values[13]).isEqualTo(CMD.FIX);
+            assertThat(values[14]).isEqualTo(CMD.DIRUPD8R);
+            assertThat(values[15]).isEqualTo(CMD.TRNTCHK);
+            assertThat(values[16]).isEqualTo(CMD.COMPRESSOR);
+            assertThat(values[17]).isEqualTo(CMD.EXIT);
+            assertThat(values[18]).isEqualTo(CMD.HELP);
+            assertThat(values[19]).isEqualTo(CMD.EMPTY);
+            assertThat(values[20]).isEqualTo(CMD.UNKNOWN);
+        }
+
+        @Test
+        @DisplayName("enum should contain exactly the expected number of values")
+        void enumShouldContainExpectedValueCount() {
+            assertThat(CMD.values()).hasSize(21);
+        }
+
+        @Test
+        @DisplayName("valueOf() should work for all declared enum constants")
+        void valueOfShouldWorkForAllConstants() {
+            assertThat(CMD.valueOf("CD")).isEqualTo(CMD.CD);
+            assertThat(CMD.valueOf("PWD")).isEqualTo(CMD.PWD);
+            assertThat(CMD.valueOf("SET")).isEqualTo(CMD.SET);
+            assertThat(CMD.valueOf("LS")).isEqualTo(CMD.LS);
+            assertThat(CMD.valueOf("RM")).isEqualTo(CMD.RM);
+            assertThat(CMD.valueOf("MD")).isEqualTo(CMD.MD);
+            assertThat(CMD.valueOf("QUIET")).isEqualTo(CMD.QUIET);
+            assertThat(CMD.valueOf("VERBOSE")).isEqualTo(CMD.VERBOSE);
+            assertThat(CMD.valueOf("PREFS")).isEqualTo(CMD.PREFS);
+            assertThat(CMD.valueOf("LOAD")).isEqualTo(CMD.LOAD);
+            assertThat(CMD.valueOf("SETTINGS")).isEqualTo(CMD.SETTINGS);
+            assertThat(CMD.valueOf("SCAN")).isEqualTo(CMD.SCAN);
+            assertThat(CMD.valueOf("SCANRESULT")).isEqualTo(CMD.SCANRESULT);
+            assertThat(CMD.valueOf("FIX")).isEqualTo(CMD.FIX);
+            assertThat(CMD.valueOf("DIRUPD8R")).isEqualTo(CMD.DIRUPD8R);
+            assertThat(CMD.valueOf("TRNTCHK")).isEqualTo(CMD.TRNTCHK);
+            assertThat(CMD.valueOf("COMPRESSOR")).isEqualTo(CMD.COMPRESSOR);
+            assertThat(CMD.valueOf("EXIT")).isEqualTo(CMD.EXIT);
+            assertThat(CMD.valueOf("HELP")).isEqualTo(CMD.HELP);
+            assertThat(CMD.valueOf("EMPTY")).isEqualTo(CMD.EMPTY);
+            assertThat(CMD.valueOf("UNKNOWN")).isEqualTo(CMD.UNKNOWN);
+        }
+
+        @Test
+        @DisplayName("valueOf() should throw IllegalArgumentException for invalid name")
+        void valueOfShouldThrowForInvalidName() {
+            assertThatThrownBy(() -> CMD.valueOf("INVALID"))
+                    .isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        @DisplayName("allStrings() stream should be consumable multiple times via separate calls")
+        void allStringsShouldBeConsumableMultipleTimes() {
+            List<String> first = CMD.HELP.allStrings().toList();
+            List<String> second = CMD.HELP.allStrings().toList();
+            assertThat(first).isEqualTo(second);
+        }
+
+        @Test
+        @DisplayName("HELP should have exactly '?' as its second alias")
+        void helpShouldHaveQuestionMarkAsSecondAlias() {
+            assertThat(CMD.HELP.allStrings().toList())
+                    .hasSize(2)
+                    .element(1)
+                    .isEqualTo("?");
+        }
+    }
+
+    @Nested
     @DisplayName("CMD_DIRUPD8R enum tests")
     class CmdDirupd8rTests {
 
@@ -384,6 +385,7 @@ class CliTest {
             assertThat(CMD_DIRUPD8R.LSSRC.allStrings().toList())
                     .containsExactly("lssrc");
         }
+
     }
 
     @Nested
@@ -533,7 +535,8 @@ class CliTest {
             @DisplayName("of(enum.toString()) round-trip should return the same enum for all non-UNKNOWN values")
             void roundTripOfToStringShouldReturnSameEnum() {
                 for (CMD_TRNTCHK cmd : CMD_TRNTCHK.values()) {
-                    if (cmd == CMD_TRNTCHK.UNKNOWN) continue;
+                    if (cmd == CMD_TRNTCHK.UNKNOWN)
+                        continue;
                     assertThat(CMD_TRNTCHK.of(cmd.toString()))
                             .as("Round-trip for %s", cmd)
                             .isEqualTo(cmd);
@@ -587,10 +590,9 @@ class CliTest {
             @DisplayName("all aliases should be lowercase internally")
             void allAliasesShouldBeLowercase() {
                 for (CMD_TRNTCHK cmd : CMD_TRNTCHK.values()) {
-                    cmd.allStrings().forEach(alias ->
-                            assertThat(alias)
-                                    .as("Alias '%s' of %s should be lowercase", alias, cmd)
-                                    .isEqualTo(alias.toLowerCase()));
+                    cmd.allStrings().forEach(alias -> assertThat(alias)
+                            .as("Alias '%s' of %s should be lowercase", alias, cmd)
+                            .isEqualTo(alias.toLowerCase()));
                 }
             }
 
@@ -658,4 +660,5 @@ class CliTest {
                         .isEqualTo("?");
             }
         }
+    }
 }
