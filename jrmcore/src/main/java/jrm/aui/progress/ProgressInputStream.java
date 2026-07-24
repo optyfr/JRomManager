@@ -14,7 +14,7 @@ public final class ProgressInputStream extends FilterInputStream {
      * The current value of bytes read from the input stream. It is updated each time data is read or skipped, and is used to report
      * progress to the ProgressHandler.
      */
-    private int value;
+    private long value;
 
     /**
      * The ProgressHandler instance used to report progress updates. It is initialized in the constructor and is called each time
@@ -34,8 +34,8 @@ public final class ProgressInputStream extends FilterInputStream {
     public ProgressInputStream(final InputStream in, final Integer len, final ProgressHandler progress) {
         super(in);
         this.progress = progress;
-        value = 0;
-        progress.setProgress(null, value, len);
+        value = 0L;
+        progress.setProgress(null, Math.toIntExact(value), len);
     }
 
     /**
@@ -51,7 +51,7 @@ public final class ProgressInputStream extends FilterInputStream {
     public int read() throws IOException {
         final int ret = super.read();
         if (ret != -1)
-            progress.setProgress(null, ++value);
+            progress.setProgress(null, Math.toIntExact(++value));
         return ret;
     }
 
@@ -71,7 +71,7 @@ public final class ProgressInputStream extends FilterInputStream {
         final int ret = super.read(b);
         if (ret != -1) {
             value += ret;
-            progress.setProgress(null, value);
+            progress.setProgress(null, Math.toIntExact(value));
         }
         return ret;
     }
@@ -95,7 +95,7 @@ public final class ProgressInputStream extends FilterInputStream {
         final int ret = super.read(b, off, len);
         if (ret != -1) {
             value += ret;
-            progress.setProgress(null, value);
+            progress.setProgress(null, Math.toIntExact(value));
         }
         return ret;
     }
@@ -116,7 +116,7 @@ public final class ProgressInputStream extends FilterInputStream {
         final long ret = super.skip(n);
         if (ret != -1) {
             value += ret;
-            progress.setProgress(null, value);
+            progress.setProgress(null, Math.toIntExact(value));
         }
         return ret;
     }
