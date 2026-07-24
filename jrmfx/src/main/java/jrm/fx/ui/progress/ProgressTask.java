@@ -162,19 +162,16 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
         /**
          * The primary progress bar state.
-         * @param pb1 the primary progress bar state
          * @return the primary progress bar state
          */
         final PB pb1;
         /**
          * The secondary progress bar state.
-         * @param pb2 the secondary progress bar state
          * @return the secondary progress bar state
          */
         final PB pb2;
         /**
          * The tertiary progress bar state.
-         * @param pb3 the tertiary progress bar state
          * @return the tertiary progress bar state
          */
         final PB pb3;
