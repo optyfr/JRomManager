@@ -693,6 +693,9 @@ class ProfileViewerControllerTest {
         ProfileViewerController controller = TestApp.getController();
 
         runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            clipboard.clear();
+
             TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
             Entity mockEntity = mock(Entity.class);
             when(mockEntity.getCrc()).thenReturn("DEADBEEF");
@@ -702,7 +705,7 @@ class ProfileViewerControllerTest {
             controller.copyCrc(null);
 
             verify(mockEntity).getCrc();
-            assertThat(javafx.scene.input.Clipboard.getSystemClipboard().getString()).isEqualTo("DEADBEEF");
+            assertThat(clipboard.getString()).isEqualTo("DEADBEEF");
         });
     }
 
@@ -712,6 +715,9 @@ class ProfileViewerControllerTest {
         ProfileViewerController controller = TestApp.getController();
 
         runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            clipboard.clear();
+
             TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
             Entity mockEntity = mock(Entity.class);
             when(mockEntity.getSha1()).thenReturn("SHA1HASH");
@@ -721,7 +727,7 @@ class ProfileViewerControllerTest {
             controller.copySha1(null);
 
             verify(mockEntity).getSha1();
-            assertThat(javafx.scene.input.Clipboard.getSystemClipboard().getString()).isEqualTo("SHA1HASH");
+            assertThat(clipboard.getString()).isEqualTo("SHA1HASH");
         });
     }
 
@@ -731,6 +737,9 @@ class ProfileViewerControllerTest {
         ProfileViewerController controller = TestApp.getController();
 
         runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            clipboard.clear();
+
             TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
             Entity mockEntity = mock(Entity.class);
             when(mockEntity.getName()).thenReturn("rom.bin");
@@ -740,24 +749,77 @@ class ProfileViewerControllerTest {
             controller.copyName(null);
 
             verify(mockEntity).getName();
-            assertThat(javafx.scene.input.Clipboard.getSystemClipboard().getString()).isEqualTo("rom.bin");
+            assertThat(clipboard.getString()).isEqualTo("rom.bin");
         });
     }
 
     @Test
     @DisplayName("copyCrc should do nothing when selected item is not an Entity")
-    void copyCrcShouldDoNothingWhenSelectedItemIsNotAnEntity() {
+    void copyCrcShouldDoNothingWhenSelectedItemIsNotAnEntity() throws Exception {
         ProfileViewerController controller = TestApp.getController();
 
-        TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
-        EntityBase notAnEntity = mock(EntityBase.class);
-        tableEntity.setItems(FXCollections.observableArrayList(notAnEntity));
-        tableEntity.getSelectionModel().select(notAnEntity);
+        runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            final String sentinel = "SENTINEL_DO_NOT_OVERWRITE_CRC";
+            var content = new javafx.scene.input.ClipboardContent();
+            content.putString(sentinel);
+            clipboard.setContent(content);
 
-        // Should not throw and should not interact with the non-Entity mock
-        controller.copyCrc(null);
+            TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+            EntityBase notAnEntity = mock(EntityBase.class);
+            tableEntity.setItems(FXCollections.observableArrayList(notAnEntity));
+            tableEntity.getSelectionModel().select(notAnEntity);
 
-        assertThat(controller).isNotNull();
+            controller.copyCrc(null);
+
+            assertThat(clipboard.getString()).isEqualTo(sentinel);
+        });
+    }
+
+    @Test
+    @DisplayName("copySha1 should do nothing when selected item is not an Entity")
+    void copySha1ShouldDoNothingWhenSelectedItemIsNotAnEntity() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+
+        runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            final String sentinel = "SENTINEL_DO_NOT_OVERWRITE_SHA1";
+            var content = new javafx.scene.input.ClipboardContent();
+            content.putString(sentinel);
+            clipboard.setContent(content);
+
+            TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+            EntityBase notAnEntity = mock(EntityBase.class);
+            tableEntity.setItems(FXCollections.observableArrayList(notAnEntity));
+            tableEntity.getSelectionModel().select(notAnEntity);
+
+            controller.copySha1(null);
+
+            assertThat(clipboard.getString()).isEqualTo(sentinel);
+        });
+    }
+
+    @Test
+    @DisplayName("copyName should do nothing when selected item is not an Entity")
+    void copyNameShouldDoNothingWhenSelectedItemIsNotAnEntity() throws Exception {
+        ProfileViewerController controller = TestApp.getController();
+
+        runOnFxThread(() -> {
+            final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+            final String sentinel = "SENTINEL_DO_NOT_OVERWRITE_NAME";
+            var content = new javafx.scene.input.ClipboardContent();
+            content.putString(sentinel);
+            clipboard.setContent(content);
+
+            TableView<EntityBase> tableEntity = getField(controller, "tableEntity");
+            EntityBase notAnEntity = mock(EntityBase.class);
+            tableEntity.setItems(FXCollections.observableArrayList(notAnEntity));
+            tableEntity.getSelectionModel().select(notAnEntity);
+
+            controller.copyName(null);
+
+            assertThat(clipboard.getString()).isEqualTo(sentinel);
+        });
     }
 
     // ==================== Entity Cell Value Factory Tests ====================

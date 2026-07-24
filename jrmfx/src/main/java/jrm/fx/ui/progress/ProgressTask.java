@@ -32,28 +32,20 @@ import lombok.Data;
 public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler {
     /** The time format pattern. */
     private static final String HH_MM_SS = "HH:mm:ss";
-    /** The value format pattern. */
+    /** The format pattern for current/total values. */
     private static final String S_OF_S = "%s / %s";
-    /** The placeholder for unknown time. */
+    /** The default time display used when no progress has been made. */
     private static final String HH_MM_SS_OF_HH_MM_SS_NONE = "--:--:-- / --:--:--";
 
     /** The progress dialog. */
     private final Progress progress;
 
-    /**
-     * Collected error messages.
-     * @param errors the collected error messages
-     * @return the collected error messages
-     */
+    /** Collected error messages. */
     private final List<String> errors = new ArrayList<>();
 
     /** Whether the task has been cancelled. */
     private boolean cancel = false;
-    /**
-     * Whether the task can be cancelled.
-     * @return whether the task can be cancelled
-     * @param canCancel whether the task can be cancelled
-     */
+    /** Whether the task can be cancelled. */
     private boolean canCancel = true;
 
     /**
@@ -114,9 +106,9 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
             String timeleft;
 
             /**
-             * The start time.
-             * @param startTime the start time
-             * @return the start time
+             * The time at which the current progress tracking began.
+             * @param startTime the time at which the current progress tracking began
+             * @return the time at which the current progress tracking began
              */
             transient long startTime = System.currentTimeMillis(); // NOSONAR
 
@@ -141,40 +133,47 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
             }
         }
 
-        /** Current thread count.
+        /**
+         * Current thread count.
          * @param threadCnt the thread count
          * @return the thread count
          */
         int threadCnt = 1;
 
-        /** Whether to show multiple sub-info panels.
+        /**
+         * Whether to show multiple sub-info panels.
          * @param multipleSubInfos whether to show multiple sub-info panels
          * @return whether to show multiple sub-info panels
          */
         Boolean multipleSubInfos = false;
 
-        /** The info messages.
+        /**
+         * The info messages.
          * @param infos the info messages
          * @return the info messages
          */
         String[] infos = { null };
-        /** The sub-info messages.
+        /**
+         * The sub-info messages.
          * @param subinfos the sub-info messages
          * @return the sub-info messages
          */
         String[] subinfos = { null };
 
-        /** The primary progress bar state.
+        /**
+         * The primary progress bar state.
          * @param pb1 the primary progress bar state
          * @return the primary progress bar state
          */
         final PB pb1;
-        /** The secondary progress bar state.
+        /**
+         * The secondary progress bar state.
          * @param pb2 the secondary progress bar state
          * @return the secondary progress bar state
          */
         final PB pb2;
-        /** The tertiary progress bar state.
+        /**
+         * The tertiary progress bar state.
          * @param pb3 the tertiary progress bar state
          * @return the tertiary progress bar state
          */
@@ -544,11 +543,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         errors.add(error);
     }
 
-    /**
-     * The progress handler option flags.
-     * @param options the progress handler option flags
-     * @return the progress handler option flags
-     */
+    /** The progress handler option flags. */
     private Set<Option> options = EnumSet.noneOf(Option.class);
 
     /**
@@ -563,11 +558,7 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
     }
 
-    /**
-     * The offset provider for multi-threaded progress reporting.
-     * @param offsetProvider the offset provider for multi-threaded progress reporting
-     * @return the offset provider for multi-threaded progress reporting
-     */
+    /** The offset provider for multi-threaded progress reporting. */
     private OffsetProvider offsetProvider = null;
 
     /**
