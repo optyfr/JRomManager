@@ -123,11 +123,15 @@ class ScanFixSoftwareListTest {
      * @throws IOException if extraction fails
      */
     private File extractJrmZip(Path zipPath, Path targetDir) throws IOException {
+        final Path normalizedTargetDir = targetDir.toAbsolutePath().normalize();
         try (ZipFile zipFile = new ZipFile(zipPath.toFile())) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                Path targetPath = targetDir.resolve(entry.getName());
+                Path targetPath = normalizedTargetDir.resolve(entry.getName()).normalize();
+                if (!targetPath.startsWith(normalizedTargetDir)) {
+                    throw new IOException("Bad zip entry: " + entry.getName());
+                }
 
                 if (entry.isDirectory()) {
                     Files.createDirectories(targetPath);
