@@ -143,19 +143,19 @@ public class JRomManagerCLI {
          * Flag to indicate if help message should be displayed.
          */
         @Parameter(names = { "--help", "-h" }, help = true)
-        private final boolean help = false;
+        private boolean help = false;
 
         /**
          * Flag to indicate if the interactive shell should be started.
          */
         @Parameter(names = { "--interactive", "-i" }, description = "Interactive shell")
-        private final boolean interactive = false;
+        private boolean interactive = false;
 
         /**
          * Input file for reading commands. If not provided, commands will be read from standard input.
          */
         @Parameter(names = { "--file", "-f" }, description = "Input file", arity = 1)
-        private final String file = null;
+        private String file = null;
     }
 
     /**
@@ -593,7 +593,7 @@ public class JRomManagerCLI {
          * List of files or directories to be deleted.
          */
         @Parameter(description = "Files")
-        private final List<String> files = new ArrayList<>();
+        private List<String> files = new ArrayList<>();
     }
 
     /**
@@ -677,7 +677,7 @@ public class JRomManagerCLI {
          * List of directories to be created.
          */
         @Parameter(description = "Files")
-        private final List<String> files = new ArrayList<>();
+        private List<String> files = new ArrayList<>();
     }
 
     /**
@@ -1072,25 +1072,25 @@ public class JRomManagerCLI {
          * The check mode for the torrent check operation.
          */
         @Parameter(names = { "--checkmode", "-m" }, arity = 1, description = "Check mode")
-        private final String checkmode = null;
+        private String checkmode = null;
 
         /**
          * Flag to indicate if unknown files should be removed during the torrent check.
          */
         @Parameter(names = { "--removeunknown", "-u" }, description = "Remove unknown files")
-        private final boolean removeunknown = false;
+        private boolean removeunknown = false;
 
         /**
          * Flag to indicate if wrong sized files should be removed during the torrent check.
          */
         @Parameter(names = { "--removewrongsized", "-w" }, description = "Remove wrong sized files")
-        private final boolean removewrongsized = false;
+        private boolean removewrongsized = false;
 
         /**
          * Flag to indicate if archived folders should be detected during the torrent check.
          */
         @Parameter(names = { "--detectarchives", "-a" }, description = "Detect archived folders")
-        private final boolean detectarchives = false;
+        private boolean detectarchives = false;
     }
 
     /**
@@ -1153,7 +1153,7 @@ public class JRomManagerCLI {
          * List of files to be compressed.
          */
         @Parameter(description = "Files")
-        private final List<String> files = new ArrayList<>();
+        private List<String> files = new ArrayList<>();
     }
 
     /**
