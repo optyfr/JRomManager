@@ -23,8 +23,8 @@ import java.nio.file.Path;
 /**
  * TestFX tests for {@link DirItem}.
  * <p>
- * Tests the tree item that represents a directory in the profile manager,
- * including directory tree building and reload functionality.
+ * Tests the tree item that represents a directory in the profile manager, including directory tree building and reload
+ * functionality.
  *
  * @since 3.0.5
  */
@@ -77,8 +77,7 @@ class DirItemTest {
     }
 
     /**
-     * Verifies that a {@link DirItem} can be created from a file and correctly wraps the
-     * directory path.
+     * Verifies that a {@link DirItem} can be created from a file and correctly wraps the directory path.
      */
     @Test
     @DisplayName("Should create DirItem from File")
@@ -250,6 +249,7 @@ class DirItemTest {
                     try {
                         Files.deleteIfExists(path);
                     } catch (IOException _) {
+                         /* Ignore exceptions during deletion */
                     }
                 });
 

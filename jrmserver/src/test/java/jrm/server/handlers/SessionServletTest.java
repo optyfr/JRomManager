@@ -28,6 +28,7 @@ import jrm.server.shared.WebSession;
 @DisplayName("SessionServlet (server)")
 class SessionServletTest {
 
+    /** The web session to use for the tests. */
     private WebSession webSession;
 
     @BeforeEach
@@ -40,7 +41,8 @@ class SessionServletTest {
         TestWebSessions.resetStaticState();
     }
 
-    private HttpServletRequest buildRequest(final HttpServletResponse resp) {
+    /** Builds a mock HttpServletRequest with a preconfigured WebSession. */
+    private HttpServletRequest buildRequest() {
         final HttpSession httpSession = mock(HttpSession.class);
         when(httpSession.getAttribute("session")).thenReturn(webSession);
         when(httpSession.getId()).thenReturn("server-servlet-test");
@@ -59,7 +61,7 @@ class SessionServletTest {
             final StringWriter writer = new StringWriter();
             final HttpServletResponse resp = mock(HttpServletResponse.class);
             when(resp.getWriter()).thenReturn(new PrintWriter(writer));
-            final HttpServletRequest req = buildRequest(resp);
+            final HttpServletRequest req = buildRequest();
 
             final SessionServlet servlet = new SessionServlet();
             servlet.doPost(req, resp);
@@ -77,7 +79,7 @@ class SessionServletTest {
         void doPostException() throws Exception {
             final HttpServletResponse resp = mock(HttpServletResponse.class);
             when(resp.getWriter()).thenThrow(new RuntimeException("boom"));
-            final HttpServletRequest req = buildRequest(resp);
+            final HttpServletRequest req = buildRequest();
 
             final SessionServlet servlet = new SessionServlet();
             servlet.doPost(req, resp);
