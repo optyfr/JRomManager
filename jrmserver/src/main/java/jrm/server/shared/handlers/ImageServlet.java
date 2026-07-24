@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 
@@ -46,6 +50,7 @@ import lombok.val;
  */
 @SuppressWarnings("serial")
 public class ImageServlet extends HttpServlet {
+    private static final Pattern SAFE_RESOURCE_PATH = Pattern.compile("^[a-zA-Z0-9/_\\-.]+$");
     /** Cached base URI for resource resolution (either {@code jrt:/} module path or classpath resource). */
     private static URI uri = null;
     /** Indicates whether the application is running in module mode ({@code true}) or classpath mode ({@code false}). */
@@ -124,14 +129,25 @@ public class ImageServlet extends HttpServlet {
         if (requestUri == null || requestUri.length() <= 8) {
             throw new URISyntaxException(String.valueOf(requestUri), "Invalid request URI");
         }
-        String resourcePath = requestUri.substring(8);
-        if (resourcePath.isEmpty() || resourcePath.contains("..") || resourcePath.contains("\\") || resourcePath.contains(":")
-                || resourcePath.contains("\0") || resourcePath.startsWith("//")) {
+
+        String encodedResourcePath = requestUri.substring(8);
+        String resourcePath = URLDecoder.decode(encodedResourcePath, StandardCharsets.UTF_8);
+        if (resourcePath.startsWith("/")) {
+            resourcePath = resourcePath.substring(1);
+        }
+
+        if (resourcePath.isEmpty()
+                || resourcePath.contains("..")
+                || resourcePath.contains("\\")
+                || resourcePath.contains(":")
+                || resourcePath.contains("\0")
+                || resourcePath.startsWith("//")
+                || !SAFE_RESOURCE_PATH.matcher(resourcePath).matches()) {
             throw new URISyntaxException(resourcePath, "Disallowed resource path");
         }
 
         URI baseUri = getURI();
-        URI resolved = URI.create(baseUri.toString() + resourcePath).normalize();
+        URI resolved = baseUri.resolve(resourcePath).normalize();
         String basePrefix = baseUri.toString();
         if (!resolved.toString().startsWith(basePrefix)) {
             throw new URISyntaxException(resourcePath, "Resolved path escapes base URI");
