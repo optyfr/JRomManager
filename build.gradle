@@ -1,3 +1,14 @@
+buildscript {
+    configurations.all {
+        resolutionStrategy {
+            force 'io.airlift:aircompressor:[2.0.3,3.0)'
+            dependencySubstitution {
+                substitute module('org.bouncycastle:bcprov-jdk15on') using module('org.bouncycastle:bcprov-jdk18on:[1.84,2.0)')
+            }
+        }
+    }
+}
+
 plugins {
     id 'java'
     id 'application'
@@ -9,12 +20,6 @@ plugins {
     id "org.beryx.jlink" version "3.2.1" apply false
     id 'jacoco'
     id "io.github.sgtsilvio.gradle.javadoc-links" version "0.10.0"
-}
-
-configurations.all {
-    resolutionStrategy {
-        force "org.bouncycastle:bcprov-jdk15on:[1.78,2.0)"
-    }
 }
 
 sonar {
