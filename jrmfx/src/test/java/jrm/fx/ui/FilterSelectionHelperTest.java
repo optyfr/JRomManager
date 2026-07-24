@@ -48,10 +48,19 @@ class FilterSelectionHelperTest {
         }
     }
 
+    /** The list of items used in selection tests. */
     private List<String> items;
+
+    /** A map tracking selection state for each item. */
     private Map<String, Boolean> selectionMap;
+
+    /** A JavaFX ListView populated with the test items. */
     private ListView<String> listView;
+
+    /** A setter that writes selection state into the selection map. */
     private FilterSelectionHelper.SelectionSetter<String, Map<String, Boolean>> setter;
+
+    /** A getter that reads selection state from the selection map. */
     private FilterSelectionHelper.SelectionGetter<String, Map<String, Boolean>> getter;
 
     @BeforeEach

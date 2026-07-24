@@ -15,12 +15,12 @@ import jrm.misc.Log;
  */
 final class ProgressTaskRunner {
 	private ProgressTaskRunner() {
-		// utility class
+		// utility class; prevent instantiation
 	}
 
 	/**
-	 * Run a progress task with standardized thread setup and error handling.
-	 * 
+	 * Runs a progress task with standardized thread setup and error handling.
+	 *
 	 * @param <T> the result type
 	 * @param stage the parent stage for the progress dialog
 	 * @param taskFactory factory that creates the ProgressTask
@@ -36,7 +36,10 @@ final class ProgressTaskRunner {
 	}
 
 	/**
-	 * Handle InterruptedException in succeeded() method.
+	 * Handles an {@link InterruptedException} that occurred in a {@code succeeded()} callback.
+	 *
+	 * @param task the progress task that threw the exception
+	 * @param e the interrupted exception
 	 */
 	static void handleInterruptedException(ProgressTask<?> task, InterruptedException e) {
 		task.close();
@@ -45,7 +48,10 @@ final class ProgressTaskRunner {
 	}
 
 	/**
-	 * Handle ExecutionException in succeeded() method.
+	 * Handles an {@link java.util.concurrent.ExecutionException} that occurred in a {@code succeeded()} callback.
+	 *
+	 * @param task the progress task that threw the exception
+	 * @param e the execution exception
 	 */
 	static void handleExecutionException(ProgressTask<?> task, Exception e) {
 		task.close();
@@ -62,7 +68,10 @@ final class ProgressTaskRunner {
 	}
 
 	/**
-	 * Handle exception in failed() method.
+	 * Handles a {@link Throwable} that occurred in a {@code failed()} callback.
+	 *
+	 * @param task the progress task that threw the exception
+	 * @param e the throwable
 	 */
 	static void handleFailedException(ProgressTask<?> task, Throwable e) {
 		if (e instanceof BreakException) {
@@ -84,9 +93,19 @@ final class ProgressTaskRunner {
 
 	/**
 	 * Factory interface for creating ProgressTask instances.
+	 *
+	 * @param <T> the result type
 	 */
 	@FunctionalInterface
 	interface ProgressTaskFactory<T> {
+		/**
+		 * Creates a new progress task.
+		 *
+		 * @param stage the parent stage for the progress dialog
+		 * @return the created progress task
+		 * @throws IOException if an I/O error occurs
+		 * @throws URISyntaxException if a URI used by the task is malformed
+		 */
 		ProgressTask<T> create(Stage stage) throws IOException, URISyntaxException;
 	}
 }

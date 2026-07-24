@@ -21,6 +21,15 @@ public final class DateCellFactory extends TableCell<ProfileNFO, Instant> {
     /** The date formatter. */
     private final DateTimeFormatter datefmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
+    /**
+     * Updates the cell content with a formatted timestamp.
+     * <p>
+     * Null values are rendered as a placeholder string in gray; valid values are
+     * formatted as {@code yyyy-MM-dd HH:mm:ss} and shown with a tooltip.
+     *
+     * @param item  the instant to format, or {@code null} for absent values
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     protected void updateItem(Instant item, boolean empty) {
         if (empty)

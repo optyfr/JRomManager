@@ -46,10 +46,11 @@ public class DirItem extends TreeItem<Dir> {
     }
 
     /**
-     * Builds the dir tree.
+     * Recursively builds the directory tree by iterating over the given directory's
+     * subdirectories and adding child {@link DirItem} nodes.
      *
-     * @param dir the dir
-     * @param node the node
+     * @param dir  the current directory node to explore
+     * @param node the parent tree node to which children are added
      */
     private void buildDirTree(final Dir dir, final DirItem node) {
         if (dir == null)
@@ -71,7 +72,8 @@ public class DirItem extends TreeItem<Dir> {
     }
 
     /**
-     * Reload.
+     * Clears all children and rebuilds the directory tree from the current node,
+     * expanding the node if it is not a leaf.
      */
     public void reload() {
         getChildren().clear();

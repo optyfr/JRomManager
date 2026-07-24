@@ -41,7 +41,10 @@ public class JRMScene extends Scene {
         /** Extra-extra-large. */
         XXL("XXL.css");
 
-        /** The CSS file name, or {@code null} for the system default. */
+        /**
+         * The CSS file name, or {@code null} for the system default.
+         * @return the CSS file name, or {@code null} for the system default
+         */
         @Getter
         private String fileName;
 
@@ -71,12 +74,18 @@ public class JRMScene extends Scene {
 
     }
 
-    /** The currently active style sheet. */
+    /**
+     * The currently active style sheet.
+     * @param sheet the currently active style sheet
+     * @return the currently active style sheet
+     */
     @Getter
     @Setter
     private static StyleSheet sheet = StyleSheet.XL;
 
-    /** The original style sheets attached before the size variant is applied. */
+    /**
+     * The original style sheets attached before the size variant is applied.
+     */
     private String[] orgSheets;
 
     /**

@@ -50,21 +50,32 @@ class WebviewCellFactoryTest {
         }
     }
 
+    /** The cell factory under test. */
     private WebviewCellFactory<Object, String> cellFactory;
+    /** The table column bound to the cell factory. */
     private TableColumn<Object, String> tableColumn;
 
+    /**
+     * Initializes a fresh cell factory and table column before each test.
+     */
     @BeforeEach
     void setUp() {
         cellFactory = new WebviewCellFactory<>();
         tableColumn = new TableColumn<>();
     }
 
+    /**
+     * Verifies that a {@link WebviewCellFactory} can be constructed.
+     */
     @Test
     @DisplayName("Should create WebviewCellFactory")
     void shouldCreateWebviewCellFactory() {
         assertThat(cellFactory).as("Cell factory should be created").isNotNull();
     }
 
+    /**
+     * Verifies that calling the factory with a column returns a non-null cell.
+     */
     @Test
     @DisplayName("Should create cell when calling factory")
     void shouldCreateCellWhenCallingFactory() {
@@ -73,6 +84,9 @@ class WebviewCellFactoryTest {
         assertThat(cell).as("Cell should be created").isNotNull();
     }
 
+    /**
+     * Verifies that the factory returns a {@link TableCell} instance.
+     */
     @Test
     @DisplayName("Should return TableCell instance")
     void shouldReturnTableCellInstance() {
@@ -107,6 +121,9 @@ class WebviewCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that a cell created with a {@code null} item has null text and graphic.
+     */
     @Test
     @DisplayName("Should create cell with null item")
     void shouldCreateCellWithNullItem() {
@@ -118,6 +135,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that a cell in the empty state has null text and graphic.
+     */
     @Test
     @DisplayName("Should create cell with empty state")
     void shouldCreateCellWithEmptyState() {
@@ -129,6 +149,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that a non-empty HTML item produces a {@link WebView} as the cell graphic.
+     */
     @Test
     @DisplayName("Should create WebView for non-empty HTML content")
     void shouldCreateWebViewForNonEmptyHtmlContent() {
@@ -141,6 +164,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be a WebView").isInstanceOf(WebView.class);
     }
 
+    /**
+     * Verifies that the {@link WebView} has a preferred height of {@code -1} and a font scale of {@code 0.75}.
+     */
     @Test
     @DisplayName("Should configure WebView with correct properties")
     void shouldConfigureWebViewWithCorrectProperties() {
@@ -154,6 +180,9 @@ class WebviewCellFactoryTest {
         assertThat(webView.getFontScale()).as("WebView fontScale should be 0.75").isEqualTo(0.75);
     }
 
+    /**
+     * Verifies that the {@link WebView} graphic is cleared when the item changes from non-null to {@code null}.
+     */
     @Test
     @DisplayName("Should clear WebView when item becomes null")
     void shouldClearWebViewWhenItemBecomesNull() {
@@ -169,6 +198,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be null after setting null item").isNull();
     }
 
+    /**
+     * Verifies that the {@link WebView} graphic is cleared when the cell transitions to the empty state.
+     */
     @Test
     @DisplayName("Should clear WebView when cell becomes empty")
     void shouldClearWebViewWhenCellBecomesEmpty() {
@@ -184,6 +216,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be null after setting empty state").isNull();
     }
 
+    /**
+     * Verifies that both simple and complex HTML content produce a WebView graphic for the same cell.
+     */
     @Test
     @DisplayName("Should handle different HTML content")
     void shouldHandleDifferentHtmlContent() {
@@ -198,6 +233,9 @@ class WebviewCellFactoryTest {
         assertThat(cell.getGraphic()).as("Graphic should be set for complex HTML").isNotNull();
     }
 
+    /**
+     * Verifies that each cell gets its own distinct {@link WebView} instance.
+     */
     @Test
     @DisplayName("Should create new WebView for each cell")
     void shouldCreateNewWebViewForEachCell() {
@@ -213,6 +251,9 @@ class WebviewCellFactoryTest {
         assertThat(webView1).as("Each cell should have its own WebView instance").isNotSameAs(webView2);
     }
 
+    /**
+     * Verifies that an empty string item still creates a {@link WebView} graphic (empty string is non-null).
+     */
     @Test
     @DisplayName("Should handle empty string content")
     void shouldHandleEmptyStringContent() {

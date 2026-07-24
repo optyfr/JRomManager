@@ -35,11 +35,17 @@ public class ProfileViewer extends Stage {
     /** The current user session. */
     private Session session;
 
-    /** The currently viewed profile. */
+    /**
+     * The currently viewed profile.
+     * @return the currently viewed profile
+     */
     @Getter
     private Profile profile;
 
-    /** Counter for pending reset requests. */
+    /**
+     * Counter for pending reset requests.
+     * @return the reset counter
+     */
     @Getter
     private static final AtomicInteger resetCounter = new AtomicInteger();
 

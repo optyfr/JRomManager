@@ -21,13 +21,13 @@ public class Settings {
         // Do not instantiate
     }
 
-    /** The Gson instance. */
+    /** The JSON serializer/deserializer. */
     private static final Gson gson = new Gson();
 
     /**
      * Serializes the window state to JSON.
      *
-     * @param window the window
+     * @param window the stage to serialize
      * @return the JSON string
      */
     public static String toJson(Stage window) {

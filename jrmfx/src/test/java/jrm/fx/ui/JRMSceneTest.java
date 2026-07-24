@@ -44,6 +44,7 @@ class JRMSceneTest {
         }
     }
 
+    /** The root pane used to create scenes in tests. */
     private StackPane root;
 
     @BeforeEach

@@ -31,7 +31,10 @@ import lombok.Getter;
  * @since 2.5
  */
 public class JRomManager {
-    /** The main application frame. */
+    /**
+     * The main application frame.
+     * @return the main application frame
+     */
     private static @Getter MainFrame mainFrame;
 
     /**
@@ -83,10 +86,10 @@ public class JRomManager {
     }
 
     /**
-     * Write lock file and keep it locked (rw) until program shutdown
+     * Write lock file and keep it locked (rw) until program shutdown.
      * 
-     * @param lockFile the file to lock
-     * 
+     * @param session  the current user session providing the work path
+     * @param lockFile the lock file name
      * @return true if successful, false otherwise
      */
     private static boolean lockInstance(final Session session, final String lockFile) {

@@ -15,6 +15,10 @@ import org.junit.jupiter.api.Test;
 @DisplayName("FileResult Unit Tests")
 class FileResultTest {
 
+    /**
+     * Verifies that a {@link FileResult} is created with the supplied file path
+     * and has a null initial result.
+     */
     @Test
     @DisplayName("Should create FileResult with file path")
     void shouldCreateFileResultWithFilePath() {
@@ -25,6 +29,9 @@ class FileResultTest {
         assertThat(result.getResult()).isNull();
     }
 
+    /**
+     * Verifies that {@link FileResult#setFile(Path)} updates the stored file path.
+     */
     @Test
     @DisplayName("Should set and get file path")
     void shouldSetAndGetFilePath() {
@@ -37,6 +44,9 @@ class FileResultTest {
         assertThat(result.getFile()).isEqualTo(newPath);
     }
 
+    /**
+     * Verifies that {@link FileResult#setResult(String)} stores the supplied result message.
+     */
     @Test
     @DisplayName("Should set and get result message")
     void shouldSetAndGetResultMessage() {
@@ -48,6 +58,9 @@ class FileResultTest {
         assertThat(result.getResult()).isEqualTo("Success");
     }
 
+    /**
+     * Verifies that {@link FileResult#fileProperty()} is non-null and returns the expected path.
+     */
     @Test
     @DisplayName("Should have file property")
     void shouldHaveFileProperty() {
@@ -58,6 +71,9 @@ class FileResultTest {
         assertThat(result.fileProperty().get()).isEqualTo(testPath);
     }
 
+    /**
+     * Verifies that {@link FileResult#resultProperty()} is non-null.
+     */
     @Test
     @DisplayName("Should have result property")
     void shouldHaveResultProperty() {
@@ -67,6 +83,9 @@ class FileResultTest {
         assertThat(result.resultProperty()).isNotNull();
     }
 
+    /**
+     * Verifies that setting the result property value directly updates the stored result.
+     */
     @Test
     @DisplayName("Should update result property value")
     void shouldUpdateResultPropertyValue() {
@@ -78,6 +97,9 @@ class FileResultTest {
         assertThat(result.getResult()).isEqualTo("Updated result");
     }
 
+    /**
+     * Verifies that setting the file property value directly updates the stored path.
+     */
     @Test
     @DisplayName("Should update file property value")
     void shouldUpdateFilePropertyValue() {
@@ -90,6 +112,9 @@ class FileResultTest {
         assertThat(result.getFile()).isEqualTo(newPath);
     }
 
+    /**
+     * Verifies that a {@code null} file path is accepted and stored correctly.
+     */
     @Test
     @DisplayName("Should handle null file path")
     void shouldHandleNullFilePath() {
@@ -98,6 +123,9 @@ class FileResultTest {
         assertThat(result.getFile()).isNull();
     }
 
+    /**
+     * Verifies that setting an empty result message is stored and reported as empty.
+     */
     @Test
     @DisplayName("Should handle empty result message")
     void shouldHandleEmptyResultMessage() {

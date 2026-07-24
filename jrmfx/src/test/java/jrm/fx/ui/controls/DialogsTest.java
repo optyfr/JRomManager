@@ -33,6 +33,10 @@ class DialogsTest {
         return (String) method.invoke(null, e);
     }
 
+    /**
+     * Verifies that the private {@code getStackTrace} method returns a string containing
+     * the exception class name and message.
+     */
     @Test
     @DisplayName("Should extract stack trace from exception")
     void shouldExtractStackTraceFromException() throws Exception {
@@ -49,6 +53,10 @@ class DialogsTest {
                 .contains("Test exception message");
     }
 
+    /**
+     * Verifies that the stack trace includes the outer exception, the cause exception,
+     * and a {@code Caused by} line.
+     */
     @Test
     @DisplayName("Should extract stack trace with cause")
     void shouldExtractStackTraceWithCause() throws Exception {
@@ -70,6 +78,9 @@ class DialogsTest {
                 .contains("Caused by");
     }
 
+    /**
+     * Verifies that a chain of three exception causes is fully present in the stack trace.
+     */
     @Test
     @DisplayName("Should extract stack trace with multiple causes")
     void shouldExtractStackTraceWithMultipleCauses() throws Exception {
@@ -90,6 +101,9 @@ class DialogsTest {
                 .contains("Null value");
     }
 
+    /**
+     * Verifies that a stack trace is produced even when the exception has no detail message.
+     */
     @Test
     @DisplayName("Should extract stack trace without message")
     void shouldExtractStackTraceWithoutMessage() throws Exception {
@@ -104,6 +118,9 @@ class DialogsTest {
                 .contains("RuntimeException");
     }
 
+    /**
+     * Verifies that a stack trace is produced when the exception message is an empty string.
+     */
     @Test
     @DisplayName("Should extract stack trace with empty message")
     void shouldExtractStackTraceWithEmptyMessage() throws Exception {
@@ -118,6 +135,10 @@ class DialogsTest {
                 .contains("RuntimeException");
     }
 
+    /**
+     * Verifies that the stack trace preserves special characters such as HTML tags,
+     * quotes, and backslash characters.
+     */
     @Test
     @DisplayName("Should extract stack trace with special characters in message")
     void shouldExtractStackTraceWithSpecialCharactersInMessage() throws Exception {
@@ -132,6 +153,10 @@ class DialogsTest {
                 .contains("\"quotes\"");
     }
 
+    /**
+     * Verifies that the generated stack trace includes stack frames ({@code at } lines)
+     * in addition to the exception class name.
+     */
     @Test
     @DisplayName("Should extract stack trace with deep stack")
     void shouldExtractStackTraceWithDeepStack() throws Exception {
@@ -148,6 +173,10 @@ class DialogsTest {
                 .contains("at ");
     }
 
+    /**
+     * Verifies that the output of {@code Dialogs.getStackTrace} matches the standard
+     * {@link Throwable#printStackTrace()} output character for character.
+     */
     @Test
     @DisplayName("Should produce same output as standard printStackTrace")
     void shouldProduceSameOutputAsStandardPrintStackTrace() throws Exception {
@@ -167,6 +196,10 @@ class DialogsTest {
                 .isEqualTo(standardStackTrace);
     }
 
+    /**
+     * Verifies that a checked exception such as {@link java.io.IOException} is properly
+     * included in the stack trace.
+     */
     @Test
     @DisplayName("Should handle checked exception")
     void shouldHandleCheckedException() throws Exception {
@@ -181,6 +214,10 @@ class DialogsTest {
                 .contains("File not found");
     }
 
+    /**
+     * Verifies that a {@link java.lang.Error} such as {@link OutOfMemoryError} is properly
+     * included in the stack trace.
+     */
     @Test
     @DisplayName("Should handle error")
     void shouldHandleError() throws Exception {

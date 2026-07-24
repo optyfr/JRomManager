@@ -98,6 +98,12 @@ public class SettingsPanelController extends BaseController {
     /** The scheduler for periodic memory monitoring. */
     final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    /**
+     * Initializes the settings panel, setting up general settings, compressors, and debug sections.
+     *
+     * @param location  the location used to resolve relative paths for the root object, or {@code null}
+     * @param resources the resources used to localize the root object, or {@code null}
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initGeneral();
@@ -358,6 +364,7 @@ public class SettingsPanelController extends BaseController {
         Log.setLevel(newValue);
     }
 
+    /** Memory format pattern for MiB display. */
     private static final String XX_MIB = "%.2f MiB";
 
     /**

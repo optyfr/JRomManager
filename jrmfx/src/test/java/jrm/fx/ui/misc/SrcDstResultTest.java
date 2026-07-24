@@ -15,10 +15,12 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * Tests for {@link SrcDstResult} JavaFX property binding.
+ * Unit tests for {@link SrcDstResult}.
  * <p>
- * Validates JavaFX property lazy initialization, getter/setter methods,
- * and property change notifications.
+ * Validates lazy initialization of JavaFX {@link javafx.beans.property.StringProperty}
+ * and {@link javafx.beans.property.BooleanProperty} backing fields, getter/setter
+ * value propagation, null/empty value handling, per-instance isolation, and
+ * singleton property identity.
  *
  * @since 3.0.5
  */
@@ -27,7 +29,10 @@ import javafx.stage.Stage;
 class SrcDstResultTest {
 
     /**
-     * Test application for JavaFX property tests.
+     * Minimal JavaFX test application required by {@link TestFxApplication}.
+     * <p>
+     * Registers itself as a {@link TestFxRecordedStage} so that TestFX can
+     * manage the JavaFX lifecycle for property-binding tests.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
@@ -45,6 +50,9 @@ class SrcDstResultTest {
         }
     }
 
+    /**
+     * Verifies the default constructor produces a non-null instance.
+     */
     @Test
     @DisplayName("Should create empty SrcDstResult with default constructor")
     void shouldCreateEmptySrcDstResult() {
@@ -53,6 +61,11 @@ class SrcDstResultTest {
         assertThat(result).as("result should not be null").isNotNull();
     }
 
+    /**
+     * Verifies that constructing from a {@link com.eclipsesource.json.JsonObject}
+     * with {@code src}, {@code dst}, {@code result}, and {@code selected} fields
+     * produces a non-null instance.
+     */
     @Test
     @DisplayName("Should create SrcDstResult from JSON")
     void shouldCreateSrcDstResultFromJson() {
@@ -67,6 +80,10 @@ class SrcDstResultTest {
         assertThat(result).as("result should not be null").isNotNull();
     }
 
+    /**
+     * Confirms the {@code src} property is lazily created on first access
+     * via {@link SrcDstResult#srcProperty()} and set/get work correctly.
+     */
     @Test
     @DisplayName("Should lazily initialize src property")
     void shouldLazilyInitializeSrcProperty() {
@@ -80,6 +97,10 @@ class SrcDstResultTest {
         assertThat(result.getSrc()).as("src value should be set").isEqualTo("/test/source");
     }
 
+    /**
+     * Confirms the {@code dst} property is lazily created on first access
+     * via {@link SrcDstResult#dstProperty()} and set/get work correctly.
+     */
     @Test
     @DisplayName("Should lazily initialize dst property")
     void shouldLazilyInitializeDstProperty() {
@@ -93,6 +114,10 @@ class SrcDstResultTest {
         assertThat(result.getDst()).as("dst value should be set").isEqualTo("/test/dest");
     }
 
+    /**
+     * Confirms the {@code result} property is lazily created with an empty-string
+     * default via {@link SrcDstResult#resultProperty()}.
+     */
     @Test
     @DisplayName("Should lazily initialize result property with empty default")
     void shouldLazilyInitializeResultProperty() {
@@ -107,6 +132,10 @@ class SrcDstResultTest {
         assertThat(result.getResult()).as("result value should be set").isEqualTo("Success");
     }
 
+    /**
+     * Confirms the {@code selected} property is lazily created with {@code true}
+     * as default via {@link SrcDstResult#selectedProperty()}.
+     */
     @Test
     @DisplayName("Should lazily initialize selected property with true default")
     void shouldLazilyInitializeSelectedProperty() {
@@ -121,6 +150,9 @@ class SrcDstResultTest {
         assertThat(result.isSelected()).as("selected value should be set").isFalse();
     }
 
+    /**
+     * Verifies that overwriting {@code src} updates the getter return value.
+     */
     @Test
     @DisplayName("Should update src property value")
     void shouldUpdateSrcPropertyValue() {
@@ -133,6 +165,9 @@ class SrcDstResultTest {
         assertThat(result.getSrc()).as("src should be updated").isEqualTo("/path/two");
     }
 
+    /**
+     * Verifies that overwriting {@code dst} updates the getter return value.
+     */
     @Test
     @DisplayName("Should update dst property value")
     void shouldUpdateDstPropertyValue() {
@@ -145,6 +180,9 @@ class SrcDstResultTest {
         assertThat(result.getDst()).as("dst should be updated").isEqualTo("/dest/two");
     }
 
+    /**
+     * Verifies that overwriting {@code result} updates the getter return value.
+     */
     @Test
     @DisplayName("Should update result property value")
     void shouldUpdateResultPropertyValue() {
@@ -157,6 +195,9 @@ class SrcDstResultTest {
         assertThat(result.getResult()).as("result should be updated").isEqualTo("Success");
     }
 
+    /**
+     * Verifies that toggling {@code selected} back and forth works correctly.
+     */
     @Test
     @DisplayName("Should update selected property value")
     void shouldUpdateSelectedPropertyValue() {
@@ -171,6 +212,10 @@ class SrcDstResultTest {
         assertThat(result.isSelected()).as("selected should be true again").isTrue();
     }
 
+    /**
+     * Confirms that setting {@code src} to {@code null} is accepted and
+     * the getter returns {@code null}.
+     */
     @Test
     @DisplayName("Should handle null src value")
     void shouldHandleNullSrcValue() {
@@ -180,6 +225,10 @@ class SrcDstResultTest {
         assertThat(result.getSrc()).as("src should be null").isNull();
     }
 
+    /**
+     * Confirms that setting {@code dst} to {@code null} is accepted and
+     * the getter returns {@code null}.
+     */
     @Test
     @DisplayName("Should handle null dst value")
     void shouldHandleNullDstValue() {
@@ -189,6 +238,9 @@ class SrcDstResultTest {
         assertThat(result.getDst()).as("dst should be null").isNull();
     }
 
+    /**
+     * Confirms that setting {@code result} to an empty string is accepted.
+     */
     @Test
     @DisplayName("Should handle empty result value")
     void shouldHandleEmptyResultValue() {
@@ -198,6 +250,10 @@ class SrcDstResultTest {
         assertThat(result.getResult()).as("result should be empty").isEmpty();
     }
 
+    /**
+     * Ensures that two separate {@link SrcDstResult} instances maintain
+     * completely independent property values.
+     */
     @Test
     @DisplayName("Should maintain independent property instances")
     void shouldMaintainIndependentPropertyInstances() {
@@ -225,6 +281,10 @@ class SrcDstResultTest {
         assertThat(result2.isSelected()).as("result2 selected should be independent").isTrue();
     }
 
+    /**
+     * Confirms that repeatedly calling a property accessor returns the same
+     * {@link javafx.beans.property.Property} instance (singleton pattern).
+     */
     @Test
     @DisplayName("Should return same property instance on multiple calls")
     void shouldReturnSamePropertyInstanceOnMultipleCalls() {

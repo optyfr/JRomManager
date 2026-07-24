@@ -108,6 +108,7 @@ class BatchDirUpd8rResultsControllerTest {
 			primaryStage.show();
 		}
 
+		/** Injects a value into a private field of the target object using reflection. */
 		private static void injectField(Object target, String fieldName, Object value) {
 			try {
 				Field field = target.getClass().getDeclaredField(fieldName);
@@ -331,6 +332,7 @@ class BatchDirUpd8rResultsControllerTest {
 		}
 	}
 
+	/** Retrieves a private field value from the controller via reflection. */
 	@SuppressWarnings("unchecked")
 	private static <S, T> TableColumn<S, T> getColumn(String name) {
 		return (TableColumn<S, T>) getField(TestApp.controller, name);

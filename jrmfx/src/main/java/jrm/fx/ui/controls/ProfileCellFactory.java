@@ -43,6 +43,15 @@ public class ProfileCellFactory extends NameCellFactory<ProfileNFO> {
         });
     }
 
+    /**
+     * Updates the cell with color-coded text and tooltip based on MAME status.
+     * <p>
+     * Binds the cell style to the row selection state and shows a tooltip indicating
+     * whether the profile is up-to-date, needs an update, or was not found in MAME.
+     *
+     * @param item  the profile to display, or {@code null}
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     public void updateItem(ProfileNFO item, boolean empty) {
         super.updateItem(item, empty);

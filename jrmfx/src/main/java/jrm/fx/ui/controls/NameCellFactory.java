@@ -32,6 +32,14 @@ public class NameCellFactory<T> extends TextFieldTableCell<T, T> {
         setEditable(true);
     }
 
+    /**
+     * Updates the cell content with the item's string representation.
+     * <p>
+     * Shows the text and a tooltip for non-empty cells, or clears the cell for empty rows.
+     *
+     * @param item  the item to display
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     public void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);

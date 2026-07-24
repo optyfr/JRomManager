@@ -40,9 +40,18 @@ class ProgressControllerTest {
      * with all FXML fields injected via reflection and mocks for MainFrame.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
+        /** The primary stage for the test application. */
         private Stage primaryStage;
+        /** The shared {@link ProgressController} instance under test. */
         private static ProgressController controller;
 
+        /**
+         * Starts the test application by constructing a {@link ProgressController},
+         * injecting FXML fields via reflection, and setting up a scene.
+         *
+         * @param primaryStage the primary stage for this application
+         * @throws Exception if field injection fails
+         */
         @Override
         public void start(Stage primaryStage) throws Exception {
             this.primaryStage = primaryStage;
@@ -107,12 +116,28 @@ class ProgressControllerTest {
             primaryStage.show();
         }
 
+        /**
+         * Injects a value into a declared field of the given target object via reflection.
+         *
+         * @param target the object whose field is to be injected
+         * @param fieldName the name of the declared field
+         * @param value the value to set on the field
+         * @throws Exception if the field is not found or cannot be accessed
+         */
         private static void injectField(Object target, String fieldName, Object value) throws Exception {
             Field field = ProgressController.class.getDeclaredField(fieldName);
             field.setAccessible(true);
             field.set(target, value);
         }
 
+        /**
+         * Retrieves the value of a declared field from the controller.
+         *
+         * @param <T> the expected type of the field value
+         * @param fieldName the name of the declared field
+         * @return the field value cast to {@code T}
+         * @throws RuntimeException wrapping the original exception if reflection fails
+         */
         @SuppressWarnings("unchecked")
         public <T> T getField(String fieldName) {
             try {
@@ -124,6 +149,13 @@ class ProgressControllerTest {
             }
         }
 
+        /**
+         * Injects a value into a declared field on the shared controller.
+         *
+         * @param fieldName the name of the declared field
+         * @param value the value to set on the field
+         * @throws RuntimeException wrapping the original exception if injection fails
+         */
         public void injectFieldOnController(String fieldName, Object value) {
             try {
                 injectField(controller, fieldName, value);
@@ -132,12 +164,20 @@ class ProgressControllerTest {
             }
         }
 
+        /**
+         * Returns the shared controller instance.
+         *
+         * @return the {@link ProgressController} under test
+         */
         public static ProgressController getController() {
             return controller;
         }
 
         /**
          * Helper method to run operations on the JavaFX Application Thread and wait for completion.
+         *
+         * @param operation the runnable to execute on the FX thread
+         * @throws Exception if the operation throws or the future is interrupted
          */
         public static void runOnFxThread(Runnable operation) throws Exception {
             CompletableFuture<Void> future = new CompletableFuture<>();
@@ -152,6 +192,11 @@ class ProgressControllerTest {
             future.get();
         }
 
+        /**
+         * Returns the recorded stage for TestFX integration.
+         *
+         * @return the primary stage
+         */
         @Override
         public Stage recordedStage() {
             return primaryStage;
@@ -163,6 +208,12 @@ class ProgressControllerTest {
         }
     }
 
+    /**
+     * Verifies that the cancel button has a graphic icon after initialization.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should initialize with cancel button icon")
     void shouldInitializeWithCancelButtonIcon(TestApp application) throws Exception {
@@ -174,6 +225,11 @@ class ProgressControllerTest {
         assertThat(future.get()).as("cancel button has icon").isTrue();
     }
 
+    /**
+     * Verifies that secondary and tertiary progress bars and labels are hidden after initialization.
+     *
+     * @param application the test application fixture
+     */
     @Test
     @DisplayName("Should initialize with secondary and tertiary progress bars hidden")
     void shouldInitializeWithSecondaryAndTertiaryProgressBarsHidden(TestApp application) {
@@ -192,6 +248,12 @@ class ProgressControllerTest {
         assertThat(lblTimeleft3.isVisible()).as("lblTimeleft3 visible").isFalse();
     }
 
+    /**
+     * Verifies that {@link ProgressController#setInfos} creates a single info and sub-info pane for one thread.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should set infos for single thread")
     void shouldSetInfosForSingleThread(TestApp application) throws Exception {
@@ -207,6 +269,12 @@ class ProgressControllerTest {
         assertThat(lblSubInfo).as("lblSubInfo").hasSize(1);
     }
 
+    /**
+     * Verifies that {@link ProgressController#setInfos} creates info panes for multiple threads.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should set infos for multiple threads")
     void shouldSetInfosForMultipleThreads(TestApp application) throws Exception {
@@ -222,6 +290,13 @@ class ProgressControllerTest {
         assertThat(lblSubInfo).as("lblSubInfo").hasSize(1);
     }
 
+    /**
+     * Verifies that {@link ProgressController#setInfos} with {@code multipleSubInfos=true}
+     * creates matching numbers of info and sub-info panes.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should set infos with multiple sub-infos")
     void shouldSetInfosWithMultipleSubInfos(TestApp application) throws Exception {
@@ -237,6 +312,12 @@ class ProgressControllerTest {
         assertThat(lblSubInfo).as("lblSubInfo").hasSize(3);
     }
 
+    /**
+     * Verifies that {@link ProgressController#extendInfos} increases the info pane count to the requested size.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should extend infos to more threads")
     void shouldExtendInfosToMoreThreads(TestApp application) throws Exception {
@@ -250,6 +331,12 @@ class ProgressControllerTest {
         assertThat(lblInfo).as("lblInfo").hasSize(5);
     }
 
+    /**
+     * Verifies that {@link ProgressController#extendInfos} does not resize when the requested thread count equals the current count.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should not extend infos if already same thread count")
     void shouldNotExtendInfosIfAlreadySameThreadCount(TestApp application) throws Exception {
@@ -270,6 +357,12 @@ class ProgressControllerTest {
         assertThat(lblInfoAfter).as("lblInfo length unchanged").hasSize(lengthBefore);
     }
 
+    /**
+     * Verifies that {@link ProgressController#clearInfos} removes children from all info and sub-info panes.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should clear infos")
     void shouldClearInfos(TestApp application) throws Exception {
@@ -287,6 +380,12 @@ class ProgressControllerTest {
         assertThat(lblSubInfo[0].getChildren()).as("lblSubInfo[0] children").isEmpty();
     }
 
+    /**
+     * Verifies that {@link ProgressController#canCancel} enables and disables the cancel button.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should can cancel")
     void shouldCanCancel(TestApp application) throws Exception {
@@ -304,6 +403,12 @@ class ProgressControllerTest {
         assertThat(cancelBtn.isDisable()).as("cancelBtn enabled").isFalse();
     }
 
+    /**
+     * Verifies that {@link ProgressController#doCancel} disables the cancel button after invoking cancel.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should do cancel")
     void shouldDoCancel(TestApp application) throws Exception {
@@ -319,6 +424,12 @@ class ProgressControllerTest {
         assertThat(cancelBtn.isDisable()).as("cancelBtn disabled after cancel").isTrue();
     }
 
+    /**
+     * Verifies that an odd thread count produces alternating background colors on info panels.
+     *
+     * @param application the test application fixture
+     * @throws Exception if the JavaFX operation fails
+     */
     @Test
     @DisplayName("Should handle odd thread count for alternating colors")
     void shouldHandleOddThreadCountForAlternatingColors(TestApp application) throws Exception {

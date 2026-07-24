@@ -14,6 +14,14 @@ import javafx.scene.paint.Color;
  * @since 2.5
  */
 public final class VersionCellFactory<T> extends TableCell<T, String> {
+    /**
+     * Updates the cell content with the version string.
+     * <p>
+     * Null values are rendered as {@code ???} in gray; valid values are shown with a tooltip.
+     *
+     * @param item  the version string to display, or {@code null}
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     protected void updateItem(String item, boolean empty) {
         if (empty)

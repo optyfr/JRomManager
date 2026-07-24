@@ -50,8 +50,11 @@ import jrm.profile.report.SubjectSet;
 @DisplayName("ReportTreeCell Tests")
 class ReportTreeCellTest {
 
+	/** The ReportTreeCell instance under test, created via reflection. */
 	private static TreeCell<Object> reportTreeCell;
+	/** The class object for the private {@code ReportTreeCell} inner class. */
 	private static Class<?> reportTreeCellClass;
+	/** The {@code updateItem} method obtained from {@link Cell} via reflection. */
 	private static Method updateItemMethod;
 
 	/**
@@ -103,7 +106,11 @@ class ReportTreeCellTest {
 	}
 
 	/**
-	 * Invoke the protected updateItem method via reflection.
+	 * Invokes {@code updateItem(Object, boolean)} on the cell via reflection.
+	 *
+	 * @param item  the tree item to pass to the cell
+	 * @param empty whether the cell should render as empty
+	 * @throws RuntimeException if the reflective invocation fails
 	 */
 	private void callUpdateItem(Object item, boolean empty) {
 		try {
@@ -113,6 +120,7 @@ class ReportTreeCellTest {
 		}
 	}
 
+	/** Resets the cell graphic and text to a clean empty state before each test. */
 	@BeforeEach
 	void setUp() {
 		reportTreeCell.setGraphic(null);
@@ -120,6 +128,9 @@ class ReportTreeCellTest {
 		callUpdateItem(null, true);
 	}
 
+	/**
+	 * Verifies that an empty cell renders with no graphic and no text.
+	 */
 	@Test
 	@DisplayName("Should handle empty cell")
 	void shouldHandleEmptyCell() {
@@ -128,6 +139,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code MISSING} status renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with MISSING status")
 	void shouldRenderSubjectSetMissing() {
@@ -145,6 +159,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code FOUND} status and no notes renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with FOUND status and no notes")
 	void shouldRenderSubjectSetFoundNoNotes() {
@@ -163,6 +180,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code FOUND} status and fixable notes renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with FOUND status and fixable notes")
 	void shouldRenderSubjectSetFoundFixable() {
@@ -183,6 +203,10 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code FOUND} status and non-fixable notes
+	 * renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with FOUND status and non-fixable notes")
 	void shouldRenderSubjectSetFoundNonFixable() {
@@ -203,6 +227,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code CREATE} status and fixable renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with CREATE status fixable")
 	void shouldRenderSubjectSetCreateFixable() {
@@ -221,6 +248,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code CREATE} status and non-fixable renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with CREATE status non-fixable")
 	void shouldRenderSubjectSetCreateNonFixable() {
@@ -239,6 +269,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code CREATEFULL} status renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with CREATEFULL status")
 	void shouldRenderSubjectSetCreateFull() {
@@ -257,6 +290,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code UNNEEDED} status renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with UNNEEDED status")
 	void shouldRenderSubjectSetUnneeded() {
@@ -274,6 +310,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link SubjectSet} with {@code UNKNOWN} status renders a graphic.
+	 */
 	@Test
 	@DisplayName("Should render SubjectSet with UNKNOWN status")
 	void shouldRenderSubjectSetUnknown() {
@@ -291,6 +330,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link ContainerTZip} renders with a graphic.
+	 */
 	@Test
 	@DisplayName("Should render ContainerTZip")
 	void shouldRenderContainerTZip() {
@@ -303,6 +345,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link ContainerUnknown} renders with a graphic.
+	 */
 	@Test
 	@DisplayName("Should render ContainerUnknown")
 	void shouldRenderContainerUnknown() {
@@ -315,6 +360,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link ContainerUnneeded} renders with a graphic.
+	 */
 	@Test
 	@DisplayName("Should render ContainerUnneeded")
 	void shouldRenderContainerUnneeded() {
@@ -327,6 +375,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that a {@link RomSuspiciousCRC} renders with a graphic.
+	 */
 	@Test
 	@DisplayName("Should render RomSuspiciousCRC")
 	void shouldRenderRomSuspiciousCRC() {
@@ -339,6 +390,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryOK} renders with a graphic showing the normalized name.
+	 */
 	@Test
 	@DisplayName("Should render EntryOK")
 	void shouldRenderEntryOK() {
@@ -359,6 +413,15 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryMissing} renders with the appropriate hash information,
+	 * parameterized across SHA-1, MD5, and CRC hash types.
+	 *
+	 * @param hashType the hash type label for the parameterized test name
+	 * @param sha1     the SHA-1 hash value
+	 * @param md5      the MD5 hash value
+	 * @param crc      the CRC hash value
+	 */
 	@ParameterizedTest(name = "{0}")
 	@CsvSource({
 		"SHA1, abc123, , ",
@@ -387,6 +450,10 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryMissingDuplicate} renders with both the entry and entity
+	 * names.
+	 */
 	@Test
 	@DisplayName("Should render EntryMissingDuplicate")
 	void shouldRenderEntryMissingDuplicate() {
@@ -410,6 +477,10 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryAdd} renders with parent container and relative file
+	 * information.
+	 */
 	@Test
 	@DisplayName("Should render EntryAdd")
 	void shouldRenderEntryAdd() {
@@ -436,6 +507,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryUnneeded} renders with a SHA-1 hash when available.
+	 */
 	@Test
 	@DisplayName("Should render EntryUnneeded with SHA1")
 	void shouldRenderEntryUnneededWithSHA1() {
@@ -457,6 +531,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryUnneeded} falls back to MD5 when SHA-1 is unavailable.
+	 */
 	@Test
 	@DisplayName("Should render EntryUnneeded with MD5")
 	void shouldRenderEntryUnneededWithMD5() {
@@ -479,6 +556,10 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryUnneeded} falls back to CRC when neither SHA-1 nor MD5
+	 * are available.
+	 */
 	@Test
 	@DisplayName("Should render EntryUnneeded with CRC")
 	void shouldRenderEntryUnneededWithCRC() {
@@ -502,6 +583,10 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryWrongHash} falls back to CRC when neither SHA-1 nor MD5
+	 * are available.
+	 */
 	@Test
 	@DisplayName("Should render EntryWrongHash with no SHA1 or MD5 (uses CRC)")
 	void shouldRenderEntryWrongHashWithCRC() {
@@ -526,6 +611,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryWrongHash} uses MD5 as the fallback when SHA-1 is absent.
+	 */
 	@Test
 	@DisplayName("Should render EntryWrongHash with MD5 (no SHA1)")
 	void shouldRenderEntryWrongHashWithMD5() {
@@ -549,6 +637,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryWrongHash} renders with SHA-1 when available.
+	 */
 	@Test
 	@DisplayName("Should render EntryWrongHash with SHA1")
 	void shouldRenderEntryWrongHashWithSHA1() {
@@ -571,6 +662,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an {@link EntryWrongName} renders with both the wrong and correct names.
+	 */
 	@Test
 	@DisplayName("Should render EntryWrongName")
 	void shouldRenderEntryWrongName() {
@@ -594,6 +688,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isNull();
 	}
 
+	/**
+	 * Verifies that an unknown item type renders using its {@code toString} value.
+	 */
 	@Test
 	@DisplayName("Should render unknown item type with toString")
 	void shouldRenderUnknownItemType() {
@@ -609,6 +706,9 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isEqualTo("Unknown Item");
 	}
 
+	/**
+	 * Verifies that a plain {@link Note} renders using its {@code toString} value.
+	 */
 	@Test
 	@DisplayName("Should render plain Note with toString")
 	void shouldRenderPlainNote() {
@@ -620,6 +720,12 @@ class ReportTreeCellTest {
 		assertThat(reportTreeCell.getText()).isEqualTo("A note");
 	}
 
+	/**
+	 * Verifies the green folder icon for a {@link SubjectSet} with {@code FOUND} status
+	 * and no notes.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for FOUND with no notes")
 	void shouldGetFolderIconForFoundNoNotes() throws Exception {
@@ -634,6 +740,12 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_green.png");
 	}
 
+	/**
+	 * Verifies the purple folder icon for a {@link SubjectSet} with {@code FOUND} status
+	 * and fixable notes.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for FOUND with fixable notes")
 	void shouldGetFolderIconForFoundFixable() throws Exception {
@@ -649,6 +761,12 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_purple.png");
 	}
 
+	/**
+	 * Verifies the orange folder icon for a {@link SubjectSet} with {@code FOUND} status
+	 * and non-fixable notes.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for FOUND with non-fixable notes")
 	void shouldGetFolderIconForFoundNonFixable() throws Exception {
@@ -664,6 +782,11 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_orange.png");
 	}
 
+	/**
+	 * Verifies the red folder icon for a {@link SubjectSet} with {@code MISSING} status.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for MISSING")
 	void shouldGetFolderIconForMissing() throws Exception {
@@ -677,6 +800,11 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_red.png");
 	}
 
+	/**
+	 * Verifies the blue folder icon for a fixable {@link SubjectSet} with {@code CREATE} status.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for CREATE fixable")
 	void shouldGetFolderIconForCreateFixable() throws Exception {
@@ -691,6 +819,12 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_blue.png");
 	}
 
+	/**
+	 * Verifies the orange folder icon for a non-fixable {@link SubjectSet} with {@code CREATE}
+	 * status.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for CREATE non-fixable")
 	void shouldGetFolderIconForCreateNonFixable() throws Exception {
@@ -705,6 +839,11 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_orange.png");
 	}
 
+	/**
+	 * Verifies the gray folder icon for a {@link SubjectSet} with {@code UNNEEDED} status.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for UNNEEDED")
 	void shouldGetFolderIconForUnneeded() throws Exception {
@@ -718,6 +857,11 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_closed_gray.png");
 	}
 
+	/**
+	 * Verifies the open-folder icon variant when a node is expanded.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for expanded state")
 	void shouldGetFolderIconExpanded() throws Exception {
@@ -731,6 +875,11 @@ class ReportTreeCellTest {
 		assertThat(icon).contains("folder_open_red.png");
 	}
 
+	/**
+	 * Verifies the default folder icon for a value that is not a {@link SubjectSet}.
+	 *
+	 * @throws Exception if reflective access fails
+	 */
 	@Test
 	@DisplayName("Should get folder icon for non-SubjectSet value")
 	void shouldGetFolderIconForNonSubjectSet() throws Exception {

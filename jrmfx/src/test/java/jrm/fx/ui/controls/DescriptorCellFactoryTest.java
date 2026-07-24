@@ -53,19 +53,29 @@ class DescriptorCellFactoryTest {
         }
     }
 
+    /** The cell factory under test. */
     private DescriptorCellFactory cellFactory;
 
+    /**
+     * Initializes a fresh cell factory before each test.
+     */
     @BeforeEach
     void setUp() {
         cellFactory = new DescriptorCellFactory();
     }
 
+    /**
+     * Verifies that a {@link DescriptorCellFactory} can be constructed successfully.
+     */
     @Test
     @DisplayName("Should create DescriptorCellFactory")
     void shouldCreateDescriptorCellFactory() {
         assertThat(cellFactory).as("Cell factory should be created").isNotNull();
     }
 
+    /**
+     * Verifies that the cell graphic is cleared to {@code null} when the item is {@code null}.
+     */
     @Test
     @DisplayName("Should set graphic to null for null item")
     void shouldSetGraphicToNullForNullItem() {
@@ -74,6 +84,9 @@ class DescriptorCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell graphic is cleared to {@code null} when the cell is marked as empty.
+     */
     @Test
     @DisplayName("Should set graphic to null for empty cell")
     void shouldSetGraphicToNullForEmptyCell() {
@@ -82,6 +95,9 @@ class DescriptorCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell text is set to a non-empty value when a {@link Descriptor} item is present.
+     */
     @Test
     @DisplayName("Should set text for non-empty Descriptor item")
     void shouldSetTextForNonEmptyDescriptorItem() {
@@ -91,6 +107,9 @@ class DescriptorCellFactoryTest {
         assertThat(cellFactory.getText()).as("Text should not be empty").isNotEmpty();
     }
 
+    /**
+     * Verifies that the cell displays the correct description for {@link FormatOptions#ZIP}.
+     */
     @Test
     @DisplayName("Should display ZIP description")
     void shouldDisplayZipDescription() {
@@ -100,6 +119,9 @@ class DescriptorCellFactoryTest {
             .isEqualTo(FormatOptions.ZIP.getDesc());
     }
 
+    /**
+     * Verifies that the cell displays the correct description for {@link FormatOptions#SEVENZIP}.
+     */
     @Test
     @DisplayName("Should display SEVENZIP description")
     void shouldDisplaySevenzipDescription() {
@@ -109,6 +131,9 @@ class DescriptorCellFactoryTest {
             .isEqualTo(FormatOptions.SEVENZIP.getDesc());
     }
 
+    /**
+     * Verifies that the cell displays the correct description for {@link FormatOptions#DIR}.
+     */
     @Test
     @DisplayName("Should display DIR description")
     void shouldDisplayDirDescription() {
@@ -118,6 +143,9 @@ class DescriptorCellFactoryTest {
             .isEqualTo(FormatOptions.DIR.getDesc());
     }
 
+    /**
+     * Verifies that the cell graphic is reset when the item changes from a valid descriptor to {@code null}.
+     */
     @Test
     @DisplayName("Should clear text when item becomes null")
     void shouldClearTextWhenItemBecomesNull() {
@@ -128,6 +156,9 @@ class DescriptorCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell graphic is cleared when the cell transitions from non-empty to empty state.
+     */
     @Test
     @DisplayName("Should clear graphic when cell becomes empty")
     void shouldClearGraphicWhenCellBecomesEmpty() {
@@ -138,6 +169,9 @@ class DescriptorCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that no graphic is set for any {@link FormatOptions} value when the cell is not empty.
+     */
     @Test
     @DisplayName("Should not set graphic for any item")
     void shouldNotSetGraphicForAnyItem() {
@@ -147,6 +181,9 @@ class DescriptorCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that the cell displays the correct description for every {@link FormatOptions} enum constant.
+     */
     @Test
     @DisplayName("Should display description for all FormatOptions")
     void shouldDisplayDescriptionForAllFormatOptions() {

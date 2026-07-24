@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ProfileViewer Tests")
 class ProfileViewerTest {
 
+    /** Resets the shared counter to zero before each test. */
     @BeforeEach
     void resetCounter() {
         ProfileViewer.getResetCounter().set(0);
@@ -32,12 +33,20 @@ class ProfileViewerTest {
     @DisplayName("getResetCounter()")
     class GetResetCounter {
 
+        /**
+         * Verifies that {@link ProfileViewer#getResetCounter()} returns a non-null
+         * {@link AtomicInteger}.
+         */
         @Test
         @DisplayName("should return a non-null AtomicInteger")
         void shouldReturnNonNullAtomicInteger() {
             assertThat(ProfileViewer.getResetCounter()).isNotNull();
         }
 
+        /**
+         * Verifies that repeated calls to {@code getResetCounter()} return the same
+         * {@link AtomicInteger} instance.
+         */
         @Test
         @DisplayName("should return the same counter instance across calls")
         void shouldReturnSameCounterInstanceAcrossCalls() {
@@ -47,12 +56,18 @@ class ProfileViewerTest {
             assertThat(second).isSameAs(first);
         }
 
+        /**
+         * Verifies that the counter starts at zero after a reset via {@link BeforeEach}.
+         */
         @Test
         @DisplayName("should start at zero after reset")
         void shouldStartAtZeroAfterReset() {
             assertThat(ProfileViewer.getResetCounter().get()).isZero();
         }
 
+        /**
+         * Verifies that {@code incrementAndGet()} correctly increases the counter value.
+         */
         @Test
         @DisplayName("should allow incrementing and reading the counter")
         void shouldAllowIncrementingAndReadingTheCounter() {
@@ -64,6 +79,10 @@ class ProfileViewerTest {
             assertThat(counter.get()).isEqualTo(2);
         }
 
+        /**
+         * Verifies that increments made through one reference are visible via another
+         * call to {@code getResetCounter()}.
+         */
         @Test
         @DisplayName("should reflect increments performed through the returned reference")
         void shouldReflectIncrementsPerformedThroughReturnedReference() {
@@ -72,6 +91,11 @@ class ProfileViewerTest {
             assertThat(ProfileViewer.getResetCounter().get()).isEqualTo(1);
         }
 
+        /**
+         * Verifies that the counter supports concurrent modifications from multiple threads.
+         *
+         * @throws Exception if a thread is interrupted while joining
+         */
         @Test
         @DisplayName("should support concurrent incrementAndGet")
         void shouldSupportConcurrentIncrementAndGet() throws Exception {
@@ -95,6 +119,10 @@ class ProfileViewerTest {
             assertThat(ProfileViewer.getResetCounter().get()).isEqualTo(threads * perThread);
         }
 
+        /**
+         * Verifies that the counter can be set to an arbitrary value via
+         * {@link AtomicInteger#set(int)}.
+         */
         @Test
         @DisplayName("should support set to arbitrary values")
         void shouldSupportSetToArbitraryValues() {
@@ -103,6 +131,10 @@ class ProfileViewerTest {
             assertThat(ProfileViewer.getResetCounter().get()).isEqualTo(42);
         }
 
+        /**
+         * Verifies that {@code getAndSet} atomically returns the previous value and
+         * stores the new value.
+         */
         @Test
         @DisplayName("should support getAndSet atomically")
         void shouldSupportGetAndSetAtomically() {

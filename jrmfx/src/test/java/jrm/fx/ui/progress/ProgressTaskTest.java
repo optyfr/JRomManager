@@ -43,9 +43,17 @@ class ProgressTaskTest {
         }
     }
 
+    /** The concrete progress task under test. */
     private TestProgressTask task;
+    /** A mocked {@link Stage} for the task owner. */
     private Stage mockStage;
 
+    /**
+     * Sets up the test fixture by creating a mock stage and a concrete {@link ProgressTask}
+     * instance with mocked JavaFX Platform calls.
+     *
+     * @throws Exception if the {@code ProgressTask} construction fails
+     */
     @BeforeEach
     void setUp() throws Exception {
         // Mock JavaFX Platform to avoid toolkit initialization
@@ -70,10 +78,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for primary, secondary, and tertiary progress tracking.
+     */
     @Nested
     @DisplayName("Progress tracking tests")
     class ProgressTrackingTests {
 
+        /**
+         * Verifies that a newly created task reports zero progress on all three levels.
+         */
         @Test
         @DisplayName("Should initialize with zero progress")
         void shouldInitializeWithZeroProgress() {
@@ -82,6 +96,9 @@ class ProgressTaskTest {
             assertThat(task.getCurrent3()).isZero();
         }
 
+        /**
+         * Verifies that primary progress can be set and retrieved via {@link ProgressTask#setProgress}.
+         */
         @Test
         @DisplayName("Should track primary progress")
         void shouldTrackPrimaryProgress() {
@@ -96,6 +113,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that secondary progress can be set and retrieved via {@link ProgressTask#setProgress2}.
+         */
         @Test
         @DisplayName("Should track secondary progress")
         void shouldTrackSecondaryProgress() {
@@ -110,6 +130,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that tertiary progress can be set and retrieved via {@link ProgressTask#setProgress3}.
+         */
         @Test
         @DisplayName("Should track tertiary progress")
         void shouldTrackTertiaryProgress() {
@@ -124,6 +147,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that progress tracking works correctly with a non-default max value.
+         */
         @Test
         @DisplayName("Should handle progress with max value")
         void shouldHandleProgressWithMaxValue() {
@@ -138,6 +164,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that setting progress to zero with a non-zero max produces a zero progress value.
+         */
         @Test
         @DisplayName("Should handle indeterminate progress (val=0)")
         void shouldHandleIndeterminateProgress() {
@@ -153,22 +182,34 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for task cancellation and re-enablement.
+     */
     @Nested
     @DisplayName("Cancellation tests")
     class CancellationTests {
 
+        /**
+         * Verifies that a newly created task is not cancelled.
+         */
         @Test
         @DisplayName("Should not be cancelled initially")
         void shouldNotBeCancelledInitially() {
             assertThat(task.isCancel()).isFalse();
         }
 
+        /**
+         * Verifies that cancellation is enabled by default.
+         */
         @Test
         @DisplayName("Should be cancellable by default")
         void shouldBeCancellableByDefault() {
             assertThat(task.canCancel()).isTrue();
         }
 
+        /**
+         * Verifies that calling {@link ProgressTask#doCancel} sets the cancellation flag.
+         */
         @Test
         @DisplayName("Should cancel when doCancel is called")
         void shouldCancelWhenDoCancelIsCalled() {
@@ -177,6 +218,9 @@ class ProgressTaskTest {
             assertThat(task.isCancel()).isTrue();
         }
 
+        /**
+         * Verifies that cancellation can be programmatically disabled.
+         */
         @Test
         @DisplayName("Should disable cancellation")
         void shouldDisableCancellation() {
@@ -191,6 +235,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that cancellation can be re-enabled after being disabled.
+         */
         @Test
         @DisplayName("Should re-enable cancellation")
         void shouldReEnableCancellation() {
@@ -208,10 +255,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for error message accumulation.
+     */
     @Nested
     @DisplayName("Error handling tests")
     class ErrorHandlingTests {
 
+        /**
+         * Verifies that error messages can be accumulated without throwing exceptions.
+         */
         @Test
         @DisplayName("Should add error messages")
         void shouldAddErrorMessages() {
@@ -223,6 +276,9 @@ class ProgressTaskTest {
             assertThat(task).isNotNull();
         }
 
+        /**
+         * Verifies that multiple error messages can be stored without errors.
+         */
         @Test
         @DisplayName("Should handle multiple errors")
         void shouldHandleMultipleErrors() {
@@ -234,10 +290,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for info panel setup and clearing.
+     */
     @Nested
     @DisplayName("Info management tests")
     class InfoManagementTests {
 
+        /**
+         * Verifies that thread count and sub-info mode can be set without errors.
+         */
         @Test
         @DisplayName("Should set thread count and sub-info mode")
         void shouldSetThreadCountAndSubInfoMode() {
@@ -253,6 +315,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that a zero thread count falls back to the number of available processors.
+         */
         @Test
         @DisplayName("Should handle zero thread count by using available processors")
         void shouldHandleZeroThreadCount() {
@@ -267,6 +332,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that a negative thread count falls back to the number of available processors.
+         */
         @Test
         @DisplayName("Should handle negative thread count by using available processors")
         void shouldHandleNegativeThreadCount() {
@@ -281,6 +349,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that info and sub-info labels can be cleared without errors.
+         */
         @Test
         @DisplayName("Should clear infos")
         void shouldClearInfos() {
@@ -298,10 +369,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for input stream wrapping with progress tracking.
+     */
     @Nested
     @DisplayName("InputStream wrapper tests")
     class InputStreamWrapperTests {
 
+        /**
+         * Verifies that an input stream is wrapped in a {@link ProgressInputStream} for tracking.
+         */
         @Test
         @DisplayName("Should wrap input stream with progress tracking")
         void shouldWrapInputStreamWithProgressTracking() {
@@ -319,6 +396,9 @@ class ProgressTaskTest {
             }
         }
 
+        /**
+         * Verifies that a {@code null} input stream still returns a {@link ProgressInputStream} wrapper.
+         */
         @Test
         @DisplayName("Should handle null input stream")
         void shouldHandleNullInputStream() {
@@ -334,10 +414,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for progress handler option configuration.
+     */
     @Nested
     @DisplayName("Options tests")
     class OptionsTests {
 
+        /**
+         * Verifies that progress handler options can be set without errors.
+         */
         @Test
         @DisplayName("Should set options")
         void shouldSetOptions() {
@@ -347,10 +433,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for offset provider setting.
+     */
     @Nested
     @DisplayName("Offset provider tests")
     class OffsetProviderTests {
 
+        /**
+         * Verifies that an {@link OffsetProvider} can be set without errors.
+         */
         @Test
         @DisplayName("Should set offset provider")
         void shouldSetOffsetProvider() {
@@ -361,6 +453,9 @@ class ProgressTaskTest {
             assertThat(task).isNotNull();
         }
 
+        /**
+         * Verifies that a {@code null} offset provider can be set without errors.
+         */
         @Test
         @DisplayName("Should handle null offset provider")
         void shouldHandleNullOffsetProvider() {
@@ -370,10 +465,16 @@ class ProgressTaskTest {
         }
     }
 
+    /**
+     * Tests for progress dialog closure.
+     */
     @Nested
     @DisplayName("Close tests")
     class CloseTests {
 
+        /**
+         * Verifies that the progress dialog can be closed without errors.
+         */
         @Test
         @DisplayName("Should close progress dialog")
         void shouldCloseProgressDialog() {

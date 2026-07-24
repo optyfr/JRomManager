@@ -43,10 +43,10 @@ public class KeywordsController implements Initializable {
     @FXML
     @Getter
     Scene sceneKW;
-    /** The list of available keywords. */
+    /** The FXML-injected list view of available keywords. */
     @FXML
     ListView<String> listAvailKW;
-    /** The list of used keywords. */
+    /** The FXML-injected list view of used keywords. */
     @FXML
     ListView<String> listUsedKW;
 
@@ -151,7 +151,7 @@ public class KeywordsController implements Initializable {
         listAvailKW.setItems(FXCollections.observableArrayList(keywords));
     }
 
-    /** The drag source property for tracking drag origin. */
+    /** Placeholder property for drag source tracking; drag origin is handled within the event-handler lambdas. */
     @SuppressWarnings("unused")
     private final ObjectProperty<ListCell<String>> dragSource = new SimpleObjectProperty<>();
 

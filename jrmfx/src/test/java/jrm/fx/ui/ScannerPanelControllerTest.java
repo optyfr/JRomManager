@@ -310,6 +310,7 @@ class ScannerPanelControllerTest {
             primaryStage.show();
         }
 
+        /** Injects a value into a private field of the target object using reflection. */
         private static void injectField(Object target, String fieldName, Object value) {
             try {
                 Field field = target.getClass().getDeclaredField(fieldName);
@@ -344,6 +345,7 @@ class ScannerPanelControllerTest {
         TestApp.runOnFxThread(action);
     }
 
+    /** Retrieves a private field value from the controller via reflection. */
     @SuppressWarnings("unchecked")
     private <T> T getField(String fieldName) {
         try {
@@ -1814,6 +1816,7 @@ class ScannerPanelControllerTest {
      * Invokes a package-private FXML handler method on the controller via reflection.
      *
      * @param name the method name
+     * @throws Exception if reflection fails
      */
     private void invokeFxml(String name) throws Exception {
         Method method = ScannerPanelController.class.getDeclaredMethod(name);
@@ -1889,7 +1892,9 @@ class ScannerPanelControllerTest {
      * @param name     the method name
      * @param itemType the item parameter type
      * @param item     the item argument
+     * @param <T>      the item type
      * @return the observable value produced by the factory
+     * @throws Exception if reflection fails
      */
     @SuppressWarnings("unchecked")
     private javafx.beans.value.ObservableValue<Boolean> invokeCellValue(String name, Class<?> itemType, Object item) throws Exception {

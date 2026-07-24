@@ -43,6 +43,9 @@ class DateCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that a {@link DateCellFactory} instance can be constructed successfully.
+     */
     @Test
     @DisplayName("Should instantiate DateCellFactory")
     void shouldInstantiateDateCellFactory(TestApp application, TestFxDescriptionSupplier description) {
@@ -52,6 +55,9 @@ class DateCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that the test application is present and its root label is visible.
+     */
     @Test
     @DisplayName("Should have test application present")
     void shouldHaveTestApplicationPresent(TestApp application, TestFxDescriptionSupplier description) {

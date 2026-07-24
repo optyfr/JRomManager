@@ -51,6 +51,9 @@ class EllipsisStringCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that table cells are rendered for both rows of test data.
+     */
     @Test
     @DisplayName("Should render cells with data")
     void shouldRenderCellsWithData(TestApp application, TestFxDescriptionSupplier description) {
@@ -66,6 +69,9 @@ class EllipsisStringCellFactoryTest {
                 .hasSize(2);
     }
 
+    /**
+     * Verifies that the cell containing the short text {@code "Short text"} is rendered.
+     */
     @Test
     @DisplayName("Should render short text cell")
     void shouldRenderShortTextCell(TestApp application, TestFxDescriptionSupplier description) {
@@ -82,6 +88,10 @@ class EllipsisStringCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that a cell containing a long text with the substring {@code "very long text"}
+     * is rendered in the table.
+     */
     @Test
     @DisplayName("Should render long text cell")
     void shouldRenderLongTextCell(TestApp application, TestFxDescriptionSupplier description) {

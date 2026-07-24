@@ -21,6 +21,15 @@ public class WebviewCellFactory<S, T> implements Callback<TableColumn<S, T>, Tab
     @Override
     public TableCell<S, T> call(TableColumn<S, T> column) {
         return new TableCell<S, T>() {
+            /**
+             * Updates the cell by loading the item as HTML content.
+             * <p>
+             * Empty or null items clear the cell; otherwise a new {@link WebView} is created
+             * and the content is loaded with transparent styling.
+             *
+             * @param item  the HTML content to render, or {@code null}
+             * @param empty whether this cell represents an empty row
+             */
             @Override
             protected void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);

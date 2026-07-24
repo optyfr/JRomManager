@@ -54,7 +54,10 @@ class Dir2DatControllerTest {
      * with all FXML fields injected via reflection and mocks for Session.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
+        /** The primary stage used for the test application. */
         private Stage primaryStage;
+
+        /** The controller instance shared across test methods. */
         private static Dir2DatController controller;
 
         @Override
@@ -177,6 +180,7 @@ class Dir2DatControllerTest {
             primaryStage.show();
         }
 
+        /** Injects a value into a private field of the target object using reflection. */
         private static void injectField(Object target, String fieldName, Object value) {
             try {
                 Field field = target.getClass().getDeclaredField(fieldName);

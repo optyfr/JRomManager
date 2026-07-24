@@ -26,11 +26,17 @@ import org.junit.jupiter.api.Test;
 class NeutralToNodeFormatterTest {
 
     /**
-     * Test application that initializes JavaFX toolkit.
+     * Test application that initializes the JavaFX toolkit.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
+        /** The primary stage for the test application. */
         private Stage primaryStage;
 
+        /**
+         * Starts the test application with a minimal scene.
+         *
+         * @param primaryStage the primary stage for this application
+         */
         @Override
         public void start(Stage primaryStage) {
             this.primaryStage = primaryStage;
@@ -38,12 +44,20 @@ class NeutralToNodeFormatterTest {
             primaryStage.show();
         }
 
+        /**
+         * Returns the recorded stage for TestFX integration.
+         *
+         * @return the primary stage
+         */
         @Override
         public Stage recordedStage() {
             return primaryStage;
         }
     }
 
+    /**
+     * Verifies that {@code null} input returns an empty list.
+     */
     @Test
     @DisplayName("Should return empty list for null input")
     void shouldReturnEmptyListForNullInput() {
@@ -54,6 +68,9 @@ class NeutralToNodeFormatterTest {
                 .isEmpty();
     }
 
+    /**
+     * Verifies that plain text is converted to a single {@link Label} with matching text.
+     */
     @Test
     @DisplayName("Should return single label for plain text")
     void shouldReturnSingleLabelForPlainText() {
@@ -71,6 +88,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo("Plain text");
     }
 
+    /**
+     * Verifies that an empty string is converted to a single {@link Label} with empty text.
+     */
     @Test
     @DisplayName("Should return single label for empty string")
     void shouldReturnSingleLabelForEmptyString() {
@@ -88,6 +108,9 @@ class NeutralToNodeFormatterTest {
                 .isEmpty();
     }
 
+    /**
+     * Verifies that a simple label XML element is converted to a {@link Label} with matching text.
+     */
     @Test
     @DisplayName("Should parse simple label")
     void shouldParseSimpleLabel() {
@@ -106,6 +129,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo("Test Label");
     }
 
+    /**
+     * Verifies that a label with a color attribute is rendered with the correct text fill.
+     */
     @Test
     @DisplayName("Should parse label with color attribute")
     void shouldParseLabelWithColorAttribute() {
@@ -124,6 +150,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(Color.RED);
     }
 
+    /**
+     * Verifies that a label with {@code bold="true"} receives the bold font-weight style.
+     */
     @Test
     @DisplayName("Should parse label with bold attribute")
     void shouldParseLabelWithBoldAttribute() {
@@ -142,6 +171,9 @@ class NeutralToNodeFormatterTest {
                 .contains("-fx-font-weight: bold;");
     }
 
+    /**
+     * Verifies that a label with {@code italic="true"} receives the italic font-style.
+     */
     @Test
     @DisplayName("Should parse label with italic attribute")
     void shouldParseLabelWithItalicAttribute() {
@@ -160,6 +192,9 @@ class NeutralToNodeFormatterTest {
                 .contains("-fx-font-style: italic;");
     }
 
+    /**
+     * Verifies that a label with both {@code bold} and {@code italic} attributes receives both styles.
+     */
     @Test
     @DisplayName("Should parse label with both bold and italic attributes")
     void shouldParseLabelWithBothBoldAndItalicAttributes() {
@@ -181,6 +216,9 @@ class NeutralToNodeFormatterTest {
                 .contains("-fx-font-style: italic;");
     }
 
+    /**
+     * Verifies that a progress bar element with no attributes uses default width, height, and zero progress.
+     */
     @Test
     @DisplayName("Should parse progress bar with default values")
     void shouldParseProgressBarWithDefaultValues() {
@@ -205,6 +243,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(0.0);
     }
 
+    /**
+     * Verifies that a progress bar element with custom width, value, and max attributes computes the correct progress ratio.
+     */
     @Test
     @DisplayName("Should parse progress bar with custom values")
     void shouldParseProgressBarWithCustomValues() {
@@ -223,6 +264,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(0.5);
     }
 
+    /**
+     * Verifies that a progress bar with a value less than max computes a fractional progress ratio.
+     */
     @Test
     @DisplayName("Should parse progress bar with partial progress")
     void shouldParseProgressBarWithPartialProgress() {
@@ -241,6 +285,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(0.125);
     }
 
+    /**
+     * Verifies that a progress bar with value equal to max produces a full progress ratio of {@code 1.0}.
+     */
     @Test
     @DisplayName("Should parse progress bar with full progress")
     void shouldParseProgressBarWithFullProgress() {
@@ -256,6 +303,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(1.0);
     }
 
+    /**
+     * Verifies that a document containing both a label and a progress bar produces both nodes in order.
+     */
     @Test
     @DisplayName("Should parse document with label and progress")
     void shouldParseDocumentWithLabelAndProgress() {
@@ -283,6 +333,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(0.75);
     }
 
+    /**
+     * Verifies that a document with multiple label elements produces a label node for each element.
+     */
     @Test
     @DisplayName("Should parse document with multiple labels")
     void shouldParseDocumentWithMultipleLabels() {
@@ -303,6 +356,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo("Third");
     }
 
+    /**
+     * Verifies that a document with multiple progress bar elements produces a progress bar node for each element.
+     */
     @Test
     @DisplayName("Should parse document with multiple progress bars")
     void shouldParseDocumentWithMultipleProgressBars() {
@@ -323,6 +379,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo(0.75);
     }
 
+    /**
+     * Verifies that a complex document with mixed elements (colored label, full progress, plain label) parses all correctly.
+     */
     @Test
     @DisplayName("Should parse complex document with mixed elements")
     void shouldParseComplexDocumentWithMixedElements() {
@@ -352,6 +411,9 @@ class NeutralToNodeFormatterTest {
                 .isEqualTo("Complete");
     }
 
+    /**
+     * Verifies that malformed XML input is handled gracefully without throwing exceptions.
+     */
     @Test
     @DisplayName("Should handle malformed XML gracefully")
     void shouldHandleMalformedXmlGracefully() {
@@ -366,6 +428,9 @@ class NeutralToNodeFormatterTest {
                 .isInstanceOf(Label.class);
     }
 
+    /**
+     * Verifies that an empty document element returns an empty node list.
+     */
     @Test
     @DisplayName("Should handle empty document")
     void shouldHandleEmptyDocument() {
@@ -377,6 +442,9 @@ class NeutralToNodeFormatterTest {
                 .isEmpty();
     }
 
+    /**
+     * Verifies that a document containing only whitespace is treated as text and converted to a label.
+     */
     @Test
     @DisplayName("Should handle document with only whitespace")
     void shouldHandleDocumentWithOnlyWhitespace() {

@@ -60,8 +60,13 @@ class ProfilePanelControllerTest {
      * with all FXML fields injected via reflection and mocks for Sessions.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
+        /** The primary stage used for the test application. */
         private Stage primaryStage;
+
+        /** The controller instance shared across test methods. */
         private static ProfilePanelController controller;
+
+        /** The shared mocked static {@link Sessions} scope. */
         private static MockedStatic<Sessions> sessionsMock;
 
         @Override
@@ -119,6 +124,7 @@ class ProfilePanelControllerTest {
             primaryStage.show();
         }
 
+        /** Injects a value into a private field of the target object using reflection. */
         private static void injectField(Object target, String fieldName, Object value) {
             try {
                 var field = ProfilePanelController.class.getDeclaredField(fieldName);

@@ -50,18 +50,23 @@ class HaveNTotalCellFactoryTest {
         }
     }
 
+    /** The cell factory instance under test. */
     private HaveNTotalCellFactory<Object> cellFactory;
+    /** The table view to which the cell factory is attached. */
     private TableView<Object> tableView;
+    /** The table row that hosts the cell during tests. */
     private TableRow<Object> tableRow;
 
+    /**
+     * Initializes the cell factory and its parent table components before each test.
+     */
     @BeforeEach
     void setUp() {
         cellFactory = new HaveNTotalCellFactory<>();
         tableView = new TableView<>();
         tableRow = new TableRow<>();
         cellFactory.updateTableView(tableView);
-        cellFactory.updateIndex(-1); // Initialize the cell
-        // Set up the table row
+        cellFactory.updateIndex(-1);
         cellFactory.updateTableRow(tableRow);
     }
 
@@ -80,12 +85,18 @@ class HaveNTotalCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that the cell factory can be instantiated.
+     */
     @Test
     @DisplayName("Should create HaveNTotalCellFactory")
     void shouldCreateHaveNTotalCellFactory() {
         assertThat(cellFactory).as("Cell factory should be created").isNotNull();
     }
 
+    /**
+     * Verifies that a {@code null} item produces empty text and no graphic.
+     */
     @Test
     @DisplayName("Should display empty text for null value")
     void shouldDisplayEmptyTextForNullValue() {
@@ -95,6 +106,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that an empty cell state clears both text and graphic.
+     */
     @Test
     @DisplayName("Should display empty text for empty cell")
     void shouldDisplayEmptyTextForEmptyCell() {
@@ -105,6 +119,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null for empty cell").isNull();
     }
 
+    /**
+     * Verifies the display when both have and total counts are {@code null}.
+     */
     @Test
     @DisplayName("Should display ?/? when both have and total are null")
     void shouldDisplayQuestionMarksWhenBothNull() {
@@ -117,6 +134,10 @@ class HaveNTotalCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that a {@code null} have count displays as {@code ?} while the total count
+     * displays normally.
+     */
     @Test
     @DisplayName("Should display ?/total when have is null but total is not")
     void shouldDisplayQuestionMarkForHaveWhenTotalNotNull() {
@@ -136,6 +157,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(totalText.getText()).as("Total text should be /10").isEqualTo("/10");
     }
 
+    /**
+     * Verifies that both have and total counts are displayed when non-null.
+     */
     @Test
     @DisplayName("Should display have/total when both are not null")
     void shouldDisplayHaveAndTotalWhenBothNotNull() {
@@ -155,6 +179,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(totalText.getText()).as("Total text should be /10").isEqualTo("/10");
     }
 
+    /**
+     * Verifies the gray color used for a question mark when the row is not selected.
+     */
     @Test
     @DisplayName("Should use gray color for ? when row is not selected")
     void shouldUseGrayColorForQuestionMarkWhenNotSelected() {
@@ -169,6 +196,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(haveText.getFill()).as("Have text should be gray").isEqualTo(Color.GRAY);
     }
 
+    /**
+     * Verifies the light gray color used for a question mark when the row is selected.
+     */
     @Test
     @DisplayName("Should use light gray color for ? when row is selected")
     void shouldUseLightGrayColorForQuestionMarkWhenSelected() {
@@ -183,6 +213,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(haveText.getFill()).as("Have text should be light gray").isEqualTo(Color.LIGHTGRAY);
     }
 
+    /**
+     * Verifies the black color for the total count when the row is not selected.
+     */
     @Test
     @DisplayName("Should use black color for total when row is not selected")
     void shouldUseBlackColorForTotalWhenNotSelected() {
@@ -197,6 +230,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(totalText.getFill()).as("Total text should be black").isEqualTo(Color.BLACK);
     }
 
+    /**
+     * Verifies the white color for the total count when the row is selected.
+     */
     @Test
     @DisplayName("Should use white color for total when row is selected")
     void shouldUseWhiteColorForTotalWhenSelected() {
@@ -211,6 +247,9 @@ class HaveNTotalCellFactoryTest {
         assertThat(totalText.getFill()).as("Total text should be white").isEqualTo(Color.WHITE);
     }
 
+    /**
+     * Verifies that a have count of 0 with a positive total count renders as red.
+     */
     @Test
     @DisplayName("Should use red color for have when have is 0 and total > 0")
     void shouldUseRedColorWhenHaveIsZero() {
@@ -226,6 +265,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#cc0000"));
     }
 
+    /**
+     * Verifies the light red color when have is 0 and the row is selected.
+     */
     @Test
     @DisplayName("Should use light red color for have when have is 0 and row is selected")
     void shouldUseLightRedColorWhenHaveIsZeroAndSelected() {
@@ -241,6 +283,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#ffaaaa"));
     }
 
+    /**
+     * Verifies that equal have and total counts render as green.
+     */
     @Test
     @DisplayName("Should use green color for have when have equals total")
     void shouldUseGreenColorWhenHaveEqualsTotal() {
@@ -256,6 +301,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#00aa00"));
     }
 
+    /**
+     * Verifies the light green color when have equals total and the row is selected.
+     */
     @Test
     @DisplayName("Should use light green color for have when have equals total and row is selected")
     void shouldUseLightGreenColorWhenHaveEqualsTotalAndSelected() {
@@ -271,6 +319,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#aaffaa"));
     }
 
+    /**
+     * Verifies that a partial have count renders as orange.
+     */
     @Test
     @DisplayName("Should use orange color for have when have is between 0 and total")
     void shouldUseOrangeColorWhenHaveIsBetweenZeroAndTotal() {
@@ -286,6 +337,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#cc8800"));
     }
 
+    /**
+     * Verifies the light orange color for partial counts when the row is selected.
+     */
     @Test
     @DisplayName("Should use light orange color for have when have is between 0 and total and row is selected")
     void shouldUseLightOrangeColorWhenHaveIsBetweenZeroAndTotalAndSelected() {
@@ -301,6 +355,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(Color.web("#ffaa88"));
     }
 
+    /**
+     * Verifies that the cell content is center-aligned.
+     */
     @Test
     @DisplayName("Should center align the cell content")
     void shouldCenterAlignCellContent() {
@@ -312,6 +369,9 @@ class HaveNTotalCellFactoryTest {
             .isEqualTo(javafx.geometry.Pos.CENTER);
     }
 
+    /**
+     * Verifies that the inner {@link HBox} content is also center-aligned.
+     */
     @Test
     @DisplayName("Should center align HBox content")
     void shouldCenterAlignHBoxContent() {

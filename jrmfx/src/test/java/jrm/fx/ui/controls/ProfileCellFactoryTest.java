@@ -54,13 +54,20 @@ class ProfileCellFactoryTest {
         }
     }
 
+    /** Temporary directory for creating test profile files. */
     @TempDir
     Path tempDir;
 
+    /** The cell factory under test. */
     private ProfileCellFactory cellFactory;
+    /** The table view used by the tests. */
     private TableView<ProfileNFO> tableView;
+    /** The table row used to control selection state. */
     private TableRow<ProfileNFO> tableRow;
 
+    /**
+     * Initializes a fresh cell factory, table view, and table row before each test.
+     */
     @BeforeEach
     void setUp() {
         cellFactory = new ProfileCellFactory();
@@ -205,12 +212,18 @@ class ProfileCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that a {@link ProfileCellFactory} can be constructed.
+     */
     @Test
     @DisplayName("Should create ProfileCellFactory")
     void shouldCreateProfileCellFactory() {
         assertThat(cellFactory).as("Cell factory should be created").isNotNull();
     }
 
+    /**
+     * Verifies that the cell text and graphic are empty when the item is {@code null}.
+     */
     @Test
     @DisplayName("Should display empty text for null value")
     void shouldDisplayEmptyTextForNullValue() {
@@ -221,6 +234,10 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell text and graphic are empty when the cell is marked as empty,
+     * even with a valid profile item.
+     */
     @Test
     @DisplayName("Should display empty text for empty cell")
     void shouldDisplayEmptyTextForEmptyCell() throws IOException {
@@ -232,6 +249,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell text matches the profile's name when a non-empty item is displayed.
+     */
     @Test
     @DisplayName("Should display profile name")
     void shouldDisplayProfileName() throws IOException {
@@ -242,6 +262,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getText()).as("Text should display profile name").isEqualTo("Test Profile");
     }
 
+    /**
+     * Verifies that an up-to-date profile is styled with green color ({@code #00aa00}) when the row is not selected.
+     */
     @Test
     @DisplayName("Should apply green color for UPTODATE status when not selected")
     void shouldApplyGreenColorForUpToDateStatusWhenNotSelected() throws IOException {
@@ -253,6 +276,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be green for UPTODATE").contains("#00aa00");
     }
 
+    /**
+     * Verifies that a selected up-to-date profile is styled with light green ({@code #aaffaa}).
+     */
     @Test
     @DisplayName("Should apply light green color for UPTODATE status when selected")
     void shouldApplyLightGreenColorForUpToDateStatusWhenSelected() throws IOException {
@@ -264,6 +290,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be light green for selected UPTODATE").contains("#aaffaa");
     }
 
+    /**
+     * Verifies that a profile needing update is styled with orange color ({@code #cc8800}) when not selected.
+     */
     @Test
     @DisplayName("Should apply orange color for NEEDUPDATE status when not selected")
     void shouldApplyOrangeColorForNeedUpdateStatusWhenNotSelected() throws IOException {
@@ -275,6 +304,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be orange for NEEDUPDATE").contains("#cc8800");
     }
 
+    /**
+     * Verifies that a selected profile needing update is styled with light orange ({@code #ffaa88}).
+     */
     @Test
     @DisplayName("Should apply light orange color for NEEDUPDATE status when selected")
     void shouldApplyLightOrangeColorForNeedUpdateStatusWhenSelected() throws IOException {
@@ -286,6 +318,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be light orange for selected NEEDUPDATE").contains("#ffaa88");
     }
 
+    /**
+     * Verifies that a profile whose MAME executable is not found is styled with red ({@code #cc0000}) when not selected.
+     */
     @Test
     @DisplayName("Should apply red color for NOTFOUND status when not selected")
     void shouldApplyRedColorForNotFoundStatusWhenNotSelected() throws IOException {
@@ -297,6 +332,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be red for NOTFOUND").contains("#cc0000");
     }
 
+    /**
+     * Verifies that a selected profile with NOTFOUND status is styled with light red ({@code #ffaaaa}).
+     */
     @Test
     @DisplayName("Should apply light red color for NOTFOUND status when selected")
     void shouldApplyLightRedColorForNotFoundStatusWhenSelected() throws IOException {
@@ -308,6 +346,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be light red for selected NOTFOUND").contains("#ffaaaa");
     }
 
+    /**
+     * Verifies that a profile with unknown MAME status is styled with black ({@code #000000}) when not selected.
+     */
     @Test
     @DisplayName("Should apply default black color for unknown status when not selected")
     void shouldApplyDefaultBlackColorForUnknownStatusWhenNotSelected() throws IOException {
@@ -319,6 +360,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be black for unknown status").contains("#000000");
     }
 
+    /**
+     * Verifies that a selected profile with unknown MAME status is styled with white ({@code #ffffff}).
+     */
     @Test
     @DisplayName("Should apply default white color for unknown status when selected")
     void shouldApplyDefaultWhiteColorForUnknownStatusWhenSelected() throws IOException {
@@ -330,6 +374,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be white for selected unknown status").contains("#ffffff");
     }
 
+    /**
+     * Verifies that a tooltip is set and contains the profile name when a UPTODATE profile is displayed.
+     */
     @Test
     @DisplayName("Should set tooltip for UPTODATE status")
     void shouldSetTooltipForUpToDateStatus() throws IOException {
@@ -341,6 +388,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getTooltip().getText()).as("Tooltip should mention profile name").contains("Test Profile");
     }
 
+    /**
+     * Verifies that a tooltip is set and contains the profile name when a NEEDUPDATE profile is displayed.
+     */
     @Test
     @DisplayName("Should set tooltip for NEEDUPDATE status")
     void shouldSetTooltipForNeedUpdateStatus() throws IOException {
@@ -352,6 +402,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getTooltip().getText()).as("Tooltip should mention profile name").contains("Test Profile");
     }
 
+    /**
+     * Verifies that a tooltip is set and contains the profile name when a NOTFOUND profile is displayed.
+     */
     @Test
     @DisplayName("Should set tooltip for NOTFOUND status")
     void shouldSetTooltipForNotFoundStatus() throws IOException {
@@ -363,6 +416,9 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getTooltip().getText()).as("Tooltip should mention profile name").contains("Test Profile");
     }
 
+    /**
+     * Verifies that updating the cell with different profile items correctly switches the displayed name.
+     */
     @Test
     @DisplayName("Should handle different profile names")
     void shouldHandleDifferentProfileNames() throws IOException {
@@ -376,6 +432,10 @@ class ProfileCellFactoryTest {
         assertThat(cellFactory.getText()).as("Text should display second profile name").isEqualTo("Profile Two");
     }
 
+    /**
+     * Verifies that the cell text and graphic are cleared when the cell transitions to empty,
+     * even though the style may remain from the previous non-empty update.
+     */
     @Test
     @DisplayName("Should not apply style when cell becomes empty")
     void shouldNotApplyStyleWhenCellBecomesEmpty() throws IOException {

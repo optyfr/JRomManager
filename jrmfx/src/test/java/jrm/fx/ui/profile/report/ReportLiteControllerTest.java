@@ -94,6 +94,9 @@ class ReportLiteControllerTest {
 		}
 	}
 
+	/**
+	 * Verifies that the controller is properly initialized by {@link TestApp}.
+	 */
 	@Test
 	@DisplayName("Should initialize controller")
 	void shouldInitializeController() {
@@ -101,6 +104,9 @@ class ReportLiteControllerTest {
 		assertThat(controller).isNotNull();
 	}
 
+	/**
+	 * Verifies that the embedded {@link ReportViewController} field is injected and non-null.
+	 */
 	@Test
 	@DisplayName("Should have embedded ReportViewController")
 	void shouldHaveEmbeddedReportViewController() {
@@ -109,6 +115,10 @@ class ReportLiteControllerTest {
 		assertThat(viewController).as("embedded view controller should be set").isNotNull();
 	}
 
+	/**
+	 * Verifies that calling {@code initialize} a second time does not throw an exception
+	 * and leaves the controller in a usable state.
+	 */
 	@Test
 	@DisplayName("Should handle initialize without error")
 	void shouldHandleInitializeWithoutError() {
@@ -118,6 +128,12 @@ class ReportLiteControllerTest {
 		assertThat(controller).as("controller should still be available after re-initialize").isNotNull();
 	}
 
+	/**
+	 * Verifies that the controller class declares the {@code initialize} method expected
+	 * by the {@code Initializable} contract.
+	 *
+	 * @throws Exception if the method cannot be found
+	 */
 	@Test
 	@DisplayName("Should have initialize method from Initializable")
 	void shouldHaveInitializeMethodFromInitializable() throws Exception {
@@ -126,6 +142,11 @@ class ReportLiteControllerTest {
 		assertThat(initMethod).as("initialize method should exist").isNotNull();
 	}
 
+	/**
+	 * Verifies that the {@code onClose} method is declared for FXML binding.
+	 *
+	 * @throws Exception if the method cannot be found
+	 */
 	@Test
 	@DisplayName("Should have onClose method defined")
 	void shouldHaveOnCloseMethodDefined() throws Exception {
@@ -133,6 +154,12 @@ class ReportLiteControllerTest {
 		assertThat(onCloseMethod).as("onClose(ActionEvent) method exists for FXML").isNotNull();
 	}
 
+	/**
+	 * Verifies that invoking {@code onClose} hides the primary stage, and then restores
+	 * it for subsequent tests.
+	 *
+	 * @throws Exception if the reflection-based invocation or stage operations fail
+	 */
 	@Test
 	@DisplayName("Should close stage when onClose is invoked")
 	void shouldCloseStageWhenOnCloseIsInvoked() throws Exception {
@@ -170,6 +197,15 @@ class ReportLiteControllerTest {
 		restoreFuture.get(1000, java.util.concurrent.TimeUnit.MILLISECONDS);
 	}
 
+	/**
+	 * Retrieves a private field value from an object via reflection.
+	 *
+	 * @param <T>       the expected field type
+	 * @param target    the object whose field to read
+	 * @param fieldName the name of the field
+	 * @return the field value, cast to {@code T}
+	 * @throws RuntimeException if the field cannot be accessed
+	 */
 	@SuppressWarnings("unchecked")
 	private static <T> T getField(Object target, String fieldName) {
 		try {

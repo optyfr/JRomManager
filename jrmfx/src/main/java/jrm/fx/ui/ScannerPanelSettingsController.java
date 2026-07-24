@@ -102,7 +102,7 @@ public class ScannerPanelSettingsController implements Initializable {
     @FXML
     private Pane settingsPane;
 
-    /** The Pleasuredome MAME presets context menu. */
+    /** The settings pane context menu (Pleasuredome MAME presets and other actions). */
     @FXML
     private ContextMenu catVerMenu;
 
@@ -176,6 +176,7 @@ public class ScannerPanelSettingsController implements Initializable {
      */
     private @Getter ProfileSettings settings;
     
+    /** The destination exclude glob patterns context menu. */
     @FXML
     ContextMenu dstExcludeGlobMenu;
     /** The menu item to add a destination exclude glob pattern. */

@@ -42,13 +42,13 @@ import jrm.security.Session;
  * @since 2.5
  */
 public class Dir2DatController extends BaseController {
-    /** FXML UI components for the Dir2Dat panel. */
+    /** FXML UI component for the include empty directories checkbox. */
     @FXML
     CheckBox includeEmptyDirs;
     /** FXML UI component for the match current profile checkbox. */
     @FXML
     CheckBox matchCurrentProfile;
-    /** FXML UI component for the "do not scan archives" checkbox. */
+    /** FXML UI component for the do not scan archives checkbox. */
     @FXML
     CheckBox doNotScan;
     /** FXML UI component for the junk subfolders checkbox. */
@@ -66,61 +66,61 @@ public class Dir2DatController extends BaseController {
     /** FXML UI component for the scan subfolders checkbox. */
     @FXML
     CheckBox scanSubfolders;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the name metadata text field. */
     @FXML
     TextField name;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the description metadata text field. */
     @FXML
     TextField description;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the version metadata text field. */
     @FXML
     TextField version;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the author metadata text field. */
     @FXML
     TextField author;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the comment metadata text field. */
     @FXML
     TextField comment;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the category metadata text field. */
     @FXML
     TextField category;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the date metadata text field. */
     @FXML
     TextField date;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the email metadata text field. */
     @FXML
     TextField email;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the homepage metadata text field. */
     @FXML
     TextField homepage;
-    /** FXML UI components for the metadata text fields. */
+    /** FXML UI component for the URL metadata text field. */
     @FXML
     TextField url;
-    /** FXML UI components for the source directory and destination DAT file selection. */
+    /** FXML UI component for the source directory text field. */
     @FXML
     TextField srcDir;
-    /** FXML UI components for the source directory and destination DAT file selection. */
+    /** FXML UI component for the destination DAT file text field. */
     @FXML
     TextField dstDat;
-    /** FXML UI components for the source directory and destination DAT file selection. */
+    /** FXML UI component for the source directory browse button. */
     @FXML
     Button srcDirBtn;
-    /** FXML UI components for the source directory and destination DAT file selection. */
+    /** FXML UI component for the destination DAT file browse button. */
     @FXML
     Button dstDatBtn;
-    /** FXML UI components for the generate button and format selection. */
+    /** FXML UI component for the generate button. */
     @FXML
     Button generate;
-    /** FXML UI components for the format selection radio buttons. */
+    /** FXML UI component for the format toggle group. */
     @FXML
     ToggleGroup format;
-    /** FXML UI components for the format selection radio buttons. */
+    /** FXML UI component for the MAME format radio button. */
     @FXML
     RadioButton formatMame;
-    /** FXML UI components for the format selection radio buttons. */
+    /** FXML UI component for the Logiqx DAT format radio button. */
     @FXML
     RadioButton formatLogiqxDat;
-    /** FXML UI components for the format selection radio buttons. */
+    /** FXML UI component for the Software List format radio button. */
     @FXML
     RadioButton formatSWList;
 
@@ -321,7 +321,7 @@ public class Dir2DatController extends BaseController {
     }
 
     /**
-     * Dir2Dat
+     * Starts the Dir2Dat conversion on a virtual thread.
      */
     private void dir2dat() {
         try {
@@ -336,7 +336,6 @@ public class Dir2DatController extends BaseController {
      * Creates the Dir2Dat background task.
      *
      * @return the progress task
-     * 
      * @throws IOException if an I/O error occurs
      * @throws URISyntaxException if the FXML resource URI is invalid
      */
@@ -388,7 +387,6 @@ public class Dir2DatController extends BaseController {
      * Initializes the directory scan options from settings.
      *
      * @param session the security session
-     * 
      * @return the scan options
      */
     private EnumSet<DirScan.Options> initOptions(final Session session) {

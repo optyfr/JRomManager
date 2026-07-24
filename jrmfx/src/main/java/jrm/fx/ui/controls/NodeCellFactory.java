@@ -16,6 +16,15 @@ import jrm.fx.ui.status.NeutralToNodeFormatter;
  * @since 2.5
  */
 public final class NodeCellFactory<T> extends TableCell<T, String> {
+    /**
+     * Updates the cell content by parsing the item into JavaFX nodes.
+     * <p>
+     * The string is converted via {@link NeutralToNodeFormatter} and rendered inside a
+     * {@link javafx.scene.text.TextFlow}. Empty or null items clear the cell.
+     *
+     * @param item  the neutral markup string to render, or {@code null}
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     protected void updateItem(String item, boolean empty) {
         setGraphic(null);

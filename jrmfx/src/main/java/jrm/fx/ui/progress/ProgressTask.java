@@ -40,7 +40,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
     /** The progress dialog. */
     private final Progress progress;
 
-    /** Collected error messages. */
+    /**
+     * Collected error messages.
+     * @param errors the collected error messages
+     * @return the collected error messages
+     */
     private final List<String> errors = new ArrayList<>();
 
     /** Whether the task has been cancelled. */
@@ -120,6 +124,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
 
             }
 
+            /**
+             * Copy constructor.
+             *
+             * @param pb the progress bar data to copy from
+             */
             PB(PB pb) {
                 visibility = pb.visibility;
                 stringPainted = pb.stringPainted;
@@ -177,6 +186,11 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
             pb3 = new PB();
         }
 
+        /**
+         * Copy constructor.
+         *
+         * @param data the progress data snapshot to copy from
+         */
         PData(PData data) {
             threadCnt = data.threadCnt;
             multipleSubInfos = data.multipleSubInfos;
@@ -203,6 +217,12 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         progress = new Progress(owner, this);
     }
 
+    /**
+     * Initializes the info arrays for the given thread count and sub-info mode.
+     *
+     * @param threadCnt        the number of concurrent threads
+     * @param multipleSubInfos whether multiple sub-info panels are shown
+     */
     @Override
     public synchronized void setInfos(int threadCnt, Boolean multipleSubInfos) {
         this.data.threadCnt = threadCnt <= 0 ? Runtime.getRuntime().availableProcessors() : threadCnt;
@@ -228,6 +248,9 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         Platform.runLater(() -> progress.getController().extendInfos(data.threadCnt, data.multipleSubInfos));
     }
 
+    /**
+     * Clears all info entries and secondary progress bar message.
+     */
     @Override
     public void clearInfos() {
         for (var i = 0; i < data.infos.length; i++)
@@ -270,6 +293,14 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         return 0;
     }
 
+    /**
+     * Updates the primary progress bar with a message, current value, maximum, and sub-message.
+     *
+     * @param msg     the progress message, or {@code null} to leave unchanged
+     * @param val     the current value, or {@code null} to leave unchanged
+     * @param max     the maximum value, or {@code null} to leave unchanged
+     * @param submsg  the sub-message, or {@code null} to leave unchanged
+     */
     @Override
     public void setProgress(String msg, Integer val, Integer max, String submsg) {
         int offset = getOffset();
@@ -296,7 +327,9 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         sendSetProgress(1, force);
     }
 
+    /** Timestamp of the last UI update event. */
     private long lastEvent = 0;
+    /** The last progress data snapshot sent to the UI. */
     private PData lastPData = null;
 
     /**
@@ -368,6 +401,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
             pb.timeleft = HH_MM_SS_OF_HH_MM_SS_NONE; // $NON-NLS-1$
     }
 
+    /**
+     * Updates the secondary progress bar with a message, current value, and maximum.
+     *
+     * @param msg the progress message, or {@code null} to clear
+     * @param val the current value, or {@code null} to leave unchanged
+     * @param max the maximum value, or {@code null} to leave unchanged
+     */
     @Override
     public void setProgress2(String msg, Integer val, Integer max) {
         var force = false;
@@ -384,6 +424,13 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         sendSetProgress(2, force);
     }
 
+    /**
+     * Updates the tertiary progress bar with a message, current value, and maximum.
+     *
+     * @param msg the progress message, or {@code null} to clear
+     * @param val the current value, or {@code null} to leave unchanged
+     * @param max the maximum value, or {@code null} to leave unchanged
+     */
     @Override
     public void setProgress3(String msg, Integer val, Integer max) {
         var force = false;
@@ -400,11 +447,21 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         sendSetProgress(3, force);
     }
 
+    /**
+     * Returns the current value of the primary progress bar.
+     *
+     * @return the primary progress value
+     */
     @Override
     public int getCurrent() {
         return data.pb1.val;
     }
 
+    /**
+     * Returns the current value of the secondary progress bar.
+     *
+     * @return the secondary progress value
+     */
     @Override
     public int getCurrent2() {
         return data.pb2.val;
@@ -420,11 +477,19 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         return data.pb3.val;
     }
 
+    /**
+     * Returns whether the task has been cancelled.
+     *
+     * @return {@code true} if cancelled
+     */
     @Override
     public boolean isCancel() {
         return cancel;
     }
 
+    /**
+     * Marks the task as cancelled.
+     */
     @Override
     public void doCancel() {
         cancel = true;
@@ -449,33 +514,67 @@ public abstract class ProgressTask<V> extends Task<V> implements ProgressHandler
         Platform.runLater(() -> progress.getController().canCancel(canCancel));
     }
 
+    /**
+     * Wraps the given input stream with progress tracking.
+     *
+     * @param in  the input stream to wrap
+     * @param len the total length of the stream, or {@code null} if unknown
+     * @return a {@link ProgressInputStream} wrapping the given stream
+     */
     @Override
     public InputStream getInputStream(InputStream in, Integer len) {
         return new ProgressInputStream(in, len, this);
     }
 
+    /**
+     * Closes the progress dialog.
+     */
     @Override
     public void close() {
         progress.close();
     }
 
+    /**
+     * Appends an error message to the error list.
+     *
+     * @param error the error message to add
+     */
     @Override
     public void addError(String error) {
         errors.add(error);
     }
 
-    /** Progress handler option flags. */
+    /**
+     * The progress handler option flags.
+     * @param options the progress handler option flags
+     * @return the progress handler option flags
+     */
     private Set<Option> options = EnumSet.noneOf(Option.class);
 
+    /**
+     * Sets the progress handler option flags.
+     *
+     * @param first the first option
+     * @param rest  additional options
+     */
     @Override
     public void setOptions(Option first, Option... rest) {
         options = EnumSet.of(first, rest);
 
     }
 
-    /** The offset provider for multi-threaded progress reporting. */
+    /**
+     * The offset provider for multi-threaded progress reporting.
+     * @param offsetProvider the offset provider for multi-threaded progress reporting
+     * @return the offset provider for multi-threaded progress reporting
+     */
     private OffsetProvider offsetProvider = null;
 
+    /**
+     * Sets the offset provider for multi-threaded progress reporting.
+     *
+     * @param offsetProvider the offset provider to use
+     */
     @Override
     public void setOffsetProvider(OffsetProvider offsetProvider) {
         this.offsetProvider = offsetProvider;

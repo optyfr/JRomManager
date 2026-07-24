@@ -107,6 +107,9 @@ class ReportViewControllerTest {
 		}
 	}
 
+	/**
+	 * Verifies that the controller is properly initialized by {@link TestApp}.
+	 */
 	@Test
 	@DisplayName("Should initialize controller")
 	void shouldInitializeController() {
@@ -114,6 +117,9 @@ class ReportViewControllerTest {
 		assertThat(controller).isNotNull();
 	}
 
+	/**
+	 * Verifies that setting a {@code null} report produces an empty root node.
+	 */
 	@Test
 	@DisplayName("Should set null report")
 	void shouldSetNullReport() {
@@ -124,6 +130,9 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot().getValue()).isNull();
 	}
 
+	/**
+	 * Verifies that setting an empty report produces a root node with the mock report.
+	 */
 	@Test
 	@DisplayName("Should set empty report")
 	void shouldSetEmptyReport() {
@@ -136,6 +145,9 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot().getValue()).isEqualTo(mockReport);
 	}
 
+	/**
+	 * Verifies that setting a report with a single {@link SubjectSet} creates one child node.
+	 */
 	@Test
 	@DisplayName("Should set report with data")
 	void shouldSetReportWithData() {
@@ -150,6 +162,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot().getChildren()).hasSize(1);
 	}
 
+	/**
+	 * Verifies that calling {@code detail} with no tree selection does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle detail with no selection")
 	void shouldHandleDetailWithNoSelection() throws Exception {
@@ -163,6 +180,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getSelectionModel().getSelectedItem()).isNull();
 	}
 
+	/**
+	 * Verifies that calling {@code copyCrc} with no tree selection does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle copyCrc with no selection")
 	void shouldHandleCopyCrcWithNoSelection() throws Exception {
@@ -176,6 +198,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getSelectionModel().getSelectedItem()).isNull();
 	}
 
+	/**
+	 * Verifies that calling {@code copySha1} with no tree selection does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle copySha1 with no selection")
 	void shouldHandleCopySha1WithNoSelection() throws Exception {
@@ -189,6 +216,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getSelectionModel().getSelectedItem()).isNull();
 	}
 
+	/**
+	 * Verifies that calling {@code copyName} with no tree selection does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle copyName with no selection")
 	void shouldHandleCopyNameWithNoSelection() throws Exception {
@@ -202,6 +234,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getSelectionModel().getSelectedItem()).isNull();
 	}
 
+	/**
+	 * Verifies that calling {@code searchWeb} with no tree selection does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle searchWeb with no selection")
 	void shouldHandleSearchWebWithNoSelection() throws Exception {
@@ -215,6 +252,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getSelectionModel().getSelectedItem()).isNull();
 	}
 
+	/**
+	 * Verifies that calling {@code openAllNodes} on an empty tree does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle openAllNodes with empty tree")
 	void shouldHandleOpenAllNodesWithEmptyTree() throws Exception {
@@ -228,6 +270,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot()).isNotNull();
 	}
 
+	/**
+	 * Verifies that calling {@code closeAllNodes} on an empty tree does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle closeAllNodes with empty tree")
 	void shouldHandleCloseAllNodesWithEmptyTree() throws Exception {
@@ -241,6 +288,11 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot()).isNotNull();
 	}
 
+	/**
+	 * Verifies that calling {@code download} with a {@code null} report does not throw.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle download with null report")
 	void shouldHandleDownloadWithNullReport() throws Exception {
@@ -254,6 +306,12 @@ class ReportViewControllerTest {
 		assertThat(treeview.getRoot()).isNotNull();
 	}
 
+	/**
+	 * Verifies that the {@code showok} check menu item toggles correctly between
+	 * selected and deselected states.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle showok toggle")
 	void shouldHandleShowokToggle() throws Exception {
@@ -272,6 +330,12 @@ class ReportViewControllerTest {
 		assertThat(showok.isSelected()).isFalse();
 	}
 
+	/**
+	 * Verifies that the {@code hidemissing} check menu item toggles correctly between
+	 * selected and deselected states.
+	 *
+	 * @throws Exception if reflective method access fails
+	 */
 	@Test
 	@DisplayName("Should handle hidemissing toggle")
 	void shouldHandleHidemissingToggle() throws Exception {
@@ -290,6 +354,15 @@ class ReportViewControllerTest {
 		assertThat(hidemissing.isSelected()).isFalse();
 	}
 
+	/**
+	 * Retrieves a private field value from an object via reflection.
+	 *
+	 * @param <T>       the expected field type
+	 * @param target    the object whose field to read
+	 * @param fieldName the name of the field
+	 * @return the field value, cast to {@code T}
+	 * @throws RuntimeException if the field cannot be accessed
+	 */
 	@SuppressWarnings("unchecked")
 	private static <T> T getField(Object target, String fieldName) {
 		try {

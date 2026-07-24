@@ -165,6 +165,7 @@ class ScannerPanelSettingsControllerTest {
 			primaryStage.show();
 		}
 
+		/** Injects a value into a private field of the target object using reflection. */
 		private static void injectField(Object target, String fieldName, Object value) {
 			try {
 				Field field = target.getClass().getDeclaredField(fieldName);
@@ -366,12 +367,14 @@ class ScannerPanelSettingsControllerTest {
 		});
 	}
 
+	/** Invokes a private no-arg method on the controller via reflection. */
 	private void invokePrivateMethod(String methodName) throws Exception {
 		Method method = ScannerPanelSettingsController.class.getDeclaredMethod(methodName);
 		method.setAccessible(true);
 		method.invoke(TestApp.controller);
 	}
 
+	/** Retrieves a private field value from the controller via reflection. */
 	@SuppressWarnings("unchecked")
 	private <T> T getField(String fieldName) {
 		try {

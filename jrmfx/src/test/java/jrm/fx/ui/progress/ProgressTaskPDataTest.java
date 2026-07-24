@@ -13,10 +13,16 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ProgressTask.PData Unit Tests")
 class ProgressTaskPDataTest {
 
+    /**
+     * Tests for the {@code PB} progress bar data snapshot class.
+     */
     @Nested
     @DisplayName("PB (Progress Bar) inner class tests")
     class PBTests {
 
+        /**
+         * Verifies that a default-constructed {@code PB} has visibility disabled, zero progress, and {@code null} message.
+         */
         @Test
         @DisplayName("Should create PB with default values")
         void shouldCreatePBWithDefaultValues() {
@@ -32,6 +38,9 @@ class ProgressTaskPDataTest {
             assertThat(pb.timeleft).isNull();
         }
 
+        /**
+         * Verifies that a copy constructor produces a {@code PB} with all fields matching the original.
+         */
         @Test
         @DisplayName("Should create PB as copy of another PB")
         void shouldCreatePBAsCopyOfAnotherPB() {
@@ -57,6 +66,9 @@ class ProgressTaskPDataTest {
             assertThat(copy.timeleft).isEqualTo("00:05:00");
         }
 
+        /**
+         * Verifies that copied {@code PB} instances are independent of the original after construction.
+         */
         @Test
         @DisplayName("Should modify PB properties independently")
         void shouldModifyPBPropertiesIndependently() {
@@ -73,10 +85,16 @@ class ProgressTaskPDataTest {
         }
     }
 
+    /**
+     * Tests for the {@code PData} progress data snapshot class.
+     */
     @Nested
     @DisplayName("PData class tests")
     class PDataTests {
 
+        /**
+         * Verifies that a default-constructed {@code PData} has thread count 1, single info slot, and three progress bars.
+         */
         @Test
         @DisplayName("Should create PData with default values")
         void shouldCreatePDataWithDefaultValues() {
@@ -93,6 +111,9 @@ class ProgressTaskPDataTest {
             assertThat(data.pb3).isNotNull();
         }
 
+        /**
+         * Verifies that a copy constructor produces a {@code PData} with all fields matching the original.
+         */
         @Test
         @DisplayName("Should create PData as copy of another PData")
         void shouldCreatePDataAsCopyOfAnotherPData() {
@@ -116,6 +137,9 @@ class ProgressTaskPDataTest {
             assertThat(copy.pb3.val).isEqualTo(100);
         }
 
+        /**
+         * Verifies that each of the three progress bars can hold independent values.
+         */
         @Test
         @DisplayName("Should have independent progress bars")
         void shouldHaveIndependentProgressBars() {
@@ -130,6 +154,9 @@ class ProgressTaskPDataTest {
             assertThat(data.pb3.val).isEqualTo(30);
         }
 
+        /**
+         * Verifies that progress bars in a copied {@code PData} are independent of the original's bars.
+         */
         @Test
         @DisplayName("Should copy progress bars independently")
         void shouldCopyProgressBarsIndependently() {
@@ -149,6 +176,9 @@ class ProgressTaskPDataTest {
             assertThat(copy.pb3.val).isEqualTo(30);
         }
 
+        /**
+         * Verifies that info and sub-info arrays in a copy are independent of the original's arrays.
+         */
         @Test
         @DisplayName("Should copy info arrays independently")
         void shouldCopyInfoArraysIndependently() {
@@ -167,6 +197,9 @@ class ProgressTaskPDataTest {
             assertThat(copy.subinfos[0]).isEqualTo("Sub 1");
         }
 
+        /**
+         * Verifies that the thread count and info array can be sized for multiple threads.
+         */
         @Test
         @DisplayName("Should handle different thread counts")
         void shouldHandleDifferentThreadCounts() {
@@ -179,6 +212,9 @@ class ProgressTaskPDataTest {
             assertThat(data.infos).hasSize(8);
         }
 
+        /**
+         * Verifies that the {@code multipleSubInfos} flag can be set and sub-info arrays can be populated.
+         */
         @Test
         @DisplayName("Should handle multiple sub-infos flag")
         void shouldHandleMultipleSubInfosFlag() {

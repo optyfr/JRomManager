@@ -56,10 +56,16 @@ class NodeCellFactoryTest {
         }
     }
 
+    /** The cell factory under test. */
     private NodeCellFactory<String> cellFactory;
+    /** The table view used by the tests. */
     private TableView<String> tableView;
+    /** The table column bound to the cell factory. */
     private TableColumn<String, String> column;
 
+    /**
+     * Initializes a fresh cell factory, table view, and column before each test.
+     */
     @BeforeEach
     void setUp() {
         tableView = new TableView<>();
@@ -72,12 +78,18 @@ class NodeCellFactoryTest {
         cellFactory = new NodeCellFactory<>();
     }
 
+    /**
+     * Verifies that a {@link NodeCellFactory} can be constructed.
+     */
     @Test
     @DisplayName("Should create NodeCellFactory")
     void shouldCreateNodeCellFactory() {
         assertThat(cellFactory).as("Cell factory should be created").isNotNull();
     }
 
+    /**
+     * Verifies that the text and graphic are cleared when the item is {@code null}.
+     */
     @Test
     @DisplayName("Should set text empty for null item")
     void shouldSetTextEmptyForNullItem() {
@@ -87,6 +99,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the text and graphic are cleared when the cell is marked as empty.
+     */
     @Test
     @DisplayName("Should set text empty for empty cell")
     void shouldSetTextEmptyForEmptyCell() {
@@ -96,6 +111,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that a non-empty item produces a {@link TextFlow} graphic with text left null or empty.
+     */
     @Test
     @DisplayName("Should set graphic for non-empty item")
     void shouldSetGraphicForNonEmptyItem() {
@@ -108,6 +126,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be TextFlow").isInstanceOf(TextFlow.class);
     }
 
+    /**
+     * Verifies that the cell content is center-aligned.
+     */
     @Test
     @DisplayName("Should center align cell content")
     void shouldCenterAlignCellContent() {
@@ -116,6 +137,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getAlignment()).as("Cell should be center aligned").isEqualTo(Pos.CENTER);
     }
 
+    /**
+     * Verifies that a plain text item produces a {@link TextFlow} with at least one child node.
+     */
     @Test
     @DisplayName("Should create TextFlow with children for plain text")
     void shouldCreateTextFlowWithChildrenForPlainText() {
@@ -128,6 +152,9 @@ class NodeCellFactoryTest {
         assertThat(textFlow.getChildren()).as("TextFlow should have children").isNotEmpty();
     }
 
+    /**
+     * Verifies that XML content is parsed into a {@link TextFlow} with child nodes.
+     */
     @Test
     @DisplayName("Should create TextFlow with children for XML content")
     void shouldCreateTextFlowWithChildrenForXmlContent() {
@@ -141,6 +168,9 @@ class NodeCellFactoryTest {
         assertThat(textFlow.getChildren()).as("TextFlow should have children for XML").isNotEmpty();
     }
 
+    /**
+     * Verifies that the {@link TextFlow} text alignment is set to {@code LEFT}.
+     */
     @Test
     @DisplayName("Should set TextFlow alignment to LEFT")
     void shouldSetTextFlowAlignmentToLeft() {
@@ -154,6 +184,9 @@ class NodeCellFactoryTest {
             .isEqualTo(javafx.scene.text.TextAlignment.LEFT);
     }
 
+    /**
+     * Verifies that the {@link TextFlow} minimum width is set to {@link javafx.scene.layout.Region#USE_PREF_SIZE}.
+     */
     @Test
     @DisplayName("Should set TextFlow min width to USE_PREF_SIZE")
     void shouldSetTextFlowMinWidthToUsePrefSize() {
@@ -166,6 +199,9 @@ class NodeCellFactoryTest {
             .isEqualTo(StackPane.USE_PREF_SIZE);
     }
 
+    /**
+     * Verifies that the {@link TextFlow} preferred width is set to {@link javafx.scene.layout.Region#USE_COMPUTED_SIZE}.
+     */
     @Test
     @DisplayName("Should set TextFlow pref width to USE_COMPUTED_SIZE")
     void shouldSetTextFlowPrefWidthToUseComputedSize() {
@@ -178,6 +214,9 @@ class NodeCellFactoryTest {
             .isEqualTo(StackPane.USE_COMPUTED_SIZE);
     }
 
+    /**
+     * Verifies that the {@link TextFlow} preferred height is set to {@link javafx.scene.layout.Region#USE_PREF_SIZE}.
+     */
     @Test
     @DisplayName("Should set TextFlow pref height to USE_PREF_SIZE")
     void shouldSetTextFlowPrefHeightToUsePrefSize() {
@@ -190,6 +229,9 @@ class NodeCellFactoryTest {
             .isEqualTo(StackPane.USE_PREF_SIZE);
     }
 
+    /**
+     * Verifies that the graphic is cleared when the item transitions from non-null to {@code null}.
+     */
     @Test
     @DisplayName("Should clear graphic when item becomes null")
     void shouldClearGraphicWhenItemBecomesNull() {
@@ -200,6 +242,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the graphic is cleared when the cell transitions from non-empty to empty.
+     */
     @Test
     @DisplayName("Should clear graphic when cell becomes empty")
     void shouldClearGraphicWhenCellBecomesEmpty() {
@@ -210,6 +255,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getGraphic()).as("Graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that the cell style is empty after updating with a {@code null} item.
+     */
     @Test
     @DisplayName("Should clear style when item is null")
     void shouldClearStyleWhenItemIsNull() {
@@ -218,6 +266,9 @@ class NodeCellFactoryTest {
         assertThat(cellFactory.getStyle()).as("Style should be empty").isEmpty();
     }
 
+    /**
+     * Verifies that an empty string item still produces a {@link TextFlow} graphic.
+     */
     @Test
     @DisplayName("Should handle empty string")
     void shouldHandleEmptyString() {

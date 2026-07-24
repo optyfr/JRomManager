@@ -56,6 +56,10 @@ class DialogsBehaviorTest {
         }
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureErrorAlert} sets the title,
+     * header text, and a VBox content containing the exception message and stack trace.
+     */
     @Test
     @DisplayName("Should configure error alert with exception details")
     void shouldConfigureErrorAlertWithExceptionDetails() {
@@ -118,6 +122,10 @@ class DialogsBehaviorTest {
                 .contains("Test error message");
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureWarningAlert} sets the title to {@code "Warning"},
+     * a null header, and the provided message as content text.
+     */
     @Test
     @DisplayName("Should configure warning alert with message")
     void shouldConfigureWarningAlertWithMessage() {
@@ -155,6 +163,9 @@ class DialogsBehaviorTest {
                 .isEqualTo(message);
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureConfirmationAlert} sets both the title and the body message.
+     */
     @Test
     @DisplayName("Should configure confirmation alert with title and message")
     void shouldConfigureConfirmationAlertWithTitleAndMessage() {
@@ -193,6 +204,10 @@ class DialogsBehaviorTest {
                 .isEqualTo(message);
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureConfirmationAlert} replaces default buttons with
+     * the provided custom button types.
+     */
     @Test
     @DisplayName("Should configure confirmation alert with custom buttons")
     void shouldConfigureConfirmationAlertWithCustomButtons() {
@@ -226,6 +241,10 @@ class DialogsBehaviorTest {
                 .doesNotContain(ButtonType.OK, ButtonType.CANCEL);
     }
 
+    /**
+     * Verifies that passing {@code null} for the buttons vararg falls back to the default
+     * confirmation buttons (e.g., {@link ButtonType#OK}).
+     */
     @Test
     @DisplayName("Should configure confirmation alert with null buttons (use defaults)")
     void shouldConfigureConfirmationAlertWithNullButtons() {
@@ -254,6 +273,10 @@ class DialogsBehaviorTest {
                 .contains(ButtonType.OK);
     }
 
+    /**
+     * Verifies that passing an empty button array falls back to the default
+     * confirmation buttons (e.g., {@link ButtonType#OK}).
+     */
     @Test
     @DisplayName("Should configure confirmation alert with empty buttons array (use defaults)")
     void shouldConfigureConfirmationAlertWithEmptyButtonsArray() {
@@ -283,6 +306,10 @@ class DialogsBehaviorTest {
                 .contains(ButtonType.OK);
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureNodeConfirmationAlert} sets the custom
+     * content node in the alert's dialog pane.
+     */
     @Test
     @DisplayName("Should configure node confirmation alert with custom content")
     void shouldConfigureNodeConfirmationAlertWithCustomContent() {
@@ -323,6 +350,10 @@ class DialogsBehaviorTest {
                 .isEqualTo("Custom content node");
     }
 
+    /**
+     * Verifies that {@link Dialogs#configureNodeConfirmationAlert} uses the provided
+     * custom button types instead of the defaults.
+     */
     @Test
     @DisplayName("Should configure node confirmation alert with custom buttons")
     void shouldConfigureNodeConfirmationAlertWithCustomButtons() {
@@ -353,6 +384,10 @@ class DialogsBehaviorTest {
                 .containsExactly(yesButton, noButton);
     }
 
+    /**
+     * Verifies that passing {@code null} for the buttons vararg in a node confirmation alert
+     * falls back to the default button set.
+     */
     @Test
     @DisplayName("Should configure node confirmation alert with null buttons (use defaults)")
     void shouldConfigureNodeConfirmationAlertWithNullButtons() {

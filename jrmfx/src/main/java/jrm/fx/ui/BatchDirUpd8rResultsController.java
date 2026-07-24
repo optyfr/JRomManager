@@ -98,7 +98,7 @@ public class BatchDirUpd8rResultsController extends BaseController {
      * Returns the number of sets that were missing for a given DAT statistics object.
      * <p>
      * This method calculates the number of missing sets by subtracting the sum of sets that were found, created, and fixed from the
-     * total number of sets. *
+     * total number of sets.
      * 
      * @param stats the DAT statistics object
      * 

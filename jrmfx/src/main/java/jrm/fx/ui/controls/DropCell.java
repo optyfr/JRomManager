@@ -68,6 +68,14 @@ public class DropCell extends TableCell<SrcDstResult, String> {
         cb.call(sdrlist, files);
     }
 
+    /**
+     * Updates the cell content with the string value.
+     * <p>
+     * Shows the text with leading ellipsis overrun and a tooltip for non-empty cells.
+     *
+     * @param item  the string to display
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     protected void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);

@@ -56,6 +56,9 @@ class ButtonCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that a button is rendered in each table cell for every row.
+     */
     @Test
     @DisplayName("Should render button in each cell")
     void shouldRenderButtonInEachCell(TestApp application, TestFxDescriptionSupplier description) {
@@ -65,6 +68,9 @@ class ButtonCellFactoryTest {
                 .hasSize(3);
     }
 
+    /**
+     * Verifies that buttons rendered in table cells display the correct button text.
+     */
     @Test
     @DisplayName("Should render button with correct text")
     void shouldRenderButtonWithCorrectText(TestApp application, TestFxDescriptionSupplier description) {
@@ -81,6 +87,9 @@ class ButtonCellFactoryTest {
                 .isEqualTo("Click Me");
     }
 
+    /**
+     * Verifies that clicking a button fires the registered click handler, incrementing the click count.
+     */
     @Test
     @DisplayName("Should handle button click")
     void shouldHandleButtonClick(TestApp application, TestFxDescriptionSupplier description) {

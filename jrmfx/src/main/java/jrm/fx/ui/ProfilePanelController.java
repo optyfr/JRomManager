@@ -83,6 +83,7 @@ import lombok.Setter;
  * dropping the cache, and updating from MAME.
  *
  * @author optyfr
+ * @since 2.5
  */
 public class ProfilePanelController implements Initializable {
     /** Button used to load the currently selected profile. */

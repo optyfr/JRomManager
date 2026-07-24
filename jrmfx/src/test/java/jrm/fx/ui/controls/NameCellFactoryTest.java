@@ -50,6 +50,9 @@ class NameCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that name cells are rendered for all three game name rows.
+     */
     @Test
     @DisplayName("Should render name cells with data")
     void shouldRenderNameCellsWithData(TestApp application, TestFxDescriptionSupplier description) {
@@ -65,6 +68,9 @@ class NameCellFactoryTest {
                 .hasSize(3);
     }
 
+    /**
+     * Verifies that the cell containing {@code "Game 1"} is rendered.
+     */
     @Test
     @DisplayName("Should render first game name")
     void shouldRenderFirstGameName(TestApp application, TestFxDescriptionSupplier description) {
@@ -81,6 +87,9 @@ class NameCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that the cell containing {@code "Game 2"} is rendered.
+     */
     @Test
     @DisplayName("Should render second game name")
     void shouldRenderSecondGameName(TestApp application, TestFxDescriptionSupplier description) {
@@ -97,6 +106,9 @@ class NameCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that the cell containing {@code "Game 3"} is rendered.
+     */
     @Test
     @DisplayName("Should render third game name")
     void shouldRenderThirdGameName(TestApp application, TestFxDescriptionSupplier description) {

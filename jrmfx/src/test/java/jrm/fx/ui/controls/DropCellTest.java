@@ -50,10 +50,16 @@ class DropCellTest {
         }
     }
 
+    /** The table view used by the tests. */
     private TableView<SrcDstResult> tableView;
+    /** Results collected by the drop callback. */
     private List<SrcDstResult> callbackResults;
+    /** Files collected by the drop callback. */
     private List<File> callbackFiles;
 
+    /**
+     * Sets up a fresh table view and callback lists before each test.
+     */
     @BeforeEach
     void setUp() {
         tableView = new TableView<>();
@@ -61,6 +67,9 @@ class DropCellTest {
         callbackFiles = new ArrayList<>();
     }
 
+    /**
+     * Verifies that a {@link DropCell} can be constructed with a valid callback.
+     */
     @Test
     @DisplayName("Should create DropCell with callback")
     void shouldCreateDropCellWithCallback() {
@@ -74,6 +83,10 @@ class DropCellTest {
         assertThat(cell).as("cell should not be null").isNotNull();
     }
 
+    /**
+     * Verifies that a drop into an empty table creates new rows for each dropped file
+     * and invokes the callback with the correct results.
+     */
     @Test
     @DisplayName("Should process drop with empty table")
     void shouldProcessDropWithEmptyTable() {
@@ -94,6 +107,10 @@ class DropCellTest {
         assertThat(tableView.getItems()).as("table should have 2 new items").hasSize(2);
     }
 
+    /**
+     * Verifies that a drop starting at a positive row index reuses existing table rows
+     * and passes the correct results to the callback.
+     */
     @Test
     @DisplayName("Should process drop at start index")
     void shouldProcessDropAtStartIndex() {
@@ -125,6 +142,10 @@ class DropCellTest {
         assertThat(tableView.getItems()).as("table should still have 3 items").hasSize(3);
     }
 
+    /**
+     * Verifies that when the number of dropped files extends beyond the current table
+     * size, new rows are appended automatically.
+     */
     @Test
     @DisplayName("Should process drop extending beyond table size")
     void shouldProcessDropExtendingBeyondTableSize() {
@@ -155,6 +176,10 @@ class DropCellTest {
             .hasSize(4);
     }
 
+    /**
+     * Verifies that a negative start index is treated as the end of the table
+     * and new rows are still created.
+     */
     @Test
     @DisplayName("Should handle negative start index")
     void shouldHandleNegativeStartIndex() {
@@ -176,6 +201,10 @@ class DropCellTest {
         assertThat(tableView.getItems()).as("table should have 2 items").hasSize(2);
     }
 
+    /**
+     * Verifies that a start index larger than the table size is treated as the end
+     * of the table, causing new rows to be appended.
+     */
     @Test
     @DisplayName("Should handle start index beyond table size")
     void shouldHandleStartIndexBeyondTableSize() {
@@ -200,6 +229,9 @@ class DropCellTest {
             .hasSize(3);
     }
 
+    /**
+     * Verifies that an empty file list results in no callback invocations and no table changes.
+     */
     @Test
     @DisplayName("Should process empty file list")
     void shouldProcessEmptyFileList() {
@@ -217,6 +249,9 @@ class DropCellTest {
         assertThat(tableView.getItems()).as("table should be empty").isEmpty();
     }
 
+    /**
+     * Verifies that a single dropped file correctly creates one row and invokes the callback.
+     */
     @Test
     @DisplayName("Should process single file drop")
     void shouldProcessSingleFileDrop() {
@@ -235,6 +270,9 @@ class DropCellTest {
         assertThat(tableView.getItems()).as("table should have 1 item").hasSize(1);
     }
 
+    /**
+     * Verifies that updating a cell with text sets the text and leaves the graphic {@code null}.
+     */
     @Test
     @DisplayName("Should update cell with text")
     void shouldUpdateCellWithText() {
@@ -246,6 +284,9 @@ class DropCellTest {
         assertThat(cell.getGraphic()).as("cell graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that updating a cell with {@code null} and empty flag clears the text and graphic.
+     */
     @Test
     @DisplayName("Should update empty cell")
     void shouldUpdateEmptyCell() {
@@ -257,6 +298,9 @@ class DropCellTest {
         assertThat(cell.getGraphic()).as("cell graphic should be null").isNull();
     }
 
+    /**
+     * Verifies that long text is displayed with a leading ellipsis overrun style for readability.
+     */
     @Test
     @DisplayName("Should update cell with long text using leading ellipsis")
     void shouldUpdateCellWithLongTextUsingLeadingEllipsis() {
@@ -270,6 +314,9 @@ class DropCellTest {
         assertThat(cell.getText()).as("cell text should be set").isEqualTo(longText);
     }
 
+    /**
+     * Verifies that a tooltip is created and its text matches the cell's text.
+     */
     @Test
     @DisplayName("Should create tooltip for cell with text")
     void shouldCreateTooltipForCellWithText() {
@@ -282,6 +329,10 @@ class DropCellTest {
             .isEqualTo("tooltip-text.txt");
     }
 
+    /**
+     * Verifies that a tooltip persists from a previous non-empty state even after the cell
+     * is cleared (current behavior).
+     */
     @Test
     @DisplayName("Should retain tooltip when cell becomes empty")
     void shouldRetainTooltipWhenCellBecomesEmpty() {

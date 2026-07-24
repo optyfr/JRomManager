@@ -73,7 +73,7 @@ import jrm.security.Session;
 /**
  * FXML controller for the scanner panel.
  * <p>
- * Manages ROM scanning operations, profile selection, destination paths for ROMs/disks/ software/samples, and scan automation.
+ * Manages ROM scanning operations, profile selection, destination paths for ROMs/disks/software/samples, and scan automation.
  * Implements {@link ProfileLoader} to handle profile loading callbacks. Provides buttons for scanning, reporting, fixing,
  * importing, and exporting profiles.
  *
@@ -316,6 +316,9 @@ public class ScannerPanelController extends BaseController implements ProfileLoa
     /**
      * Initializes the controller, setting up tabs, destinations, action buttons,
      * source list, drag-and-drop, filters, NPlayers, CatVer, automation, and import/export.
+     *
+     * @param location  the location used to resolve relative paths for the root object, or {@code null}
+     * @param resources the resources used to localize the root object, or {@code null}
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {

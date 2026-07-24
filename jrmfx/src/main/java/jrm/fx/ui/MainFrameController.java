@@ -80,6 +80,12 @@ public class MainFrameController implements Initializable {
     @FXML
     private @Getter SettingsPanelController settingsPanelController;
 
+    /**
+     * Initializes the main frame controller, setting tab icons and wiring the profile loader.
+     *
+     * @param location  the location used to resolve relative paths for the root object, or {@code null}
+     * @param resources the resources used to localize the root object, or {@code null}
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         ImageView script = new ImageView(MainFrame.getIcon("/jrm/resicons/icons/script.png"));

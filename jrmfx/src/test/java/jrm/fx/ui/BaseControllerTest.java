@@ -90,10 +90,14 @@ class BaseControllerTest {
         }
     }
 
+    /** Temporary directory for test files. */
     @TempDir
     Path tempDir;
 
+    /** The controller under test. */
     private TestController controller;
+
+    /** A mocked session instance. */
     private Session mockSession;
 
     @BeforeEach

@@ -11,7 +11,8 @@ final class IconHelper {
 	}
 
 	/**
-	 * Create a styled ImageView icon from the given resource path.
+	 * Creates a styled ImageView icon from the given resource path.
+	 *
 	 * @param iconPath the resource path to the icon image
 	 * @return a configured ImageView with preserved ratio and "icon" style class
 	 */

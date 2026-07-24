@@ -170,10 +170,10 @@ public class SrcDstResult extends AbstractSrcDstResult {
     }
 
     /**
-     * Deserializes a list of SrcDstResult from JSON.
+     * Deserializes a list of source/destination results from JSON.
      *
      * @param json the JSON string
-     * @return the deserialized list
+     * @return the deserialized list of source/destination results
      */
     public static SDRList<SrcDstResult> fromJSON(String json) {
         return fromJSON(json, SrcDstResult.class);

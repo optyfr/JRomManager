@@ -16,49 +16,49 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 class WindowState {
     /**
-     * The X coordinate.
+     * The X coordinate of the window.
      *
      * @param x the X coordinate
      * @return the X coordinate
      */
     private double x;
     /**
-     * The Y coordinate.
+     * The Y coordinate of the window.
      *
      * @param y the Y coordinate
      * @return the Y coordinate
      */
     private double y;
     /**
-     * The width.
+     * The window width.
      *
      * @param w the width
      * @return the width
      */
     private double w;
     /**
-     * The height.
+     * The window height.
      *
      * @param h the height
      * @return the height
      */
     private double h;
     /**
-     * Whether maximized.
+     * Whether the window was maximized.
      *
      * @param m whether maximized
      * @return whether maximized
      */
     private boolean m = false;
     /**
-     * Whether full-screen.
+     * Whether the window was full-screen.
      *
      * @param f whether full-screen
      * @return whether full-screen
      */
     private boolean f = false;
     /**
-     * Whether iconified.
+     * Whether the window was iconified.
      *
      * @param i whether iconified
      * @return whether iconified

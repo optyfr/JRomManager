@@ -52,6 +52,9 @@ class ColoredIntegerCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that integer cells are rendered for all data rows in the table.
+     */
     @Test
     @DisplayName("Should render integer cells with data")
     void shouldRenderIntegerCellsWithData(TestApp application, TestFxDescriptionSupplier description) {
@@ -67,6 +70,9 @@ class ColoredIntegerCellFactoryTest {
                 .hasSize(4);
     }
 
+    /**
+     * Verifies that a positive integer value ({@code 42}) is rendered correctly in its cell.
+     */
     @Test
     @DisplayName("Should render positive integer")
     void shouldRenderPositiveInteger(TestApp application, TestFxDescriptionSupplier description) {
@@ -83,6 +89,9 @@ class ColoredIntegerCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that a zero value is rendered as a data cell.
+     */
     @Test
     @DisplayName("Should render zero")
     void shouldRenderZero(TestApp application, TestFxDescriptionSupplier description) {
@@ -99,6 +108,9 @@ class ColoredIntegerCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that a negative integer value ({@code -5}) is rendered correctly in its cell.
+     */
     @Test
     @DisplayName("Should render negative integer")
     void shouldRenderNegativeInteger(TestApp application, TestFxDescriptionSupplier description) {

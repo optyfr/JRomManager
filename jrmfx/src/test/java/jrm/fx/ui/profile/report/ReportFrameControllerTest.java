@@ -82,6 +82,9 @@ class ReportFrameControllerTest {
 		}
 	}
 
+	/**
+	 * Verifies that the controller is properly initialized by {@link TestApp}.
+	 */
 	@Test
 	@DisplayName("Should initialize controller")
 	void shouldInitializeController() {
@@ -89,6 +92,9 @@ class ReportFrameControllerTest {
 		assertThat(controller).isNotNull();
 	}
 
+	/**
+	 * Verifies that the embedded {@link ReportViewController} field is injected and non-null.
+	 */
 	@Test
 	@DisplayName("Should have embedded ReportViewController")
 	void shouldHaveEmbeddedReportViewController() {
@@ -97,6 +103,9 @@ class ReportFrameControllerTest {
 		assertThat(viewController).as("embedded view controller should be set").isNotNull();
 	}
 
+	/**
+	 * Verifies that the status bar container field is injected and non-null.
+	 */
 	@Test
 	@DisplayName("Should have status bar container")
 	void shouldHaveStatusBarContainer() {
@@ -105,6 +114,9 @@ class ReportFrameControllerTest {
 		assertThat(status).as("status bar container should be set").isNotNull();
 	}
 
+	/**
+	 * Verifies that calling {@code initialize} a second time does not throw an exception.
+	 */
 	@Test
 	@DisplayName("Should handle initialize without error")
 	void shouldHandleInitializeWithoutError() {
@@ -114,6 +126,12 @@ class ReportFrameControllerTest {
 				.as("initialize should not throw when called again").doesNotThrowAnyException();
 	}
 
+	/**
+	 * Verifies that the controller class declares the {@code initialize} method expected
+	 * by the {@code Initializable} contract.
+	 *
+	 * @throws Exception if the method cannot be found
+	 */
 	@Test
 	@DisplayName("Should have initialize method from Initializable")
 	void shouldHaveInitializeMethodFromInitializable() throws Exception {
@@ -122,6 +140,15 @@ class ReportFrameControllerTest {
 		assertThat(initMethod).as("initialize method should exist").isNotNull();
 	}
 
+	/**
+	 * Retrieves a private field value from an object via reflection.
+	 *
+	 * @param <T>       the expected field type
+	 * @param target    the object whose field to read
+	 * @param fieldName the name of the field
+	 * @return the field value, cast to {@code T}
+	 * @throws RuntimeException if the field cannot be accessed
+	 */
 	@SuppressWarnings("unchecked")
 	private static <T> T getField(Object target, String fieldName) {
 		try {

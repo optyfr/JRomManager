@@ -1626,9 +1626,9 @@ public class ProfileViewerController implements Initializable {
     /**
      * Sets the filter for entity statuses based on toggle states.
      *
-     * @param unknown  whether to include unknown status
-     * @param missing  whether to include KO status
-     * @param complete whether to include OK status
+     * @param unknown  whether to include entities with unknown status
+     * @param missing  whether to include entities with KO status
+     * @param complete whether to include entities with OK status
      */
     private void setFilterE(final boolean unknown, final boolean missing, final boolean complete) {
         final EnumSet<EntityStatus> filter = EnumSet.noneOf(EntityStatus.class);

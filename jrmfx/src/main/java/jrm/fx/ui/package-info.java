@@ -11,7 +11,6 @@
  * into supporting types. The package integrates with the {@code jrmcore} engine (profiles, scans, batch operations) and
  * reuses shared UI helpers from the {@link jrm.fx.ui.controls}, {@link jrm.fx.ui.misc}, {@link jrm.fx.ui.progress} and
  * {@link jrm.fx.ui.status} sub-packages.
- * </p>
  * <ul>
  * <li>{@link jrm.fx.ui.MainFrame}: JavaFX application entry point owning the primary stage and global singletons.</li>
  * <li>{@link jrm.fx.ui.MainFrameController}: FXML controller for the main tabbed window.</li>

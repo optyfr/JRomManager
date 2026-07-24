@@ -51,27 +51,35 @@ class DirItemTest {
         }
     }
 
+    /** JUnit 5 temporary directory. */
     @TempDir
     Path tempDir;
 
+    /** The root directory file under test. */
     private File testDir;
 
+    /**
+     * Creates a test directory structure with subdirectories and nested directories.
+     *
+     * @throws IOException if directory creation fails
+     */
     @BeforeEach
     void setUp() throws IOException {
-        // Create a test directory structure
         testDir = tempDir.toFile();
-        
-        // Create subdirectories
+
         Files.createDirectory(tempDir.resolve("subdir1"));
         Files.createDirectory(tempDir.resolve("subdir2"));
         Files.createDirectory(tempDir.resolve("subdir3"));
-        
-        // Create nested subdirectories
+
         Files.createDirectory(tempDir.resolve("subdir1/nested1"));
         Files.createDirectory(tempDir.resolve("subdir1/nested2"));
         Files.createDirectory(tempDir.resolve("subdir2/nested3"));
     }
 
+    /**
+     * Verifies that a {@link DirItem} can be created from a file and correctly wraps the
+     * directory path.
+     */
     @Test
     @DisplayName("Should create DirItem from File")
     void shouldCreateDirItemFromFile() {
@@ -82,6 +90,9 @@ class DirItemTest {
         assertThat(item.getValue().getFile()).as("File should match").isEqualTo(testDir);
     }
 
+    /**
+     * Verifies that a newly created {@link DirItem} is expanded by default.
+     */
     @Test
     @DisplayName("Should expand DirItem by default")
     void shouldExpandDirItemByDefault() {
@@ -90,6 +101,9 @@ class DirItemTest {
         assertThat(item.isExpanded()).as("DirItem should be expanded by default").isTrue();
     }
 
+    /**
+     * Verifies that a {@link DirItem} has a non-null graphic icon.
+     */
     @Test
     @DisplayName("Should have graphic icon")
     void shouldHaveGraphicIcon() {
@@ -98,6 +112,9 @@ class DirItemTest {
         assertThat(item.getGraphic()).as("Graphic should be set").isNotNull();
     }
 
+    /**
+     * Verifies that the directory tree is built with direct subdirectories as children.
+     */
     @Test
     @DisplayName("Should build directory tree with subdirectories")
     void shouldBuildDirectoryTreeWithSubdirectories() {
@@ -107,12 +124,14 @@ class DirItemTest {
         assertThat(item.getChildren()).as("Should have 3 subdirectories").hasSize(3);
     }
 
+    /**
+     * Verifies that nested directory trees are built recursively.
+     */
     @Test
     @DisplayName("Should build nested directory tree")
     void shouldBuildNestedDirectoryTree() {
         DirItem item = new DirItem(testDir);
 
-        // Find subdir1
         DirItem subdir1 = item.getChildren().stream()
                 .filter(child -> child.getValue().getFile().getName().equals("subdir1"))
                 .map(DirItem.class::cast)
@@ -123,23 +142,29 @@ class DirItemTest {
         assertThat(subdir1.getChildren()).as("subdir1 should have 2 nested directories").hasSize(2);
     }
 
+    /**
+     * Verifies that {@link DirItem#reload()} picks up newly created subdirectories.
+     *
+     * @throws IOException if directory creation fails
+     */
     @Test
     @DisplayName("Should reload directory tree")
     void shouldReloadDirectoryTree() throws IOException {
         DirItem item = new DirItem(testDir);
-        
+
         int initialChildCount = item.getChildren().size();
         assertThat(initialChildCount).as("Should have 3 initial subdirectories").isEqualTo(3);
 
-        // Add a new subdirectory
         Files.createDirectory(tempDir.resolve("subdir4"));
 
-        // Reload the tree
         item.reload();
 
         assertThat(item.getChildren()).as("Should have 4 subdirectories after reload").hasSize(4);
     }
 
+    /**
+     * Verifies that a {@link DirItem} remains expanded after a reload.
+     */
     @Test
     @DisplayName("Should remain expanded after reload")
     void shouldRemainExpandedAfterReload() {
@@ -152,6 +177,11 @@ class DirItemTest {
         assertThat(item.isExpanded()).as("Should remain expanded after reload").isTrue();
     }
 
+    /**
+     * Verifies that a {@link DirItem} for an empty directory has no children.
+     *
+     * @throws IOException if directory creation fails
+     */
     @Test
     @DisplayName("Should handle empty directory")
     void shouldHandleEmptyDirectory() throws IOException {
@@ -163,23 +193,30 @@ class DirItemTest {
         assertThat(item.getChildren()).as("Empty directory should have no children").isEmpty();
     }
 
+    /**
+     * Verifies that only directories are included in the tree, not regular files.
+     *
+     * @throws IOException if file creation fails
+     */
     @Test
     @DisplayName("Should only include directories in tree")
     void shouldOnlyIncludeDirectoriesInTree() throws IOException {
-        // Create a file (not a directory)
         Files.createFile(tempDir.resolve("file.txt"));
 
         DirItem item = new DirItem(testDir);
 
-        // Should only have 3 subdirectories, not the file
         assertThat(item.getChildren()).as("Should only include directories, not files").hasSize(3);
-        
-        // Verify all children are directories
+
         assertThat(item.getChildren())
                 .as("All children should be directories")
                 .allMatch(child -> child.getValue().getFile().isDirectory());
     }
 
+    /**
+     * Verifies that a leaf directory with no subdirectories is marked as a leaf node.
+     *
+     * @throws IOException if directory creation fails
+     */
     @Test
     @DisplayName("Should handle directory with no subdirectories")
     void shouldHandleDirectoryWithNoSubdirectories() throws IOException {
@@ -193,23 +230,26 @@ class DirItemTest {
         assertThat(item.isLeaf()).as("Should be a leaf node").isTrue();
     }
 
+    /**
+     * Verifies that children are cleared after a reload when all subdirectories have been deleted.
+     *
+     * @throws IOException if file system operations fail
+     */
     @Test
     @DisplayName("Should clear children on reload")
     void shouldClearChildrenOnReload() throws IOException {
         DirItem item = new DirItem(testDir);
-        
+
         assertThat(item.getChildren()).as("Should have children initially").isNotEmpty();
 
-        // Delete all subdirectories
         Files.walk(tempDir)
                 .filter(Files::isDirectory)
                 .filter(path -> !path.equals(tempDir))
-                .sorted((a, b) -> b.getNameCount() - a.getNameCount()) // Delete deepest first
+                .sorted((a, b) -> b.getNameCount() - a.getNameCount())
                 .forEach(path -> {
                     try {
                         Files.deleteIfExists(path);
                     } catch (IOException _) {
-                        // Ignore
                     }
                 });
 
@@ -218,6 +258,9 @@ class DirItemTest {
         assertThat(item.getChildren()).as("Should have no children after deleting all subdirectories").isEmpty();
     }
 
+    /**
+     * Verifies that the {@link Dir} value is preserved after a reload.
+     */
     @Test
     @DisplayName("Should preserve Dir value after reload")
     void shouldPreserveDirValueAfterReload() {

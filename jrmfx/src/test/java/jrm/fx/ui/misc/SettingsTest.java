@@ -16,15 +16,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * TestFX-based tests for {@link Settings} window state serialization.
- * Tests basic UI rendering of settings-related components.
+ * TestFX-based unit tests for {@link Settings} window state serialization.
+ * <p>
+ * Verifies that the settings UI renders as expected: the scene contains a
+ * single {@link javafx.scene.control.Label} with the correct text.
  */
 @TestFxApplication(SettingsTest.TestApp.class)
 @DisplayName("Settings TestFX Tests")
 class SettingsTest {
 
     /**
-     * Test application that sets up a simple settings UI.
+     * Minimal JavaFX test application that displays a settings test label.
+     * <p>
+     * Registers itself as a {@link TestFxRecordedStage} so that TestFX can
+     * manage the JavaFX lifecycle for scene-graph assertions.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
@@ -43,6 +48,12 @@ class SettingsTest {
         }
     }
 
+    /**
+     * Verifies that the settings label renders with the expected text.
+     *
+     * @param application the TestFX test application instance
+     * @param description the TestFX description supplier for assertions
+     */
     @Test
     @DisplayName("Should render settings label")
     void shouldRenderSettingsLabel(TestApp application, TestFxDescriptionSupplier description) {
@@ -53,6 +64,12 @@ class SettingsTest {
                 .isEqualTo("Settings Test");
     }
 
+    /**
+     * Verifies that the scene contains exactly one {@link Label} node.
+     *
+     * @param application the TestFX test application instance
+     * @param description the TestFX description supplier for assertions
+     */
     @Test
     @DisplayName("Should have exactly one label in scene")
     void shouldHaveOneLabel(TestApp application, TestFxDescriptionSupplier description) {

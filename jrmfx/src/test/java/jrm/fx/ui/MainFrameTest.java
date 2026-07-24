@@ -26,6 +26,11 @@ import org.junit.jupiter.api.Test;
 @DisplayName("MainFrame Tests")
 class MainFrameTest {
 
+    /**
+     * Clears the icons cache before each test to ensure test isolation.
+     *
+     * @throws Exception if reflection fails
+     */
     @BeforeEach
     void setUp() throws Exception {
         Field iconsCacheField = MainFrame.class.getDeclaredField("iconsCache");

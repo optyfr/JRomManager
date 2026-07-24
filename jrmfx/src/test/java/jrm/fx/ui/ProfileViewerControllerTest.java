@@ -218,6 +218,7 @@ class ProfileViewerControllerTest {
             primaryStage.show();
         }
 
+        /** Injects a value into a private field of the target object using reflection. */
         private static void injectField(Object target, String fieldName, Object value) {
             try {
                 var field = ProfileViewerController.class.getDeclaredField(fieldName);
@@ -245,6 +246,7 @@ class ProfileViewerControllerTest {
         assertThat(controller).isNotNull();
     }
 
+    /** Retrieves a private field value from the target object via reflection. */
     @SuppressWarnings("unchecked")
     private static <T> T getField(Object target, String fieldName) {
         try {

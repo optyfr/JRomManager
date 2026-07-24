@@ -7,11 +7,19 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link WindowState}.
- * Tests window state data class and serialization.
+ * <p>
+ * Validates that the Lombok {@link lombok.Data} generated getters and setters
+ * produce the expected default values and correctly propagate writes for all
+ * seven properties: position {@code x}/{@code y}, size {@code w}/{@code h},
+ * and the boolean state flags {@code m}, {@code f}, and {@code i}.
  */
 @DisplayName("WindowState Unit Tests")
 class WindowStateTest {
 
+    /**
+     * Verifies that a freshly constructed {@link WindowState} has zero
+     * coordinates, zero dimensions, and all state flags set to {@code false}.
+     */
     @Test
     @DisplayName("Should create WindowState with default values")
     void shouldCreateWindowStateWithDefaultValues() {
@@ -26,6 +34,9 @@ class WindowStateTest {
         assertThat(state.isI()).isFalse();
     }
 
+    /**
+     * Ensures the X-coordinate getter returns the value written by its setter.
+     */
     @Test
     @DisplayName("Should set and get X coordinate")
     void shouldSetAndGetXCoordinate() {
@@ -35,6 +46,9 @@ class WindowStateTest {
         assertThat(state.getX()).isEqualTo(100.5);
     }
 
+    /**
+     * Ensures the Y-coordinate getter returns the value written by its setter.
+     */
     @Test
     @DisplayName("Should set and get Y coordinate")
     void shouldSetAndGetYCoordinate() {
@@ -44,6 +58,9 @@ class WindowStateTest {
         assertThat(state.getY()).isEqualTo(200.75);
     }
 
+    /**
+     * Ensures the width getter returns the value written by its setter.
+     */
     @Test
     @DisplayName("Should set and get width")
     void shouldSetAndGetWidth() {
@@ -53,6 +70,9 @@ class WindowStateTest {
         assertThat(state.getW()).isEqualTo(800.0);
     }
 
+    /**
+     * Ensures the height getter returns the value written by its setter.
+     */
     @Test
     @DisplayName("Should set and get height")
     void shouldSetAndGetHeight() {
@@ -62,6 +82,9 @@ class WindowStateTest {
         assertThat(state.getH()).isEqualTo(600.0);
     }
 
+    /**
+     * Ensures the maximized flag toggles correctly.
+     */
     @Test
     @DisplayName("Should set and get maximized state")
     void shouldSetAndGetMaximizedState() {
@@ -71,6 +94,9 @@ class WindowStateTest {
         assertThat(state.isM()).isTrue();
     }
 
+    /**
+     * Ensures the full-screen flag toggles correctly.
+     */
     @Test
     @DisplayName("Should set and get full-screen state")
     void shouldSetAndGetFullScreenState() {
@@ -80,6 +106,9 @@ class WindowStateTest {
         assertThat(state.isF()).isTrue();
     }
 
+    /**
+     * Ensures the iconified flag toggles correctly.
+     */
     @Test
     @DisplayName("Should set and get iconified state")
     void shouldSetAndGetIconifiedState() {
@@ -89,6 +118,10 @@ class WindowStateTest {
         assertThat(state.isI()).isTrue();
     }
 
+    /**
+     * Sets every property at once and confirms each getter reflects the written
+     * value with no cross-property interference.
+     */
     @Test
     @DisplayName("Should handle all properties together")
     void shouldHandleAllPropertiesTogether() {
@@ -110,6 +143,10 @@ class WindowStateTest {
         assertThat(state.isI()).isFalse();
     }
 
+    /**
+     * Confirms that negative coordinate values are accepted and round-tripped
+     * correctly (e.g. for off-screen window positions).
+     */
     @Test
     @DisplayName("Should handle negative coordinates")
     void shouldHandleNegativeCoordinates() {
@@ -121,6 +158,10 @@ class WindowStateTest {
         assertThat(state.getY()).isEqualTo(-50.0);
     }
 
+    /**
+     * Confirms that zero width and height are accepted and round-tripped
+     * correctly.
+     */
     @Test
     @DisplayName("Should handle zero dimensions")
     void shouldHandleZeroDimensions() {

@@ -32,7 +32,10 @@ import lombok.Getter;
  * @since 2.5
  */
 public class BatchTorrentResultsController implements Initializable {
-    /** The tree view displaying the results. */
+    /**
+     * The tree view displaying the results.
+     * @return the tree view
+     */
     @FXML
     @Getter
     private TreeView<Child> treeview;
@@ -58,7 +61,9 @@ public class BatchTorrentResultsController implements Initializable {
     /** The torrent check report. */
     private TrntChkReport report;
 
-    /** Initializes the controller.
+    /**
+     * Initializes the controller.
+     *
      * @param location the location of the FXML file
      * @param resources the resources for the FXML file
      */
@@ -105,7 +110,9 @@ public class BatchTorrentResultsController implements Initializable {
         };
     }
 
-    /** Handles the "OK" button action.
+    /**
+     * Handles the "OK" button action.
+     *
      * @param e the action event
      */
     @FXML
@@ -123,14 +130,17 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
-    /** Builds the tree structure for the given parent and children.
+    /**
+     * Builds the tree structure by applying the current filter and setting the root.
      */
     private void build() {
         treeview.setRoot(buildTree(null, report.filter(filterOptions)));
     }
 
-    /** Builds the tree structure for the given parent and children.
-     * @param parent the parent tree item
+    /**
+     * Recursively builds a tree structure from the given children list.
+     *
+     * @param parent the parent tree item, or {@code null} to create a new root
      * @param children the list of child items
      * @return the built tree item
      */
@@ -142,7 +152,9 @@ public class BatchTorrentResultsController implements Initializable {
         return p;
     }
 
-    /** Handles the "Show OK" checkbox action.
+    /**
+     * Handles the "Show OK" checkbox action.
+     *
      * @param e the action event
      */
     @FXML
@@ -154,7 +166,9 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
-    /** Handles the "Hide Missing" checkbox action.
+    /**
+     * Handles the "Hide Missing" checkbox action.
+     *
      * @param e the action event
      */
     @FXML
@@ -166,7 +180,9 @@ public class BatchTorrentResultsController implements Initializable {
         build();
     }
 
-    /** Opens all nodes in the tree view.
+    /**
+     * Opens all non-leaf nodes in the tree view.
+     *
      * @param e the action event
      */
     @FXML
@@ -179,7 +195,9 @@ public class BatchTorrentResultsController implements Initializable {
         treeview.setRoot(root);
     }
 
-    /** Closes all nodes in the tree view.
+    /**
+     * Closes all non-leaf nodes in the tree view.
+     *
      * @param e the action event
      */
     @FXML

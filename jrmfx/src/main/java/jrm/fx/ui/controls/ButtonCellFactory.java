@@ -49,6 +49,14 @@ public final class ButtonCellFactory<S, T> extends TableCell<S, T> {
         setMinHeight(15);
     }
 
+    /**
+     * Updates the cell content based on whether the row is empty.
+     * <p>
+     * Shows the button when the row contains an item, or hides it for empty rows.
+     *
+     * @param item  the current cell value for this row
+     * @param empty whether this cell represents an empty row
+     */
     @Override
     protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);

@@ -39,6 +39,11 @@ class DragNDropTest {
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
 
+        /**
+         * Starts the test application.
+         *
+         * @param primaryStage the primary stage for this application
+         */
         @Override
         public void start(Stage primaryStage) {
             this.primaryStage = primaryStage;
@@ -46,19 +51,32 @@ class DragNDropTest {
             primaryStage.show();
         }
 
+        /**
+         * Returns the recorded stage.
+         *
+         * @return the primary stage used in this test application
+         */
         @Override
         public Stage recordedStage() {
             return primaryStage;
         }
     }
 
+    /** The list that collects callback invocations during tests. */
     private List<String> callbackLog;
 
+    /**
+     * Initializes the callback log before each test.
+     */
     @BeforeEach
     void setUp() {
         callbackLog = new ArrayList<>();
     }
 
+    /**
+     * Verifies that a {@link DragNDrop} instance can be created for a regular
+     * {@link javafx.scene.control.Control} with the expected style.
+     */
     @Test
     @DisplayName("Should create DragNDrop for regular Control with control-inner-background style")
     void shouldCreateDragNDropForControl() {
@@ -68,6 +86,10 @@ class DragNDropTest {
         assertThat(dragNDrop).as("DragNDrop should be created").isNotNull();
     }
 
+    /**
+     * Verifies that a {@link DragNDrop} instance can be created for a
+     * {@link javafx.scene.control.Cell} with the background-color style.
+     */
     @Test
     @DisplayName("Should create DragNDrop for Cell with background-color style")
     void shouldCreateDragNDropForCell() {
@@ -82,6 +104,10 @@ class DragNDropTest {
         assertThat(dragNDrop).as("DragNDrop should be created for Cell").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addFile} installs drag-over, drag-dropped,
+     * and drag-exited handlers on the control.
+     */
     @Test
     @DisplayName("Should install addFile handler")
     void shouldInstallAddFileHandler() {
@@ -95,6 +121,10 @@ class DragNDropTest {
         assertThat(textField.getOnDragExited()).as("DragExited handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addDir} installs drag-over and drag-dropped
+     * handlers on the control.
+     */
     @Test
     @DisplayName("Should install addDir handler")
     void shouldInstallAddDirHandler() {
@@ -107,6 +137,10 @@ class DragNDropTest {
         assertThat(textField.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addAny} installs drag-over and drag-dropped
+     * handlers on the control.
+     */
     @Test
     @DisplayName("Should install addAny handler")
     void shouldInstallAddAnyHandler() {
@@ -119,6 +153,10 @@ class DragNDropTest {
         assertThat(listView.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addDirs} installs drag-over and drag-dropped
+     * handlers on the control.
+     */
     @Test
     @DisplayName("Should install addDirs handler")
     void shouldInstallAddDirsHandler() {
@@ -131,6 +169,10 @@ class DragNDropTest {
         assertThat(listView.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addNewFile} installs drag-over and drag-dropped
+     * handlers on the control.
+     */
     @Test
     @DisplayName("Should install addNewFile handler")
     void shouldInstallAddNewFileHandler() {
@@ -143,6 +185,10 @@ class DragNDropTest {
         assertThat(textField.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addFiltered} installs handlers with a custom
+     * {@link java.util.function.Predicate} filter and a {@link DragNDrop.SetFilesCallBack}.
+     */
     @Test
     @DisplayName("Should install filtered handler with custom predicate")
     void shouldInstallFilteredHandler() {
@@ -158,6 +204,10 @@ class DragNDropTest {
         assertThat(button.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addFiltered} installs handlers with a
+     * single-file {@link DragNDrop.SetCallBack}.
+     */
     @Test
     @DisplayName("Should install filtered single-file handler")
     void shouldInstallFilteredSingleFileHandler() {
@@ -173,6 +223,10 @@ class DragNDropTest {
         assertThat(button.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addFiltered} installs a text validator
+     * listener on a {@link TextField}.
+     */
     @Test
     @DisplayName("Should install text validator for TextField with filtered handler")
     void shouldInstallTextValidatorForTextField() {
@@ -189,6 +243,10 @@ class DragNDropTest {
         assertThat(textField.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that text validation is not installed when the control is
+     * not a {@link TextField}.
+     */
     @Test
     @DisplayName("Should not install text validator for non-TextField control")
     void shouldNotInstallTextValidatorForNonTextField() {
@@ -205,6 +263,10 @@ class DragNDropTest {
         assertThat(button.getOnDragDropped()).as("DragDropped handler should be installed").isNotNull();
     }
 
+    /**
+     * Verifies that multiple {@link DragNDrop} instances can be created
+     * on the same control, with the second instance overriding the first.
+     */
     @Test
     @DisplayName("Should allow multiple DragNDrop instances on same control")
     void shouldAllowMultipleDragNDropInstances() {
@@ -219,6 +281,10 @@ class DragNDropTest {
         assertThat(button.getOnDragOver()).as("DragOver handler should be from second instance").isNotNull();
     }
 
+    /**
+     * Verifies that {@link DragNDrop#addFile} handles a {@code null} callback
+     * without throwing an exception and still installs the handler.
+     */
     @Test
     @DisplayName("Should handle null callback gracefully")
     void shouldHandleNullCallbackGracefully() {
@@ -231,6 +297,10 @@ class DragNDropTest {
         assertThat(textField.getOnDragOver()).as("Handler should still be installed").isNotNull();
     }
 
+    /**
+     * Verifies that a {@link DragNDrop} instance can be created for a
+     * {@link ListView} control.
+     */
     @Test
     @DisplayName("Should create DragNDrop for ListView")
     void shouldCreateDragNDropForListView() {
@@ -240,6 +310,10 @@ class DragNDropTest {
         assertThat(dragNDrop).as("DragNDrop should be created for ListView").isNotNull();
     }
 
+    /**
+     * Verifies that a {@link DragNDrop} instance can be created for a
+     * {@link TextField} control.
+     */
     @Test
     @DisplayName("Should create DragNDrop for TextField")
     void shouldCreateDragNDropForTextField() {
@@ -249,6 +323,10 @@ class DragNDropTest {
         assertThat(dragNDrop).as("DragNDrop should be created for TextField").isNotNull();
     }
 
+    /**
+     * Verifies that separate {@link DragNDrop} instances on different controls
+     * do not interfere with each other.
+     */
     @Test
     @DisplayName("Should maintain separate instances for different controls")
     void shouldMaintainSeparateInstancesForDifferentControls() {

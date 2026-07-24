@@ -50,6 +50,9 @@ class VersionCellFactoryTest {
         }
     }
 
+    /**
+     * Verifies that version cells are rendered for all data rows, including the {@code ???} fallback for null.
+     */
     @Test
     @DisplayName("Should render version cells with data")
     void shouldRenderVersionCellsWithData(TestApp application, TestFxDescriptionSupplier description) {
@@ -67,6 +70,9 @@ class VersionCellFactoryTest {
                 .hasSizeGreaterThanOrEqualTo(4);
     }
 
+    /**
+     * Verifies that the version string {@code "1.0.0"} is rendered in its cell.
+     */
     @Test
     @DisplayName("Should render version string")
     void shouldRenderVersionString(TestApp application, TestFxDescriptionSupplier description) {
@@ -83,6 +89,9 @@ class VersionCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that a {@code null} version value is rendered as the placeholder text {@code "???"}.
+     */
     @Test
     @DisplayName("Should render null version as ???")
     void shouldRenderNullVersionAsQuestionMarks(TestApp application, TestFxDescriptionSupplier description) {
@@ -99,6 +108,9 @@ class VersionCellFactoryTest {
                 .isNotNull();
     }
 
+    /**
+     * Verifies that a beta version string with a dash ({@code "3.0.0-beta"}) is rendered.
+     */
     @Test
     @DisplayName("Should render beta version")
     void shouldRenderBetaVersion(TestApp application, TestFxDescriptionSupplier description) {

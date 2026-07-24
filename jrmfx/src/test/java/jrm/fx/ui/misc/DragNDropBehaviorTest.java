@@ -45,6 +45,11 @@ class DragNDropBehaviorTest {
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
 
+        /**
+         * Starts the test application.
+         *
+         * @param primaryStage the primary stage for this application
+         */
         @Override
         public void start(Stage primaryStage) {
             this.primaryStage = primaryStage;
@@ -52,18 +57,29 @@ class DragNDropBehaviorTest {
             primaryStage.show();
         }
 
+        /**
+         * Returns the recorded stage.
+         *
+         * @return the primary stage used in this test application
+         */
         @Override
         public Stage recordedStage() {
             return primaryStage;
         }
     }
 
+    /** Temporary directory for creating test files. */
     @TempDir
     File tempDir;
 
+    /** The list that collects single-string callback invocations during tests. */
     private List<String> callbackLog;
+    /** The list that collects multi-file callback invocations during tests. */
     private List<List<File>> filesCallbackLog;
 
+    /**
+     * Initializes callback logs before each test.
+     */
     @BeforeEach
     void setUp() {
         callbackLog = new ArrayList<>();
@@ -72,6 +88,12 @@ class DragNDropBehaviorTest {
 
     // ========== Filter Logic Tests ==========
 
+    /**
+     * Verifies that the drag-over handler accepts drop when all dragged
+     * {@link File} names match the given predicate filter.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("handleDragOverFiles should accept when all files match filter")
     void handleDragOverFiles_shouldAcceptWhenAllFilesMatchFilter() throws Exception {
@@ -100,6 +122,12 @@ class DragNDropBehaviorTest {
         assertThat(button.getOnDragDropped()).isNotNull();
     }
 
+    /**
+     * Verifies that the single-file drag-over handler rejects a drop when the
+     * file does not match the filter predicate.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("handleDragOverSingle should reject when file doesn't match filter")
     void handleDragOverSingle_shouldRejectWhenFileDoesntMatchFilter() throws Exception {
@@ -118,6 +146,12 @@ class DragNDropBehaviorTest {
         assertThat(button.getOnDragDropped()).isNotNull();
     }
 
+    /**
+     * Verifies that the single-file drop handler rejects a drop when multiple
+     * files are dragged.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("handleDragDroppedSingle should reject when multiple files dropped")
     void handleDragDroppedSingle_shouldRejectWhenMultipleFilesDropped() throws Exception {
@@ -139,6 +173,12 @@ class DragNDropBehaviorTest {
 
     // ========== Callback Invocation Tests ==========
 
+    /**
+     * Verifies that the {@code addFile} callback handler is installed and
+     * would be invoked for regular files on drop.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("addFile callback should be invoked for regular files")
     void addFile_callbackShouldBeInvokedForRegularFiles() throws Exception {
@@ -157,6 +197,12 @@ class DragNDropBehaviorTest {
         // which we can't easily simulate without a full drag-and-drop gesture
     }
 
+    /**
+     * Verifies that the {@code addDir} callback handler is installed and
+     * would be invoked for directories on drop.
+     *
+     * @throws Exception if temporary directory creation fails
+     */
     @Test
     @DisplayName("addDir callback should be invoked for directories")
     void addDir_callbackShouldBeInvokedForDirectories() throws Exception {
@@ -171,6 +217,12 @@ class DragNDropBehaviorTest {
         assertThat(textField.getOnDragDropped()).isNotNull();
     }
 
+    /**
+     * Verifies that the {@code addAny} callback handler is installed and
+     * would accept any file on drop.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("addAny callback should accept all files")
     void addAny_callbackShouldAcceptAllFiles() throws Exception {
@@ -189,6 +241,12 @@ class DragNDropBehaviorTest {
 
     // ========== ListView Integration Tests ==========
 
+    /**
+     * Verifies that {@code appendFilesToListView} adds the given files to
+     * a {@link ListView} in order.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("appendFilesToListView should add files to ListView")
     void appendFilesToListView_shouldAddFilesToListView() throws Exception {
@@ -206,6 +264,12 @@ class DragNDropBehaviorTest {
         assertThat(listView.getItems()).containsExactly(file1, file2);
     }
 
+    /**
+     * Verifies that {@code appendFilesToListView} skips files that already
+     * exist in the {@link ListView}.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("appendFilesToListView should skip duplicates")
     void appendFilesToListView_shouldSkipDuplicates() throws Exception {
@@ -227,6 +291,12 @@ class DragNDropBehaviorTest {
         assertThat(listView.getItems()).containsExactly(file1, file2);
     }
 
+    /**
+     * Verifies that {@code appendFilesToListView} preserves the insertion order
+     * of the provided file list.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("appendFilesToListView should preserve insertion order")
     void appendFilesToListView_shouldPreserveInsertionOrder() throws Exception {
@@ -247,6 +317,10 @@ class DragNDropBehaviorTest {
 
     // ========== Constructor Style Tests ==========
 
+    /**
+     * Verifies that the {@link DragNDrop} constructor applies background-color
+     * styles when created for a {@link javafx.scene.control.Cell} control.
+     */
     @Test
     @DisplayName("Constructor should set Cell styles for Cell controls")
     void constructor_shouldSetCellStylesForCellControls() {
@@ -265,6 +339,10 @@ class DragNDropBehaviorTest {
         assertThat(cell.getOnDragOver()).isNotNull();
     }
 
+    /**
+     * Verifies that the {@link DragNDrop} constructor applies
+     * control-inner-background styles for non-Cell controls.
+     */
     @Test
     @DisplayName("Constructor should set control-inner-background styles for non-Cell controls")
     void constructor_shouldSetControlInnerBackgroundStylesForNonCellControls() {
@@ -279,6 +357,10 @@ class DragNDropBehaviorTest {
 
     // ========== TextField Validation Tests ==========
 
+    /**
+     * Verifies that a text validator listener is installed on the
+     * {@link TextField} when a filtered handler is added.
+     */
     @Test
     @DisplayName("installTextValidator should install listener on TextField")
     void installTextValidator_shouldInstallListenerOnTextField() {
@@ -297,6 +379,12 @@ class DragNDropBehaviorTest {
         // We can't easily test it without triggering text changes and checking style
     }
 
+    /**
+     * Verifies that validating existing text sets a green style and invokes
+     * the single-file callback with the resolved path.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("validateText should set green style for valid text")
     void validateText_shouldSetGreenStyleForValidText() throws Exception {
@@ -316,6 +404,10 @@ class DragNDropBehaviorTest {
         assertThat(callbackLog).containsExactly(file.getAbsolutePath());
     }
 
+    /**
+     * Verifies that validating a non-existent file path sets a red style
+     * and does not invoke the callback.
+     */
     @Test
     @DisplayName("validateText should set red style for invalid text")
     void validateText_shouldSetRedStyleForInvalidText() {
@@ -334,6 +426,10 @@ class DragNDropBehaviorTest {
         assertThat(callbackLog).isEmpty();
     }
 
+    /**
+     * Verifies that validating a {@code null} or blank text clears the style
+     * and does not invoke the callback.
+     */
     @Test
     @DisplayName("validateText should clear style for null or blank text")
     void validateText_shouldClearStyleForNullOrBlankText() {
@@ -354,6 +450,12 @@ class DragNDropBehaviorTest {
         assertThat(callbackLog).isEmpty();
     }
 
+    /**
+     * Verifies that text validation is skipped when the {@link TextField} is
+     * disabled, clearing the style without invoking the callback.
+     *
+     * @throws Exception if temporary file creation fails
+     */
     @Test
     @DisplayName("validateText should not validate when TextField is disabled")
     void validateText_shouldNotValidateWhenTextFieldIsDisabled() throws Exception {
