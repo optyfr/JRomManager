@@ -199,7 +199,7 @@ public class PathAbstractor {
             if (!path.startsWith(basepath))
                 throw new SecurityException(FORGED_PATH);
         } else
-            path = Paths.get(strpath);
+            throw new SecurityException(FORGED_PATH);
         return path;
     }
 
