@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -189,7 +190,7 @@ class ProgressControllerTest {
                     future.completeExceptionally(t);
                 }
             });
-            future.get();
+            future.get(5, TimeUnit.SECONDS);
         }
 
         /**
@@ -222,7 +223,7 @@ class ProgressControllerTest {
         Platform.runLater(() -> {
             future.complete(cancelBtn.getGraphic() != null);
         });
-        assertThat(future.get()).as("cancel button has icon").isTrue();
+        assertThat(future.get(5, TimeUnit.SECONDS)).as("cancel button has icon").isTrue();
     }
 
     /**

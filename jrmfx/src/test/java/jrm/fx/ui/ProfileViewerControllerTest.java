@@ -52,6 +52,7 @@ import jrm.misc.GlobalSettings;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import javafx.application.Platform;
@@ -276,7 +277,7 @@ class ProfileViewerControllerTest {
                 future.completeExceptionally(t);
             }
         });
-        future.get();
+        future.get(5, TimeUnit.SECONDS);
     }
 
     /**

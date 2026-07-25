@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
@@ -204,7 +205,7 @@ class Dir2DatControllerTest {
                     future.completeExceptionally(t);
                 }
             });
-            future.get();
+            future.get(5, TimeUnit.SECONDS);
         }
     }
 

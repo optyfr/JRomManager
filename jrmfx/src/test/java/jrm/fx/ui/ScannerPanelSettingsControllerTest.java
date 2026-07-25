@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -189,7 +190,7 @@ class ScannerPanelSettingsControllerTest {
 					future.completeExceptionally(e);
 				}
 			});
-			future.get();
+			future.get(5, TimeUnit.SECONDS);
 		}
 	}
 

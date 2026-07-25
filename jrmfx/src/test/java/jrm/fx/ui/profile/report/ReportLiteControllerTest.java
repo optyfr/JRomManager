@@ -183,7 +183,7 @@ class ReportLiteControllerTest {
 				future.completeExceptionally(e);
 			}
 		});
-		future.get();
+		future.get(5, java.util.concurrent.TimeUnit.SECONDS);
 
 		// Verify stage is no longer showing
 		assertThat(stage.isShowing()).as("stage should be closed after onClose").isFalse();
@@ -194,7 +194,7 @@ class ReportLiteControllerTest {
 			stage.show();
 			restoreFuture.complete(null);
 		});
-		restoreFuture.get(1000, java.util.concurrent.TimeUnit.MILLISECONDS);
+		restoreFuture.get(5, java.util.concurrent.TimeUnit.SECONDS);
 	}
 
 	/**

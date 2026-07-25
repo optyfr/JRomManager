@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.sql.Connection;
+import java.time.Instant;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -123,13 +124,13 @@ class H2Test {
             final Path cpsPath = tempDir.resolve("source.access");
             final Path dbPath = tempDir.resolve("source.access.mv.db");
             Files.createFile(dbPath);
-            // Set DB creation time to past
+            final Instant base = Instant.now();
             Files.getFileAttributeView(dbPath, java.nio.file.attribute.BasicFileAttributeView.class).setTimes(
-                    FileTime.fromMillis(System.currentTimeMillis() - 10000),
-                    FileTime.fromMillis(System.currentTimeMillis() - 10000),
-                    FileTime.fromMillis(System.currentTimeMillis() - 10000));
+                    FileTime.from(base),
+                    FileTime.from(base),
+                    FileTime.from(base));
             Files.createFile(cpsPath);
-            Files.setLastModifiedTime(cpsPath, FileTime.fromMillis(System.currentTimeMillis()));
+            Files.setLastModifiedTime(cpsPath, FileTime.from(base.plusSeconds(1)));
             assertThat(h2.shouldDropDB(cpsPath, null)).isTrue();
         }
 
@@ -140,10 +141,11 @@ class H2Test {
             h2 = new H2(new ServerSettings());
             final Path cpsPath = tempDir.resolve("source.access");
             final Path dbPath = tempDir.resolve("source.access.mv.db");
+            final Instant base = Instant.now();
             Files.createFile(cpsPath);
-            Files.setLastModifiedTime(cpsPath, FileTime.fromMillis(System.currentTimeMillis() - 10000));
+            Files.setLastModifiedTime(cpsPath, FileTime.from(base));
             Files.createFile(dbPath);
-            Files.setLastModifiedTime(dbPath, FileTime.fromMillis(System.currentTimeMillis()));
+            Files.setLastModifiedTime(dbPath, FileTime.from(base.plusSeconds(1)));
             assertThat(h2.shouldDropDB(cpsPath, null)).isFalse();
         }
     }

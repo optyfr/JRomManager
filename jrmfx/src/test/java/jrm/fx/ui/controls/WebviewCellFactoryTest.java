@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -115,8 +116,8 @@ class WebviewCellFactoryTest {
                     future.completeExceptionally(e);
                 }
             });
-            future.get(); // Wait for completion
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS); // Wait for completion
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to invoke updateItem", e);
         }
     }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
@@ -96,8 +97,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure alert", e);
         }
 
@@ -146,8 +147,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure warning alert", e);
         }
 
@@ -187,8 +188,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure confirmation alert", e);
         }
 
@@ -227,8 +228,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure confirmation alert with custom buttons", e);
         }
 
@@ -262,8 +263,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure confirmation alert with null buttons", e);
         }
 
@@ -295,8 +296,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure confirmation alert with empty buttons", e);
         }
 
@@ -331,8 +332,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure node confirmation alert", e);
         }
 
@@ -373,8 +374,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure node confirmation alert with custom buttons", e);
         }
 
@@ -405,8 +406,8 @@ class DialogsBehaviorTest {
             future.complete(null);
         });
         try {
-            future.get();
-        } catch (InterruptedException | ExecutionException e) {
+            future.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | java.util.concurrent.TimeoutException e) {
             throw new RuntimeException("Failed to configure node confirmation alert with null buttons", e);
         }
 

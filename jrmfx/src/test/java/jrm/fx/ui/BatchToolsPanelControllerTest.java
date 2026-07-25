@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -251,7 +252,7 @@ class BatchToolsPanelControllerTest {
 					future.completeExceptionally(e);
 				}
 			});
-			future.get();
+			future.get(5, TimeUnit.SECONDS);
 		}
 	}
 

@@ -580,6 +580,10 @@ class ScanTest {
         /**
          * Verifies that a cancelling progress handler makes the scan abort early by throwing {@link BreakException}.
          *
+         * <p>The cancelling handler is a stub-only mock so every method returns a safe default. {@code isCancel()} is stubbed to
+         * {@code true}, and {@code getInputStream} is stubbed to pass the input through unchanged so that any early I/O inside the
+         * constructor does not trip on a {@code null} return before reaching a cancellation check.</p>
+         *
          * @throws ReflectiveOperationException if reflection fails
          * @throws java.io.IOException if a temp directory cannot be created
          */
@@ -587,10 +591,11 @@ class ScanTest {
         @Timeout(60)
         @DisplayName("should propagate BreakException when progress handler cancels")
         void shouldPropagateBreakExceptionWhenCancelled() throws ReflectiveOperationException, java.io.IOException {
-            // Load the profile with the non-cancelling handler, then run the Scan with a cancelling handler.
             final Profile profile = loadAndWireProfile(e2eSettings(false));
-            final ProgressHandler cancellingHandler = mock(ProgressHandler.class);
+            final ProgressHandler cancellingHandler = mock(ProgressHandler.class, withSettings().stubOnly());
             when(cancellingHandler.isCancel()).thenReturn(true);
+            when(cancellingHandler.getInputStream(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
             assertThatThrownBy(() -> new Scan(profile, cancellingHandler))
                 .isInstanceOf(BreakException.class);
         }

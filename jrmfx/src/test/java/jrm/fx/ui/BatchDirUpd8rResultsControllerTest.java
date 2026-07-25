@@ -8,6 +8,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -132,7 +133,7 @@ class BatchDirUpd8rResultsControllerTest {
 					future.completeExceptionally(t);
 				}
 			});
-			future.get();
+			future.get(5, TimeUnit.SECONDS);
 		}
 	}
 

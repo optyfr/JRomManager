@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -334,7 +335,7 @@ class ScannerPanelControllerTest {
                     future.completeExceptionally(t);
                 }
             });
-            future.get();
+            future.get(5, TimeUnit.SECONDS);
         }
     }
 
