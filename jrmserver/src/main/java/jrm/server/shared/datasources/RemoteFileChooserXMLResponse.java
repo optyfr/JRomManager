@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributeView;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
@@ -606,19 +607,24 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      */
     private void unzip(Path zipfile, Path outputPath) {
         try (var zf = new ZipFile(zipfile.toFile())) {
+            Path normalizedOutputPath = outputPath.toAbsolutePath().normalize();
 
             Enumeration<? extends ZipEntry> zipEntries = zf.entries();
             new EnumerationToIterator<>(zipEntries).forEachRemaining(entry -> {
                 try {
+                    Path resolvedPath = normalizedOutputPath.resolve(entry.getName()).normalize();
+                    if (!resolvedPath.startsWith(normalizedOutputPath)) {
+                        Log.err("Skipping unsafe zip entry outside target dir: " + entry.getName());
+                        return;
+                    }
+
                     if (entry.isDirectory()) {
-                        var dirToCreate = outputPath.resolve(entry.getName());
-                        if (!Files.exists(dirToCreate))
-                            Files.createDirectories(dirToCreate);
+                        if (!Files.exists(resolvedPath))
+                            Files.createDirectories(resolvedPath);
                     } else {
-                        var fileToCreate = outputPath.resolve(entry.getName());
-                        if (!Files.exists(fileToCreate.getParent()))
-                            Files.createDirectories(fileToCreate.getParent());
-                        Files.copy(zf.getInputStream(entry), fileToCreate);
+                        if (!Files.exists(resolvedPath.getParent()))
+                            Files.createDirectories(resolvedPath.getParent());
+                        Files.copy(zf.getInputStream(entry), resolvedPath, StandardCopyOption.REPLACE_EXISTING);
                     }
                 } catch (IOException ei) {
                     Log.err(ei.getMessage(), ei);
