@@ -297,7 +297,10 @@ project(':jrmcore') {
                 }
             })
         }
+        def tmpDir = temporaryDir;
         systemProperty "file.encoding", "utf-8"
+        systemProperty 'java.io.tmpdir', "${tmpDir}"
+        systemProperty 'jrommanager.dir', "${tmpDir}"
     }
 }
 
@@ -396,7 +399,10 @@ project(':jrmcli') {
                 }
             })
         }
+        def tmpDir = temporaryDir;
         systemProperty "file.encoding", "utf-8"
+        systemProperty 'java.io.tmpdir', "${tmpDir}"
+        systemProperty 'jrommanager.dir', "${tmpDir}"
     }
 
 }
@@ -481,7 +487,10 @@ project(':jrmstandalone') {
         useJUnitPlatform {
             includeEngines 'junit-jupiter'
         }
+        def tmpDir = temporaryDir;
         systemProperty "file.encoding", "utf-8"
+        systemProperty 'java.io.tmpdir', "${tmpDir}"
+        systemProperty 'jrommanager.dir', "${tmpDir}"
     }
     sonar {
         skipProject = true
@@ -596,7 +605,10 @@ project(':jrmfx') {
                 }
             })
         }
+        def tmpDir = temporaryDir;
         systemProperty "file.encoding", "utf-8"
+        systemProperty 'java.io.tmpdir', "${tmpDir}"
+        systemProperty 'jrommanager.dir', "${tmpDir}"
     }
 }
 
@@ -708,8 +720,11 @@ project(':jrmserver') {
                 }
             })
         }
+        def tmpDir = temporaryDir;
         systemProperty "JRomManager.rootPath", "${rootDir}"
         systemProperty "file.encoding", "utf-8"
+        systemProperty 'java.io.tmpdir', "${tmpDir}"
+        systemProperty 'jrommanager.dir', "${tmpDir}"
     }
 
     jar {

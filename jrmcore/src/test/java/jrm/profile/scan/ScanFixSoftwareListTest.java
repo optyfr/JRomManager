@@ -177,9 +177,7 @@ class ScanFixSoftwareListTest {
      * @param expected the expected {@link EntityStatus} for all of the software's ROMs
      */
     @SuppressWarnings("unused")
-    private static void assertSoftwareRomsStatus(final Profile profile, final String softwareListName, final String softwareName, final EntityStatus expected) /*
-                                                                                                                                                                * NOSONAR
-                                                                                                                                                                */ {
+    private static void assertSoftwareRomsStatus(final Profile profile, final String softwareListName, final String softwareName, final EntityStatus expected) /* NOSONAR */ {
         final SoftwareList softwareList = profile.getMachineListList().getSoftwareListList().getByName(softwareListName);
         assertThat((Object) softwareList).as("software list %s should exist", softwareListName).isNotNull();
 
@@ -221,7 +219,7 @@ class ScanFixSoftwareListTest {
             System.setProperty(ScanTestSupport.JRM_DIR_PROP, tempDir.toString());
             Files.createDirectories(tempDir.resolve("users").resolve("JRomManager").resolve("backup"));
 
-            session = new Session(false, false);
+            session = new Session("scanfix-swlist");
             session.setMsgs(fullBundle());
             handler = nonCancellingHandler();
 

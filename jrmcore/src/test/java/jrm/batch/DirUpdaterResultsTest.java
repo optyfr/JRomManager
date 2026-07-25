@@ -36,7 +36,7 @@ class DirUpdaterResultsTest {
     void setUp() throws IOException {
         System.setProperty(JRM_DIR_PROP, tempDir.toString());
         Files.createDirectories(tempDir.resolve("users").resolve("JRomManager"));
-        session = new Session(false, false);
+        session = new Session("dirupdater-results-test");
     }
 
     @AfterEach
@@ -74,7 +74,7 @@ class DirUpdaterResultsTest {
         @DisplayName("add should append result with dat and stats")
         void addShouldAppendResultWithDatAndStats() {
             var results = new DirUpdaterResults();
-            var datFile = new File("test.dat");
+            var datFile = tempDir.resolve("test.dat").toFile();
             var stats = new Report.Stats();
 
             results.add(datFile, stats);
@@ -89,14 +89,14 @@ class DirUpdaterResultsTest {
         void addMultipleResultsShouldPreserveOrder() {
             var results = new DirUpdaterResults();
 
-            results.add(new File("a.dat"), new Report.Stats());
-            results.add(new File("b.dat"), new Report.Stats());
-            results.add(new File("c.dat"), new Report.Stats());
+            results.add(tempDir.resolve("a.dat").toFile(), new Report.Stats());
+            results.add(tempDir.resolve("b.dat").toFile(), new Report.Stats());
+            results.add(tempDir.resolve("c.dat").toFile(), new Report.Stats());
 
             assertThat(results.getResults()).hasSize(3);
-            assertThat(results.getResults().get(0).getDat()).isEqualTo(new File("a.dat"));
-            assertThat(results.getResults().get(1).getDat()).isEqualTo(new File("b.dat"));
-            assertThat(results.getResults().get(2).getDat()).isEqualTo(new File("c.dat"));
+            assertThat(results.getResults().get(0).getDat()).isEqualTo(tempDir.resolve("a.dat").toFile());
+            assertThat(results.getResults().get(1).getDat()).isEqualTo(tempDir.resolve("b.dat").toFile());
+            assertThat(results.getResults().get(2).getDat()).isEqualTo(tempDir.resolve("c.dat").toFile());
         }
 
         @Test
@@ -104,7 +104,7 @@ class DirUpdaterResultsTest {
         void addWithNullStatsShouldStoreNullStats() {
             var results = new DirUpdaterResults();
 
-            results.add(new File("test.dat"), null);
+            results.add(tempDir.resolve("test.dat").toFile(), null);
 
             assertThat(results.getResults()).hasSize(1);
             assertThat(results.getResults().get(0).getStats()).isNull();
@@ -123,7 +123,7 @@ class DirUpdaterResultsTest {
         @DisplayName("setDat should update dat field")
         void setDatShouldUpdateDatField() {
             var results = new DirUpdaterResults();
-            var datFile = new File("my.dat");
+            var datFile = tempDir.resolve("my.dat").toFile();
 
             results.setDat(datFile);
 
@@ -134,7 +134,7 @@ class DirUpdaterResultsTest {
         @DisplayName("setDat with null should clear dat field")
         void setDatWithNullShouldClearDatField() {
             var results = new DirUpdaterResults();
-            results.setDat(new File("my.dat"));
+            results.setDat(tempDir.resolve("my.dat").toFile());
 
             results.setDat(null);
 
@@ -173,7 +173,7 @@ class DirUpdaterResultsTest {
         @DisplayName("save and load should preserve dat and results")
         void saveAndLoadShouldPreserveDatAndResults() {
             var results = new DirUpdaterResults();
-            var datFile = new File("test.dat");
+            var datFile = tempDir.resolve("test.dat").toFile();
             results.setDat(datFile);
             var stats = new Report.Stats();
             results.add(datFile, stats);
@@ -192,10 +192,10 @@ class DirUpdaterResultsTest {
         @DisplayName("save and load with multiple results should preserve all entries")
         void saveAndLoadWithMultipleResultsShouldPreserveAllEntries() {
             var results = new DirUpdaterResults();
-            var datFile = new File("multi.dat");
+            var datFile = tempDir.resolve("multi.dat").toFile();
             results.setDat(datFile);
-            results.add(new File("a.dat"), new Report.Stats());
-            results.add(new File("b.dat"), new Report.Stats());
+            results.add(tempDir.resolve("a.dat").toFile(), new Report.Stats());
+            results.add(tempDir.resolve("b.dat").toFile(), new Report.Stats());
 
             results.save(session);
 
@@ -203,14 +203,14 @@ class DirUpdaterResultsTest {
 
             assertThat(loaded).isNotNull();
             assertThat(loaded.getResults()).hasSize(2);
-            assertThat(loaded.getResults().get(0).getDat()).isEqualTo(new File("a.dat"));
-            assertThat(loaded.getResults().get(1).getDat()).isEqualTo(new File("b.dat"));
+            assertThat(loaded.getResults().get(0).getDat()).isEqualTo(tempDir.resolve("a.dat").toFile());
+            assertThat(loaded.getResults().get(1).getDat()).isEqualTo(tempDir.resolve("b.dat").toFile());
         }
 
         @Test
         @DisplayName("load non-existent results should return null")
         void loadNonExistentResultsShouldReturnNull() {
-            var result = DirUpdaterResults.load(session, new File("nonexistent.dat"));
+            var result = DirUpdaterResults.load(session, tempDir.resolve("nonexistent.dat").toFile());
 
             assertThat(result).isNull();
         }
@@ -219,7 +219,7 @@ class DirUpdaterResultsTest {
         @DisplayName("load without progress should preserve results")
         void loadWithoutProgressShouldPreserveResults() {
             var results = new DirUpdaterResults();
-            var datFile = new File("noprogress.dat");
+            var datFile = tempDir.resolve("noprogress.dat").toFile();
             results.setDat(datFile);
             results.add(datFile, new Report.Stats());
 
@@ -235,7 +235,7 @@ class DirUpdaterResultsTest {
         @DisplayName("save should create results file in work directory")
         void saveShouldCreateResultsFileInWorkDirectory() {
             var results = new DirUpdaterResults();
-            var datFile = new File("save-test.dat");
+            var datFile = tempDir.resolve("save-test.dat").toFile();
             results.setDat(datFile);
 
             results.save(session);

@@ -238,6 +238,12 @@ class ProfileViewerControllerTest {
         public static ProfileViewerController getController() {
             return controller;
         }
+
+        @Override
+        public void stop() {
+            SharedMockSession.close();
+        }
+
     }
 
     @Test
@@ -829,8 +835,9 @@ class ProfileViewerControllerTest {
      * Calls a column's cell value factory for the given entity row.
      *
      * @param colName the column field name
-     * @param row     the row value
-     * @param <T>     the value type
+     * @param row the row value
+     * @param <T> the value type
+     * 
      * @return the produced value
      */
     private <T> T callEntityValueFactory(String colName, EntityBase row) {
@@ -935,8 +942,9 @@ class ProfileViewerControllerTest {
      * Calls a column's cell value factory for the given anyware row.
      *
      * @param colName the column field name
-     * @param row     the row value
-     * @param <T>     the value type
+     * @param row the row value
+     * @param <T> the value type
+     * 
      * @return the produced value
      */
     private <T> T callWValueFactory(String colName, Anyware row) {
@@ -1008,8 +1016,9 @@ class ProfileViewerControllerTest {
      * Calls a column's cell value factory for the given anyware list row.
      *
      * @param colName the column field name
-     * @param row     the row value
-     * @param <T>     the value type
+     * @param row the row value
+     * @param <T> the value type
+     * 
      * @return the produced value
      */
     private <T> T callWLValueFactory(String colName, AnywareList<? extends Anyware> row) {
@@ -1058,6 +1067,7 @@ class ProfileViewerControllerTest {
      * Invokes the private {@code searchPredicate} method via reflection.
      *
      * @param newValue the search text
+     * 
      * @return the resulting predicate
      */
     @SuppressWarnings("unchecked")
@@ -1082,11 +1092,10 @@ class ProfileViewerControllerTest {
 
     static Stream<Arguments> searchPredicateTestCases() {
         return Stream.of(
-            Arguments.of("", "game", "desc", true),
-            Arguments.of("pacman", "PacMan", "desc", true),
-            Arguments.of("pac-man", "game", "A Pac-Man clone", true),
-            Arguments.of("zzz", "game", "desc", false)
-        );
+                Arguments.of("", "game", "desc", true),
+                Arguments.of("pacman", "PacMan", "desc", true),
+                Arguments.of("pac-man", "game", "A Pac-Man clone", true),
+                Arguments.of("zzz", "game", "desc", false));
     }
 
     // ==================== reloadE Tests ====================
@@ -1320,6 +1329,7 @@ class ProfileViewerControllerTest {
      * Retrieves the controller's private {@code session} field via reflection.
      *
      * @param controller the controller
+     * 
      * @return the session
      */
     private Session getControllerSession(ProfileViewerController controller) {

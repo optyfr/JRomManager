@@ -20,8 +20,6 @@ import java.util.logging.Level;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
@@ -63,7 +61,6 @@ class SettingsPanelControllerTest {
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
         private static SettingsPanelController controller;
-        private static MockedStatic<Sessions> sessionsMock;
         /** The mocked settings instance, exposed for verification in tests. */
         static GlobalSettings settingsMock;
         private static Map<Object, Object> settingsMap = new HashMap<>();
@@ -207,13 +204,7 @@ class SettingsPanelControllerTest {
 
         @Override
         public void stop() {
-            if (sessionsMock != null) {
-                try {
-                    sessionsMock.close();
-                } catch (Exception _) {
-                    // Mock already resolved, ignore
-                }
-            }
+            SharedMockSession.close();
         }
     }
 

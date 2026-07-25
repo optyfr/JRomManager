@@ -16,8 +16,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.MockedStatic;
-
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxApplication;
 import io.gitlab.fxlabs.testfx.junit.jupiter.TestFxRecordedStage;
 import javafx.application.Application;
@@ -65,9 +63,6 @@ class ProfilePanelControllerTest {
 
         /** The controller instance shared across test methods. */
         private static ProfilePanelController controller;
-
-        /** The shared mocked static {@link Sessions} scope. */
-        private static MockedStatic<Sessions> sessionsMock;
 
         @Override
         public void start(Stage primaryStage) throws Exception {
@@ -151,13 +146,7 @@ class ProfilePanelControllerTest {
 
         @Override
         public void stop() {
-            if (sessionsMock != null) {
-                try {
-                    sessionsMock.close();
-                } catch (Exception _) {
-                    // Mock already resolved, ignore
-                }
-            }
+            SharedMockSession.close();
         }
     }
 

@@ -133,6 +133,11 @@ class BatchTorrentResultsControllerTest {
             });
             future.get(5, TimeUnit.SECONDS);
         }
+
+        @Override
+        public void stop() {
+            SharedMockSession.close();
+        }
     }
 
     /**

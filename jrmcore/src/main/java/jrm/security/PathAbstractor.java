@@ -208,7 +208,7 @@ public class PathAbstractor {
                 throw new SecurityException(FORGED_PATH);
         } else if (session.isServer()) {
             path = Paths.get(strpath).toAbsolutePath().normalize();
-            if (!path.startsWith(session.getUser().getSettings().getBasePath()) && !path.startsWith(System.getProperty("java.io.tmpdir")))
+            if (!path.startsWith(session.getUser().getSettings().getBasePath()) && !path.startsWith(System.getProperty("java.io.tmpdir")) && !path.startsWith(System.getProperty("user.dir")))
                 throw new SecurityException(FORGED_PATH);
         } else
             path = Paths.get(strpath);

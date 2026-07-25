@@ -16,7 +16,7 @@ import jrm.security.Sessions;
  *
  * @since 3.0.5
  */
-final class SharedMockSession {
+public final class SharedMockSession {
 
     /**
      * The shared static mock instance.
@@ -34,10 +34,21 @@ final class SharedMockSession {
      *
      * @return the shared {@link MockedStatic} for {@link Sessions}
      */
-    static synchronized MockedStatic<Sessions> getOrCreate() {
+    public static synchronized MockedStatic<Sessions> getOrCreate() {
         if (mock == null) {
             mock = mockStatic(Sessions.class);
         }
         return mock;
+    }
+
+    public static synchronized void close() {
+        if (mock != null) {
+            try {
+                mock.close();
+            } catch (Exception _) {
+                /* Ignore any exceptions, as we don't want to fail tests */
+            }
+            mock = null;
+        }
     }
 }

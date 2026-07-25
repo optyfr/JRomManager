@@ -59,8 +59,7 @@ import jrm.security.User;
 /**
  * Tests for {@link ScannerPanelController}.
  * <p>
- * Verifies initialization of FXML fields, icons, event handlers,
- * and interface implementation for the Scanner panel.
+ * Verifies initialization of FXML fields, icons, event handlers, and interface implementation for the Scanner panel.
  *
  * @since 3.0.5
  */
@@ -77,8 +76,8 @@ class ScannerPanelControllerTest {
     }
 
     /**
-     * Minimal application that creates a {@link ScannerPanelController}
-     * with all FXML fields injected via reflection and mocks for Session.
+     * Minimal application that creates a {@link ScannerPanelController} with all FXML fields injected via reflection and mocks for
+     * Session.
      */
     public static class TestApp extends Application implements TestFxRecordedStage {
         private Stage primaryStage;
@@ -337,6 +336,12 @@ class ScannerPanelControllerTest {
             });
             future.get(5, TimeUnit.SECONDS);
         }
+
+        @Override
+        public void stop() {
+            SharedMockSession.close();
+        }
+
     }
 
     /**
@@ -493,27 +498,27 @@ class ScannerPanelControllerTest {
     void shouldInitializeAllRequiredFields() throws Exception {
         runOnFxThread(() -> {
             String[] fieldNames = {
-                "dirTab", "settingsTab", "filterTab", "advFilterTab", "automationTab",
-                "infosBtn", "scanBtn", "reportBtn", "fixBtn", "importBtn", "exportBtn",
-                "romsDestBtn", "disksDestBtn", "swDestBtn", "swDisksDestBtn", "samplesDestBtn", "backupDestBtn",
-                "romsDest", "disksDest", "swDest", "swDisksDest", "samplesDest", "backupDest",
-                "tfNPlayers", "tfCatVer",
-                "disksDestCB", "swDestCB", "swDisksDestCB", "samplesDestCB", "backupDestCB",
-                "chckbxIncludeClones", "chckbxIncludeDisks", "chckbxIncludeSamples",
-                "srcList", "systemsFilter", "sourcesFilter", "listNPlayers", "treeCatVer",
-                "cbbxDriverStatus", "cbbxFilterCabinetType", "cbbxFilterDisplayOrientation",
-                "cbbxSWMinSupportedLvl", "cbbxYearMin", "cbbxYearMax", "cbAutomation",
-                "srcListMenu", "systemsFilterMenu", "sourcesFilterMenu", "nPlayersMenu", "catVerMenu",
-                "srcListAddMenuItem", "srcListDelMenuItem",
-                "systemsFilterSelectAllMenuItem", "systemsFilterSelectAllBiosMenuItem",
-                "systemsFilterSelectAllSoftwaresMenuItem", "systemsFilterUnselectAllMenuItem",
-                "systemsFilterUnselectAllBiosMenuItem", "systemsFilterUnselectAllSoftwaresMenuItem",
-                "systemsFilterInvertSelectionMenuItem",
-                "sourcesFilterSelectAllMenuItem", "sourcesFilterUnselectAllMenuItem", "sourcesFilterInvertSelectionMenuItem",
-                "nPlayersMenuItemAll", "nPlayersMenuItemNone", "nPlayersMenuItemInvert", "nPlayersMenuItemClear",
-                "catVerMenuItemSelectAll", "catVerMenuItemSelectMature",
-                "catVerMenuItemUnselectAll", "catVerMenuItemUnselectMature", "catVerMenuItemClear",
-                "profileinfoLbl"
+                    "dirTab", "settingsTab", "filterTab", "advFilterTab", "automationTab",
+                    "infosBtn", "scanBtn", "reportBtn", "fixBtn", "importBtn", "exportBtn",
+                    "romsDestBtn", "disksDestBtn", "swDestBtn", "swDisksDestBtn", "samplesDestBtn", "backupDestBtn",
+                    "romsDest", "disksDest", "swDest", "swDisksDest", "samplesDest", "backupDest",
+                    "tfNPlayers", "tfCatVer",
+                    "disksDestCB", "swDestCB", "swDisksDestCB", "samplesDestCB", "backupDestCB",
+                    "chckbxIncludeClones", "chckbxIncludeDisks", "chckbxIncludeSamples",
+                    "srcList", "systemsFilter", "sourcesFilter", "listNPlayers", "treeCatVer",
+                    "cbbxDriverStatus", "cbbxFilterCabinetType", "cbbxFilterDisplayOrientation",
+                    "cbbxSWMinSupportedLvl", "cbbxYearMin", "cbbxYearMax", "cbAutomation",
+                    "srcListMenu", "systemsFilterMenu", "sourcesFilterMenu", "nPlayersMenu", "catVerMenu",
+                    "srcListAddMenuItem", "srcListDelMenuItem",
+                    "systemsFilterSelectAllMenuItem", "systemsFilterSelectAllBiosMenuItem",
+                    "systemsFilterSelectAllSoftwaresMenuItem", "systemsFilterUnselectAllMenuItem",
+                    "systemsFilterUnselectAllBiosMenuItem", "systemsFilterUnselectAllSoftwaresMenuItem",
+                    "systemsFilterInvertSelectionMenuItem",
+                    "sourcesFilterSelectAllMenuItem", "sourcesFilterUnselectAllMenuItem", "sourcesFilterInvertSelectionMenuItem",
+                    "nPlayersMenuItemAll", "nPlayersMenuItemNone", "nPlayersMenuItemInvert", "nPlayersMenuItemClear",
+                    "catVerMenuItemSelectAll", "catVerMenuItemSelectMature",
+                    "catVerMenuItemUnselectAll", "catVerMenuItemUnselectMature", "catVerMenuItemClear",
+                    "profileinfoLbl"
             };
 
             for (String fieldName : fieldNames) {
@@ -553,9 +558,9 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<Driver.StatusType> cbbxDriverStatus = getField("cbbxDriverStatus");
             assertThat(cbbxDriverStatus.getItems())
-                .as("driver status combo box contains all enum values")
-                .hasSize(Driver.StatusType.values().length)
-                .containsExactly(Driver.StatusType.values());
+                    .as("driver status combo box contains all enum values")
+                    .hasSize(Driver.StatusType.values().length)
+                    .containsExactly(Driver.StatusType.values());
         });
     }
 
@@ -565,9 +570,9 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<CabinetType> cbbxFilterCabinetType = getField("cbbxFilterCabinetType");
             assertThat(cbbxFilterCabinetType.getItems())
-                .as("cabinet type combo box contains all enum values")
-                .hasSize(CabinetType.values().length)
-                .containsExactly(CabinetType.values());
+                    .as("cabinet type combo box contains all enum values")
+                    .hasSize(CabinetType.values().length)
+                    .containsExactly(CabinetType.values());
         });
     }
 
@@ -577,9 +582,9 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<DisplayOrientation> cbbxFilterDisplayOrientation = getField("cbbxFilterDisplayOrientation");
             assertThat(cbbxFilterDisplayOrientation.getItems())
-                .as("display orientation combo box contains all enum values")
-                .hasSize(DisplayOrientation.values().length)
-                .containsExactly(DisplayOrientation.values());
+                    .as("display orientation combo box contains all enum values")
+                    .hasSize(DisplayOrientation.values().length)
+                    .containsExactly(DisplayOrientation.values());
         });
     }
 
@@ -589,9 +594,9 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<Supported> cbbxSWMinSupportedLvl = getField("cbbxSWMinSupportedLvl");
             assertThat(cbbxSWMinSupportedLvl.getItems())
-                .as("software support level combo box contains all enum values")
-                .hasSize(Supported.values().length)
-                .containsExactly(Supported.values());
+                    .as("software support level combo box contains all enum values")
+                    .hasSize(Supported.values().length)
+                    .containsExactly(Supported.values());
         });
     }
 
@@ -601,9 +606,9 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
             assertThat(cbAutomation.getItems())
-                .as("automation combo box contains all enum values")
-                .hasSize(ScanAutomation.values().length)
-                .containsExactly(ScanAutomation.values());
+                    .as("automation combo box contains all enum values")
+                    .hasSize(ScanAutomation.values().length)
+                    .containsExactly(ScanAutomation.values());
         });
     }
 
@@ -615,8 +620,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             CheckBox chckbxIncludeClones = getField("chckbxIncludeClones");
             assertThat(chckbxIncludeClones.getOnAction())
-                .as("include clones checkbox has action handler")
-                .isNotNull();
+                    .as("include clones checkbox has action handler")
+                    .isNotNull();
         });
     }
 
@@ -626,8 +631,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             CheckBox chckbxIncludeDisks = getField("chckbxIncludeDisks");
             assertThat(chckbxIncludeDisks.getOnAction())
-                .as("include disks checkbox has action handler")
-                .isNotNull();
+                    .as("include disks checkbox has action handler")
+                    .isNotNull();
         });
     }
 
@@ -637,8 +642,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             CheckBox chckbxIncludeSamples = getField("chckbxIncludeSamples");
             assertThat(chckbxIncludeSamples.getOnAction())
-                .as("include samples checkbox has action handler")
-                .isNotNull();
+                    .as("include samples checkbox has action handler")
+                    .isNotNull();
         });
     }
 
@@ -648,8 +653,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<Driver.StatusType> cbbxDriverStatus = getField("cbbxDriverStatus");
             assertThat(cbbxDriverStatus.getOnAction())
-                .as("driver status combo box has action handler")
-                .isNotNull();
+                    .as("driver status combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -659,8 +664,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<CabinetType> cbbxFilterCabinetType = getField("cbbxFilterCabinetType");
             assertThat(cbbxFilterCabinetType.getOnAction())
-                .as("cabinet type combo box has action handler")
-                .isNotNull();
+                    .as("cabinet type combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -670,8 +675,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<DisplayOrientation> cbbxFilterDisplayOrientation = getField("cbbxFilterDisplayOrientation");
             assertThat(cbbxFilterDisplayOrientation.getOnAction())
-                .as("display orientation combo box has action handler")
-                .isNotNull();
+                    .as("display orientation combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -681,8 +686,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<Supported> cbbxSWMinSupportedLvl = getField("cbbxSWMinSupportedLvl");
             assertThat(cbbxSWMinSupportedLvl.getOnAction())
-                .as("software support level combo box has action handler")
-                .isNotNull();
+                    .as("software support level combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -692,8 +697,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<String> cbbxYearMin = getField("cbbxYearMin");
             assertThat(cbbxYearMin.getOnAction())
-                .as("year min combo box has action handler")
-                .isNotNull();
+                    .as("year min combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -703,8 +708,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<String> cbbxYearMax = getField("cbbxYearMax");
             assertThat(cbbxYearMax.getOnAction())
-                .as("year max combo box has action handler")
-                .isNotNull();
+                    .as("year max combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -714,8 +719,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
             assertThat(cbAutomation.getOnAction())
-                .as("automation combo box has action handler")
-                .isNotNull();
+                    .as("automation combo box has action handler")
+                    .isNotNull();
         });
     }
 
@@ -727,17 +732,17 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ListView<File> srcList = getField("srcList");
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
-            
+
             srcList.getItems().clear();
             srcList.getSelectionModel().clearSelection();
-            
+
             // Trigger the onShowing handler
             ContextMenu srcListMenu = getField("srcListMenu");
             srcListMenu.getOnShowing().handle(null);
-            
+
             assertThat(srcListDelMenuItem.isDisable())
-                .as("delete menu item disabled when no selection")
-                .isTrue();
+                    .as("delete menu item disabled when no selection")
+                    .isTrue();
         });
     }
 
@@ -747,17 +752,17 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ListView<File> srcList = getField("srcList");
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
-            
+
             srcList.getItems().add(new File("/test/roms"));
             srcList.getSelectionModel().selectFirst();
-            
+
             // Trigger the onShowing handler
             ContextMenu srcListMenu = getField("srcListMenu");
             srcListMenu.getOnShowing().handle(null);
-            
+
             assertThat(srcListDelMenuItem.isDisable())
-                .as("delete menu item enabled when selection exists")
-                .isFalse();
+                    .as("delete menu item enabled when selection exists")
+                    .isFalse();
         });
     }
 
@@ -767,8 +772,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             MenuItem srcListAddMenuItem = getField("srcListAddMenuItem");
             assertThat(srcListAddMenuItem.getOnAction())
-                .as("add menu item has action handler")
-                .isNotNull();
+                    .as("add menu item has action handler")
+                    .isNotNull();
         });
     }
 
@@ -778,8 +783,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
             assertThat(srcListDelMenuItem.getOnAction())
-                .as("delete menu item has action handler")
-                .isNotNull();
+                    .as("delete menu item has action handler")
+                    .isNotNull();
         });
     }
 
@@ -856,8 +861,8 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ContextMenu srcListMenu = getField("srcListMenu");
             assertThat(srcListMenu.getOnShowing())
-                .as("source list menu has onShowing handler for delete item state")
-                .isNotNull();
+                    .as("source list menu has onShowing handler for delete item state")
+                    .isNotNull();
         });
     }
 
@@ -869,23 +874,23 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ListView<File> srcList = getField("srcList");
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
-            
+
             // Add test items
             File file1 = new File("/test/roms1");
             File file2 = new File("/test/roms2");
             srcList.getItems().addAll(file1, file2);
-            
+
             // Select first item
             srcList.getSelectionModel().select(file1);
-            
+
             // Trigger delete action
             srcListDelMenuItem.getOnAction().handle(null);
-            
+
             // Verify item was removed
             assertThat(srcList.getItems())
-                .as("source list should contain only file2 after deletion")
-                .hasSize(1)
-                .containsExactly(file2);
+                    .as("source list should contain only file2 after deletion")
+                    .hasSize(1)
+                    .containsExactly(file2);
         });
     }
 
@@ -895,27 +900,27 @@ class ScannerPanelControllerTest {
         runOnFxThread(() -> {
             ListView<File> srcList = getField("srcList");
             MenuItem srcListDelMenuItem = getField("srcListDelMenuItem");
-            
+
             // Add test items
             File file1 = new File("/test/roms1");
             File file2 = new File("/test/roms2");
             File file3 = new File("/test/roms3");
             srcList.getItems().addAll(file1, file2, file3);
-            
+
             // Select multiple items explicitly by range
             srcList.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
             srcList.getSelectionModel().selectRange(0, 3);
-            
+
             // Verify selection worked
             assertThat(srcList.getSelectionModel().getSelectedItems()).hasSize(3);
-            
+
             // Trigger delete action
             srcListDelMenuItem.getOnAction().handle(null);
-            
+
             // Verify all items were removed
             assertThat(srcList.getItems())
-                .as("source list should be empty after deleting all items")
-                .isEmpty();
+                    .as("source list should be empty after deleting all items")
+                    .isEmpty();
         });
     }
 
@@ -928,17 +933,17 @@ class ScannerPanelControllerTest {
             CheckBox disksDestCB = getField("disksDestCB");
             TextField disksDest = getField("disksDest");
             Button disksDestBtn = getField("disksDestBtn");
-            
+
             // Enable via checkbox (listener fires on change from false->true)
             disksDestCB.setSelected(true);
-            
+
             // Verify enabled
             assertThat(disksDest.isDisable()).as("disks destination field should be enabled after checkbox selection").isFalse();
             assertThat(disksDestBtn.isDisable()).as("disks destination button should be enabled after checkbox selection").isFalse();
-            
+
             // Disable via checkbox (listener fires on change from true->false)
             disksDestCB.setSelected(false);
-            
+
             // Verify disabled again
             assertThat(disksDest.isDisable()).as("disks destination field should be disabled after checkbox deselection").isTrue();
             assertThat(disksDestBtn.isDisable()).as("disks destination button should be disabled after checkbox deselection").isTrue();
@@ -952,17 +957,17 @@ class ScannerPanelControllerTest {
             CheckBox swDestCB = getField("swDestCB");
             TextField swDest = getField("swDest");
             Button swDestBtn = getField("swDestBtn");
-            
+
             // Enable via checkbox
             swDestCB.setSelected(true);
-            
+
             // Verify enabled
             assertThat(swDest.isDisable()).as("software destination field should be enabled after checkbox selection").isFalse();
             assertThat(swDestBtn.isDisable()).as("software destination button should be enabled after checkbox selection").isFalse();
-            
+
             // Disable via checkbox
             swDestCB.setSelected(false);
-            
+
             // Verify disabled
             assertThat(swDest.isDisable()).as("software destination field should be disabled after checkbox deselection").isTrue();
             assertThat(swDestBtn.isDisable()).as("software destination button should be disabled after checkbox deselection").isTrue();
@@ -976,17 +981,17 @@ class ScannerPanelControllerTest {
             CheckBox samplesDestCB = getField("samplesDestCB");
             TextField samplesDest = getField("samplesDest");
             Button samplesDestBtn = getField("samplesDestBtn");
-            
+
             // Enable via checkbox
             samplesDestCB.setSelected(true);
-            
+
             // Verify enabled
             assertThat(samplesDest.isDisable()).as("samples destination field should be enabled after checkbox selection").isFalse();
             assertThat(samplesDestBtn.isDisable()).as("samples destination button should be enabled after checkbox selection").isFalse();
-            
+
             // Disable via checkbox
             samplesDestCB.setSelected(false);
-            
+
             // Verify disabled
             assertThat(samplesDest.isDisable()).as("samples destination field should be disabled after checkbox deselection").isTrue();
             assertThat(samplesDestBtn.isDisable()).as("samples destination button should be disabled after checkbox deselection").isTrue();
@@ -1000,17 +1005,17 @@ class ScannerPanelControllerTest {
             CheckBox backupDestCB = getField("backupDestCB");
             TextField backupDest = getField("backupDest");
             Button backupDestBtn = getField("backupDestBtn");
-            
+
             // Enable via checkbox
             backupDestCB.setSelected(true);
-            
+
             // Verify enabled
             assertThat(backupDest.isDisable()).as("backup destination field should be enabled after checkbox selection").isFalse();
             assertThat(backupDestBtn.isDisable()).as("backup destination button should be enabled after checkbox selection").isFalse();
-            
+
             // Disable via checkbox
             backupDestCB.setSelected(false);
-            
+
             // Verify disabled
             assertThat(backupDest.isDisable()).as("backup destination field should be disabled after checkbox deselection").isTrue();
             assertThat(backupDestBtn.isDisable()).as("backup destination button should be disabled after checkbox deselection").isTrue();
@@ -1050,7 +1055,7 @@ class ScannerPanelControllerTest {
             Button fixBtn = getField("fixBtn");
             Button importBtn = getField("importBtn");
             Button exportBtn = getField("exportBtn");
-            
+
             assertThat(infosBtn.getGraphic()).as("infos button should have icon").isNotNull();
             assertThat(scanBtn.getGraphic()).as("scan button should have icon").isNotNull();
             assertThat(reportBtn.getGraphic()).as("report button should have icon").isNotNull();
@@ -1276,17 +1281,17 @@ class ScannerPanelControllerTest {
     /**
      * Stubs the mock profile's destination properties with the given values.
      *
-     * @param romsDir       the roms destination directory
-     * @param disksEnabled  whether disks destination is enabled
-     * @param disksDir      the disks destination directory
-     * @param swEnabled     whether software destination is enabled
-     * @param swDir         the software destination directory
+     * @param romsDir the roms destination directory
+     * @param disksEnabled whether disks destination is enabled
+     * @param disksDir the disks destination directory
+     * @param swEnabled whether software destination is enabled
+     * @param swDir the software destination directory
      * @param swDisksEnabled whether software disks destination is enabled
-     * @param swDisksDir    the software disks destination directory
+     * @param swDisksDir the software disks destination directory
      * @param samplesEnabled whether samples destination is enabled
-     * @param samplesDir    the samples destination directory
+     * @param samplesDir the samples destination directory
      * @param backupEnabled whether backup destination is enabled
-     * @param backupDir     the backup destination directory
+     * @param backupDir the backup destination directory
      */
     private void stubDestProperties(String romsDir, boolean disksEnabled, String disksDir,
             boolean swEnabled, String swDir, boolean swDisksEnabled, String swDisksDir,
@@ -1455,16 +1460,16 @@ class ScannerPanelControllerTest {
     /**
      * Stubs the mock profile's filter properties with the given values.
      *
-     * @param inclClones    whether to include clones
-     * @param inclDisks     whether to include disks
-     * @param inclSamples   whether to include samples
-     * @param driverStatus  the driver status string
-     * @param cabinetType   the cabinet type string
-     * @param orientation   the display orientation string
-     * @param supported     the software support level string
-     * @param years         the collection of years
-     * @param yearMin       the minimum year
-     * @param yearMax       the maximum year
+     * @param inclClones whether to include clones
+     * @param inclDisks whether to include disks
+     * @param inclSamples whether to include samples
+     * @param driverStatus the driver status string
+     * @param cabinetType the cabinet type string
+     * @param orientation the display orientation string
+     * @param supported the software support level string
+     * @param years the collection of years
+     * @param yearMin the minimum year
+     * @param yearMax the maximum year
      */
     private void stubFilterProperties(boolean inclClones, boolean inclDisks, boolean inclSamples,
             String driverStatus, String cabinetType, String orientation, String supported,
@@ -1657,9 +1662,9 @@ class ScannerPanelControllerTest {
 
             ListView<File> srcList = getField("srcList");
             assertThat(srcList.getItems())
-                .as("source list populated from src_dir")
-                .hasSize(3)
-                .containsExactly(new File("/roms/a"), new File("/roms/b"), new File("/roms/c"));
+                    .as("source list populated from src_dir")
+                    .hasSize(3)
+                    .containsExactly(new File("/roms/a"), new File("/roms/b"), new File("/roms/c"));
         });
     }
 
@@ -1674,9 +1679,9 @@ class ScannerPanelControllerTest {
 
             ListView<File> srcList = getField("srcList");
             assertThat(srcList.getItems())
-                .as("blank entries filtered")
-                .hasSize(2)
-                .containsExactly(new File("/roms/a"), new File("/roms/b"));
+                    .as("blank entries filtered")
+                    .hasSize(2)
+                    .containsExactly(new File("/roms/a"), new File("/roms/b"));
         });
     }
 
@@ -1708,8 +1713,8 @@ class ScannerPanelControllerTest {
 
             ComboBox<ScanAutomation> cbAutomation = getField("cbAutomation");
             assertThat(cbAutomation.getValue())
-                .as("automation selected from profile")
-                .isEqualTo(ScanAutomation.SCAN_REPORT_FIX);
+                    .as("automation selected from profile")
+                    .isEqualTo(ScanAutomation.SCAN_REPORT_FIX);
         });
     }
 
@@ -1751,7 +1756,7 @@ class ScannerPanelControllerTest {
             invokeSaveSrcList();
 
             verify(TestApp.controller.session.getCurrProfile())
-                .setProperty(eq(ProfileSettingsEnum.src_dir), anyString());
+                    .setProperty(eq(ProfileSettingsEnum.src_dir), anyString());
         });
     }
 
@@ -1765,7 +1770,7 @@ class ScannerPanelControllerTest {
             invokeSaveSrcList();
 
             verify(TestApp.controller.session.getCurrProfile())
-                .setProperty(eq(ProfileSettingsEnum.src_dir), eq("")); /* NOSONAR */
+                    .setProperty(eq(ProfileSettingsEnum.src_dir), eq("")); /* NOSONAR */
         });
     }
 
@@ -1817,6 +1822,7 @@ class ScannerPanelControllerTest {
      * Invokes a package-private FXML handler method on the controller via reflection.
      *
      * @param name the method name
+     * 
      * @throws Exception if reflection fails
      */
     private void invokeFxml(String name) throws Exception {
@@ -1890,11 +1896,13 @@ class ScannerPanelControllerTest {
     /**
      * Invokes a private cell-value factory method on the controller via reflection.
      *
-     * @param name     the method name
+     * @param name the method name
      * @param itemType the item parameter type
-     * @param item     the item argument
-     * @param <T>      the item type
+     * @param item the item argument
+     * @param <T> the item type
+     * 
      * @return the observable value produced by the factory
+     * 
      * @throws Exception if reflection fails
      */
     @SuppressWarnings("unchecked")
@@ -2082,7 +2090,7 @@ class ScannerPanelControllerTest {
      * Invokes the private {@code handleChosenSrcDir} method via reflection.
      *
      * @param oldDir the old directory (or null)
-     * @param dir    the chosen directory
+     * @param dir the chosen directory
      */
     private void invokeHandleChosenSrcDir(File oldDir, Path dir) throws Exception {
         Method method = ScannerPanelController.class.getDeclaredMethod("handleChosenSrcDir", File.class, String.class, Path.class);
@@ -2121,7 +2129,7 @@ class ScannerPanelControllerTest {
 
             // No property should be set for a non-regular file
             verify(TestApp.controller.session.getCurrProfile(), never())
-                .setProperty(eq(ProfileSettingsEnum.filter_nplayers_ini), anyString());
+                    .setProperty(eq(ProfileSettingsEnum.filter_nplayers_ini), anyString());
         });
     }
 
@@ -2165,7 +2173,7 @@ class ScannerPanelControllerTest {
             method.invoke(TestApp.controller, "/nonexistent/catver.ini");
 
             verify(TestApp.controller.session.getCurrProfile(), never())
-                .setProperty(eq(ProfileSettingsEnum.filter_catver_ini), anyString());
+                    .setProperty(eq(ProfileSettingsEnum.filter_catver_ini), anyString());
         });
     }
 

@@ -25,7 +25,16 @@
 			<attribute name="gradle.buildServer" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/GIT/JRomManager/jrmcore/build/libs/jrm-jrmcore-3.0.5.jar"/>
-	<classpathentry kind="lib" path="D:/GIT/JRomManager/res-icons/build/libs/jrm-res-icons-3.0.5.jar"/>
+	<classpathentry kind="src" path="bin/generated-sources/annotations">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="bin/test" path="bin/generated-test-sources/annotations">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>
