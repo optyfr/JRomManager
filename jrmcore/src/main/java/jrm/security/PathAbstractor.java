@@ -161,32 +161,40 @@ public class PathAbstractor {
     }
 
     /**
-     * Resolves an abstract string path containing placeholder prefixes into a fully qualified absolute {@link Path} under the
-     * specified session context.
+     * Resolves an abstract string path containing placeholder prefixes into a fully qualified absolute {@link Path} for the
+     * specified user session.
      * <p>
-     * This method replaces the {@code %presets}, {@code %work}, and {@code %shared} prefixes with their respective fully resolved
-     * filesystem counterparts. It then normalizes the path and verifies that the resulting path is safely nested within the target
-     * root folder to prevent directory traversal and arbitrary file read/write vulnerabilities.
-     * </p>
-     *
+     * Supported placeholders are:
+     * <ul>
+     * <li>{@code %presets}: Resolves within the active user settings' workpath, inside a {@code presets} subdirectory.</li>
+     * <li>{@code %work}: Resolves within the active user settings' workpath.</li>
+     * <li>{@code %shared}: Resolves within the global {@code users/shared} subdirectory of the base configuration path.</li>
+     * </ul>
+     * <p>
+     * If the abstract path does not fall inside any of these predefined base directories, it is returned unmodified.
+     * <p>
+     * The method performs a forgery check to ensure that the path does not attempt to traverse outside of its allowed root
+     * directory. If such an attempt is detected, a {@link SecurityException} is thrown.
+     * <p>
+     * The method also ensures that the path is absolute and normalized before returning. If the path is not absolute, it will be
+     * made so relative to the current working directory. If the path is not normalized, it will be normalized to remove any
+     * redundant elements such as "." and "..".
+     * <p>
+     * The method also ensures that the path is created if it does not exist, and logs any errors that occur during this process.
+     * 
      * @param session the active user session context
      * @param strpath the abstract path string to resolve
      * 
      * @return the absolute, normalized {@link Path}
      * 
-     * @throws SecurityException if the resolved path does not start with the expected base directory (forged path)
+     * @throws SecurityException if the path attempts to traverse outside of its allowed root boundary (forgery check)
      */
     public static Path getAbsolutePath(Session session, final String strpath) throws SecurityException {
         final Path path;
         if (strpath.startsWith(PRESETS)) {
-            val basepath = session.getUser().getSettings().getWorkPath().resolve("presets");
-            try {
-                Files.createDirectories(basepath);
-            } catch (IOException e) {
-                Log.err(e.getMessage(), e);
-            }
-            path = Paths.get(strpath.replace(PRESETS, basepath.toString())).toAbsolutePath().normalize();
-            if (!path.startsWith(basepath))
+            final var presetsPath = getPresetsPath(session);
+            path = Paths.get(strpath.replace(PRESETS, presetsPath.toString())).toAbsolutePath().normalize();
+            if (!path.startsWith(presetsPath))
                 throw new SecurityException(FORGED_PATH);
         } else if (strpath.startsWith(WORK)) {
             val basepath = session.getUser().getSettings().getWorkPath();
@@ -198,9 +206,23 @@ public class PathAbstractor {
             path = Paths.get(strpath.replace(SHARED, basepath.toString())).toAbsolutePath().normalize();
             if (!path.startsWith(basepath))
                 throw new SecurityException(FORGED_PATH);
+        } else if (session.isServer()) {
+            path = Paths.get(strpath).toAbsolutePath().normalize();
+            if (!path.startsWith(session.getUser().getSettings().getBasePath()) && !path.startsWith(System.getProperty("java.io.tmpdir")))
+                throw new SecurityException(FORGED_PATH);
         } else
             path = Paths.get(strpath);
         return path;
+    }
+
+    private static Path getPresetsPath(Session session) {
+        val presetsPath = session.getUser().getSettings().getWorkPath().resolve("presets");
+        try {
+            Files.createDirectories(presetsPath);
+        } catch (IOException e) {
+            Log.err(e.getMessage(), e);
+        }
+        return presetsPath;
     }
 
 }

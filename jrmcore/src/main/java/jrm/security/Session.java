@@ -129,7 +129,7 @@ public class Session {
      * @param multiuser {@code true} to enable multi-user environment checks, {@code false} for standard single-user
      * @param noupdate {@code true} to disable check for updates, {@code false} to permit updates
      */
-    Session(boolean multiuser, boolean noupdate) {
+    public Session(boolean multiuser, boolean noupdate) {
         this.multiuser = multiuser;
         this.noupdate = noupdate;
         this.sessionId = null;
