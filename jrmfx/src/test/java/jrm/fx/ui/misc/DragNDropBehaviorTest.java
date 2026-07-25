@@ -21,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import jrm.security.Sessions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -84,6 +85,9 @@ class DragNDropBehaviorTest {
     void setUp() {
         callbackLog = new ArrayList<>();
         filesCallbackLog = new ArrayList<>();
+        Sessions.setSingleMode(true);
+        Sessions.setSingleSession(null);
+        Sessions.getSession(false, false);
     }
 
     // ========== Filter Logic Tests ==========
