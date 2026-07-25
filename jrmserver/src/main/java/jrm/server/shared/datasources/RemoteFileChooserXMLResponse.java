@@ -606,19 +606,22 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
      */
     private void unzip(Path zipfile, Path outputPath) {
         try (var zf = new ZipFile(zipfile.toFile())) {
+            final Path normalizedOutputPath = outputPath.toAbsolutePath().normalize();
 
             Enumeration<? extends ZipEntry> zipEntries = zf.entries();
             new EnumerationToIterator<>(zipEntries).forEachRemaining(entry -> {
                 try {
+                    var resolvedPath = normalizedOutputPath.resolve(entry.getName()).normalize();
+                    if (!resolvedPath.startsWith(normalizedOutputPath))
+                        throw new IOException("Bad zip entry: " + entry.getName());
+
                     if (entry.isDirectory()) {
-                        var dirToCreate = outputPath.resolve(entry.getName());
-                        if (!Files.exists(dirToCreate))
-                            Files.createDirectories(dirToCreate);
+                        if (!Files.exists(resolvedPath))
+                            Files.createDirectories(resolvedPath);
                     } else {
-                        var fileToCreate = outputPath.resolve(entry.getName());
-                        if (!Files.exists(fileToCreate.getParent()))
-                            Files.createDirectories(fileToCreate.getParent());
-                        Files.copy(zf.getInputStream(entry), fileToCreate);
+                        if (!Files.exists(resolvedPath.getParent()))
+                            Files.createDirectories(resolvedPath.getParent());
+                        Files.copy(zf.getInputStream(entry), resolvedPath);
                     }
                 } catch (IOException ei) {
                     Log.err(ei.getMessage(), ei);
