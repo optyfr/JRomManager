@@ -2,7 +2,6 @@ package jrm.cli;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,8 +29,10 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jline.reader.Completer;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
@@ -152,6 +153,12 @@ public class JRomManagerCLI {
         private boolean interactive = false;
 
         /**
+         * Flag to indicate if the debug mode should be enabled.
+         */
+        @Parameter(names = { "--debug", "-d" }, description = "Debug mode")
+        private boolean debug = false;
+
+        /**
          * Input file for reading commands. If not provided, commands will be read from standard input.
          */
         @Parameter(names = { "--file", "-f" }, description = "Input file", arity = 1)
@@ -166,19 +173,25 @@ public class JRomManagerCLI {
      * @throws IOException If an I/O error occurs during initialization.
      */
     public JRomManagerCLI(final Args cmd) throws IOException {
-        terminal = TerminalBuilder.builder()
-                .system(true)
-                .build();
-        out = terminal.writer();
 
+        /* Set the session object */
         setSession(Sessions.getSession(true, false));
+
+        /* Set the current working directory and root directory */
         rootdir = cwdir = session.getUser().getSettings().getWorkPath().resolve("xmlfiles").toAbsolutePath().normalize(); //$NON-NLS-1$
+
+        /* Set the status renderer to plain text */
         StatusRendererFactory.Factory.setInstance(new PlainTextRenderer());
-        Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", false, 1024 * 1024, 5); //$NON-NLS-1$
+
+        /* Initialize logging system */
+        Log.init(session.getUser().getSettings().getLogPath() + "/JRM.%g.log", cmd.debug, 1024 * 1024, 5); //$NON-NLS-1$
+
+        /* Set the progress handler */
         handler = new Progress();
 
         if (cmd.interactive) {
-            interactive();
+            /* Start terminal that support interactive mode */
+            interactive(cmd);
         } else {
             stream(cmd);
         }
@@ -249,9 +262,14 @@ public class JRomManagerCLI {
      *
      * @param cmd The command line arguments containing the input file or standard input.
      * 
-     * @throws FileNotFoundException If the specified input file is not found.
+     * @throws IOException If an I/O error occurs while reading the input file or standard input.
      */
-    private void stream(final Args cmd) throws FileNotFoundException {
+    private void stream(final Args cmd) throws IOException {
+        /* Start terminal that support non-interactive mode */
+        terminal = TerminalBuilder.builder().dumb(true).build();
+        /* Create a PrintWriter for outputting messages to the terminal */
+        out = terminal.writer();
+        /* Start processing commands from the input file or standard input */
         final Reader reader = cmd.file != null ? new FileReader(cmd.file) : new InputStreamReader(System.in);
         try (final var in = new BufferedReader(reader);) {
             String line;
@@ -318,7 +336,7 @@ public class JRomManagerCLI {
         if (session.getCurrProfile() != null) {
             sb.style(AttributedStyle.DEFAULT).append(" [")
                     .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW).bold())
-                        .append(session.getCurrProfile().getNfo().getFile().getName())
+                    .append(session.getCurrProfile().getNfo().getFile().getName())
                     .style(AttributedStyle.DEFAULT).append("]");
         }
         sb.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.CYAN)).append("> ");
@@ -330,29 +348,32 @@ public class JRomManagerCLI {
      * 
      * @throws IOException If an I/O error occurs during initialization.
      */
-    private void interactive() throws IOException {
-        terminal = TerminalBuilder.builder()
-                .system(true)
-                .build();
+    private void interactive(Args cmd) throws IOException {
+        terminal = TerminalBuilder.builder().system(true).build();
         final LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(createCompleter())
                 .option(LineReader.Option.AUTO_FRESH_LINE, true)
                 .build();
-
+        out = terminal.writer();
         do {
             boolean doBreak = false;
             String line = null;
             try {
                 line = reader.readLine(buildPrompt());
-            } catch (org.jline.reader.UserInterruptException | org.jline.reader.EndOfFileException _) {
+            } catch (UserInterruptException | EndOfFileException _) {
                 // Ctrl+C (INT), or Ctrl+D (EOF) pressed - break the loop and exit
                 doBreak = true;
             }
             if (doBreak)
                 break;
-            if (line != null && !line.trim().isEmpty()) {
-                analyze(splitLine(line));
+            try {
+                if (line != null && !line.trim().isEmpty())
+                    analyze(splitLine(line));
+            } catch(Exception e) {
+                out.println(e.getMessage());
+                if(cmd.debug)
+                    Log.err(e.getMessage(), e);
             }
         } while (true);
     }
