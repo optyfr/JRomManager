@@ -322,12 +322,23 @@ public class UploadServlet extends HttpServlet {
                 final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
                 if (pathAbstractor.isWriteable(fileparent)) {
                     final var dest = pathAbstractor.getAbsolutePath(fileparent);
-                    final var filepath = dest.resolve(filename);
-                    Files.createDirectories(filepath.getParent());
-                    doUpload(req, result, filename, filepath);
-                    if (result.status != 3) {
-                        Log.debug(() -> result.status + " : " + result.extstatus);
-                        Files.delete(filepath);
+                    final var baseDir = dest.normalize().toAbsolutePath();
+                    if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                        result.status = 8;
+                        result.extstatus = INVALID_PATH;
+                    } else {
+                        final var filepath = baseDir.resolve(filename).normalize().toAbsolutePath();
+                        if (!filepath.startsWith(baseDir)) {
+                            result.status = 8;
+                            result.extstatus = INVALID_PATH;
+                        } else {
+                            Files.createDirectories(filepath.getParent());
+                            doUpload(req, result, filename, filepath);
+                            if (result.status != 3) {
+                                Log.debug(() -> result.status + " : " + result.extstatus);
+                                Files.delete(filepath);
+                            }
+                        }
                     }
                 } else {
                     result.status = 11;
