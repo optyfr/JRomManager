@@ -210,8 +210,12 @@ public class PathAbstractor {
             path = Paths.get(strpath).toAbsolutePath().normalize();
             if (!path.startsWith(session.getUser().getSettings().getBasePath()) && !path.startsWith(System.getProperty("java.io.tmpdir")) && !path.startsWith(System.getProperty("user.dir")))
                 throw new SecurityException(FORGED_PATH);
-        } else
-            path = Paths.get(strpath);
+        } else {
+            val basepath = session.getUser().getSettings().getBasePath();
+            path = Paths.get(strpath).toAbsolutePath().normalize();
+            if (!path.startsWith(basepath))
+                throw new SecurityException(FORGED_PATH);
+        }
         return path;
     }
 
