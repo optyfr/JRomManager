@@ -217,6 +217,7 @@ public class UploadServlet extends HttpServlet {
             result.extstatus = "continue...";
             final String filename = sanitizeHeader(req.getHeader("x-file-name"));
             final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
+            validateUploadHeaders(filename, fileparent);
             if (pathAbstractor.isWriteable(fileparent)) {
                 final var filesize = getXFileSize(req);
                 final var dest = pathAbstractor.getAbsolutePath(fileparent);
@@ -283,6 +284,15 @@ public class UploadServlet extends HttpServlet {
      * 
      * @throws IOException if URL decoding fails
      */
+    private void validateUploadHeaders(final String filename, final String fileparent) {
+        if (filename == null || filename.isBlank() || filename.contains("/") || filename.contains("\\") || filename.contains("..")) {
+            throw new InvalidPathException(String.valueOf(filename), "Invalid filename");
+        }
+        if (fileparent == null || fileparent.isBlank() || !fileparent.startsWith("%") || fileparent.contains("\0")) {
+            throw new InvalidPathException(String.valueOf(fileparent), "Invalid file parent");
+        }
+    }
+
     String sanitizeHeader(final String header) throws IOException {
         final String decoded = URLDecoder.decode(header, UTF_8);
         // Remove path traversal attempts and dangerous characters
