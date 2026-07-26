@@ -292,6 +292,18 @@ public class UploadServlet extends HttpServlet {
     }
 
     /**
+     * Validates that a user-provided filename is a single path component.
+     *
+     * @param filename the candidate filename from request headers
+     * @throws SecurityException if the filename is invalid
+     */
+    void validateFilenameComponent(final String filename) {
+        if (filename == null || filename.isBlank() || filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            throw new SecurityException("Invalid filename");
+        }
+    }
+
+    /**
      * Handles HTTP PUT requests for actual file upload and disk writing.
      * <p>
      * This method processes PUT requests to the "/upload/" endpoint to perform the actual file transfer. It:
@@ -320,9 +332,13 @@ public class UploadServlet extends HttpServlet {
                 final var result = new Result();
                 final String filename = sanitizeHeader(req.getHeader("x-file-name"));
                 final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
+                validateFilenameComponent(filename);
                 if (pathAbstractor.isWriteable(fileparent)) {
-                    final var dest = pathAbstractor.getAbsolutePath(fileparent);
-                    final var filepath = dest.resolve(filename);
+                    final var dest = pathAbstractor.getAbsolutePath(fileparent).normalize().toAbsolutePath();
+                    final var filepath = dest.resolve(filename).normalize().toAbsolutePath();
+                    if (!filepath.startsWith(dest)) {
+                        throw new SecurityException("Invalid upload path");
+                    }
                     Files.createDirectories(filepath.getParent());
                     doUpload(req, result, filename, filepath);
                     if (result.status != 3) {
