@@ -285,10 +285,21 @@ public class UploadServlet extends HttpServlet {
      */
     String sanitizeHeader(final String header) throws IOException {
         final String decoded = URLDecoder.decode(header, UTF_8);
-        // Remove path traversal attempts and dangerous characters
-        return decoded.replace("..", "")
-                      .replace("\0", "")
+        // Keep decoding and control-character cleanup; structural path safety is validated at use sites.
+        return decoded.replace("\0", "")
                       .replaceAll("[\\p{Cntrl}]", "");
+    }
+
+    /**
+     * Validates that a user-provided filename is a single safe path component.
+     *
+     * @param filename decoded/sanitized filename header value
+     * @throws SecurityException if the filename is invalid
+     */
+    void validateFileNameComponent(final String filename) {
+        if (filename == null || filename.isBlank() || ".".equals(filename) || "..".equals(filename) || filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+            throw new SecurityException("Invalid filename");
+        }
     }
 
     /**
@@ -320,9 +331,13 @@ public class UploadServlet extends HttpServlet {
                 final var result = new Result();
                 final String filename = sanitizeHeader(req.getHeader("x-file-name"));
                 final String fileparent = sanitizeHeader(req.getHeader("x-file-parent"));
+                validateFileNameComponent(filename);
                 if (pathAbstractor.isWriteable(fileparent)) {
-                    final var dest = pathAbstractor.getAbsolutePath(fileparent);
-                    final var filepath = dest.resolve(filename);
+                    final var dest = pathAbstractor.getAbsolutePath(fileparent).normalize().toAbsolutePath();
+                    final var filepath = dest.resolve(filename).normalize().toAbsolutePath();
+                    if (!filepath.startsWith(dest)) {
+                        throw new SecurityException("Invalid upload path");
+                    }
                     Files.createDirectories(filepath.getParent());
                     doUpload(req, result, filename, filepath);
                     if (result.status != 3) {
