@@ -130,7 +130,7 @@ public class ImageServlet extends HttpServlet {
             throw new URISyntaxException(String.valueOf(requestUri), "Invalid request URI");
         }
 
-        String encodedResourcePath = requestUri.substring(8);
+        final String encodedResourcePath = requestUri.substring(8);
         String resourcePath = URLDecoder.decode(encodedResourcePath, StandardCharsets.UTF_8);
         if (resourcePath.startsWith("/")) {
             resourcePath = resourcePath.substring(1);
@@ -143,13 +143,14 @@ public class ImageServlet extends HttpServlet {
                 || resourcePath.contains("\0")
                 || resourcePath.startsWith("//")
                 || !SAFE_RESOURCE_PATH.matcher(resourcePath).matches()) {
+            Log.debug("Disallowed resource path : " + resourcePath);
             throw new URISyntaxException(resourcePath, "Disallowed resource path");
         }
 
-        URI baseUri = getURI();
-        URI resolved = baseUri.resolve(resourcePath).normalize();
-        String basePrefix = baseUri.toString();
-        if (!resolved.toString().startsWith(basePrefix)) {
+        final URI baseUri = getURI();
+        final URI resolved = (baseUri.isOpaque() ? URI.create(baseUri + resourcePath) : baseUri.resolve(resourcePath)).normalize();
+        if (!resolved.toString().startsWith(baseUri.toString())) {
+            Log.debug(() -> "Resolved path '%s' escapes base URI '%s' for request '%s'".formatted(resolved, baseUri, requestUri));
             throw new URISyntaxException(resourcePath, "Resolved path escapes base URI");
         }
         return resolved;

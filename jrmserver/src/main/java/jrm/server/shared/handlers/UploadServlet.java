@@ -361,19 +361,23 @@ public class UploadServlet extends HttpServlet {
                 }
                 resp.getWriter().write(new Gson().toJson(result));
             } catch (final SecurityException _) { // Path traversal or forgery attempt detected by PathAbstractor
-                final var errResult = new Result();
-                errResult.status = 8;
-                errResult.extstatus = INVALID_PATH;
-                try {
-                    resp.getWriter().write(new Gson().toJson(errResult));
-                } catch (final IOException ioe) {
-                    internalError(resp, ioe);
-                }
+                getErrResult(resp);
             } catch (final IOException e) {
                 internalError(resp, e);
             }
         } else
             superPost(req, resp);
+    }
+
+    private void getErrResult(final HttpServletResponse resp) {
+        final var errResult = new Result();
+        errResult.status = 8;
+        errResult.extstatus = INVALID_PATH;
+        try {
+            resp.getWriter().write(new Gson().toJson(errResult));
+        } catch (final IOException ioe) {
+            internalError(resp, ioe);
+        }
     }
 
     /**
