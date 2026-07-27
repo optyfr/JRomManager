@@ -326,7 +326,17 @@ project(':jrmcli') {
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher:latest-release'
     }
     apply plugin: 'application'
-    application.mainClass='jrm.cli.JRomManagerCLI'
+    application {
+        mainClass = 'jrm.cli.JRomManagerCLI'
+    }
+	run {
+		args '-i'
+		jvmArgs '--enable-native-access=ALL-UNNAMED'
+		standardInput System.in
+		standardOutput System.out
+		errorOutput System.err
+	}
+
     jar {
         manifest {
             attributes(
@@ -531,6 +541,13 @@ project(':jrmfx') {
     }
     apply plugin: 'application'
     application.mainClass='jrm.fx.JRomManagerMulti'
+	run {
+		jvmArgs (
+			'--enable-native-access=javafx.graphics',
+			'--add-opens', 'javafx.controls/javafx.scene.control.skin=ALL-UNNAMED',
+			'--sun-misc-unsafe-memory-access=allow'
+		)
+	}
     jar {
         manifest {
             attributes(
@@ -729,6 +746,17 @@ project(':jrmserver') {
         systemProperty 'jrommanager.dir', "${tmpDir}"
     }
 
+	apply plugin: 'application'
+	application.mainClass = 'jrm.server.Server'
+	run {
+		jvmArgs (
+		)
+		args (
+			'-d'
+		)
+		standardInput System.in
+	}
+	
     jar {
         manifest {
             attributes(
