@@ -26,5 +26,6 @@
         "sampleof",
         "tglbtn",
         "TZIP"
-    ]
+    ],
+    "java.dependency.packagePresentation": "hierarchical"
 }
