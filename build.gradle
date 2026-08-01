@@ -32,10 +32,6 @@ sonar {
         property "sonar.verbose", "false"
         property "sonar.scm.provider", "git"
         property "sonar.coverage.jacoco.xmlReportPaths", "${rootDir}/build/reports/jacoco/codeCoverageReport/codeCoverageReport.xml"
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.java.binaries", "${rootDir}/build/classes/java/main"
-        property "sonar.java.test.binaries", "${rootDir}/build/classes/java/test"
-        property "sonar.java.libraries", "${rootDir}/build/libs/*.jar"
     }
 }
 
