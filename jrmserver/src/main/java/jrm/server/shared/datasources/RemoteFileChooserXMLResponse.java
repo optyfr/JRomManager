@@ -309,16 +309,22 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
             options = new Options(operation.getData(CONTEXT));
         Path parent = getParent(operation);
         String name = operation.getData("Name");
-        Path entry = parent.resolve(name);
-        if (name != null && Files.isDirectory(parent) && !Files.exists(entry)) {
-            try {
-                Files.createDirectory(entry);
-                writeResponseSingle(parent, entry);
-            } catch (Exception ex) {
-                failure(ex.getMessage());
-            }
-        } else
-            failure("Can't create " + name);
+        try {
+            Path entry = parent.resolve(name).toAbsolutePath().normalize();
+            if (!entry.startsWith(parent.toAbsolutePath().normalize()))
+                throw new SecurityException("Invalid path: path traversal detected");
+            if (name != null && Files.isDirectory(parent) && !Files.exists(entry)) {
+                try {
+                    Files.createDirectory(entry);
+                    writeResponseSingle(parent, entry);
+                } catch (Exception ex) {
+                    failure(ex.getMessage());
+                }
+            } else
+                failure("Can't create " + name);
+        } catch (SecurityException ex) {
+            failure(ex.getMessage());
+        }
     }
 
     /**
@@ -361,17 +367,24 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
         Path parent = getParent(operation);
         String name = operation.getData("Name");
         String oldname = operation.oldValues.get("Name");
-        Path entry = parent.resolve(name);
-        Path oldentry = parent.resolve(oldname);
-        if (name != null && oldname != null && Files.isDirectory(parent) && Files.exists(oldentry) && !Files.exists(entry)) {
-            try {
-                Files.move(oldentry, entry);
-                writeResponseSingle(parent, entry);
-            } catch (Exception ex) {
-                failure(ex.getMessage());
-            }
-        } else
-            failure("Can't update " + oldname + " to " + name);
+        try {
+            Path entry = parent.resolve(name).toAbsolutePath().normalize();
+            Path oldentry = parent.resolve(oldname).toAbsolutePath().normalize();
+            Path normalizedParent = parent.toAbsolutePath().normalize();
+            if (!entry.startsWith(normalizedParent) || !oldentry.startsWith(normalizedParent))
+                throw new SecurityException("Invalid path: path traversal detected");
+            if (name != null && oldname != null && Files.isDirectory(parent) && Files.exists(oldentry) && !Files.exists(entry)) {
+                try {
+                    Files.move(oldentry, entry);
+                    writeResponseSingle(parent, entry);
+                } catch (Exception ex) {
+                    failure(ex.getMessage());
+                }
+            } else
+                failure("Can't update " + oldname + " to " + name);
+        } catch (SecurityException ex) {
+            failure(ex.getMessage());
+        }
     }
 
     /**
@@ -387,27 +400,33 @@ public class RemoteFileChooserXMLResponse extends XMLResponse {
             options = new Options(operation.getData(CONTEXT));
         Path parent = getParent(operation);
         String name = operation.getData("Name");
-        Path entry = parent.resolve(name);
-        if (name != null && Files.exists(entry)) {
-            try {
-                try (final var stream = Files.walk(entry)) {
-                    stream.map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete); // recursive dir delete
-                }
-                writer.writeStartElement(RESPONSE);
-                writer.writeElement(STATUS, "0");
-                writeParent(parent);
-                writer.writeStartElement("data");
-                writer.writeStartElement(RECORD);
-                writer.writeAttribute("Name", entry.getFileName().toString());
-                writer.writeEndElement();
-                writer.writeEndElement();
-                writer.writeEndElement();
+        try {
+            Path entry = parent.resolve(name).toAbsolutePath().normalize();
+            if (!entry.startsWith(parent.toAbsolutePath().normalize()))
+                throw new SecurityException("Invalid path: path traversal detected");
+            if (name != null && Files.exists(entry)) {
+                try {
+                    try (final var stream = Files.walk(entry)) {
+                        stream.map(Path::toFile).sorted(Comparator.reverseOrder()).forEach(File::delete); // recursive dir delete
+                    }
+                    writer.writeStartElement(RESPONSE);
+                    writer.writeElement(STATUS, "0");
+                    writeParent(parent);
+                    writer.writeStartElement("data");
+                    writer.writeStartElement(RECORD);
+                    writer.writeAttribute("Name", entry.getFileName().toString());
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    writer.writeEndElement();
 
-            } catch (Exception ex) {
-                failure(ex.getMessage());
-            }
-        } else
-            failure("Can't remove " + name);
+                } catch (Exception ex) {
+                    failure(ex.getMessage());
+                }
+            } else
+                failure("Can't remove " + name);
+        } catch (SecurityException ex) {
+            failure(ex.getMessage());
+        }
     }
 
     /**
